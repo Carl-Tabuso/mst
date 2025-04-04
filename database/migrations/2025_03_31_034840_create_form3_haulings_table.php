@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Form4;
+use App\Models\Form3;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,16 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('form3', function (Blueprint $table) {
+        Schema::create('form3_haulings', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Form4::class)
+            $table->foreignIdFor(Form3::class)
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->string('truck_no');
-            $table->string('payment_type');
-            $table->timestamp('appraised_date');
-            $table->timestamps();
+            $table->timestamp('date');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('form3');
+        Schema::dropIfExists('form3_haulings');
     }
 };

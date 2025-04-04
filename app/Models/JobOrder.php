@@ -25,25 +25,26 @@ class JobOrder extends Model
         'status' => JobOrderStatus::class,
     ];
 
-    public function scopeOfStatuses(Builder $query, JobOrderStatus|string|array $status): Builder
+    public function scopeOfStatuses(Builder $query, JobOrderStatus|array $status): Builder
     {
         if ($status instanceof JobOrderStatus) {
             return $query->where('status', $status->value);
-        }
-        
-        if (is_string($status)) {
-            return $query->where('status', $status);
         }
 
         $values = [];
 
         if (is_array($status)) {
             foreach ($status as $st) {
-                $values[] = $st instanceof JobOrderStatus ? $st->value : $st;
+                $values[] = $st->value;
             }
         }
 
         return $query->whereIn('status', $values);
+    }
+
+    public function cancelled(Builder $query): Builder
+    {
+        return $query->whereIn('status', JobOrderStatus::getCancelledStatuses());   
     }
 
     public function serviceable(): MorphTo

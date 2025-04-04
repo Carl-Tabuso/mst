@@ -30,4 +30,13 @@ enum JobOrderStatus: string
             self::Completed => 'Completed',
         };
     }
+
+    public static function getCancelledStatuses(): array
+    {
+        return [
+            self::Failed,
+            self::Dropped,
+            self::Closed,
+        ];
+    }
 }

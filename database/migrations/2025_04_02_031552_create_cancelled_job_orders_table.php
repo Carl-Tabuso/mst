@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\Employee;
-use App\Models\Form3;
+use App\Models\JobOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,15 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('form3_haulers', function (Blueprint $table) {
-            $table->foreignIdFor(Employee::class)
+        Schema::create('cancelled_job_orders', function (Blueprint $table) {
+            $table->id();
+            $table->foreignIdFor(JobOrder::class)
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->foreignIdFor(Form3::class)
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
+            $table->longText('reason');
+            $table->timestamps();
         });
     }
 
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('form3_haulers');
+        Schema::dropIfExists('cancelled_job_orders');
     }
 };

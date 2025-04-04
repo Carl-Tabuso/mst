@@ -20,6 +20,14 @@ class JobOrderFactory extends Factory
      */
     public function definition(): array
     {
+        $validStatuses = array_filter(
+            JobOrderStatus::cases(), 
+            fn ($case) => ! in_array(
+                $case, 
+                JobOrderStatus::getCancelledStatuses()
+            )
+        );
+
         return [
             'date_time' => now(),
             'client' => fake()->company(),
@@ -28,7 +36,28 @@ class JobOrderFactory extends Factory
             'contact_no' => fake()->unique()->numerify('09#########'),
             'contact_person' => fake()->name(),
             'created_by' => $this->getByPosition('Frontliner'),
-            'status' => fake()->randomElement(JobOrderStatus::cases()),
+            'status' => fake()->randomElement($validStatuses),
         ];
+    }
+
+    public function dropped(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => JobOrderStatus::Dropped
+        ]);
+    }
+
+    public function failed(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => JobOrderStatus::Failed
+        ]);
+    }
+
+    public function closed(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => JobOrderStatus::Closed
+        ]);
     }
 }
