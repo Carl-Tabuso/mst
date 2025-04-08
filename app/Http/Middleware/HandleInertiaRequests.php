@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user()->loadMissing([
+                'user' => $request->user()?->loadMissing([
                     'employee' => fn ($q) => $q->select([
                         'id',
                         'first_name',
