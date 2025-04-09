@@ -40,24 +40,10 @@ class JobOrderFactory extends Factory
         ];
     }
 
-    public function dropped(): static
+    public function status(JobOrderStatus $status): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => JobOrderStatus::Dropped
-        ]);
-    }
-
-    public function failed(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => JobOrderStatus::Failed
-        ]);
-    }
-
-    public function closed(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => JobOrderStatus::Closed
+            'status' => $status->value
         ]);
     }
 }

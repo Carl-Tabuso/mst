@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\JobOrderStatus;
 use App\Models\Form4;
 use App\Models\JobOrder;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,7 @@ class FailedProposalJobOrderSeeder extends Seeder
     {
         $jobOrder = JobOrder::factory()
             ->for(Form4::factory(), 'serviceable')
-            ->failed()
+            ->status(JobOrderStatus::Failed)
             ->create();
 
         CancelledJobOrder::factory()->create([

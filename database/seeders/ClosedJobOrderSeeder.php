@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\JobOrderStatus;
 use App\Models\Form3;
 use App\Models\Form4;
 use App\Models\Employee;
@@ -24,7 +25,7 @@ class ClosedJobOrderSeeder extends Seeder
     {
         $jobOrder = JobOrder::factory()
             ->for(Form4::factory(), 'serviceable')
-            ->closed()
+            ->status(JobOrderStatus::Closed)
             ->create();
 
         $form3 = Form3::factory()->create(['form4_id' => $jobOrder->serviceable->id]);
