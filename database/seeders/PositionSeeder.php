@@ -2,13 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Position;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class PositionSeeder extends Seeder
 {
-    private static $positions = [
+    const POSITIONS = [
         'Team Leader',
         'Safety Officer',
         'Frontliner',
@@ -33,14 +32,14 @@ class PositionSeeder extends Seeder
     {
         $data = [];
 
-        collect(static::$positions)->each(function ($position) use (&$data) {
+        foreach (self::POSITIONS as $position) {
             $data[] = [
                 'name' => $position,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-        });
+        }
         
-        DB::table('positions')->insert($data);
+        Position::insert($data);
     }
 }
