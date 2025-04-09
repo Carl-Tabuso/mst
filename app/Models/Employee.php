@@ -92,4 +92,44 @@ class Employee extends Model
     {
         return $this->hasMany(ITService::class, 'cse');
     }
+
+    public function form3sAsTeamLeader(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'team_leader');
+    }
+
+    public function form3sAsDriver(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'team_driver');
+    }
+
+    public function form3sAsSafetyOfficer(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'safety_officer');
+    }
+
+    public function form3sAsMechanic(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'team_mechanic');
+    }
+
+    public function evaluatedEmployees(): HasMany
+    {
+        return $this->hasMany(EmployeePerformance::class, 'evaluator_id');
+    }
+
+    public function performancesAsEmployee(): HasMany
+    {
+        return $this->hasMany(EmployeePerformance::class, 'evaluatee_id');
+    }
+
+    public function evaluatedTeamLeaders(): HasMany
+    {
+        return $this->hasMany(TeamLeaderPerformance::class, 'evaluator_id');
+    }
+
+    public function performancesAsTeamLeader(): HasMany
+    {
+        return $this->hasMany(TeamLeaderPerformance::class, 'evaluatee_id');
+    }
 }

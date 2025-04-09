@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class JobOrder extends Model
@@ -55,5 +56,15 @@ class JobOrder extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'created_by');
+    }
+
+    public function teamLeaderPerformance(): HasOne
+    {
+        return $this->hasOne(TeamLeaderPerformance::class);
+    }
+
+    public function employeePerformance(): HasOne
+    {
+        return $this->hasOne(EmployeePerformance::class);
     }
 }
