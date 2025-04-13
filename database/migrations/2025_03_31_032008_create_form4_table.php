@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('form4', function (Blueprint $table) {
             $table->id();
-            $table->string('payment_date')->nullable();
+            $table->date('payment_date')->nullable();
             $table->double('bid_bond')->nullable();
             $table->string('or_number')->nullable();
             $table->timestamps();

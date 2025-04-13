@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,9 +18,16 @@ class Form4Factory extends Factory
     public function definition(): array
     {
         return [
-            'payment_date' => null,
-            'bid_bond' => null,
-            'or_number' => null,
+            'payment_date' => now(),
+            'bid_bond' => rand(10000, 50000),
+            'or_number' => strtoupper(Str::random()),
         ];
+    }
+
+    public function paymentDate(string $date): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'payment_date' => $date,
+        ]);
     }
 }

@@ -21,6 +21,7 @@ class Form4 extends Model
     ];
 
     protected $casts = [
+        'payment_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
