@@ -26,6 +26,7 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->string('status');
+            $table->unsignedInteger('error_count')->default(0);
             $table->timestamps();
         });
     }

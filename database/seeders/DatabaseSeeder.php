@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             PerformanceRatingSeeder::class,
             TeamLeaderPerformanceSeeder::class,
             EmployeePerformanceSeeder::class,
+            JobOrderCorrectionSeeder::class,
         ]);
     }
 }
