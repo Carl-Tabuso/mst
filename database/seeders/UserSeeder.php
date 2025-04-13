@@ -12,6 +12,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        activity()->disableLogging();
+        
         User::factory(20)->create();
     }
 }
