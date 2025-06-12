@@ -21,7 +21,7 @@ class Incident extends Model
         'occured_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'status' => IncidentStatus::class,
+        'status'     => IncidentStatus::class,
     ];
 
     public function involvedEmployees(): BelongsToMany

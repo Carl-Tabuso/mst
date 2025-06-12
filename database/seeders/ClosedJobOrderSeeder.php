@@ -3,16 +3,16 @@
 namespace Database\Seeders;
 
 use App\Enums\JobOrderStatus;
-use App\Models\Form3;
-use App\Models\Form4;
+use App\Models\CancelledJobOrder;
 use App\Models\Employee;
+use App\Models\Form3;
+use App\Models\Form3AssignedPersonnel;
+use App\Models\Form3Hauling;
+use App\Models\Form4;
 use App\Models\JobOrder;
 use App\Models\Position;
-use App\Models\Form3Hauling;
 use App\Traits\RandomEmployee;
 use Illuminate\Database\Seeder;
-use App\Models\CancelledJobOrder;
-use App\Models\Form3AssignedPersonnel;
 
 class ClosedJobOrderSeeder extends Seeder
 {
@@ -37,20 +37,20 @@ class ClosedJobOrderSeeder extends Seeder
             ->create(['form3_id' => $form3->id]);
 
         $position = Position::firstWhere(['name' => 'Hauler']);
-        $haulers = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
-    
+        $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
+
         $haulings->each(fn ($hauling) => $hauling->haulers()->attach($haulers));
 
         Form3AssignedPersonnel::factory()->create([
             'form3_hauling_id' => $haulings->first()->id,
-            'team_leader' => $this->getByPosition('Team Leader')->id,
-            'team_driver' => $this->getByPosition('Driver')->id,
-            'safety_officer' => $this->getByPosition('Safety Officer')->id,
-            'team_mechanic' => $this->getByPosition('Mechanic')->id,
+            'team_leader'      => $this->getByPosition('Team Leader')->id,
+            'team_driver'      => $this->getByPosition('Driver')->id,
+            'safety_officer'   => $this->getByPosition('Safety Officer')->id,
+            'team_mechanic'    => $this->getByPosition('Mechanic')->id,
         ]);
 
         CancelledJobOrder::factory()->create([
-            'job_order_id' => $jobOrder->id
+            'job_order_id' => $jobOrder->id,
         ]);
     }
 }

@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Employee;
-use App\Models\Position;
 use App\Models\Form3Hauling;
+use App\Models\Position;
 use Illuminate\Database\Seeder;
 
 class Form3HaulingSeeder extends Seeder
@@ -21,8 +21,8 @@ class Form3HaulingSeeder extends Seeder
             ->create();
 
         $position = Position::firstWhere(['name' => 'Hauler']);
-        $haulers = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
-    
+        $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
+
         $haulings->each(fn ($hauling) => $hauling->haulers()->attach($haulers));
     }
 }

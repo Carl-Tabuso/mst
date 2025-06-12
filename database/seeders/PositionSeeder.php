@@ -34,12 +34,12 @@ class PositionSeeder extends Seeder
 
         foreach (self::POSITIONS as $position) {
             $data[] = [
-                'name' => $position,
+                'name'       => $position,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
-        
+
         Position::insert($data);
     }
 }

@@ -18,10 +18,10 @@ class Form3Factory extends Factory
     public function definition(): array
     {
         return [
-            'form4_id' => Form4::inRandomOrder()->first()->id ?? Form4::factory(),
-            'payment_type' => fake()->randomElement(['Cash', 'Online']),
+            'form4_id'       => Form4::inRandomOrder()->first()->id ?? Form4::factory(),
+            'payment_type'   => fake()->randomElement(['Cash', 'Online']),
             'appraised_date' => now(),
-            'truck_no' => fake()->windowsPlatformToken(),
+            'truck_no'       => fake()->windowsPlatformToken(),
         ];
     }
 }

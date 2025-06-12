@@ -2,20 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Models\Form3;
-use App\Models\Form4;
-use App\Models\Employee;
-use App\Models\JobOrder;
-use App\Models\Position;
-use App\Models\Form3Hauling;
 use App\Enums\JobOrderStatus;
+use App\Models\Employee;
 use App\Models\EmployeePerformance;
 use App\Models\EmployeeRating;
+use App\Models\Form3;
+use App\Models\Form3Hauling;
+use App\Models\Form4;
+use App\Models\JobOrder;
+use App\Models\PerformanceCategory;
+use App\Models\PerformanceRating;
+use App\Models\Position;
 use App\Traits\RandomEmployee;
 use Illuminate\Database\Seeder;
-use App\Models\PerformanceRating;
 use Illuminate\Support\Facades\DB;
-use App\Models\PerformanceCategory;
 
 class EmployeePerformanceSeeder extends Seeder
 {
@@ -48,14 +48,14 @@ class EmployeePerformanceSeeder extends Seeder
 
         foreach ($haulings as $hauling) {
             $personnel = $hauling->assignedPersonnel()->create([
-                'team_leader' => $this->getByPosition('Team Leader')->id,
-                'team_driver' => $this->getByPosition('Driver')->id,
+                'team_leader'    => $this->getByPosition('Team Leader')->id,
+                'team_driver'    => $this->getByPosition('Driver')->id,
                 'safety_officer' => $this->getByPosition('Safety Officer')->id,
-                'team_mechanic' => $this->getByPosition('Mechanic')->id,
+                'team_mechanic'  => $this->getByPosition('Mechanic')->id,
             ]);
 
             $position = Position::firstWhere(['name' => 'Hauler']);
-            $haulers = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
+            $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
             $hauling->haulers()->attach($haulers);
 
             $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
@@ -68,7 +68,7 @@ class EmployeePerformanceSeeder extends Seeder
                 $assignedEmployees[] = [
                     'job_order_id' => $jobOrder->id,
                     'evaluator_id' => $employeeId,
-                    'evaluatee_id' => $personnel->team_leader
+                    'evaluatee_id' => $personnel->team_leader,
                 ];
             }
         }
@@ -82,7 +82,7 @@ class EmployeePerformanceSeeder extends Seeder
                 $employeeRatings[] = [
                     'employee_performance_id' => $performance->id,
                     'performance_category_id' => $category->id,
-                    'performance_rating_id' => PerformanceRating::inRandomOrder()->first()->id,
+                    'performance_rating_id'   => PerformanceRating::inRandomOrder()->first()->id,
                 ];
             }
         }

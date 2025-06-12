@@ -22,7 +22,7 @@ class PerformanceRatingSeeder extends Seeder
         foreach (self::RATINGS as $scale => $name) {
             PerformanceRating::create([
                 'scale' => $scale,
-                'name' => $name
+                'name'  => $name,
             ]);
         }
     }

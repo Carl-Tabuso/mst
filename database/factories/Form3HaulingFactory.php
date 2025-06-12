@@ -18,7 +18,7 @@ class Form3HaulingFactory extends Factory
     public function definition(): array
     {
         return [
-            'form3_id' => Form3::inRandomOrder()->first() ?? Form3::factory()
+            'form3_id' => Form3::inRandomOrder()->first() ?? Form3::factory(),
         ];
     }
 }

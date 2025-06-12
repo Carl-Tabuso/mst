@@ -18,10 +18,10 @@ class EmployeeFactory extends Factory
     public function definition(): array
     {
         return [
-            'first_name' => fake()->firstName(),
+            'first_name'  => fake()->firstName(),
             'middle_name' => fake()->randomElement([fake()->firstName(), null]),
-            'last_name' => fake()->lastName(),
-            'suffix' => fake()->randomElement(['Sr.', 'Jr.', 'II', 'III', null]),
+            'last_name'   => fake()->lastName(),
+            'suffix'      => fake()->randomElement(['Sr.', 'Jr.', 'II', 'III', null]),
             'position_id' => Position::inRandomOrder()->first()->id,
         ];
     }

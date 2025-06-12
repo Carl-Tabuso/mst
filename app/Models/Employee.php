@@ -32,7 +32,7 @@ class Employee extends Model
     public function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => implode(" ",
+            get: fn (mixed $value, array $attributes) => implode(' ',
                 array_filter([
                     $attributes['first_name'],
                     $attributes['middle_name'],

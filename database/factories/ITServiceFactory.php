@@ -21,15 +21,15 @@ class ITServiceFactory extends Factory
     public function definition(): array
     {
         return [
-            'machine_type' => fake()->randomElement(['Laptop', 'Desktop', 'Printer', 'Scanner', 'Server']),
-            'model' => fake()->bothify('Model-####'),
-            'serial_no' => fake()->unique()->bothify('SN-########'),
-            'tag_no' => fake()->unique()->bothify('TAG-######'),
-            'marchine_problem' => fake()->optional()->sentence(10),
+            'machine_type'      => fake()->randomElement(['Laptop', 'Desktop', 'Printer', 'Scanner', 'Server']),
+            'model'             => fake()->bothify('Model-####'),
+            'serial_no'         => fake()->unique()->bothify('SN-########'),
+            'tag_no'            => fake()->unique()->bothify('TAG-######'),
+            'marchine_problem'  => fake()->optional()->sentence(10),
             'service_performed' => fake()->optional()->paragraph(2),
-            'recommendation' => fake()->optional()->paragraph(1),
-            'machine_status' => fake()->randomElement(MachineStatus::cases()),
-            'cse' => $this->getByPosition('Technician'),
+            'recommendation'    => fake()->optional()->paragraph(1),
+            'machine_status'    => fake()->randomElement(MachineStatus::cases()),
+            'cse'               => $this->getByPosition('Technician'),
         ];
     }
 }

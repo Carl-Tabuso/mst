@@ -22,8 +22,8 @@ class JobOrderCorrectionFactory extends Factory
     {
         return [
             'job_order_id' => JobOrder::inRandomOrder()->first(),
-            'properties' => null,
-            'is_approved' => fake()->boolean(),
+            'properties'   => null,
+            'is_approved'  => fake()->boolean(),
         ];
     }
 }

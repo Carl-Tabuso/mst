@@ -24,7 +24,7 @@ class JobOrder extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'status' => JobOrderStatus::class,
+        'status'     => JobOrderStatus::class,
     ];
 
     public function scopeOfStatuses(Builder $query, JobOrderStatus|array $status): Builder
@@ -46,7 +46,7 @@ class JobOrder extends Model
 
     public function cancelled(Builder $query): Builder
     {
-        return $query->whereIn('status', JobOrderStatus::getCancelledStatuses());   
+        return $query->whereIn('status', JobOrderStatus::getCancelledStatuses());
     }
 
     public function serviceable(): MorphTo
