@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Form4;
+use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class Form3Factory extends Factory
 {
+    use RandomEmployee;
+
     /**
      * Define the model's default state.
      *
@@ -22,6 +25,12 @@ class Form3Factory extends Factory
             'payment_type'   => fake()->randomElement(['Cash', 'Online']),
             'appraised_date' => now(),
             'truck_no'       => fake()->windowsPlatformToken(),
+            'from'           => $from = fake()->optional()->dateTimeBetween('-1 week'),
+            'to'             => $from ? now() : null,
+            'team_leader'    => $this->getByPosition('Team Leader')->id,
+            'team_driver'    => $this->getByPosition('Driver')->id,
+            'safety_officer' => $this->getByPosition('Safety Officer')->id,
+            'team_mechanic'  => $this->getByPosition('Mechanic')->id,
         ];
     }
 }
