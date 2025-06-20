@@ -41,9 +41,9 @@ class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name'  => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
-            'auth' => [
+            'auth'  => [
                 'user' => $request->user()?->loadMissing([
                     'employee' => fn ($q) => $q->select([
                         'id',
@@ -51,7 +51,7 @@ class HandleInertiaRequests extends Middleware
                         'middle_name',
                         'last_name',
                         'suffix',
-                    ])
+                    ]),
                 ]),
             ],
             'ziggy' => [

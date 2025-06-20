@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Enums\MachineStatus;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class ITService extends Model
 {
@@ -21,8 +21,8 @@ class ITService extends Model
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
         'machine_status' => MachineStatus::class,
     ];
 

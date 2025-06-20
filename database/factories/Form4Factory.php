@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Form4>
@@ -19,8 +19,8 @@ class Form4Factory extends Factory
     {
         return [
             'payment_date' => now(),
-            'bid_bond' => rand(10000, 50000),
-            'or_number' => strtoupper(Str::random()),
+            'bid_bond'     => rand(10000, 50000),
+            'or_number'    => strtoupper(Str::random()),
         ];
     }
 

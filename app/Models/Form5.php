@@ -21,7 +21,7 @@ class Form5 extends Model
 
     protected $casts = [
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
 
     public function jobOrder(): MorphOne

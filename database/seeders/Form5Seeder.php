@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Form5;
-use App\Models\Employee;
 use App\Models\JobOrder;
 use Illuminate\Database\Seeder;
 

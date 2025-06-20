@@ -19,7 +19,7 @@ class Form5Factory extends Factory
     {
         return [
             'assigned_person' => Employee::inRandomOrder()->first()->id ?? Employee::factory(),
-            'purpose' => fake()->paragraph(),
+            'purpose'         => fake()->paragraph(),
         ];
     }
 }

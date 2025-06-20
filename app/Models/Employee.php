@@ -32,7 +32,7 @@ class Employee extends Model
     public function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => implode(" ",
+            get: fn (mixed $value, array $attributes) => implode(' ',
                 array_filter([
                     $attributes['first_name'],
                     $attributes['middle_name'],
@@ -76,7 +76,7 @@ class Employee extends Model
     public function form3sHaulee(): BelongsToMany
     {
         return $this->belongsToMany(
-            Form3Hauling::class,
+            Form3::class,
             'form3_haulers',
             'hauler',
             'form3_hauling_id'
@@ -95,22 +95,22 @@ class Employee extends Model
 
     public function form3sAsTeamLeader(): HasMany
     {
-        return $this->hasMany(Form3AssignedPersonnel::class, 'team_leader');
+        return $this->hasMany(Form3::class, 'team_leader');
     }
 
     public function form3sAsDriver(): HasMany
     {
-        return $this->hasMany(Form3AssignedPersonnel::class, 'team_driver');
+        return $this->hasMany(Form3::class, 'team_driver');
     }
 
     public function form3sAsSafetyOfficer(): HasMany
     {
-        return $this->hasMany(Form3AssignedPersonnel::class, 'safety_officer');
+        return $this->hasMany(Form3::class, 'safety_officer');
     }
 
     public function form3sAsMechanic(): HasMany
     {
-        return $this->hasMany(Form3AssignedPersonnel::class, 'team_mechanic');
+        return $this->hasMany(Form3::class, 'team_mechanic');
     }
 
     public function evaluatedEmployees(): HasMany

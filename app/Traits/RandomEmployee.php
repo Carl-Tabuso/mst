@@ -14,7 +14,7 @@ trait RandomEmployee
         if ($position->employees->isEmpty()) {
             return Employee::factory()->create(['position_id' => $position->id]);
         }
-        
+
         return $position->employees->random();
     }
 }

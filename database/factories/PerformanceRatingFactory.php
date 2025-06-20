@@ -18,7 +18,7 @@ class PerformanceRatingFactory extends Factory
     {
         return [
             'scale' => null,
-            'name' => fake()->word(),
+            'name'  => fake()->word(),
         ];
     }
 }

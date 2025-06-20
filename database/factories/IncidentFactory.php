@@ -20,10 +20,10 @@ class IncidentFactory extends Factory
     {
         return [
             'job_order_id' => JobOrder::inRandomOrder()->first()->id ?? JobOrder::factory(),
-            'occured_at' => fake()->dateTimeBetween('-1 week', '-1 day'),
-            'description' => fake()->paragraph(),
+            'occured_at'   => fake()->dateTimeBetween('-1 week', '-1 day'),
+            'description'  => fake()->paragraph(),
             'action_taken' => fake()->paragraph(),
-            'status' => fake()->randomElement(IncidentStatus::cases()),
+            'status'       => fake()->randomElement(IncidentStatus::cases()),
         ];
     }
 }

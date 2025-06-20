@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 use App\Enums\JobOrderStatus;
+use App\Models\CancelledJobOrder;
 use App\Models\Form4;
 use App\Models\JobOrder;
 use Illuminate\Database\Seeder;
-use App\Models\CancelledJobOrder;
 
 class FailedProposalJobOrderSeeder extends Seeder
 {
@@ -21,7 +21,7 @@ class FailedProposalJobOrderSeeder extends Seeder
             ->create();
 
         CancelledJobOrder::factory()->create([
-            'job_order_id' => $jobOrder->id
+            'job_order_id' => $jobOrder->id,
         ]);
     }
 }
