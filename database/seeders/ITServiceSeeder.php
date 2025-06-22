@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ITService;
+use App\Models\JobOrder;
 use Illuminate\Database\Seeder;
 
 class ITServiceSeeder extends Seeder
@@ -12,6 +13,8 @@ class ITServiceSeeder extends Seeder
      */
     public function run(): void
     {
-        ITService::factory(5)->create();
+        JobOrder::factory()->count(5)
+            ->for(ITService::factory(), 'serviceable')
+            ->create();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,5 +27,7 @@ class AppServiceProvider extends ServiceProvider
             'form5'      => 'App\Models\Form5',
             'it_service' => 'App\Models\ITService',
         ]);
+
+        JsonResource::withoutWrapping();
     }
 }
