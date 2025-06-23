@@ -19,6 +19,10 @@ const badgeMap = {
     'for viewing': 'continuous',
     'for approval': 'continuous',
     'for proposal': 'continuous',
+    'for verification': 'continuous',
+    'for appraisal': 'continuous',
+    'for personnel assignment': 'continuous',
+    'for safety inspection': 'continuous',
     'on-hold': 'continuous',
     'failed': 'destructive',
     'closed': 'secondary',
@@ -68,7 +72,7 @@ export const columns: ColumnDef<JobOrder>[] = [
         accessorKey: 'client',
         meta: { label: 'Client' },
         header: ({ column }) => h(DataTableHeader, { column: column }),
-        cell: ({ row }) => h('div', { class: 'text-xs font-bold' }, row.getValue('client'))
+        cell: ({ row }) => h('div', { class: 'text-[13px] font-medium truncate' }, row.getValue('client'))
     },
     {
         accessorKey: 'serviceableType',
@@ -79,22 +83,22 @@ export const columns: ColumnDef<JobOrder>[] = [
             const formatted = serviceTypeMap[serviceType as ServiceType]
             const icon = iconMap[serviceType as IconType]
             
-            return h('div', { class: 'flex items-center gap-x-2' }, [
-                h(icon, { size: 20, class: 'text-muted-foreground' }),
-                h('span', { class: 'text-xs font-medium' }, formatted)
+            return h('div', { class: 'flex items-center' }, [
+                h(icon, { size: 20, strokeWidth: .75, class: 'mr-2.5' }),
+                h('span', { class: 'text-[13px] font-medium truncate' }, formatted)
             ])
         },
     },
     {
         accessorKey: 'contactNo',
-        meta: { label: 'Contact Details' },
+        meta: { label: 'Contact Person' },
         header: ({ column }) => h(DataTableHeader, { column: column }),
         cell: ({ row }) => {
             const contactNo = String(row.getValue('contactNo'))
             const contactPerson = row.original.contactPerson
 
             return h('div', [
-                h('div', { class: 'text-xs font-bold'}, contactPerson),
+                h('div', { class: 'text-xs font-semibold'}, contactPerson),
                 h('div', { class: 'text-[11px] text-muted-foreground'}, contactNo)
             ])
         }
@@ -136,7 +140,7 @@ export const columns: ColumnDef<JobOrder>[] = [
             })
 
             return h('div', [
-                h('div', { class: 'text-xs font-bold' }, row.original.creator?.fullName),
+                h('div', { class: 'text-xs font-semibold' }, row.original.creator?.fullName),
                 h('div', { class: 'text-[11px] text-muted-foreground'}, `on ${formattedDateTime}`)
             ])
         }
@@ -158,7 +162,7 @@ export const columns: ColumnDef<JobOrder>[] = [
             })
 
             return h('div', { class: 'text-xs' }, [
-                h('div', { class: 'font-bold' }, formattedDate),
+                h('div', { class: 'font-semibold' }, formattedDate),
                 h('div', { class: 'text-[11px] text-muted-foreground' }, formattedTime)
             ])
         },

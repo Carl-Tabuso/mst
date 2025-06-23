@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem, JobOrder } from '@/types'
+import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
 import { Head } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
 import { columns } from '@/components/job-orders/columns'
@@ -11,19 +11,16 @@ import { Plus } from 'lucide-vue-next'
 import Button from '@/components/ui/button/Button.vue'
 
 const props = defineProps<{ 
-  jobOrders: { data: JobOrder[], links: JobOrder[], meta: JobOrder[] } 
+  jobOrders: { data: JobOrder[],  meta: EloquentCollection } 
 }>()
 
 const data = ref<JobOrder[]>(props.jobOrders.data)
 
-const links = ref<{}>(props.jobOrders.links)
+const meta = ref(props.jobOrders.meta)
 
-const meta = ref<{}>(props.jobOrders.meta)
-
-watch(() => props.jobOrders, (newVal) => {
-  data.value = newVal.data
-  links.value = newVal.data
-  meta.value = newVal.meta
+watch(() => props.jobOrders, (update) => {
+  data.value = update.data
+  meta.value = update.meta
 })
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -53,10 +50,12 @@ const breadcrumbs: BreadcrumbItem[] = [
             </p>          
           </div>
           <div class="ml-auto">
-            <Button variant="default" class="">
-              <Plus class="mr-2" />
-              Create Job Order
-            </Button>          
+            <Link :href="route('job_order.index')">
+              <Button variant="default" class="">
+                <Plus class="mr-2" />
+                Create Job Order
+              </Button>
+            </Link>
           </div>
         </div>
         <Tabs default-value="all" class="w-full">
@@ -86,7 +85,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         <JobOrderDataTable
           :columns="columns"
           :data="data"
-          :links="links"
           :meta="meta" />
       </div>
     </AppLayout>

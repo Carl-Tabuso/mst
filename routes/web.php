@@ -8,6 +8,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('job-orders')->name('job_order.')->group(function () {
         Route::get('/', [JobOrderController::class, 'index'])->name('index');
+        // Route::get('/', [JobOrderController::class, 'create'])->name('create');
+        Route::post('/', [JobOrderController::class, 'store'])->name('store');
         Route::get('waste-managements', fn () => dd('wm'))->name('waste_management');
         Route::get('it-services', fn () => dd('it'))->name('it_service');
         Route::get('others', fn () => dd('os'))->name('others');

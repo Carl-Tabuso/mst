@@ -12,7 +12,7 @@ const toggleSort = () => props.column.toggleSorting(props.column.getIsSorted() =
 </script>
 
 <template>
-    <Button variant="ghost" @click="toggleSort" class="flex items-center justify-start pl-0 hover:bg-transparent [&_svg]:size-3">
+    <Button variant="ghost" @click="toggleSort" class="flex items-center justify-start text-[13px] pl-0 hover:bg-transparent [&_svg]:size-3">
         <span class="">
             {{ props.column.columnDef.meta?.label || '' }}
         </span>

@@ -72,3 +72,11 @@ export interface JobOrder {
     service?: any;
 }
 
+export interface EloquentCollection {
+    current_page: number,
+    last_page: number,
+    per_page: number,
+    from: Number,
+    to: Number,
+    total: number,
+}
