@@ -76,7 +76,7 @@ export interface EloquentCollection {
     current_page: number,
     last_page: number,
     per_page: number,
-    from: Number,
-    to: Number,
+    from: number,
+    to: number,
     total: number,
 }
