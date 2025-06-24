@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
+import NavFooter from '@/components/NavFooter.vue';
 import { 
     Sidebar, 
     SidebarContent, 
@@ -12,7 +13,16 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { Home, ClipboardList, UserRoundCog, Award } from 'lucide-vue-next';
+import {
+    Home, 
+    ClipboardList, 
+    UserRoundCog, 
+    Award, 
+    FilePenLine, 
+    ChartPie, 
+    Archive,
+    Bug,
+} from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -42,15 +52,38 @@ const mainNavItems: NavItem[] = [
         icon: UserRoundCog,
     },
     {
+        title: 'Incident Report',
+        href: '#',
+        icon: FilePenLine,
+    },
+    {
         title: 'Performance Monitoring',
         href: '/performances',
         icon: Award,
+    },
+    {
+        title: 'Reports and Analytics',
+        href: '#',
+        icon: ChartPie
+    },
+    {
+        title: 'Archives',
+        href: '#',
+        icon: Archive
     }
+];
+
+const footerNavItems: NavItem[] = [
+    // {
+    //     title: 'Technical Issue',
+    //     href: 'https://github.com/laravel/vue-starter-kit',
+    //     icon: Bug,
+    // },
 ];
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset">
+    <Sidebar collapsible="icon" variant="sidebar">
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
@@ -68,7 +101,7 @@ const mainNavItems: NavItem[] = [
         </SidebarContent>
 
         <SidebarFooter>
-            <!-- <NavFooter :items="footerNavItems" /> -->
+            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>
