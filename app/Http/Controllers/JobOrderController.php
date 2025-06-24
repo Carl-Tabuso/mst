@@ -26,9 +26,9 @@ class JobOrderController extends Controller
 
         $hasStatuses = isset($filters->statuses) && count($filters->statuses) > 0;
 
-        $hasDateOfServiceRange = 
+        $hasDateOfServiceRange =
             isset($filters->fromDateOfService, $filters->toDateOfService) &&
-            $filters?->fromDateOfService && $filters?->toDateOfService;
+            $filters?->fromDateOfService                                  && $filters?->toDateOfService;
 
         $jobOrders = JobOrder::query()
             ->when($hasStatuses, fn ($q) => $q->ofStatuses($filters->statuses))
