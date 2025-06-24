@@ -72,7 +72,8 @@ export const columns: ColumnDef<JobOrder>[] = [
         accessorKey: 'client',
         meta: { label: 'Client' },
         header: ({ column }) => h(DataTableHeader, { column: column }),
-        cell: ({ row }) => h('div', { class: 'text-[13px] font-medium truncate' }, row.getValue('client'))
+        cell: ({ row }) => h('div', { class: 'text-[13px] font-medium truncate' }, row.getValue('client')),
+        enableHiding: false,
     },
     {
         accessorKey: 'serviceableType',
