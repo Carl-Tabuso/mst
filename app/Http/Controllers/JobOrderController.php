@@ -2,37 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Inertia\Response;
 use App\Models\JobOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class JobOrderController extends Controller
 {
-    const PER_PAGE = 10;
+    private const PER_PAGE = 10;
 
     public function index(Request $request): Response
     {
-        // dd($request);
         $perPage = $request->input('per_page', self::PER_PAGE);
 
-        [
-            'search' => $search,
-            'statuses' => $statuses,
-            'fromDos' => $fromDos, 
-            'toDos' => $toDos
-        ] = $request;
+        $search = "%{$request->input('search')}%";
 
-        $hasStatuses = $statuses ? count($statuses) > 0 : null;
+        $filters = null;
+
+        if ($request->has('filters')) {
+            $filters = (object) $request->array('filters');
+        }
+
+        $hasStatuses = isset($filters->statuses) && count($filters->statuses) > 0;
+
+        $hasDateOfServiceRange = 
+            isset($filters->fromDateOfService, $filters->toDateOfService) &&
+            $filters?->fromDateOfService && $filters?->toDateOfService;
 
         $jobOrders = JobOrder::query()
-            ->when($hasStatuses, fn ($q) => $q->ofStatuses($statuses))
-            ->when($fromDos && $toDos, function ($q) use($fromDos, $toDos) {
+            ->when($hasStatuses, fn ($q) => $q->ofStatuses($filters->statuses))
+            ->when($hasDateOfServiceRange, function ($q) use ($filters) {
                 return $q->whereBetween('date_time', [
-                    Carbon::parse($fromDos)->startOfDay(),
-                    Carbon::parse($toDos)->endOfDay()
+                    Carbon::parse($filters->fromDateOfService)->startOfDay(),
+                    Carbon::parse($filters->toDateOfService)->endOfDay(),
                 ]);
             })
             ->when($search, function ($q) use ($search) {
@@ -64,6 +67,26 @@ class JobOrderController extends Controller
     }
 
     public function store(Request $request)
+    {
+        //
+    }
+
+    public function show(JobOrder $jobOrder)
+    {
+        //
+    }
+
+    public function edit(JobOrder $jobOrder)
+    {
+        //
+    }
+
+    public function update(Request $request, JobOrder $jobOrder)
+    {
+        //
+    }
+
+    public function destroy(JobOrder $jobOrder)
     {
         //
     }
