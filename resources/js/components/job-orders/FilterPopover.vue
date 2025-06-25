@@ -29,8 +29,10 @@ const selectedStatuses = computed(() => new Set(props.value.statuses))
 const fromDateOfServiceValue = computed(() => props.value.fromDateOfService)
 const toDateOfServiceValue = computed(() => props.value.toDateOfService)
 
+const url = route('job_order.index')
+
 const applyFilters = () => {
-  sendFilterRequest(props.value, {
+  router.get(url, props.value, {
     preserveState: true,
     preserveScroll: true,
     replace: true,
@@ -41,8 +43,8 @@ const clearFilters = () => {
   props.value.statuses = []
   props.value.fromDateOfService = ''
   props.value.toDateOfService = ''
-  
-  sendFilterRequest(props.value, {
+
+  router.get(url, {}, {
     preserveState: true,
     preserveScroll: true,
     replace: true,
@@ -67,12 +69,12 @@ const handleToDateOfServiceChange = (newValue: DateValue | undefined) => {
   props.value.toDateOfService = newValue?.toString()
 }
 
-const sendFilterRequest = (filterValues: any, options: object) => {
-  router.get(
-    route('job_order.index'),
-    { filters: filterValues },
-    options
-  )
+const formatToDateString = (date: string) => {
+  return new Date(date).toLocaleDateString('en-ph', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 }
 </script>
 
@@ -130,15 +132,7 @@ const sendFilterRequest = (filterValues: any, options: object) => {
                   :class="['w-[240px] ps-3 text-start font-normal',
                     { 'text-muted-foreground': ! fromDateOfServiceValue }]">
                   <span>
-                    {{
-                      fromDateOfServiceValue
-                        ? new Date(fromDateOfServiceValue).toLocaleDateString('en-ph', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                        })
-                        : 'Pick a date'
-                      }}
+                    {{ fromDateOfServiceValue ? formatToDateString(fromDateOfServiceValue) : 'Pick a date' }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -163,15 +157,7 @@ const sendFilterRequest = (filterValues: any, options: object) => {
                   :class="['w-[240px] ps-3 text-start font-normal',
                     { 'text-muted-foreground': ! toDateOfServiceValue }]">
                   <span>
-                    {{
-                      toDateOfServiceValue
-                        ? new Date(toDateOfServiceValue).toLocaleDateString('en-ph', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                        })
-                        : 'Pick a date'
-                      }}
+                    {{ toDateOfServiceValue ? formatToDateString(toDateOfServiceValue) : 'Pick a date' }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
