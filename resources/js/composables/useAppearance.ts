@@ -92,3 +92,18 @@ export function useAppearance() {
         updateAppearance,
     };
 }
+
+export function getProgressBarColor() {
+    if (typeof window === 'undefined') {
+        return '#4B5563';
+    }
+
+    const saved = localStorage.getItem('appearance');
+
+    if (saved === 'dark') return '#ffffff';
+    if (saved === 'light') return '#4B5563';
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? '#ffffff'
+        : '#4B5563';
+}

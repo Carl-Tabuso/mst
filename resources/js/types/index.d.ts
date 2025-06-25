@@ -16,6 +16,10 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon;
     isActive?: boolean;
+    items?: {
+        title: string,
+        href: string,
+    }[];
 }
 
 export interface SharedData extends PageProps {
@@ -29,23 +33,50 @@ export interface User {
     id: number;
     email: string;
     avatar?: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string | null;
+    emailVerifiedAt?: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string;
     employee: Employee,
 }
 
 export interface Employee {
     id: number;
-    first_name: string;
-    middle_name: string | null;
-    last_name: string;
-    suffix: string | null;
-    full_name: string;
-    position_id: number;
-    created_at: string;
-    updated_at: string,
+    firstName: string;
+    middleName?: string;
+    lastName: string;
+    suffix?: string;
+    fullName: string;
+    positionId: number;
+    createdAt: string;
+    updatedAt: string,
+    account?: User,
 }
 
-export type BreadcrumbItemType = BreadcrumbItem;
+export interface JobOrder {
+    id: number;
+    serviceableId: number;
+    serviceableType: string;
+    dateTime: string;
+    client: string;
+    address: string;
+    department: string;
+    contactNo: string;
+    contactPerson: string;
+    createdBy: number;
+    status: string;
+    errorCount: number;
+    createdAt: string;
+    updatedAt: string;
+    creator?: Employee;
+    service?: any;
+}
+
+export interface EloquentCollection {
+    current_page: number,
+    last_page: number,
+    per_page: number,
+    from: number,
+    to: number,
+    total: number,
+}

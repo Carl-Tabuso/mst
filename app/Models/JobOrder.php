@@ -27,18 +27,16 @@ class JobOrder extends Model
         'status'     => JobOrderStatus::class,
     ];
 
-    public function scopeOfStatuses(Builder $query, JobOrderStatus|array $status): Builder
+    public function scopeOfStatuses(Builder $query, JobOrderStatus|array $statuses): Builder
     {
-        if ($status instanceof JobOrderStatus) {
-            return $query->where('status', $status->value);
+        if ($statuses instanceof JobOrderStatus) {
+            return $query->where('status', $statuses->value);
         }
 
         $values = [];
 
-        if (is_array($status)) {
-            foreach ($status as $st) {
-                $values[] = $st->value;
-            }
+        foreach ($statuses as $status) {
+            $values[] = $status;
         }
 
         return $query->whereIn('status', $values);
