@@ -28,7 +28,7 @@ class JobOrderController extends Controller
 
         $hasDateOfServiceRange =
             isset($filters->fromDateOfService, $filters->toDateOfService) &&
-            $filters?->fromDateOfService                                  && $filters?->toDateOfService;
+            ($filters?->fromDateOfService && $filters?->toDateOfService);
 
         $jobOrders = JobOrder::query()
             ->when($hasStatuses, fn ($q) => $q->ofStatuses($filters->statuses))
@@ -86,8 +86,20 @@ class JobOrderController extends Controller
         //
     }
 
-    public function destroy(JobOrder $jobOrder)
+    public function destroy(Request $request, ?JobOrder $jobOrder = null)
     {
-        //
+        $message = '';
+
+        if ($jobOrder) {
+            $jobOrder->delete();
+
+            // return a msg
+        }
+
+        $jobOrderIds = $request->array('jobOrderIds');
+
+        JobOrder::destroy($jobOrderIds);
+
+        // return a msg?
     }
 }
