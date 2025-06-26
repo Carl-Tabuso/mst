@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\JobOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,8 +9,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('job-orders')->name('job_order.')->group(function () {
         Route::get('/', [JobOrderController::class, 'index'])->name('index');
-        Route::get('/create', [JobOrderController::class, 'create'])->name('create');
+        Route::get('create', [JobOrderController::class, 'create'])->name('create');
         Route::post('/', [JobOrderController::class, 'store'])->name('store');
+        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
+        Route::get('export', ExportJobOrderController::class)->name('export');
+
         Route::get('waste-managements', fn () => dd('wm'))->name('waste_management');
         Route::get('it-services', fn () => dd('it'))->name('it_service');
         Route::get('others', fn () => dd('os'))->name('others');

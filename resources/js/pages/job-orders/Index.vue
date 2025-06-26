@@ -86,7 +86,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             :columns="columns"
             :data="data"
             :meta="meta" />
-        </div>        
+        </div>
       </div>
     </AppLayout>
 </template>

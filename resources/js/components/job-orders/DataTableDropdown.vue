@@ -4,19 +4,24 @@ import { Button } from '@/components/ui/button'
 import { 
     DropdownMenu, 
     DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuLabel, 
+    DropdownMenuItem,
     DropdownMenuSeparator, 
     DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
-import { JobOrder } from '@/types';
+import { JobOrder } from '@/types'
+import { router } from '@inertiajs/vue3'
 
-defineProps<{
+const props = defineProps<{
   jobOrder: JobOrder
 }>()
 
-function copy(id: string) {
-  navigator.clipboard.writeText(id)
+const { jobOrder } = props
+  
+const handlerRowArchival = () => {
+  router.delete(route('job_order.destroy', jobOrder.id), {
+    replace: true,
+    onBefore: () => confirm(`Are you sure you want to archive ${jobOrder.client}`)
+  })
 }
 </script>
 
@@ -29,14 +34,16 @@ function copy(id: string) {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <!-- <DropdownMenuLabel>Actions</DropdownMenuLabel> -->
-      <!-- <DropdownMenuItem @click="copy(payment.id)">
-        Copy Job Order ID
-      </DropdownMenuItem> -->
-      <!-- <DropdownMenuSeparator /> -->
-      <DropdownMenuItem>View</DropdownMenuItem>
-      <DropdownMenuItem>Edit</DropdownMenuItem>
-      <DropdownMenuItem>Delete</DropdownMenuItem>
+      <DropdownMenuItem>
+        View
+      </DropdownMenuItem>
+      <DropdownMenuItem>
+        Edit
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem @click="handlerRowArchival">
+        Archive
+      </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>

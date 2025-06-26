@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class JobOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -26,6 +27,11 @@ class JobOrder extends Model
         'updated_at' => 'datetime',
         'status'     => JobOrderStatus::class,
     ];
+
+    public function getDeletedAtColumn(): string
+    {
+        return 'archived_at';
+    }
 
     public function scopeOfStatuses(Builder $query, JobOrderStatus|array $statuses): Builder
     {

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { computed } from 'vue'
 import FilterPopover from './FilterPopover.vue'
+import { router } from '@inertiajs/vue3'
 
 interface DataTableToolbarProps {
   table: Table<TData>
@@ -33,6 +34,22 @@ const visibleColumnCount = computed(() =>
     column.getCanHide() && column.getIsVisible() 
   ).length
 )
+
+const handleExport = () => {
+  window.open(route('job_order.export'), '_blank')
+}
+
+const handlePageSizeArchival = () => {
+  const jobOrderIds = props.table.getSelectedRowModel().rows.map(row => row.original.id)
+
+  router.visit(route('job_order.destroy'), {
+    method: 'delete',
+    data: { jobOrderIds },
+    preserveScroll: true,
+    onBefore: () => confirm('Are you sure you want to archive?'),
+    onSuccess: () => console.log() // show feedback
+  })
+}
 </script>
 
 <template>
@@ -79,22 +96,24 @@ const visibleColumnCount = computed(() =>
       </DropdownMenuContent>
     </DropdownMenu>
 
-    <Button variant="ghost">
+    <Button @click="handleExport" variant="ghost">
       <Download class="mr-2" :stroke-width="1" />
       Export
     </Button>
 
     <div class="ml-auto">
       <Button
-        :disabled="!hasRowSelection"
+        :disabled="! hasRowSelection"
         :variant="hasRowSelection ? 'destructive' : 'secondary'"
-        class="mx-3">
+        class="mx-3"
+        @click="handlePageSizeArchival"
+        >
         <Archive class="mr-2" />
         Archive
         <template v-if="hasRowSelection">
         <div class="hidden lg:flex">
             <Badge
-                variant="secondary"
+                variant="destructive"
                 class="rounded-full font-normal"
             >{{ table.getSelectedRowModel().rows.length }}
             </Badge>
