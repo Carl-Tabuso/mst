@@ -13,6 +13,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
+                geist: ['Geist'],
             },
             borderRadius: {
                 lg: 'var(--radius)',

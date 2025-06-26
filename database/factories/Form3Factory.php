@@ -21,7 +21,7 @@ class Form3Factory extends Factory
     public function definition(): array
     {
         return [
-            'form4_id'       => Form4::inRandomOrder()->first()->id ?? Form4::factory(),
+            'form4_id'       => Form4::factory(),
             'payment_type'   => fake()->randomElement(['Cash', 'Online']),
             'appraised_date' => now(),
             'truck_no'       => fake()->windowsPlatformToken(),

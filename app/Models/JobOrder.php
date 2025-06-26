@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class JobOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -27,18 +28,21 @@ class JobOrder extends Model
         'status'     => JobOrderStatus::class,
     ];
 
-    public function scopeOfStatuses(Builder $query, JobOrderStatus|array $status): Builder
+    public function getDeletedAtColumn(): string
     {
-        if ($status instanceof JobOrderStatus) {
-            return $query->where('status', $status->value);
+        return 'archived_at';
+    }
+
+    public function scopeOfStatuses(Builder $query, JobOrderStatus|array $statuses): Builder
+    {
+        if ($statuses instanceof JobOrderStatus) {
+            return $query->where('status', $statuses->value);
         }
 
         $values = [];
 
-        if (is_array($status)) {
-            foreach ($status as $st) {
-                $values[] = $st->value;
-            }
+        foreach ($statuses as $status) {
+            $values[] = $status;
         }
 
         return $query->whereIn('status', $values);
