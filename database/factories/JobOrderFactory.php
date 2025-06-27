@@ -29,14 +29,15 @@ class JobOrderFactory extends Factory
         );
 
         return [
-            'date_time'      => now(),
-            'client'         => fake()->company(),
-            'address'        => fake()->address(),
-            'department'     => fake()->word(),
-            'contact_no'     => fake()->unique()->numerify('09#########'),
-            'contact_person' => fake()->name(),
-            'created_by'     => $this->getByPosition('Frontliner'),
-            'status'         => fake()->randomElement($validStatuses),
+            'date_time'        => now(),
+            'client'           => fake()->company(),
+            'address'          => fake()->address(),
+            'department'       => fake()->word(),
+            'contact_no'       => fake()->unique()->numerify('09#########'),
+            'contact_person'   => fake()->name(),
+            'contact_position' => fake()->jobTitle(),
+            'created_by'       => $this->getByPosition('Frontliner'),
+            'status'           => fake()->randomElement($validStatuses),
         ];
     }
 

@@ -22,6 +22,8 @@ watch(() => props.jobOrders, (update) => {
   meta.value = update.meta
 })
 
+console.log(data);
+
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Job Orders',
@@ -50,7 +52,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               </p>
             </div>
             <div class="ml-auto">
-              <Link :href="route('job_order.create')">
+              <Link :href="route('job_order.create')" preserve-state>
                 <Button variant="default">
                   <Plus class="mr-2" />
                   Create Job Order
@@ -65,17 +67,17 @@ const breadcrumbs: BreadcrumbItem[] = [
                   All
                 </TabsTrigger>
               </Link>
-              <Link :href="route('job_order.waste_management')">
+              <Link :href="route('job_order.waste_management.index')">
                 <TabsTrigger value="waste_management" class="px-7">
                   Waste Management
                 </TabsTrigger>
               </Link>
-              <Link :href="route('job_order.it_service')">
+              <Link :href="route('job_order.it_service.index')">
                 <TabsTrigger value="job_order.it_service" class="px-7">
                   IT Services
                 </TabsTrigger>
               </Link>
-              <Link :href="route('job_order.others')">
+              <Link :href="route('job_order.other.index')">
                 <TabsTrigger value="job_order.others" class="px-7">
                   Other Services
                 </TabsTrigger>

@@ -48,7 +48,7 @@ const pagination = ref<PaginationState>({
   pageSize: props.meta.per_page
 })
 const searchQuery = new URLSearchParams(window.location.search).get('search') || ''
-const globalFilter = ref<string|number>(searchQuery)
+const globalFilter = ref<string | number>(searchQuery)
 
 const table = useVueTable({
   get data() { return props.data },

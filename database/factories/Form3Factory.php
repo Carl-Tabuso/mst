@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Form4;
 use App\Traits\RandomEmployee;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -31,6 +32,7 @@ class Form3Factory extends Factory
             'team_driver'    => $this->getByPosition('Driver')->id,
             'safety_officer' => $this->getByPosition('Safety Officer')->id,
             'team_mechanic'  => $this->getByPosition('Mechanic')->id,
+            'approved_date'  => Carbon::parse($from)->subWeek(),
         ];
     }
 }

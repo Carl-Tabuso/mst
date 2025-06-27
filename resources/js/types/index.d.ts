@@ -63,6 +63,7 @@ export interface JobOrder {
     department: string;
     contactNo: string;
     contactPerson: string;
+    contactPosition: string;
     createdBy: number;
     status: string;
     errorCount: number;
@@ -70,6 +71,35 @@ export interface JobOrder {
     updatedAt: string;
     creator?: Employee;
     service?: any;
+}
+
+export interface Form4 {
+    id: number
+    paymentDate: string
+    bidBond: string
+    orNumber: string
+    createdAt: string
+    updatedAt: string
+    jobOrder: JobOrder
+    appraisers: Employee[]
+    form3: Form3
+}
+
+export interface Form3 {
+    id: number
+    form4Id: number
+    truckNo: string
+    paymentType: string
+    appraisedDate: string
+    approvedDate: string
+    from: string
+    to: string
+    teamLeader: number
+    teamDriver: number
+    safetyOfficer: number
+    teamMechanic: number
+    createdAt: string
+    updatedAt: string
 }
 
 export interface EloquentCollection {

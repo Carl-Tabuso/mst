@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('department');
             $table->string('contact_no');
             $table->string('contact_person');
+            $table->string('contact_position');
             $table->foreignIdFor(Employee::class, 'created_by')
                 ->constrained()
                 ->cascadeOnUpdate()
