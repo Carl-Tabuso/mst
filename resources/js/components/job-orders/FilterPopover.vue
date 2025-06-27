@@ -32,7 +32,9 @@ const toDateOfServiceValue = computed(() => props.value.toDateOfService)
 const url = route('job_order.index')
 
 const applyFilters = () => {
-  router.get(url, props.value, {
+  router.get(url, {
+    filters: props.value
+  }, {
     preserveState: true,
     preserveScroll: true,
     replace: true,

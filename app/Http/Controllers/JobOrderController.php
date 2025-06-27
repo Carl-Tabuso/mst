@@ -28,15 +28,17 @@ class JobOrderController extends Controller
 
         $hasDateOfServiceRange =
             isset($filters->fromDateOfService, $filters->toDateOfService) &&
-            ($filters?->fromDateOfService && $filters?->toDateOfService);
+            ($filters->fromDateOfService && $filters->toDateOfService);
 
         $jobOrders = JobOrder::query()
             ->when($hasStatuses, fn ($q) => $q->ofStatuses($filters->statuses))
             ->when($hasDateOfServiceRange, function ($q) use ($filters) {
-                return $q->whereBetween('date_time', [
-                    Carbon::parse($filters->fromDateOfService)->startOfDay(),
-                    Carbon::parse($filters->toDateOfService)->endOfDay(),
-                ]);
+                return $q->where(function ($sq) use ($filters) {
+                    return $sq->whereBetween('date_time', [
+                        Carbon::parse($filters->fromDateOfService)->startOfDay(),
+                        Carbon::parse($filters->toDateOfService)->endOfDay(),
+                    ]);                    
+                });
             })
             ->when($search, function ($q) use ($search) {
                 return $q->where(function ($sq) use ($search) {
@@ -64,11 +66,6 @@ class JobOrderController extends Controller
     public function create(): Response
     {
         return Inertia::render('job-orders/Create');
-    }
-
-    public function store(Request $request)
-    {
-        //
     }
 
     public function show(JobOrder $jobOrder)
