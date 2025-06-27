@@ -19,6 +19,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+            $table->timestamp('approved_date');
             $table->string('truck_no');
             $table->string('payment_type');
             $table->timestamp('appraised_date');

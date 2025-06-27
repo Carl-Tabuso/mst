@@ -7,6 +7,7 @@ use App\Models\JobOrder;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WasteManagementController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,9 +20,21 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [JobOrderController::class, 'store'])->name('store');
         Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
-        Route::get('waste-managements', fn () => dd('wm'))->name('waste_management');
-        Route::get('it-services', fn () => dd('it'))->name('it_service');
-        Route::get('others', fn () => dd('os'))->name('others');
+
+        Route::prefix('waste-managements')->name('waste_management.')->group(function () {
+            Route::get('/', [WasteManagementController::class, 'index'])->name('index');
+            Route::get('{jobOrder}/edit', [WasteManagementController::class, 'edit'])->name('edit');
+            Route::post('/', [WasteManagementController::class, 'store'])->name('store');
+        });
+
+        Route::prefix('it-services')->name('it_service.')->group(function () {
+            Route::get('/', fn () => dd('it'))->name('index');
+            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
+        });
+
+        Route::prefix('others')->name('other.')->group(function () {
+            Route::get('/', fn () => dd('os'))->name('index');
+        });
     });
 
    Route::prefix('users')->group(function () {

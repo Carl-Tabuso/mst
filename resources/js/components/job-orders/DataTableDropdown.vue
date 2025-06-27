@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
+import { jobOrderRouteNames } from '@/constants/job-order-route'
 
 const props = defineProps<{
   jobOrder: JobOrder
@@ -23,6 +24,18 @@ const handlerRowArchival = () => {
     onBefore: () => confirm(`Are you sure you want to archive ${jobOrder.client}`)
   })
 }
+
+const handleRowView = () => {
+  //
+}
+
+const handleRowEdit = () => {
+  const path = jobOrderRouteNames.find((j) => j.id === jobOrder.serviceableType)
+
+  router.get(route(`job_order.${path?.route}.edit`, jobOrder.id), {}, {
+    preserveState: true
+  })
+}
 </script>
 
 <template>
@@ -34,10 +47,10 @@ const handlerRowArchival = () => {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem>
+      <DropdownMenuItem @click="handleRowView">
         View
       </DropdownMenuItem>
-      <DropdownMenuItem>
+      <DropdownMenuItem @click="handleRowEdit">
         Edit
       </DropdownMenuItem>
       <DropdownMenuSeparator />

@@ -28,6 +28,10 @@ class JobOrder extends Model
         'status'     => JobOrderStatus::class,
     ];
 
+    protected $attributes = [
+        'status' => JobOrderStatus::ForAppraisal,
+    ];
+
     public function getDeletedAtColumn(): string
     {
         return 'archived_at';
