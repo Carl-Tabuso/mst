@@ -65,6 +65,20 @@ class IncidentController extends Controller
         return response()->json($incidents);
     }
 
+public function archive(Request $request)
+{
+    $request->validate([
+        'ids' => 'required|array',
+        'ids.*' => 'exists:incidents,id'
+    ]);
+
+    Incident::whereIn('id', $request->ids)->delete();
+
+    return response()->json([
+        'message' => 'Selected incidents archived successfully'
+    ]);
+}
+
     protected function htmlToPlainText($html)
     {
         $text = strip_tags($html);
