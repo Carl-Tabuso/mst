@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Employee;
 use App\Models\JobOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,9 +19,16 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+            $table->foreignId('created_by')
+                ->constrained('employees') 
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();      
             $table->timestamp('occured_at');
             $table->longText('description');
-            $table->longText('action_taken')->nullable();
+            $table->string('subject');
+            $table->string('location');
+            $table->string('infraction_type');
+            $table->boolean('is_read')->default(false);
             $table->string('status');
             $table->timestamps();
         });
