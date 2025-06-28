@@ -53,7 +53,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Incident Report',
-        href: '/incident_report',
+        href: '/incidents/report',
         icon: FilePenLine,
     },
     {
