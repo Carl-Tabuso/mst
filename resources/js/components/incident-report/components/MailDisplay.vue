@@ -1,34 +1,14 @@
 <script lang="ts" setup>
-import { addDays, addHours, format, nextSaturday } from 'date-fns'
+import { format } from 'date-fns'
 import { Icon } from '@iconify/vue'
-import { useEditor, EditorContent } from '@tiptap/vue-3'
-import { FontSize } from './extensions/FontSize'
-import { FontFamily } from './extensions/FontFamily'
-import StarterKit from '@tiptap/starter-kit'
-import axios from 'axios'
-import Underline from '@tiptap/extension-underline'
-import Link from '@tiptap/extension-link'
-import TextAlign from '@tiptap/extension-text-align'
-import Color from '@tiptap/extension-color'
-import TextStyle from '@tiptap/extension-text-style'
-import Highlight from '@tiptap/extension-highlight'
-import Placeholder from '@tiptap/extension-placeholder'
-import Image from '@tiptap/extension-image'
-import CodeBlock from '@tiptap/extension-code-block'
-import Blockquote from '@tiptap/extension-blockquote'
-import HorizontalRule from '@tiptap/extension-horizontal-rule'
-import Superscript from '@tiptap/extension-superscript'
-import Subscript from '@tiptap/extension-subscript'
-
-import { onBeforeUnmount, computed, ref, watch, onMounted } from 'vue'
-
+import {computed} from 'vue'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import {Badge} from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
+import { useEditor, EditorContent } from '@tiptap/vue-3'
 import { Separator } from '@/components/ui/separator'
-import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui/combobox'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
 import {
@@ -39,169 +19,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useFilter } from 'reka-ui'
-interface Mail {
-  id: string
-  subject: string
-  description: string
- html: string       
-  plainText: string  
-  read: boolean
-  occured_at: string 
-  location: string
-  infraction_type: string
-  status: string
-  created_by: {
-    id: number
-    name: string
-    email: string
-  }
-  involved_employees: Array<{
-    id: number
-    name: string
-  }>
-  job_order?: {
-    id: number
-    serviceable_type: string
-    status: string
-  }
-}
-interface MailDisplayProps {
-  mail: Mail | undefined
-  isComposing?: boolean
-}
-
+import axios from 'axios'
+import { useEditorSetup } from '@/composables/useEditorSetup'
+import { useIncidentForm } from '@/composables/useIncidentForm'
+import type { MailDisplayProps } from '@/types/incident'
 
 const props = defineProps<MailDisplayProps>()
 const emit = defineEmits(['cancel-compose'])
-interface EmployeeSelection {
-  id: number
-  name: string
-}
 
-interface FormData {
-  subject: string
-  involvedEmployees: EmployeeSelection[]
-  dateTime: string
-  location: string
-  infractionType: string
-  serviceType: string
-  description: string
-  jobOrder: number | null
-}
+const {
+  formData,
+  employees,
+  jobOrders,
+  infractionTypes,
+  showOtherInfractionInput,
+  searchTerm,
+  filteredEmployees,
+  employeeNames,
+  selectedEmployeeIds,
+  onJobOrderSelected,
+  handleEmployeeSelect,
+  addCurrentSearchTerm,
+  handleTagsUpdate
+} = useIncidentForm()
 
-const formData = ref<FormData>({
-  subject: '',
-  involvedEmployees: [],
-  dateTime: '',
-  location: '',
-  infractionType: '',
-  serviceType: '',
-  description: '',
-  jobOrder: null
-})
-const onJobOrderSelected = (value: string | number | null) => {
-  if (!value) return
-
-  const selected = jobOrders.value.find(j => j.id === value)
-  if (selected) {
-    formData.value.serviceType = selected.service_type
-  }
-}
-
-
-const showOtherInfractionInput = ref(false)
-const { contains } = useFilter({ sensitivity: 'base' })
-
-const editor = useEditor({
-  content: formData.value.description,
-  extensions: [
-    StarterKit,
-    FontSize,
-    FontFamily,
-    Underline,
-    Link.configure({ openOnClick: false }),
-    TextStyle,
-    Color,
-    TextAlign.configure({ types: ['heading', 'paragraph'] }),
-    Highlight,
-    Placeholder.configure({ placeholder: 'Describe the infraction here...' }),
-    Image,
-    CodeBlock,
-    Blockquote,
-    HorizontalRule,
-    Superscript,
-    Subscript,
-  ],
-  onUpdate: ({ editor }) => {
-    formData.value.description = editor.getHTML()
-  },
-})
-
-watch(() => formData.value.description, (newVal) => {
-  if (editor.value && newVal !== editor.value.getHTML()) {
-    editor.value.commands.setContent(newVal, false)
-  }
-})
-
-onBeforeUnmount(() => {
-  editor.value?.destroy()
-})
-
-const employees = ref<{ id: number; name: string }[]>([])
-onMounted(async () => {
-  try {
-    const response = await axios.get('/data/employees/dropdown')
-    employees.value = response.data
-  } catch (error) {
-    console.error('Failed to load employees:', error)
-  }
-})
-
-
-const infractionTypes = ref([
-  'Safety Violation',
-  'Equipment Damage',
-  'Unauthorized Access',
-  'Policy Breach',
-  'Others'
-])
-
-const jobOrders = ref<{ id: number; label: string; service_type: string }[]>([])
-onMounted(async () => {
-  try {
-    const [empResponse, jobOrderResponse] = await Promise.all([
-      axios.get('/data/employees/dropdown'),
-      axios.get('/data/job-orders/dropdown')
-    ])
-    
-    employees.value = empResponse.data
-    jobOrders.value = jobOrderResponse.data.map((j: any) => ({
-      id: j.id,
-      label: j.label,
-      service_type: j.service_type
-    }))
-  } catch (error) {
-    console.error('Failed to load data:', error)
-  }
-})
-
-const open = ref(false)
-const searchTerm = ref('')
-
-
-
-const filteredEmployees = computed(() => {
-  if (!employees.value) return []
-  
-  return employees.value
-    .filter(e => !formData.value.involvedEmployees.some(sel => sel.id === e.id))
-    .filter(e => 
-      searchTerm.value 
-        ? e.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-        : true
-    )
-})
+const { 
+  editor, 
+  showColorDropdown, 
+  showFontSizeDropdown, 
+  textColors, 
+  fontSizes 
+} = useEditorSetup(
+  formData.value.description,
+  (html) => { formData.value.description = html }
+)
 
 const mailFallbackName = computed(() => {
   return props.mail?.created_by.name
@@ -209,14 +60,17 @@ const mailFallbackName = computed(() => {
     .map(chunk => chunk[0])
     .join('')
 })
-const showColorDropdown = ref(false)
-const showFontSizeDropdown = ref(false)
-
-const textColors = ['#000000', '#FF0000', '#0070f3', '#10B981']
-const fontSizes = ['12', '14', '16', '18', '24', '32', '48']
 
 const submitIncident = async () => {
   try {
+    const validEmployees = formData.value.involvedEmployees
+      .filter(e => e.id && e.name)
+      .map(e => e.id)
+    
+    if (validEmployees.length !== formData.value.involvedEmployees.length) {
+      throw new Error('Some employee selections were invalid')
+    }
+
     await axios.post('/incidents', {
       job_order_id: formData.value.jobOrder,
       subject: formData.value.subject,
@@ -224,34 +78,19 @@ const submitIncident = async () => {
       infraction_type: formData.value.infractionType,
       occured_at: formData.value.dateTime, 
       description: formData.value.description,
-      involved_employees: formData.value.involvedEmployees.map(e => e.id),
+      involved_employees: validEmployees,
     })
 
+    
     alert('Incident submitted successfully!')
     emit('cancel-compose')
+    emit('incident-submitted')
   } catch (error: any) {
     console.error('Submission failed:', error)
     alert(`Failed to submit the report: ${error.response?.data?.message || error.message}`)
   }
 }
-const handleEmployeeSelect = (employeeId: number) => {
-  const employee = employees.value.find(e => e.id === employeeId)
-  if (employee && !formData.value.involvedEmployees.some(e => e.id === employeeId)) {
-    formData.value.involvedEmployees.push({
-      id: employeeId,
-      name: employee.name
-    })
-    searchTerm.value = ''
-  }
-}
-
-const addCurrentSearchTerm = () => {
-  if (searchTerm.value.trim() && filteredEmployees.value.length === 1) {
-    handleEmployeeSelect(filteredEmployees.value[0].id)
-  }
-}
 </script>
-
 <template>
   <div class="flex h-full flex-col">
     <div v-if="isComposing" class="flex flex-1 flex-col ">
@@ -266,20 +105,21 @@ const addCurrentSearchTerm = () => {
           <div class="flex items-center gap-4">
             <Label class="whitespace-nowrap">People Involved:</Label>
             <div class="flex-1">
-<Combobox v-model="formData.involvedEmployees" multiple>
+<Combobox v-model="selectedEmployeeIds" multiple>
   <ComboboxAnchor as-child>
     <TagsInput 
-      v-model="formData.involvedEmployees" 
+      v-model="employeeNames" 
       class="gap-2 w-full border-0"
+      @update:modelValue="handleTagsUpdate"
     >
       <div class="flex gap-2 flex-wrap items-center">
         <TagsInputItem 
-          v-for="employee in formData.involvedEmployees" 
-          :key="employee.id" 
-          :value="employee.name"
+          v-for="(name, index) in employeeNames" 
+          :key="index" 
+          :value="name"
         >
           <TagsInputItemText>
-            {{ employee.name }}
+            {{ name }}
           </TagsInputItemText>
           <TagsInputItemDelete />
         </TagsInputItem>
@@ -295,25 +135,25 @@ const addCurrentSearchTerm = () => {
         />
       </ComboboxInput>
     </TagsInput>
-    <ComboboxList class="w-[--reka-popper-anchor-width]">
-      <ComboboxEmpty>No employees found</ComboboxEmpty>
-      <ComboboxGroup>
-        <ComboboxItem
-          v-for="employee in filteredEmployees" 
-          :key="employee.id" 
-          :value="employee.id"
-          @select="handleEmployeeSelect(employee.id)"
-        >
-          {{ employee.name }}
-        </ComboboxItem>
-      </ComboboxGroup>
-    </ComboboxList>
   </ComboboxAnchor>
+  
+  <ComboboxList class="w-[--reka-popper-anchor-width]">
+    <ComboboxEmpty>No employees found</ComboboxEmpty>
+    <ComboboxGroup>
+      <ComboboxItem
+        v-for="employee in filteredEmployees" 
+        :key="employee.id" 
+        :value="employee.id"
+        @select="handleEmployeeSelect(employee.id)"
+      >
+        {{ employee.name }}
+      </ComboboxItem>
+    </ComboboxGroup>
+  </ComboboxList>
 </Combobox>
             </div>
           </div>
 
-          <!-- Date and Time of Infraction -->
           <div class="flex items-center gap-4">
             <Label class="whitespace-nowrap">Date and Time:</Label>
             <div class="flex-1">
@@ -504,7 +344,6 @@ const addCurrentSearchTerm = () => {
        
       </div>
 
-      <!-- Editor content area -->
       <EditorContent :editor="editor" class="p-3 min-h-[300px] outline-none prose max-w-[1200px] border-none" />
     </div>
   </div>

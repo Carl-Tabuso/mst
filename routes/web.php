@@ -28,8 +28,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [IncidentController::class, 'index'])->name('index');
         Route::post('/', [IncidentController::class, 'store'])->name('store');
         Route::patch('{incident}/read', [IncidentController::class, 'markAsRead'])->name('read');
+        Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
     });
 
+    
     Route::prefix('data')->group(function () {
         Route::get('employees/dropdown', [EmployeeController::class, 'dropdown'])->name('employees.dropdown');
                 Route::get('/job-orders/dropdown', [JobOrderController::class, 'dropdownOptions']);

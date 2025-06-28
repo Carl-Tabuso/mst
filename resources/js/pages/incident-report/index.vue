@@ -18,7 +18,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const isComposing = ref(false)
 
-
+const toggleCompose = () => {
+  isComposing.value = !isComposing.value
+}
 </script>
 
 <template>
@@ -26,7 +28,7 @@ const isComposing = ref(false)
     <div class="container p-5">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-3xl font-bold tracking-tight text-blue-900">Incident Report</h1>
-        <Button @click="isComposing = !isComposing">
+        <Button @click="toggleCompose">
           {{ isComposing ? 'Cancel' : 'Compose New' }}
         </Button>
       </div>
