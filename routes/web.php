@@ -29,6 +29,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [IncidentController::class, 'store'])->name('store');
         Route::patch('{incident}/read', [IncidentController::class, 'markAsRead'])->name('read');
         Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
+        Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])
+    ->middleware(['can:verify,incident']);
+
     });
 
     

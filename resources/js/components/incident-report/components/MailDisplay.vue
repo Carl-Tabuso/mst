@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
+import { useUserPermissions } from '@/composables/useUserPermissions';
 import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui/combobox'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
 import {
@@ -26,6 +27,7 @@ import type { MailDisplayProps } from '@/types/incident'
 
 const props = defineProps<MailDisplayProps>()
 const emit = defineEmits(['cancel-compose'])
+const { canVerify, canCompose } = useUserPermissions();
 
 const {
   formData,
@@ -90,6 +92,17 @@ const submitIncident = async () => {
     alert(`Failed to submit the report: ${error.response?.data?.message || error.message}`)
   }
 }
+const verifyIncident = async (id: string) => {
+  try {
+    await axios.patch(`/incidents/${id}/verify`);
+    // Refresh the incident data or emit an event to parent
+    emit('incident-submitted');
+    alert('Incident verified successfully!');
+  } catch (error) {
+    console.error('Verification failed:', error);
+    alert('Failed to verify the incident');
+  }
+};
 </script>
 <template>
   <div class="flex h-full flex-col">
@@ -437,6 +450,14 @@ const submitIncident = async () => {
     
     
     <div class="prose max-w-none p-4" v-html="mail.html"></div>
+        <div v-if="canVerify && mail.status === 'for verification'" class="p-4 flex justify-end gap-2">
+      <Button 
+        variant="default"
+        @click="verifyIncident(mail.id)"
+      >
+        Verify Incident
+      </Button>
+    </div>
   </div>
     <div v-else class="p-8 text-center text-muted-foreground">
       No message selected

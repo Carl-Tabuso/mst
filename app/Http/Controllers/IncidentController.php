@@ -13,9 +13,12 @@ use Inertia\Inertia;
 class IncidentController extends Controller
 {
 
-    public function showReport()
+    public function showReport(Request $request)
 {
     return Inertia::render('incident-report/index', [
+        'auth' => [
+            'user' => $request->user()->load('employee.position'),
+        ],
       
     ]);
 }
@@ -92,7 +95,12 @@ public function archive(Request $request)
     $incident->markAsRead();
     return response()->json(['success' => true]);
 }
+public function verify(Incident $incident)
+{
+    $incident->update(['status' => 'verified']);
 
+    return response()->json(['message' => 'Incident verified']);
+}
     public function store(Request $request)
     {
         $validated = $request->validate([
