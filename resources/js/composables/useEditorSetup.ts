@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { useEditor, EditorContent } from '@tiptap/vue-3'
+import { useEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { FontSize } from  '../components/incident-report/components/extensions/FontSize'
 import { FontFamily } from '../components/incident-report/components/extensions/FontFamily'
