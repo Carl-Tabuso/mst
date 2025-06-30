@@ -37,7 +37,7 @@ class JobOrderController extends Controller
                     return $sq->whereBetween('date_time', [
                         Carbon::parse($filters->fromDateOfService)->startOfDay(),
                         Carbon::parse($filters->toDateOfService)->endOfDay(),
-                    ]);                    
+                    ]);
                 });
             })
             ->when($search, function ($q) use ($search) {
