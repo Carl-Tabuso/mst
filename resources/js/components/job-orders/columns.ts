@@ -7,34 +7,13 @@ import DropdownAction from './DataTableDropdown.vue'
 import '@tanstack/vue-table'
 import DataTableHeader from './DataTableHeader.vue'
 import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
+import { JobOrderStatuses } from '@/constants/job-order-statuses'
 
 declare module '@tanstack/vue-table' {
     interface ColumnMeta<TData extends RowData, TValue> {
         label?: string
     }
 }
-
-type BadgeType = keyof typeof badgeMap
-const badgeMap = {
-    'for viewing': 'continuous',
-    'for approval': 'continuous',
-    'for proposal': 'continuous',
-    'for verification': 'continuous',
-    'for appraisal': 'continuous',
-    'for personnel assignment': 'continuous',
-    'for safety inspection': 'continuous',
-    'on-hold': 'continuous',
-    'failed': 'destructive',
-    'closed': 'secondary',
-    'dropped': 'destructive',
-    'successful': 'success',
-    'completed': 'success',
-    'hauling in-progress': 'progress',
-    'form4': 'wms',
-    'form5': 'secondary',
-    'it_service': 'its',
-    default: 'default'
-} as const;
 
 type IconType = keyof typeof iconMap
 const iconMap = {
@@ -116,7 +95,7 @@ export const columns: ColumnDef<JobOrder>[] = [
         header: ({ column }) => h(DataTableHeader, { column: column }),
         cell: ({ row }) => {
             const status: string = row.getValue('status')
-            const variant = badgeMap[status as BadgeType]
+            const variant = JobOrderStatuses.find((j) => j.id === status)?.badge
             const formatted = () => status
                 .split(" ")
                 .map((word) => { 

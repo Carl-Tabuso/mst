@@ -12,18 +12,16 @@ export const badgeVariants = cva(
         secondary:
           'border-transparent bg-secondary font-medium text-secondary-foreground hover:bg-secondary/80',
         destructive:
-          'border-transparent bg-[#FEF2F2] font-medium text-[#DC2626]',
+          'border-transparent bg-destructive font-medium text-destructive-foreground hover:bg-destructive/80',
         continuous:
-          'border-transparent bg-[#FEFCE8] font-medium text-[#A16207]',
+          'border-transparent bg-yellow-50 font-medium text-yellow-700',
         progress:
-          'border-transparent bg-[#EFF6FF] font-medium text-[#1D4ED8]',
+          'border-transparent bg-blue-50 font-medium text-blue-700',
         success:
-          'border-transparent bg-[#F0FDF4] font-medium text-[#15803D]',
+          'border-transparent bg-green-50 font-medium text-green-700',
+        error:
+          'border-transparent bg-red-50 font-medium text-red-700',
         outline: 'text-foreground',
-        wms:
-          'border-transparent bg-[#ECFCCB] font-medium text-[#4D7C0F]',
-        its:
-          'border-transparent bg-[#DBEAFE] font-medium text-[#1E3A8A]',
       },
     },
     defaultVariants: {

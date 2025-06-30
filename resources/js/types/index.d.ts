@@ -94,12 +94,17 @@ export interface Form3 {
     approvedDate: string
     from: string
     to: string
-    teamLeader: number
-    teamDriver: number
-    safetyOfficer: number
-    teamMechanic: number
+    teamLeaderId: number
+    teamDriverId: number
+    safetyOfficerId: number
+    teamMechanicId: number
     createdAt: string
     updatedAt: string
+    teamLeader: Employee
+    teamDriver: Employee
+    safetyOfficer: Employee
+    teamMechanic: Employee
+    haulers: Employee[]
 }
 
 export interface EloquentCollection {
