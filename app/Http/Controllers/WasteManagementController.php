@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWasteManagementRequest;
+use App\Http\Requests\UpdateWasteManagementRequest;
 use App\Http\Resources\Form4Resource;
 use App\Models\Employee;
 use App\Models\Form4;
-use App\Models\JobOrder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -32,25 +33,35 @@ class WasteManagementController extends Controller
         return redirect()->route('job_order.index');
     }
 
-    public function show(JobOrder $jobOrder)
+    public function show(Form4 $form4)
     {
         //
     }
 
-    public function edit(JobOrder $jobOrder)
+    public function edit(Request $request, Form4 $form4)
     {
-        $loads = $jobOrder->load([
-            'serviceable' => [
-                'form3',
-                'appraisers',
-                'jobOrder'
-            ]
+        $loads = $form4->load([
+            'form3' => [
+                'teamLeader',
+                'driver',
+                'safetyOfficer',
+                'mechanic',
+                'haulers',
+            ],
+            'appraisers',
+            'jobOrder',
         ]);
 
-        $form4 = Form4Resource::make($loads->serviceable);
+        $form4 = Form4Resource::make($loads);
 
-        $employees = Employee::with('position')->paginate(10)->toResourceCollection();
+        return Inertia::render('job-orders/waste-managements/Edit', [
+            'form4'     => $form4,
+            'employees' => Employee::all()->toResourceCollection(),
+        ]);
+    }
 
-        return Inertia::render('job-orders/waste-managements/Edit', compact('form4', 'employees'));
+    public function update(UpdateWasteManagementRequest $request, Form4 $form4)
+    {
+        dd($request->all());
     }
 }

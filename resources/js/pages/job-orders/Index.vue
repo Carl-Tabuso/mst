@@ -22,8 +22,6 @@ watch(() => props.jobOrders, (update) => {
   meta.value = update.meta
 })
 
-console.log(data);
-
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Job Orders',

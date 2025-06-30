@@ -31,7 +31,44 @@ const toDateOfServiceValue = computed(() => props.value.toDateOfService)
 
 const url = route('job_order.index')
 
+const isParentPopoverOpen = ref<boolean>(false)
+
+const isCalendarOpen = ref<Record<string, boolean>>({
+  from: false,
+  to: false
+})
+  
+const handleStatusSelection = (statusId: string, event: boolean) => {
+  if (event) {
+    if (! props.value.statuses.includes(statusId)) {
+      props.value.statuses.push(statusId)
+    }
+  } else {
+    props.value.statuses = props.value.statuses.filter((id: string) => id !== statusId)
+  }
+}
+
+const handleFromDateOfServiceChange = (newValue: DateValue | undefined) => { 
+  props.value.fromDateOfService = newValue?.toString()
+  isCalendarOpen.value.from = false
+}
+
+const handleToDateOfServiceChange = (newValue: DateValue | undefined) => {
+  props.value.toDateOfService = newValue?.toString()
+  isCalendarOpen.value.to = false
+}
+
+const formatToDateString = (date: string) => {
+  return new Date(date).toLocaleDateString('en-ph', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
 const applyFilters = () => {
+  isParentPopoverOpen.value = false
+
   router.get(url, {
     filters: props.value
   }, {
@@ -46,42 +83,18 @@ const clearFilters = () => {
   props.value.fromDateOfService = ''
   props.value.toDateOfService = ''
 
+  isParentPopoverOpen.value = false
+
   router.get(url, {}, {
     preserveState: true,
     preserveScroll: true,
     replace: true,
   })
 }
-  
-const handleStatusSelection = (statusId: string, event: boolean) => {
-  if (event) {
-    if (! props.value.statuses.includes(statusId)) {
-      props.value.statuses.push(statusId)
-    }
-  } else {
-    props.value.statuses = props.value.statuses.filter((id: string) => id !== statusId)
-  }
-}
-
-const handleFromDateOfServiceChange = (newValue: DateValue | undefined) => { 
-  props.value.fromDateOfService = newValue?.toString()
-}
-
-const handleToDateOfServiceChange = (newValue: DateValue | undefined) => {
-  props.value.toDateOfService = newValue?.toString()
-}
-
-const formatToDateString = (date: string) => {
-  return new Date(date).toLocaleDateString('en-ph', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
 </script>
 
 <template>
-  <Popover>
+  <Popover v-model:open="isParentPopoverOpen">
     <PopoverTrigger as-child>
       <Button variant="ghost" class="ml-1">
         <Filter class="mr-2" :stroke-width="1" />
@@ -127,7 +140,7 @@ const formatToDateString = (date: string) => {
             <span class="pr-4 text-sm">
               From
             </span>
-            <Popover>
+            <Popover v-model:open="isCalendarOpen.from">
               <PopoverTrigger as-child>
                 <Button
                   variant="outline"
@@ -152,7 +165,7 @@ const formatToDateString = (date: string) => {
             <span class="pr-4 text-sm">
               To
             </span>
-            <Popover>
+            <Popover v-model:open="isCalendarOpen.to">
               <PopoverTrigger as-child>
                 <Button
                   variant="outline"
