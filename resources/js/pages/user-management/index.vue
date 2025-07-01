@@ -7,7 +7,18 @@ import UserCreateModal from '@/components/user-management/UserCreateModal.vue'
 import axios from 'axios'
 import{  Button } from '@/components/ui/button'
 import AppLayout from '@/layouts/AppLayout.vue'
-
+import type { BreadcrumbItem } from '@/types'
+    
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: 'Home',
+    href: '/',
+  },
+  {
+    title: 'User Management',
+    href: '/users',
+  },
+]
 const users = ref<UserResponse>({
     data: [],
     current_page: 1,
@@ -47,7 +58,7 @@ onMounted(() => fetchUsers())
 </script>
 
 <template>
-    <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
       
         <div class="space-y-6 p-6 container">
     <div class="flex items-center justify-between">
