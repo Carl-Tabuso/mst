@@ -23,6 +23,22 @@ import {
 } from '@/components/ui/dialog'
 import AppLayout from '@/layouts/AppLayout.vue'
 
+import type { BreadcrumbItem } from '@/types'
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: 'Home',
+    href: '/',
+  },
+  {
+    title: 'User Management',
+    href: '/users',
+  },
+  {
+    title: 'Settings',
+    href: '/users/{id}/settings',
+  },
+]
+
 const props = defineProps<{
   user: {
     id: number
@@ -107,9 +123,9 @@ const deleteAccount = async () => {
 </script>
 
 <template>
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
     <div class="space-y-8 max-w-4xl p-6">
-      <h1 class="text-2xl font-bold">User Account Settings</h1>
+      <h1 class="text-2xl font-bold text-blue-800">User Account Settings</h1>
       
       <div class="space-y-6">
         <!-- Profile Section -->
