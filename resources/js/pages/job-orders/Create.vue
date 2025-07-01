@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem } from '@/types'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
-import { useForm } from '@inertiajs/vue3'
+import AppCalendar from '@/components/AppCalendar.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import AppCalendar from '@/components/AppCalendar.vue'
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
+import { jobOrderRouteNames } from '@/constants/job-order-route'
+import AppLayout from '@/layouts/AppLayout.vue'
+import { type BreadcrumbItem } from '@/types'
+import { useForm } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import { Textarea } from '@/components/ui/textarea'
-import { Separator } from '@/components/ui/separator'
-import { type JobOrderRouteName, jobOrderRouteNames } from '@/constants/job-order-route'
 
 const dateOfService = ref(new Date().toISOString())
 const timeOfService = ref('')
@@ -35,14 +39,17 @@ const handleDateOfServiceChange = (value: any) => {
 }
 
 const onSubmit = () => {
-  const [ hours, min ] = timeOfService.value.split(':')
-  const epoch = new Date(dateOfService.value).setHours(Number(hours), Number(min))
+  const [hours, min] = timeOfService.value.split(':')
+  const epoch = new Date(dateOfService.value).setHours(
+    Number(hours),
+    Number(min),
+  )
   // found this abomination online. I need to format the date to Y-m-d H:i:s
   const formatted = new Date(epoch).toJSON().split('.')[0].split('T').join(' ')
 
   form.transform((data) => ({
     ...data,
-    date_time: formatted
+    date_time: formatted,
   }))
 
   const path = jobOrderRouteNames.find((j) => j.id === form.service_type)
@@ -53,7 +60,7 @@ const onSubmit = () => {
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Job Orders',
-    href: '/job-orders'
+    href: '/job-orders',
   },
   {
     title: 'List',
@@ -61,8 +68,8 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Create',
-    href: '#'
-  }
+    href: '#',
+  },
 ]
 </script>
 
@@ -72,44 +79,36 @@ const breadcrumbs: BreadcrumbItem[] = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="px-3 py-3">
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-        <div class="flex items-center mb-3">
+        <div class="mb-3 flex items-center">
           <div class="flex flex-col">
-            <h3 class="scroll-m-20 text-3xl font-bold mb-8">
-              Add Job Order
-            </h3>
-            <form @submit.prevent="onSubmit" class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
+            <h3 class="mb-8 scroll-m-20 text-3xl font-bold">Add Job Order</h3>
+            <form
+              @submit.prevent="onSubmit"
+              class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6"
+            >
               <!-- Type of Service -->
-              <Label class="self-center">
-                Type of Service
-              </Label>
+              <Label class="self-center"> Type of Service </Label>
               <RadioGroup
                 required
-                v-model="form.service_type" 
-                class="flex items-center gap-x-10">
+                v-model="form.service_type"
+                class="flex items-center gap-x-10"
+              >
                 <div class="flex items-center gap-x-2">
                   <RadioGroupItem id="wm" value="form4" />
-                  <Label for="wm">
-                    Waste Management
-                  </Label>
+                  <Label for="wm"> Waste Management </Label>
                 </div>
                 <div class="flex items-center gap-x-2">
                   <RadioGroupItem id="its" value="it_service" />
-                  <Label for="its">
-                    IT Services
-                  </Label>
+                  <Label for="its"> IT Services </Label>
                 </div>
                 <div class="flex items-center gap-x-2">
                   <RadioGroupItem id="os" value="form5" />
-                  <Label for="os">
-                    Other Services (specify)
-                  </Label>
+                  <Label for="os"> Other Services (specify) </Label>
                 </div>
               </RadioGroup>
 
               <!-- Date and Time of Service -->
-              <Label class="self-center">
-                Date and Time of Service
-              </Label>
+              <Label class="self-center"> Date and Time of Service </Label>
               <div class="flex items-center gap-x-4">
                 <Popover>
                   <PopoverTrigger as-child>
@@ -143,15 +142,13 @@ const breadcrumbs: BreadcrumbItem[] = [
                   id="time"
                   type="time"
                   v-model="timeOfService"
-                  class="w-[100px] bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
+                  class="w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"
                   placeholder="Select a time"
                 />
               </div>
 
               <!-- Client -->
-              <Label for="client" class="self-center">
-                Client
-              </Label>
+              <Label for="client" class="self-center"> Client </Label>
               <Input
                 id="client"
                 type="text"
@@ -162,9 +159,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               />
 
               <!-- Address -->
-              <Label for="address" class="self-start pt-1">
-                Address
-              </Label>
+              <Label for="address" class="self-start pt-1"> Address </Label>
               <Textarea
                 id="address"
                 required
@@ -190,9 +185,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
 
                 <div class="flex items-center">
-                  <Label for="position" class="w-36 shrink-0">
-                    Position
-                  </Label>
+                  <Label for="position" class="w-36 shrink-0"> Position </Label>
                   <Input
                     id="position"
                     type="text"
@@ -235,7 +228,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
               </div>
 
-              <Separator class="my-4 w-full col-[1/-1]" />
+              <Separator class="col-[1/-1] my-4 w-full" />
 
               <!-- <Label for="address" class="self-start pt-1">
                 Appraiser
@@ -248,11 +241,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                 class="w-full"
               /> -->
 
-              <div class="w-full col-[1/-1] flex items-center">
+              <div class="col-[1/-1] flex w-full items-center">
                 <div class="ml-auto space-x-3">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
+                  <Button type="button" variant="outline"> Cancel </Button>
                   <Button type="submit" variant="default">
                     Add Job Order
                   </Button>

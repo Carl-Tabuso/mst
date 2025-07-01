@@ -1,20 +1,20 @@
 <script setup lang="ts" generic="TData">
-import type { Table } from '@tanstack/vue-table'
-import { Search, Settings2, Download, Archive } from 'lucide-vue-next'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { router } from '@inertiajs/vue3'
+import type { Table } from '@tanstack/vue-table'
+import { Archive, Download, Search, Settings2 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FilterPopover from './FilterPopover.vue'
-import { router } from '@inertiajs/vue3'
 
 interface DataTableToolbarProps {
   table: Table<TData>
@@ -24,15 +24,18 @@ interface DataTableToolbarProps {
 const props = defineProps<DataTableToolbarProps>()
 
 const handleOnSearch = (value: string | number) => {
-    props.table.setGlobalFilter(value)
+  props.table.setGlobalFilter(value)
 }
 
-const hasRowSelection = computed(() => props.table.getSelectedRowModel().rows.length > 0);
+const hasRowSelection = computed(
+  () => props.table.getSelectedRowModel().rows.length > 0,
+)
 
-const visibleColumnCount = computed(() => 
-  props.table.getAllColumns().filter((column) => 
-    column.getCanHide() && column.getIsVisible() 
-  ).length
+const visibleColumnCount = computed(
+  () =>
+    props.table
+      .getAllColumns()
+      .filter((column) => column.getCanHide() && column.getIsVisible()).length,
 )
 
 const handleExport = () => {
@@ -40,14 +43,16 @@ const handleExport = () => {
 }
 
 const handlePageSizeArchival = () => {
-  const jobOrderIds = props.table.getSelectedRowModel().rows.map(row => row.original.id)
+  const jobOrderIds = props.table
+    .getSelectedRowModel()
+    .rows.map((row) => row.original.id)
 
   router.visit(route('job_order.destroy'), {
     method: 'delete',
     data: { jobOrderIds },
     preserveScroll: true,
     onBefore: () => confirm('Are you sure you want to archive?'),
-    onSuccess: () => console.log() // show feedback
+    onSuccess: () => console.log(), // show feedback
   })
 }
 </script>
@@ -58,16 +63,18 @@ const handlePageSizeArchival = () => {
       <Input
         id="search"
         type="text"
-        class="max-w-sm pl-12 h-9"
+        class="h-9 max-w-sm pl-12"
         placeholder="Search"
         :model-value="globalFilter"
         @update:model-value="handleOnSearch"
       />
-      <span class="absolute start-0 inset-y-0 flex items-center justify-center px-5">
+      <span
+        class="absolute inset-y-0 start-0 flex items-center justify-center px-5"
+      >
         <Search class="size-4 text-muted-foreground" />
       </span>
     </div>
-    
+
     <FilterPopover />
 
     <DropdownMenu>
@@ -86,7 +93,7 @@ const handlePageSizeArchival = () => {
         <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuCheckboxItem
-          v-for="column in table.getAllColumns().filter(c => c.getCanHide())"
+          v-for="column in table.getAllColumns().filter((c) => c.getCanHide())"
           :key="column.id"
           :checked="column.getIsVisible()"
           @update:checked="(value: boolean) => column.toggleVisibility(value)"
@@ -103,21 +110,19 @@ const handlePageSizeArchival = () => {
 
     <div class="ml-auto">
       <Button
-        :disabled="! hasRowSelection"
+        :disabled="!hasRowSelection"
         :variant="hasRowSelection ? 'destructive' : 'secondary'"
         class="mx-3"
         @click="handlePageSizeArchival"
-        >
+      >
         <Archive class="mr-2" />
         Archive
         <template v-if="hasRowSelection">
-        <div class="hidden lg:flex">
-            <Badge
-                variant="destructive"
-                class="rounded-full font-normal"
-            >{{ table.getSelectedRowModel().rows.length }}
+          <div class="hidden lg:flex">
+            <Badge variant="destructive" class="rounded-full font-normal"
+              >{{ table.getSelectedRowModel().rows.length }}
             </Badge>
-        </div>
+          </div>
         </template>
       </Button>
     </div>
