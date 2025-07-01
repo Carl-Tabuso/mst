@@ -99,4 +99,25 @@ class JobOrderController extends Controller
 
         // return a msg?
     }
+    public function dropdownOptions()
+{
+    return JobOrder::select('id', 'serviceable_type')
+        ->orderBy('id', 'desc')
+        ->get()
+        ->map(fn($j) => [
+            'id' => $j->id,
+            'label' => "{$j->id} - " . $this->getServiceTypeLabel($j->serviceable_type),
+            'service_type' => $this->getServiceTypeLabel($j->serviceable_type),
+        ]);
+}
+
+private function getServiceTypeLabel(string $type): string
+{
+    return match ($type) {
+        'form4' => 'Waste Management',
+        'form5' => 'Other Services',
+        'it_service' => 'IT Services',
+        default => 'Unknown',
+    };
+}
 }
