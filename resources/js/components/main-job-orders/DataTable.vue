@@ -91,10 +91,25 @@ const table = useVueTable({
 
     const { pageIndex, pageSize } = pagination.value
 
-    const data = {
-      page: pageIndex + 1,
-      per_page: pageSize,
-      ...(globalFilter.value ? { search: globalFilter.value } : {}),
+        const data = {
+            page: pageIndex + 1,
+            per_page: pageSize,
+            ...(globalFilter.value ? { search: globalFilter.value } : {})
+        }
+
+        router.get(route(props.routeName), data, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        })
+    },
+    getRowId: row => (row as { id?: string | number; serviceableId?: string | number }).id ?? (row as any).serviceableId,
+    state: {
+        get sorting() { return sorting.value },
+        get columnVisibility() { return columnVisibility.value },
+        get rowSelection() { return rowSelection.value },
+        get pagination() { return pagination.value },
+        get globalFilter() { return globalFilter.value },
     }
 
     router.get(route(props.routeName), data, {
