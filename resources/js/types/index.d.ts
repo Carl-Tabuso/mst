@@ -30,6 +30,7 @@ export interface SharedData extends PageProps {
 }
 
 export interface User {
+    employee_id: any;
     id: number;
     email: string;
     avatar?: string;
@@ -54,6 +55,7 @@ export interface Employee {
 }
 
 export interface JobOrder {
+    machineInfos: never[];
     id: number;
     serviceableId: number;
     serviceableType: string;
