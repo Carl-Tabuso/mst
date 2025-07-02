@@ -35,7 +35,8 @@ const props = defineProps<{
 
 const sorting = ref<SortingState>([])
 const columnVisibility = ref<VisibilityState>({
-  client: true,
+  id: true,
+  client: false,
   contactNo: false,
   address: false,
   status: true,

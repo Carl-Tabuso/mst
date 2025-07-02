@@ -20,8 +20,10 @@ class Form3 extends Model
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'appraised_date' => 'date',
+        'approved_date'  => 'date',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
     ];
 
     public function form4(): BelongsTo
@@ -34,7 +36,7 @@ class Form3 extends Model
         return $this->belongsTo(Employee::class, 'team_leader');
     }
 
-    public function driver(): BelongsTo
+    public function teamDriver(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'team_driver');
     }

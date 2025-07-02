@@ -16,11 +16,14 @@ import { Link } from '@inertiajs/vue3'
 import {
   Archive,
   Award,
+  BookOpen,
   ChartPie,
   ClipboardList,
   FilePenLine,
+  History,
   Home,
   UserRoundCog,
+  UsersRound,
 } from 'lucide-vue-next'
 import AppLogo from './AppLogo.vue'
 
@@ -73,11 +76,11 @@ const mainNavItems: NavItem[] = [
 ];
 
 const footerNavItems: NavItem[] = [
-  // {
-  //     title: 'Technical Issue',
-  //     href: 'https://github.com/laravel/vue-starter-kit',
-  //     icon: Bug,
-  // },
+  {
+      title: 'Roles and Permissions',
+      href: '#',
+      icon: BookOpen,
+  },
 ]
 </script>
 

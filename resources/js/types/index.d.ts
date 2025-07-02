@@ -70,7 +70,7 @@ export interface JobOrder {
   createdAt: string
   updatedAt: string
   creator?: Employee
-  service?: any
+  serviceable?: any // add it services and others here
 }
 
 export interface Form4 {

@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreWasteManagementRequest;
 use App\Http\Requests\UpdateWasteManagementRequest;
-use App\Http\Resources\Form4Resource;
+use App\Http\Resources\JobOrderResource;
 use App\Models\Employee;
 use App\Models\Form4;
-use Illuminate\Http\Request;
+use App\Models\JobOrder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class WasteManagementController extends Controller
 {
@@ -33,35 +36,64 @@ class WasteManagementController extends Controller
         return redirect()->route('job_order.index');
     }
 
-    public function show(Form4 $form4)
+    public function edit(JobOrder $ticket): Response
     {
-        //
-    }
-
-    public function edit(Request $request, Form4 $form4)
-    {
-        $loads = $form4->load([
-            'form3' => [
-                'teamLeader',
-                'driver',
-                'safetyOfficer',
-                'mechanic',
-                'haulers',
+        $loads = $ticket->load([
+            'serviceable' => [
+                'form3' => [
+                    'teamLeader',
+                    'teamDriver',
+                    'safetyOfficer',
+                    'mechanic',
+                    'haulers',
+                ],
+                'appraisers',
             ],
-            'appraisers',
-            'jobOrder',
         ]);
 
-        $form4 = Form4Resource::make($loads);
+        $jobOrder = JobOrderResource::make($loads);
 
-        return Inertia::render('job-orders/waste-managements/Edit', [
-            'form4'     => $form4,
-            'employees' => Employee::all()->toResourceCollection(),
-        ]);
+        $employees = Employee::all()->toResourceCollection();
+
+        return Inertia::render('job-orders/waste-managements/Edit', compact('jobOrder', 'employees'));
     }
 
     public function update(UpdateWasteManagementRequest $request, Form4 $form4)
     {
-        dd($request->all());
+        // is date/time of service the timestamp of a newly logged job order?
+        // disable first section (form 4)
+        //
+
+        DB::transaction(function () use ($request, $form4) {
+            $validated = $request->safe();
+            // dd($validated->date('payment_date'));
+
+            $form4->jobOrder()->update([
+                'status' => $validated->enum('status', JobOrderStatus::class),
+            ]);
+
+            $form4->updateOrCreate([
+                'payment_date' => $validated->date('payment_date'),
+                'bid_bond'     => $validated->input('bid_bond'),
+                'or_number'    => $validated->input('or_number'),
+            ]);
+
+            $form4->appraisers()->attach($validated->array('appraisers'));
+
+            $form3 = $form4->form3()->updateOrCreate([
+                'appraised_date' => $validated->date('appraised_date'),
+                'approved_date'  => $validated->date('approved_date'),
+                'truck_no'       => $validated->input('truck_no'),
+                'payment_type'   => $validated->input('payment_type'),
+                'team_leader'    => $validated->input('team_leader'),
+                'team_driver'    => $validated->input('team_driver'),
+                'safety_officer' => $validated->input('safety_officer'),
+                'team_mechanic'  => $validated->input('team_mechanic'),
+            ]);
+
+            $form3->haulers()->attach($validated->array('haulers'));
+        });
+
+        return redirect()->route('job_order.index'); // ->with() messages should be
     }
 }

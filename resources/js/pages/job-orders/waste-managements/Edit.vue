@@ -1,88 +1,82 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem } from '@/types'
-import { Employee, Form4 } from '@/types'
-import { router, useForm } from '@inertiajs/vue3'
-import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import AppLayout from '@/layouts/AppLayout.vue'
+import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
+import { useForm } from '@inertiajs/vue3'
 import FirstSection from './components/FirstSection.vue'
+import FourthSection from './components/FourthSection.vue'
 import SecondSection from './components/SecondSection.vue'
 import ThirdSection from './components/ThirdSection.vue'
-import FourthSection from './components/FourthSection.vue'
 
 interface WasteManagementEditProps {
-  form4: Form4
+  jobOrder: JobOrder
   employees: Employee[]
 }
 
 const props = defineProps<WasteManagementEditProps>()
 
-const { form4, employees } = props
-const { form3, jobOrder } = form4
+const { jobOrder, employees } = props
+const { serviceable: form4 } = jobOrder
+const { form3 } = form4
 
-const teamLeader = ref<Employee| undefined>(form3?.teamLeader)
-const safetyOfficer = ref<Employee | undefined>(form3?.safetyOfficer)
-const teamDriver = ref<Employee | undefined>(form3?.teamDriver)
-const teamMechanic = ref<Employee | undefined>(form3?.teamMechanic)
-const haulers = ref<Employee[] | undefined>(form3?.haulers)
-const appraisers = ref<Employee[] | undefined>(form4?.appraisers)
-const serviceDate = ref(new Date(jobOrder?.dateTime || new Date()).toISOString())
-const appraisedDate = ref<string | undefined>(new Date(jobOrder?.dateTime || new Date()).toISOString())
-const paymentDate = ref<string | undefined>(new Date(form4?.paymentDate || new Date()).toISOString())
-const approvedDate = ref<string | undefined>(new Date(form3?.approvedDate || new Date()).toISOString())
-const status = ref<string>(jobOrder.status)
+const serviceDate = new Date(jobOrder.dateTime).toISOString()
 
-const timeRange = new Date(serviceDate.value).toLocaleTimeString(undefined, {
+const timeRange = new Date(serviceDate).toLocaleTimeString(undefined, {
   hour: '2-digit',
   minute: '2-digit',
-  hour12: false
+  hour12: false,
 })
 
-const serviceTime = ref(timeRange)
-
 const form = useForm({
-  service_type: jobOrder.serviceableType,
-  client: jobOrder.client,
-  address: jobOrder.address,
-  department: jobOrder.department,
-  contact_position: jobOrder.contactPosition,
-  contact_person: jobOrder.contactPerson,
-  contact_no: jobOrder.contactNo,
-  payment_date: paymentDate.value,
+  payment_date: form4?.paymentDate,
   payment_type: form3?.paymentType,
   bid_bond: form4?.bidBond,
   or_number: form4?.orNumber,
-  status: status.value,
-  appraised_date: appraisedDate.value,
-  approved_date: approvedDate.value,
-  team_leader: teamLeader.value?.id,
-  team_driver: teamDriver.value?.id,
-  safety_officer: safetyOfficer.value?.id,
-  team_mechanic: teamMechanic.value?.id,
+  status: jobOrder.status,
+  appraised_date: form3?.appraisedDate,
+  approved_date: form3?.approvedDate,
+  team_leader: form3?.teamLeader,
+  team_driver: form3?.teamDriver,
+  safety_officer: form3?.safetyOfficer,
+  team_mechanic: form3?.teamMechanic,
   truck_no: form3?.truckNo,
-  haulers: haulers.value,
-  appraisers: appraisers.value
+  haulers: form3?.haulers,
+  appraisers: form4?.appraisers,
 })
+// console.log(form4.paymentDate)
 
 const onSubmit = () => {
-  const [ hours, min ] = serviceTime.value.split(':')
-  const epoch = new Date(serviceDate.value).setHours(Number(hours), Number(min))
-  // found this abomination online. I need to format the date to Y-m-d H:i:s
-  const formatted = new Date(epoch).toJSON().split('.')[0].split('T').join(' ')
-
-  form.transform((data) => ({
+  console.log(form)
+  form
+    .transform((data) => ({
     ...data,
-    date_time: formatted,
-  }))
+    appraisers: data.appraisers?.map((a: Employee) => a.id),
+    haulers: data.haulers?.map((h: Employee) => h.id),
+    team_leader: data.team_leader?.id,
+    team_driver: data.team_driver?.id,
+    safety_officer: data.safety_officer?.id,
+    team_mechanic: data.team_mechanic?.id
+    }))
+    .patch(route('job_order.waste_management.update', form4.id))
+}
 
-  form.patch(route('job_order.waste_management.update', form4.id))
+const firstSectionBindings = {
+  isServiceTypeInputDisabled: true,
+  isServiceDateInputDisabled: true,
+  isServiceTimeInputDisabled: true,
+  isClientInputDisabled: true,
+  isAddressInputDisabled: true,
+  isDepartmentInputDisabled: true,
+  isContactPositionInputDisabled: true,
+  isContactPersonInputDisabled: true,
+  isContactNumberInputDisabled: true,
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Job Orders',
-    href: '/job-orders'
+    href: '/job-orders',
   },
   {
     title: 'List',
@@ -90,8 +84,8 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Edit',
-    href: '#'
-  }
+    href: '#',
+  },
 ]
 </script>
 
@@ -101,56 +95,64 @@ const breadcrumbs: BreadcrumbItem[] = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="px-3 py-3">
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-        <div class="flex items-center mb-3">
+        <div class="mb-3 flex items-center">
           <div class="flex flex-col">
-            <h3 class="scroll-m-20 text-3xl font-bold mb-8">
-              Edit Job Order
-            </h3>
-            <form @submit.prevent="onSubmit" class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
+            <h3 class="mb-8 scroll-m-20 text-3xl font-bold">Edit Job Order</h3>
+            <form
+              @submit.prevent="onSubmit"
+              class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6"
+            >
               <FirstSection
-                v-model:serviceType="form.service_type"
+                v-bind="firstSectionBindings"
+                v-model:serviceType="jobOrder.serviceableType"
                 v-model:serviceDate="serviceDate"
-                v-model:serviceTime="serviceTime"
-                v-model:client="form.client"
-                v-model:address="form.address"
-                v-model:department="form.department"
-                v-model:contactPosition="form.contact_position"
-                v-model:contactPerson="form.contact_person"
-                v-model:contactNumber="form.contact_no"
+                v-model:serviceTime="timeRange"
+                v-model:client="jobOrder.client"
+                v-model:address="jobOrder.address"
+                v-model:department="jobOrder.department"
+                v-model:contactPosition="jobOrder.contactPosition"
+                v-model:contactPerson="jobOrder.contactPerson"
+                v-model:contactNumber="jobOrder.contactNo"
               />
-              <Separator class="my-2 w-full col-[1/-1]" />
+              <Separator class="col-[1/-1] my-2 w-full" />
               <SecondSection
-                v-model:appraisers="appraisers"
-                v-model:appraisedDate="appraisedDate"
+                v-model:appraisers="form.appraisers"
+                v-model:appraisedDate="form.appraised_date"
                 :employees="employees"
               />
-              <Separator class="my-2 w-full col-[1/-1]" />
+              <Separator class="col-[1/-1] my-2 w-full" />
               <ThirdSection
                 v-model:paymentType="form.payment_type"
                 v-model:bidBond="form.bid_bond"
                 v-model:orNumber="form.or_number"
-                v-model:paymentDate="paymentDate"
-                v-model:approvedDate="approvedDate"
-                v-model:status="status"
+                v-model:paymentDate="form.payment_date"
+                v-model:approvedDate="form.approved_date"
+                v-model:status="form.status"
                 :employees="employees"
               />
-              <Separator class="my-2 w-full col-[1/-1]" />
+              <Separator class="col-[1/-1] my-2 w-full" />
               <FourthSection
-                v-model:teamLeader="teamLeader"
-                v-model:safetyOfficer="safetyOfficer"
-                v-model:teamDriver="teamDriver"
-                v-model:teamMechanic="teamMechanic"
-                v-model:haulers="haulers"
+                v-model:teamLeader="form.team_leader"
+                v-model:safetyOfficer="form.safety_officer"
+                v-model:teamDriver="form.team_driver"
+                v-model:teamMechanic="form.team_mechanic"
+                v-model:haulers="form.haulers"
                 v-model:truckNumber="form.truck_no"
                 :employees="employees"
               />
-              <Separator class="my-2 w-full col-[1/-1]" />
-              <div class="w-full col-[1/-1] flex items-center">
+              <Separator class="col-[1/-1] my-2 w-full" />
+              <div class="col-[1/-1] flex w-full items-center">
                 <div class="ml-auto space-x-3">
-                  <Button type="button" variant="outline">
+                  <Button
+                    type="button"
+                    variant="outline"
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" variant="default">
+                  <Button
+                    type="submit"
+                    variant="default"
+                  >
                     Update Job Order
                   </Button>
                 </div>
@@ -159,6 +161,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </div>
       </div>
-    </div>    
+    </div>
   </AppLayout>
 </template>

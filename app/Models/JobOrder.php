@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\JobOrderStatus;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,6 +36,20 @@ class JobOrder extends Model
     public function getDeletedAtColumn(): string
     {
         return 'archived_at';
+    }
+
+    public function resolveRouteBinding($value, $field = null): Model
+    {
+        $modelId = (int) str_replace('JO-', '', $value);
+
+        return parent::resolveRouteBinding($modelId, $field);
+    }
+
+    protected function id(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value) => 'JO-'.str_pad($value, 7, 0, STR_PAD_LEFT)
+        )->shouldCache();
     }
 
     public function scopeOfStatuses(Builder $query, JobOrderStatus|array $statuses): Builder

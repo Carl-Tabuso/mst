@@ -26,7 +26,7 @@ class JobOrderResource extends JsonResource
             'createdAt'             => $this->created_at,
             'updatedAt'             => $this->updated_at,
             'creator'               => EmployeeResource::make($this->whenLoaded('creator')),
-            'service'               => $this->whenLoaded('service', fn () => $this->serviceable->toResource()),
+            'serviceable'           => $this->whenLoaded('serviceable', fn () => $this->serviceable->toResource()),
             'teamLeaderPerformance' => TeamLeaderPerformanceResource::make($this->whenLoaded('teamLeaderPerformance')),
             'employeePerformance'   => EmployeePerformanceResource::make($this->whenLoaded('employeePerformance')),
             'corrections'           => JobOrderCorrectionResource::collection($this->whenLoaded('corrections')),

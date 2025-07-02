@@ -23,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])->name('index');
-            Route::get('{form4}/edit', [WasteManagementController::class, 'edit'])->name('edit');
+            Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])->name('edit');
             Route::post('/', [WasteManagementController::class, 'store'])->name('store');
             Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
         });

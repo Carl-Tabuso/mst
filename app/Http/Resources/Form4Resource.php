@@ -11,7 +11,8 @@ class Form4Resource extends JsonResource
     {
         return [
             'id'          => $this->id,
-            'paymentDate' => $this->payment_date,
+            'ticket'      => $this->ticket,
+            'paymentDate' => $this->payment_date->toISOString(),
             'bidBond'     => $this->bid_bond,
             'orNumber'    => $this->or_number,
             'createdAt'   => $this->created_at,
