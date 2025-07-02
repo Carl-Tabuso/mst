@@ -15,6 +15,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('team_leader_ratings', function (Blueprint $table) {
+            $table->id();
             $table->foreignIdFor(TeamLeaderPerformance::class)
                 ->constrained()
                 ->cascadeOnUpdate()
@@ -27,6 +28,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 
