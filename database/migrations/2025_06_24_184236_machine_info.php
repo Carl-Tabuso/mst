@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Employee;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('it_services', function (Blueprint $table) {
+        Schema::create('machine_infos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('it_service_id')->constrained('it_services')->cascadeOnDelete();
             $table->string('machine_type');
             $table->string('model');
             $table->string('serial_no');
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('it_services');
+        Schema::dropIfExists('machine_infos');
     }
 };
