@@ -12,6 +12,7 @@ class PerformanceRatingSeeder extends Seeder
         2 => 'Meets Expectations',
         3 => 'Exceeds Expectations',
         4 => 'Outstanding',
+        5 => 'Exceptional',
     ];
 
     /**
