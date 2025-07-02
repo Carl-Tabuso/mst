@@ -8,7 +8,7 @@ import { ref } from 'vue'
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Home',
-    href: '/dashboard',
+    href: '/',
   },
   {
     title: 'Incident Report',

@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\JobOrder;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\JobOrderController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -23,6 +24,26 @@ Route::middleware(['auth'])->group(function () {
         Route::get('others', fn () => dd('os'))->name('others');
     });
 
+   Route::prefix('users')->group(function () {
+
+    Route::get('/', [UserController::class, 'index']);
+
+    Route::get('/{user}/settings', [UserController::class, 'settings'])
+        ->name('users.settings');
+    
+    Route::patch('/{user}', [UserController::class, 'update'])
+        ->name('users.update');
+    Route::patch('/{user}/role', [UserController::class, 'updateRole'])
+        ->name('users.role.update');
+            Route::delete('/{user}/deactivate', [UserController::class, 'deactivate'])
+        ->name('users.deactivate');
+        Route::delete('/{user}', [UserController::class, 'destroy'])
+        ->name('users.destroy');
+});
+Route::get('/roles-permissions', function () {
+    return inertia('roles-and-permissions/RolesPermissions');
+})->name('roles-permissions');
+     Route::post('/employees-with-account', [EmployeeController::class, 'storeWithAccount']);
   Route::prefix('incidents')->name('incidents.')->group(function () {
         Route::get('report', [IncidentController::class, 'showReport'])->name('report');
         Route::get('/', [IncidentController::class, 'index'])->name('index');
@@ -38,6 +59,10 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('data')->group(function () {
         Route::get('employees/dropdown', [EmployeeController::class, 'dropdown'])->name('employees.dropdown');
                 Route::get('/job-orders/dropdown', [JobOrderController::class, 'dropdownOptions']);
+                                Route::get('/users', [UserController::class, 'getUsersData']);
+                                Route::get('/positions', [\App\Http\Controllers\PositionController::class, 'index']);
+
+
 
     });});
 
