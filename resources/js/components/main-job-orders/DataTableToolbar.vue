@@ -14,7 +14,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { computed } from 'vue'
 import FilterPopover from './FilterPopover.vue'
-import { useRouter, Router } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { router } from '@inertiajs/vue3'
+import { route } from 'ziggy-js'
 
 interface DataTableToolbarProps {
     table: Table<TData>
@@ -23,11 +25,11 @@ interface DataTableToolbarProps {
 }
 
 const props = defineProps<DataTableToolbarProps>()
-const router = useRouter()
+const vueRouter = useRouter()
 
 const handleOnSearch = (value: string | number) => {
     props.table.setGlobalFilter(value)
-    router.replace({
+    vueRouter.replace({
         name: props.routeName,
         query: { search: value }
     })
@@ -40,6 +42,21 @@ const visibleColumnCount = computed(() =>
         column.getCanHide() && column.getIsVisible()
     ).length
 )
+
+const handleArchive = () => {
+    const selectedIds = props.table.getSelectedRowModel().rows.map(row => row.original.id)
+    if (!selectedIds.length) return
+
+    let archiveRoute = props.routeName.endsWith('.index')
+        ? props.routeName.replace('.index', '.archive')
+        : props.routeName + '.archive';
+
+    router.post(route(archiveRoute), { ids: selectedIds }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    })
+}
 </script>
 
 <template>
@@ -83,13 +100,14 @@ const visibleColumnCount = computed(() =>
         </Button>
 
         <div class="ml-auto">
-            <Button :disabled="!hasRowSelection" :variant="hasRowSelection ? 'destructive' : 'secondary'" class="mx-3">
+            <Button :disabled="!hasRowSelection" :variant="hasRowSelection ? 'destructive' : 'secondary'" class="mx-3"
+                @click="handleArchive">
                 <Archive class="mr-2" />
                 Archive
                 <template v-if="hasRowSelection">
                     <div class="hidden lg:flex">
-                        <Badge variant="secondary" class="rounded-full font-normal">{{
-                            table.getSelectedRowModel().rows.length }}
+                        <Badge variant="secondary" class="rounded-full font-normal">
+                            {{ table.getSelectedRowModel().rows.length }}
                         </Badge>
                     </div>
                 </template>
