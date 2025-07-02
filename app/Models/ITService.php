@@ -5,8 +5,8 @@ namespace App\Models;
 use App\Enums\MachineStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ITService extends Model
 {
@@ -31,8 +31,18 @@ class ITService extends Model
         return $this->morphOne(JobOrder::class, 'serviceable');
     }
 
-    public function technician(): BelongsTo
+    public function technicians(): BelongsToMany
     {
-        return $this->belongsTo(Employee::class, 'cse');
+        return $this->belongsToMany(
+            Employee::class,
+            'it_services_technicians',
+            'i_t_service_id',
+            'technicians'
+        );
+    }
+
+    public function machineInfos()
+    {
+        return $this->hasMany(MachineInfo::class, 'it_service_id');
     }
 }
