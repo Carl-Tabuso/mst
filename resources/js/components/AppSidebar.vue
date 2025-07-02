@@ -58,7 +58,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Performance Monitoring',
-        href: '/performances',
+        href: '/ratings/',
         icon: Award,
     },
     {
@@ -68,7 +68,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Archives',
-        href: '#',
+        href: '/archives',
         icon: Archive
     }
 ];
