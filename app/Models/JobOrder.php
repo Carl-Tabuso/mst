@@ -88,4 +88,14 @@ class JobOrder extends Model
     {
         return $this->hasMany(JobOrderCorrection::class);
     }
+
+    public function employeePerformances()
+    {
+        return $this->hasMany(EmployeePerformance::class);
+    }
+
+    public function performanceSummary(): HasOne
+    {
+        return $this->hasOne(PerformanceSummary::class);
+    }
 }
