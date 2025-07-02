@@ -30,14 +30,15 @@ export interface SharedData extends PageProps {
 }
 
 export interface User {
-  id: number
-  email: string
-  avatar?: string
-  emailVerifiedAt?: string
-  createdAt: string
-  updatedAt: string
-  deletedAt?: string
-  employee: Employee
+    employee_id: any;
+    id: number;
+    email: string;
+    avatar?: string;
+    emailVerifiedAt?: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string;
+    employee: Employee,
 }
 
 export interface Employee {
@@ -105,6 +106,23 @@ export interface Form3 {
   safetyOfficer: Employee
   teamMechanic: Employee
   haulers: Employee[]
+    // machineInfos: never[];
+    // id: number;
+    // serviceableId: number;
+    // serviceableType: string;
+    // dateTime: string;
+    // client: string;
+    // address: string;
+    // department: string;
+    // contactNo: string;
+    // contactPerson: string;
+    // createdBy: number;
+    // status: string;
+    // errorCount: number;
+    // createdAt: string;
+    // updatedAt: string;
+    // creator?: Employee;
+    // service?: any;
 }
 
 export interface EloquentCollection {
