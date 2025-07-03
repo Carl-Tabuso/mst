@@ -1,6 +1,10 @@
-import { ref, computed, watch, onMounted } from 'vue'
+import type {
+  EmployeeSelection,
+  FormData,
+  JobOrderOption,
+} from '@/types/incident'
 import axios from 'axios'
-import type { FormData, EmployeeSelection, JobOrderOption } from '@/types/incident'
+import { computed, onMounted, ref, watch } from 'vue'
 
 export function useIncidentForm() {
   const formData = ref<FormData>({
@@ -11,7 +15,7 @@ export function useIncidentForm() {
     infractionType: '',
     serviceType: '',
     description: '',
-    jobOrder: null
+    jobOrder: null,
   })
 
   const showOtherInfractionInput = ref(false)
@@ -20,7 +24,7 @@ export function useIncidentForm() {
     'Equipment Damage',
     'Unauthorized Access',
     'Policy Breach',
-    'Others'
+    'Others',
   ])
 
   const employees = ref<EmployeeSelection[]>([])
@@ -31,41 +35,51 @@ export function useIncidentForm() {
   const filteredEmployees = computed(() => {
     if (!employees.value) return []
     return employees.value
-      .filter(e => !formData.value.involvedEmployees.some(sel => sel.id === e.id))
-      .filter(e => searchTerm.value 
-        ? e.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-        : true
+      .filter(
+        (e) => !formData.value.involvedEmployees.some((sel) => sel.id === e.id),
+      )
+      .filter((e) =>
+        searchTerm.value
+          ? e.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+          : true,
       )
   })
 
   const employeeNames = computed({
-    get: () => formData.value.involvedEmployees.map(e => e.name),
+    get: () => formData.value.involvedEmployees.map((e) => e.name),
     set: (names) => {
-      const currentIds = new Set(formData.value.involvedEmployees.map(e => e.id))
-      const newEmployees = names.map(name => {
-        const existing = formData.value.involvedEmployees.find(e => e.name === name)
+      const currentIds = new Set(
+        formData.value.involvedEmployees.map((e) => e.id),
+      )
+      const newEmployees = names.map((name) => {
+        const existing = formData.value.involvedEmployees.find(
+          (e) => e.name === name,
+        )
         if (existing) return existing
-        const newEmp = employees.value.find(e => e.name === name)
+        const newEmp = employees.value.find((e) => e.name === name)
         return newEmp || { id: -1, name }
       })
-      formData.value.involvedEmployees = newEmployees.filter(e => e.id !== -1)
-    }
+      formData.value.involvedEmployees = newEmployees.filter((e) => e.id !== -1)
+    },
   })
 
   const onJobOrderSelected = (value: string | number | null) => {
     if (!value) return
-    const selected = jobOrders.value.find(j => j.id === value)
+    const selected = jobOrders.value.find((j) => j.id === value)
     if (selected) {
       formData.value.serviceType = selected.service_type
     }
   }
 
   const handleEmployeeSelect = (employeeId: number) => {
-    const employee = employees.value.find(e => e.id === employeeId)
-    if (employee && !formData.value.involvedEmployees.some(e => e.id === employeeId)) {
+    const employee = employees.value.find((e) => e.id === employeeId)
+    if (
+      employee &&
+      !formData.value.involvedEmployees.some((e) => e.id === employeeId)
+    ) {
       formData.value.involvedEmployees.push({
         id: employeeId,
-        name: employee.name
+        name: employee.name,
       })
       searchTerm.value = ''
     }
@@ -78,22 +92,23 @@ export function useIncidentForm() {
   }
 
   const handleTagsUpdate = (newNames: string[]) => {
-    formData.value.involvedEmployees = formData.value.involvedEmployees
-      .filter(emp => newNames.includes(emp.name))
+    formData.value.involvedEmployees = formData.value.involvedEmployees.filter(
+      (emp) => newNames.includes(emp.name),
+    )
   }
 
   const fetchData = async () => {
     try {
       const [empResponse, jobOrderResponse] = await Promise.all([
         axios.get('/data/employees/dropdown'),
-        axios.get('/data/job-orders/dropdown')
+        axios.get('/data/job-orders/dropdown'),
       ])
-      
+
       employees.value = empResponse.data
       jobOrders.value = jobOrderResponse.data.map((j: any) => ({
         id: j.id,
         label: j.label,
-        service_type: j.service_type
+        service_type: j.service_type,
       }))
     } catch (error) {
       console.error('Failed to load data:', error)
@@ -102,9 +117,13 @@ export function useIncidentForm() {
 
   onMounted(fetchData)
 
-  watch(() => formData.value.involvedEmployees, (employees) => {
-    selectedEmployeeIds.value = employees.map(e => e.id)
-  }, { immediate: true })
+  watch(
+    () => formData.value.involvedEmployees,
+    (employees) => {
+      selectedEmployeeIds.value = employees.map((e) => e.id)
+    },
+    { immediate: true },
+  )
 
   return {
     formData,
@@ -119,6 +138,6 @@ export function useIncidentForm() {
     onJobOrderSelected,
     handleEmployeeSelect,
     addCurrentSearchTerm,
-    handleTagsUpdate
+    handleTagsUpdate,
   }
 }

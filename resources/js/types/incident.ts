@@ -9,7 +9,7 @@ export interface JobOrder {
   serviceable_type: string
   status: string
   label?: string
-creator?: string
+  creator?: string
 }
 
 export interface Mail {
@@ -18,14 +18,14 @@ export interface Mail {
   description: string
   plainText: string
   html: string
-is_read?: boolean
-  occured_at: string 
+  is_read?: boolean
+  occured_at: string
   location: string
   infraction_type: string
   status: string
   created_by: Employee
   involved_employees: Employee[]
-   job_order?: JobOrder
+  job_order?: JobOrder
   labels?: string[]
 }
 

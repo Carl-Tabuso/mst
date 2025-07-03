@@ -10,9 +10,10 @@ class PositionController extends Controller
     /**
      * Display a listing of the resource.
      */
- public function index()
+    public function index()
     {
         $positions = Position::all();
+
         return response()->json($positions);
     }
 

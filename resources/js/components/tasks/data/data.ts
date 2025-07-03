@@ -1,5 +1,5 @@
+import { ArrowDownIcon, ArrowRightIcon, ArrowUpIcon } from 'lucide-vue-next'
 import { h } from 'vue'
-import {ArrowDownIcon, ArrowRightIcon, ArrowUpIcon }  from 'lucide-vue-next'
 
 export const labels = [
   {
@@ -25,7 +25,6 @@ export const statuses = [
     value: 'approved',
     label: 'Approved',
   },
-
 
   {
     value: 'rejected',

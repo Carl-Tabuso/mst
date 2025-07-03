@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { Row } from '@tanstack/vue-table'
-import { router } from '@inertiajs/vue3'
-import { Ellipsis } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,6 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { router } from '@inertiajs/vue3'
+import type { Row } from '@tanstack/vue-table'
+import { Ellipsis } from 'lucide-vue-next'
 
 interface DataTableRowActionsProps {
   row: Row<any>
@@ -32,7 +32,10 @@ const navigateToSettings = () => {
         <span class="sr-only">Open menu</span>
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" class="w-[160px]">
+    <DropdownMenuContent
+      align="end"
+      class="w-[160px]"
+    >
       <DropdownMenuItem @click="navigateToSettings">
         Settings
       </DropdownMenuItem>

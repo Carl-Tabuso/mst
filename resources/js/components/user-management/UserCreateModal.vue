@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -11,6 +7,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -18,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
 
 const isOpen = ref(false)
 const positions = ref([])
@@ -30,7 +29,7 @@ const form = ref({
   last_name: '',
   suffix: '',
   position_id: '',
-  
+
   email: '',
 })
 
@@ -80,7 +79,6 @@ const validateForm = () => {
     valid = false
   }
 
-
   return valid
 }
 
@@ -90,7 +88,7 @@ const submitForm = async () => {
   isLoading.value = true
   try {
     const response = await axios.post('/employees-with-account', form.value)
-    
+
     if (response.status === 200 || response.status === 201) {
       isOpen.value = false
       form.value = {
@@ -120,9 +118,7 @@ onMounted(fetchPositions)
 <template>
   <Dialog v-model:open="isOpen">
     <DialogTrigger as-child>
-      <Button variant="default">
-        Create New Employee with Account
-      </Button>
+      <Button variant="default"> Create New Employee with Account </Button>
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>
@@ -131,7 +127,10 @@ onMounted(fetchPositions)
       <div class="grid gap-4 py-4">
         <!-- Employee Name Fields -->
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="first_name" class="text-right">
+          <Label
+            for="first_name"
+            class="text-right"
+          >
             First Name *
           </Label>
           <Input
@@ -140,13 +139,19 @@ onMounted(fetchPositions)
             placeholder="First Name"
             class="col-span-3"
           />
-          <small v-if="errors.first_name" class="col-span-3 col-start-2 text-red-500 text-sm">
+          <small
+            v-if="errors.first_name"
+            class="col-span-3 col-start-2 text-sm text-red-500"
+          >
             {{ errors.first_name }}
           </small>
         </div>
 
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="middle_name" class="text-right">
+          <Label
+            for="middle_name"
+            class="text-right"
+          >
             Middle Name
           </Label>
           <Input
@@ -158,7 +163,10 @@ onMounted(fetchPositions)
         </div>
 
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="last_name" class="text-right">
+          <Label
+            for="last_name"
+            class="text-right"
+          >
             Last Name *
           </Label>
           <Input
@@ -167,13 +175,19 @@ onMounted(fetchPositions)
             placeholder="Last Name"
             class="col-span-3"
           />
-          <small v-if="errors.last_name" class="col-span-3 col-start-2 text-red-500 text-sm">
+          <small
+            v-if="errors.last_name"
+            class="col-span-3 col-start-2 text-sm text-red-500"
+          >
             {{ errors.last_name }}
           </small>
         </div>
 
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="suffix" class="text-right">
+          <Label
+            for="suffix"
+            class="text-right"
+          >
             Suffix
           </Label>
           <Input
@@ -186,7 +200,10 @@ onMounted(fetchPositions)
 
         <!-- Position -->
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="position" class="text-right">
+          <Label
+            for="position"
+            class="text-right"
+          >
             Position *
           </Label>
           <Select v-model="form.position_id">
@@ -203,14 +220,20 @@ onMounted(fetchPositions)
               </SelectItem>
             </SelectContent>
           </Select>
-          <small v-if="errors.position_id" class="col-span-3 col-start-2 text-red-500 text-sm">
+          <small
+            v-if="errors.position_id"
+            class="col-span-3 col-start-2 text-sm text-red-500"
+          >
             {{ errors.position_id }}
           </small>
         </div>
 
         <!-- Email -->
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="email" class="text-right">
+          <Label
+            for="email"
+            class="text-right"
+          >
             Email *
           </Label>
           <Input
@@ -220,18 +243,26 @@ onMounted(fetchPositions)
             type="email"
             class="col-span-3"
           />
-          <small v-if="errors.email" class="col-span-3 col-start-2 text-red-500 text-sm">
+          <small
+            v-if="errors.email"
+            class="col-span-3 col-start-2 text-sm text-red-500"
+          >
             {{ errors.email }}
           </small>
         </div>
-
-   
       </div>
       <div class="flex justify-end gap-2">
-        <Button variant="outline" @click="isOpen = false">
+        <Button
+          variant="outline"
+          @click="isOpen = false"
+        >
           Cancel
         </Button>
-        <Button type="submit" @click="submitForm" :disabled="isLoading">
+        <Button
+          type="submit"
+          @click="submitForm"
+          :disabled="isLoading"
+        >
           <span v-if="isLoading">Creating...</span>
           <span v-else>Create Employee</span>
         </Button>
