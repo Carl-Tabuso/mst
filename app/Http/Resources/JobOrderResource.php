@@ -10,7 +10,7 @@ class JobOrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                    => $this->id,
+            'id'                    => 'JO-'.str_pad($this->id, 7, 0, STR_PAD_LEFT),
             'serviceableType'       => $this->serviceable_type,
             'serviceableId'         => $this->serviceable_id,
             'dateTime'              => $this->date_time,

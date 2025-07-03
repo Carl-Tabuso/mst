@@ -9,7 +9,6 @@ use App\Http\Resources\JobOrderResource;
 use App\Models\Employee;
 use App\Models\Form4;
 use App\Models\JobOrder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -66,7 +65,6 @@ class WasteManagementController extends Controller
 
         DB::transaction(function () use ($request, $form4) {
             $validated = $request->safe();
-            // dd($validated->date('payment_date'));
 
             $form4->jobOrder()->update([
                 'status' => $validated->enum('status', JobOrderStatus::class),
@@ -78,7 +76,7 @@ class WasteManagementController extends Controller
                 'or_number'    => $validated->input('or_number'),
             ]);
 
-            $form4->appraisers()->attach($validated->array('appraisers'));
+            $form4->appraisers()->sync($validated->array('appraisers'));
 
             $form3 = $form4->form3()->updateOrCreate([
                 'appraised_date' => $validated->date('appraised_date'),
@@ -91,7 +89,7 @@ class WasteManagementController extends Controller
                 'team_mechanic'  => $validated->input('team_mechanic'),
             ]);
 
-            $form3->haulers()->attach($validated->array('haulers'));
+            $form3->haulers()->sync($validated->array('haulers'));
         });
 
         return redirect()->route('job_order.index'); // ->with() messages should be

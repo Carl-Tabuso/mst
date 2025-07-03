@@ -28,52 +28,62 @@ import {
 import AppLogo from './AppLogo.vue'
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Home',
-        href: '/',
-        icon: Home,
-    },
-    {
-        title: 'Job Order',
-        href: '#',
-        icon: ClipboardList,
-        items: [
-            {
-                title: 'Lists',
-                href: '/job-orders',
-            },
-            {
-                title: 'Corrections',
-                href: '/job-orders/corrections',
-            }
-        ],
-    },
-    {
-        title: 'User Management',
-        href: '/users',
-        icon: UserRoundCog,
-    },
-    {
-        title: 'Incident Report',
-        href: '/incidents/report',
-        icon: FilePenLine,
-    },
-    {
-        title: 'Performance Monitoring',
-        href: '/performances',
-        icon: Award,
-    },
-    {
-        title: 'Reports and Analytics',
-        href: '#',
-        icon: ChartPie
-    },
-    {
-        title: 'Archives',
-        href: '#',
-        icon: Archive
-    }
-];
+  {
+    title: 'Home',
+    href: '/',
+    icon: Home,
+  },
+  {
+    title: 'Job Order',
+    href: '#',
+    icon: ClipboardList,
+    items: [
+      {
+        title: 'Lists',
+        href: '/job-orders',
+      },
+      {
+        title: 'Corrections',
+        href: '/job-orders/corrections',
+      },
+    ],
+  },
+  {
+    title: 'User Management',
+    href: '/users',
+    icon: UserRoundCog,
+  },
+  {
+    title: 'Employee Management',
+    href: '#',
+    icon: UsersRound,
+  },
+  {
+    title: 'Activity Logs',
+    href: '#',
+    icon: History,
+  },
+  {
+    title: 'Incident Report',
+    href: '/incidents/report',
+    icon: FilePenLine,
+  },
+  {
+    title: 'Performance Monitoring',
+    href: '/performances',
+    icon: Award,
+  },
+  {
+    title: 'Reports and Analytics',
+    href: '#',
+    icon: ChartPie,
+  },
+  {
+    title: 'Archives',
+    href: '#',
+    icon: Archive,
+  },
+]
 
 const footerNavItems: NavItem[] = [
   {
