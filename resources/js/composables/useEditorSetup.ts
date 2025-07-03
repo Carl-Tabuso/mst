@@ -1,23 +1,26 @@
-import { ref } from 'vue'
-import { useEditor } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
-import { FontSize } from  '../components/incident-report/components/extensions/FontSize'
-import { FontFamily } from '../components/incident-report/components/extensions/FontFamily'
-import Underline from '@tiptap/extension-underline'
-import Link from '@tiptap/extension-link'
-import TextAlign from '@tiptap/extension-text-align'
-import Color from '@tiptap/extension-color'
-import TextStyle from '@tiptap/extension-text-style'
-import Highlight from '@tiptap/extension-highlight'
-import Placeholder from '@tiptap/extension-placeholder'
-import Image from '@tiptap/extension-image'
-import CodeBlock from '@tiptap/extension-code-block'
 import Blockquote from '@tiptap/extension-blockquote'
+import CodeBlock from '@tiptap/extension-code-block'
+import Color from '@tiptap/extension-color'
+import Highlight from '@tiptap/extension-highlight'
 import HorizontalRule from '@tiptap/extension-horizontal-rule'
-import Superscript from '@tiptap/extension-superscript'
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import Placeholder from '@tiptap/extension-placeholder'
 import Subscript from '@tiptap/extension-subscript'
+import Superscript from '@tiptap/extension-superscript'
+import TextAlign from '@tiptap/extension-text-align'
+import TextStyle from '@tiptap/extension-text-style'
+import Underline from '@tiptap/extension-underline'
+import StarterKit from '@tiptap/starter-kit'
+import { useEditor } from '@tiptap/vue-3'
+import { ref } from 'vue'
+import { FontFamily } from '../components/incident-report/components/extensions/FontFamily'
+import { FontSize } from '../components/incident-report/components/extensions/FontSize'
 
-export function useEditorSetup(initialContent: string, onUpdate: (html: string) => void) {
+export function useEditorSetup(
+  initialContent: string,
+  onUpdate: (html: string) => void,
+) {
   const showColorDropdown = ref(false)
   const showFontSizeDropdown = ref(false)
 
@@ -54,6 +57,6 @@ export function useEditorSetup(initialContent: string, onUpdate: (html: string) 
     showColorDropdown,
     showFontSizeDropdown,
     textColors,
-    fontSizes
+    fontSizes,
   }
 }

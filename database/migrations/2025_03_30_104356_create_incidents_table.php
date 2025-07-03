@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Employee;
 use App\Models\JobOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,9 +19,9 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignId('created_by')
-                ->constrained('employees') 
+                ->constrained('employees')
                 ->cascadeOnUpdate()
-                ->cascadeOnDelete();      
+                ->cascadeOnDelete();
             $table->timestamp('occured_at');
             $table->longText('description');
             $table->string('subject');

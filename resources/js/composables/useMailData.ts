@@ -1,6 +1,6 @@
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import type { Mail } from '@/types/incident'
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
 
 export function useMailData() {
   const mails = ref<Mail[]>([])
@@ -12,13 +12,13 @@ export function useMailData() {
   const SERVICE_TYPE_LABELS: Record<string, string[]> = {
     form4: ['Waste Management'],
     form5: ['Other Services'],
-    it_service: ['IT Services']
+    it_service: ['IT Services'],
   }
 
   const DEFAULT_CREATOR = {
     id: 0,
     name: 'Unknown',
-    email: ''
+    email: '',
   }
 
   const transformIncidentToMail = (incident: any): Mail => {
@@ -39,33 +39,36 @@ export function useMailData() {
       labels,
       created_by: incident.created_by || DEFAULT_CREATOR,
       involved_employees: incident.involved_employees || [],
-      job_order: incident.job_order ? {
-        id: incident.job_order.id,
-        serviceable_type: incident.job_order.serviceable_type,
-        status: incident.job_order.status
-      } : undefined
+      job_order: incident.job_order
+        ? {
+            id: incident.job_order.id,
+            serviceable_type: incident.job_order.serviceable_type,
+            status: incident.job_order.status,
+          }
+        : undefined,
     }
   }
 
   const fetchIncidents = async () => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await axios.get('/incidents', {
-        params: { with_trashed: false }
+        params: { with_trashed: false },
       })
-      
+
       mails.value = response.data.map(transformIncidentToMail)
-      
-      selectedMail.value = mails.value.some(mail => mail.id === selectedMail.value) 
-        ? selectedMail.value 
-        : null
-        
-      selectedMails.value = selectedMails.value.filter(id => 
-        mails.value.some(mail => mail.id === id)
+
+      selectedMail.value = mails.value.some(
+        (mail) => mail.id === selectedMail.value,
       )
-      
+        ? selectedMail.value
+        : null
+
+      selectedMails.value = selectedMails.value.filter((id) =>
+        mails.value.some((mail) => mail.id === id),
+      )
     } catch (err) {
       console.error('Failed to fetch incidents:', err)
       error.value = err instanceof Error ? err : new Error(String(err))
@@ -76,15 +79,15 @@ export function useMailData() {
 
   const archiveSelected = async () => {
     if (selectedMails.value.length === 0) return
-    
+
     loading.value = true
     error.value = null
-    
+
     try {
       await axios.post('/incidents/archive', {
-        ids: selectedMails.value
+        ids: selectedMails.value,
       })
-      
+
       await fetchIncidents()
       selectedMails.value = []
     } catch (err) {
@@ -96,7 +99,7 @@ export function useMailData() {
   }
 
   onMounted(() => {
-    fetchIncidents().catch(err => {
+    fetchIncidents().catch((err) => {
       console.error('Error in onMounted:', err)
       error.value = err instanceof Error ? err : new Error(String(err))
     })
@@ -109,6 +112,6 @@ export function useMailData() {
     selectedMail,
     selectedMails,
     fetchIncidents,
-    archiveSelected
+    archiveSelected,
   }
 }

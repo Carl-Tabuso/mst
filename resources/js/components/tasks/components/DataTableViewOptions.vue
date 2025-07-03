@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Table } from '@tanstack/vue-table'
-import type { Task } from '../data/schema'
+import { Blend } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { Blend }  from 'lucide-vue-next'
+import type { Task } from '../data/schema'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -20,11 +20,14 @@ interface DataTableViewOptionsProps {
 
 const props = defineProps<DataTableViewOptionsProps>()
 
-const columns = computed(() => props.table.getAllColumns()
-  .filter(
-    column =>
-      typeof column.accessorFn !== 'undefined' && column.getCanHide(),
-  ))
+const columns = computed(() =>
+  props.table
+    .getAllColumns()
+    .filter(
+      (column) =>
+        typeof column.accessorFn !== 'undefined' && column.getCanHide(),
+    ),
+)
 </script>
 
 <template>
@@ -39,7 +42,10 @@ const columns = computed(() => props.table.getAllColumns()
         View
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" class="w-[150px]">
+    <DropdownMenuContent
+      align="end"
+      class="w-[150px]"
+    >
       <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
       <DropdownMenuSeparator />
 

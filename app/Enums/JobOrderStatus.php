@@ -28,4 +28,15 @@ enum JobOrderStatus: string
             self::Closed,
         ];
     }
+
+    public static function getPreHaulingStages(): array
+    {
+        return [
+            self::ForViewing,
+            self::Dropped,
+            self::ForProposal,
+            self::Failed,
+            self::Successful,
+        ];
+    }
 }
