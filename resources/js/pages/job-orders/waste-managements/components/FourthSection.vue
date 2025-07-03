@@ -81,10 +81,21 @@ const isMechnicPopoverOpen = ref<boolean>(false)
 <template>
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="teamLeader" class="w-48 shrink-0"> Team Leader </Label>
+      <Label
+        for="teamLeader"
+        class="w-48 shrink-0"
+      >
+        Team Leader
+      </Label>
       <Popover v-model:open="isTeamLeaderPopoverOpen">
-        <PopoverTrigger class="w-[400px]" as-child>
-          <Button variant="outline" class="">
+        <PopoverTrigger
+          class="w-[400px]"
+          as-child
+        >
+          <Button
+            variant="outline"
+            class=""
+          >
             <template v-if="teamLeader">
               <Badge
                 class="overflow-hidden truncate text-ellipsis rounded-full font-normal"
@@ -131,10 +142,21 @@ const isMechnicPopoverOpen = ref<boolean>(false)
       </Popover>
     </div>
     <div class="flex items-center">
-      <Label for="safetyOfficer" class="w-36 shrink-0"> Safety Officer </Label>
+      <Label
+        for="safetyOfficer"
+        class="w-36 shrink-0"
+      >
+        Safety Officer
+      </Label>
       <Popover v-model:open="isSafetyOfficerPopoverOpen">
-        <PopoverTrigger class="w-[400px]" as-child>
-          <Button variant="outline" class="">
+        <PopoverTrigger
+          class="w-[400px]"
+          as-child
+        >
+          <Button
+            variant="outline"
+            class=""
+          >
             <template v-if="safetyOfficer">
               <Badge
                 class="overflow-hidden truncate text-ellipsis rounded-full font-normal"
@@ -186,10 +208,21 @@ const isMechnicPopoverOpen = ref<boolean>(false)
 
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="driver" class="w-48 shrink-0"> Driver </Label>
+      <Label
+        for="driver"
+        class="w-48 shrink-0"
+      >
+        Driver
+      </Label>
       <Popover v-model:open="isDriverPopoverOpen">
-        <PopoverTrigger class="w-[400px]" as-child>
-          <Button variant="outline" class="">
+        <PopoverTrigger
+          class="w-[400px]"
+          as-child
+        >
+          <Button
+            variant="outline"
+            class=""
+          >
             <template v-if="teamDriver">
               <Badge
                 class="overflow-hidden truncate text-ellipsis rounded-full font-normal"
@@ -236,10 +269,21 @@ const isMechnicPopoverOpen = ref<boolean>(false)
       </Popover>
     </div>
     <div class="flex items-center">
-      <Label for="teamMechanic" class="w-36 shrink-0"> Mechanic </Label>
+      <Label
+        for="teamMechanic"
+        class="w-36 shrink-0"
+      >
+        Mechanic
+      </Label>
       <Popover v-model:open="isMechnicPopoverOpen">
-        <PopoverTrigger class="w-[400px]" as-child>
-          <Button variant="outline" class="justify-start">
+        <PopoverTrigger
+          class="w-[400px]"
+          as-child
+        >
+          <Button
+            variant="outline"
+            class="justify-start"
+          >
             <template v-if="teamMechanic">
               <Badge
                 class="overflow-hidden truncate text-ellipsis rounded-full font-normal"
@@ -289,10 +333,21 @@ const isMechnicPopoverOpen = ref<boolean>(false)
 
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="haulers" class="w-48 shrink-0"> Haulers </Label>
+      <Label
+        for="haulers"
+        class="w-48 shrink-0"
+      >
+        Haulers
+      </Label>
       <Popover>
-        <PopoverTrigger class="w-[400px]" as-child>
-          <Button variant="outline" class="justify-start">
+        <PopoverTrigger
+          class="w-[400px]"
+          as-child
+        >
+          <Button
+            variant="outline"
+            class="justify-start"
+          >
             <template v-if="haulers?.length">
               <template v-if="haulers?.length < 3">
                 <Badge
@@ -354,7 +409,12 @@ const isMechnicPopoverOpen = ref<boolean>(false)
       </Popover>
     </div>
     <div class="flex items-center">
-      <Label for="truckNo" class="w-36 shrink-0"> Truck # </Label>
+      <Label
+        for="truckNo"
+        class="w-36 shrink-0"
+      >
+        Truck #
+      </Label>
       <Input
         id="truckNo"
         placeholder="Enter truck no."

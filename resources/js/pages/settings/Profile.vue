@@ -51,7 +51,10 @@ const submit = () => {
           description="Update your name and email address"
         />
 
-        <form @submit.prevent="submit" class="space-y-6">
+        <form
+          @submit.prevent="submit"
+          class="space-y-6"
+        >
           <div class="grid gap-2">
             <Label for="name">Name</Label>
             <Input
@@ -62,7 +65,10 @@ const submit = () => {
               autocomplete="name"
               placeholder="Full name"
             />
-            <InputError class="mt-2" :message="form.errors.name" />
+            <InputError
+              class="mt-2"
+              :message="form.errors.name"
+            />
           </div>
 
           <div class="grid gap-2">
@@ -76,7 +82,10 @@ const submit = () => {
               autocomplete="username"
               placeholder="Email address"
             />
-            <InputError class="mt-2" :message="form.errors.email" />
+            <InputError
+              class="mt-2"
+              :message="form.errors.email"
+            />
           </div>
 
           <div v-if="mustVerifyEmail && !user.email_verified_at">

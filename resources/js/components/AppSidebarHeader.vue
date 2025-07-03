@@ -15,7 +15,10 @@ defineProps<{
   >
     <div class="flex items-center gap-2">
       <SidebarTrigger class="-ml-1" />
-      <Separator orientation="vertical" class="mr-2 h-4" />
+      <Separator
+        orientation="vertical"
+        class="mr-2 h-4"
+      />
       <template v-if="breadcrumbs.length > 0">
         <Breadcrumbs :breadcrumbs="breadcrumbs" />
       </template>

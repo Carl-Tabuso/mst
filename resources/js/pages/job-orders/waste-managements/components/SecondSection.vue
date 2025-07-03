@@ -30,7 +30,7 @@ interface SecondSectionProps {
 
 withDefaults(defineProps<SecondSectionProps>(), {
   isAppraisersInputDisabled: false,
-  isAppraisedDateInputDisabled: false
+  isAppraisedDateInputDisabled: false,
 })
 
 const appraisers = defineModel<Employee[]>('appraisers')
@@ -38,7 +38,7 @@ const appraisedDate = defineModel<any>('appraisedDate', {
   get(value) {
     if (value) return parseDate(value.split('T')[0])
   },
-  default: ''
+  default: '',
 })
 
 const isExistingAppraiser = (employeeId: number) => {
@@ -66,10 +66,22 @@ const handleAppraisedDateChange = (value: any) => {
 <template>
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="appraisers" class="w-48 shrink-0"> Appraisers </Label>
+      <Label
+        for="appraisers"
+        class="w-48 shrink-0"
+      >
+        Appraisers
+      </Label>
       <Popover>
-        <PopoverTrigger class="w-[400px]" as-child :disabled="isAppraisersInputDisabled">
-          <Button variant="outline" class="">
+        <PopoverTrigger
+          class="w-[400px]"
+          as-child
+          :disabled="isAppraisersInputDisabled"
+        >
+          <Button
+            variant="outline"
+            class=""
+          >
             <template v-if="appraisers?.length">
               <template v-if="appraisers.length < 3">
                 <Badge
@@ -133,19 +145,23 @@ const handleAppraisedDateChange = (value: any) => {
     <div class="flex items-center">
       <Label class="w-36 shrink-0"> Date Appraised </Label>
       <Popover>
-        <PopoverTrigger as-child :disabled="isAppraisedDateInputDisabled">
+        <PopoverTrigger
+          as-child
+          :disabled="isAppraisedDateInputDisabled"
+        >
           <Button
             type="button"
             variant="outline"
             :class="[
               'w-full ps-3 text-start font-normal',
-              { 'text-muted-foreground': ! appraisedDate },
+              { 'text-muted-foreground': !appraisedDate },
             ]"
           >
             <span>
-              {{ appraisedDate 
-                  ? formatToDateString(appraisedDate.toString()) 
-                  : 'Pick a date' 
+              {{
+                appraisedDate
+                  ? formatToDateString(appraisedDate.toString())
+                  : 'Pick a date'
               }}
             </span>
             <Calendar class="ms-auto h-4 w-4 opacity-50" />

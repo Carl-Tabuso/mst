@@ -64,22 +64,31 @@ const handleDateOfServiceChange = (value: any) => {
 <template>
   <!-- Type of Service -->
   <Label class="self-center"> Type of Service </Label>
-  <RadioGroup 
-    required 
-    :disabled="isServiceTypeInputDisabled" 
-    v-model="serviceType" 
+  <RadioGroup
+    required
+    :disabled="isServiceTypeInputDisabled"
+    v-model="serviceType"
     class="flex items-center gap-x-10"
   >
     <div class="flex items-center gap-x-2">
-      <RadioGroupItem id="wm" value="form4" />
+      <RadioGroupItem
+        id="wm"
+        value="form4"
+      />
       <Label for="wm"> Waste Management </Label>
     </div>
     <div class="flex items-center gap-x-2">
-      <RadioGroupItem id="its" value="it_service" />
+      <RadioGroupItem
+        id="its"
+        value="it_service"
+      />
       <Label for="its"> IT Services </Label>
     </div>
     <div class="flex items-center gap-x-2">
-      <RadioGroupItem id="os" value="form5" />
+      <RadioGroupItem
+        id="os"
+        value="form5"
+      />
       <Label for="os"> Other Services (specify) </Label>
     </div>
   </RadioGroup>
@@ -88,7 +97,10 @@ const handleDateOfServiceChange = (value: any) => {
   <Label class="self-center"> Date and Time of Service </Label>
   <div class="flex items-center gap-x-4">
     <Popover v-model:open="isDateOfServicePopoverOpen">
-      <PopoverTrigger as-child :disabled="isServiceDateInputDisabled">
+      <PopoverTrigger
+        as-child
+        :disabled="isServiceDateInputDisabled"
+      >
         <Button
           type="button"
           variant="outline"
@@ -120,7 +132,12 @@ const handleDateOfServiceChange = (value: any) => {
   </div>
 
   <!-- Client -->
-  <Label for="client" class="self-center"> Client </Label>
+  <Label
+    for="client"
+    class="self-center"
+  >
+    Client
+  </Label>
   <Input
     id="client"
     type="text"
@@ -132,7 +149,12 @@ const handleDateOfServiceChange = (value: any) => {
   />
 
   <!-- Address -->
-  <Label for="address" class="self-start pt-1"> Address </Label>
+  <Label
+    for="address"
+    class="self-start pt-1"
+  >
+    Address
+  </Label>
   <Textarea
     id="address"
     required
@@ -145,7 +167,12 @@ const handleDateOfServiceChange = (value: any) => {
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <!-- Department -->
     <div class="flex items-center gap-x-4">
-      <Label for="department" class="w-48 shrink-0"> Department/Branch </Label>
+      <Label
+        for="department"
+        class="w-48 shrink-0"
+      >
+        Department/Branch
+      </Label>
       <Input
         id="department"
         type="text"
@@ -158,7 +185,12 @@ const handleDateOfServiceChange = (value: any) => {
     </div>
 
     <div class="flex items-center">
-      <Label for="position" class="w-36 shrink-0"> Position </Label>
+      <Label
+        for="position"
+        class="w-36 shrink-0"
+      >
+        Position
+      </Label>
       <Input
         id="position"
         type="text"
@@ -173,7 +205,12 @@ const handleDateOfServiceChange = (value: any) => {
 
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="contactPerson" class="w-48 shrink-0"> Contact Person </Label>
+      <Label
+        for="contactPerson"
+        class="w-48 shrink-0"
+      >
+        Contact Person
+      </Label>
       <Input
         id="contactPerson"
         type="text"
@@ -185,7 +222,12 @@ const handleDateOfServiceChange = (value: any) => {
       />
     </div>
     <div class="flex items-center">
-      <Label for="contactNumber" class="w-36 shrink-0"> Contact Number </Label>
+      <Label
+        for="contactNumber"
+        class="w-36 shrink-0"
+      >
+        Contact Number
+      </Label>
       <Input
         id="contactNumber"
         type="text"

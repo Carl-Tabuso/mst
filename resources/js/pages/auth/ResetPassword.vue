@@ -50,7 +50,10 @@ const submit = () => {
             class="mt-1 block w-full"
             readonly
           />
-          <InputError :message="form.errors.email" class="mt-2" />
+          <InputError
+            :message="form.errors.email"
+            class="mt-2"
+          />
         </div>
 
         <div class="grid gap-2">
@@ -82,8 +85,15 @@ const submit = () => {
           <InputError :message="form.errors.password_confirmation" />
         </div>
 
-        <Button type="submit" class="mt-4 w-full" :disabled="form.processing">
-          <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
+        <Button
+          type="submit"
+          class="mt-4 w-full"
+          :disabled="form.processing"
+        >
+          <LoaderCircle
+            v-if="form.processing"
+            class="h-4 w-4 animate-spin"
+          />
           Reset password
         </Button>
       </div>

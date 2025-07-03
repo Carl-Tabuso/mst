@@ -77,19 +77,25 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
   {
-      title: 'Roles and Permissions',
-      href: '#',
-      icon: BookOpen,
+    title: 'Roles and Permissions',
+    href: '#',
+    icon: BookOpen,
   },
 ]
 </script>
 
 <template>
-  <Sidebar collapsible="icon" variant="sidebar">
+  <Sidebar
+    collapsible="icon"
+    variant="sidebar"
+  >
     <SidebarHeader>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" as-child>
+          <SidebarMenuButton
+            size="lg"
+            as-child
+          >
             <Link :href="route('home')">
               <AppLogo />
             </Link>

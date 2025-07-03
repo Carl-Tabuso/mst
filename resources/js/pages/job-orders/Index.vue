@@ -51,7 +51,10 @@ const breadcrumbs: BreadcrumbItem[] = [
             </p>
           </div>
           <div class="ml-auto">
-            <Link :href="route('job_order.create')" preserve-state>
+            <Link
+              :href="route('job_order.create')"
+              preserve-state
+            >
               <Button variant="default">
                 <Plus class="mr-2" />
                 Create Job Order
@@ -59,31 +62,50 @@ const breadcrumbs: BreadcrumbItem[] = [
             </Link>
           </div>
         </div>
-        <Tabs :model-value="route().current()" class="w-full">
+        <Tabs
+          :model-value="route().current()"
+          class="w-full"
+        >
           <TabsList class="flex justify-start">
             <Link :href="route('job_order.index')">
-              <TabsTrigger value="job_order.index" class="px-7">
+              <TabsTrigger
+                value="job_order.index"
+                class="px-7"
+              >
                 All
               </TabsTrigger>
             </Link>
             <Link :href="route('job_order.waste_management.index')">
-              <TabsTrigger value="waste_management" class="px-7">
+              <TabsTrigger
+                value="waste_management"
+                class="px-7"
+              >
                 Waste Management
               </TabsTrigger>
             </Link>
             <Link :href="route('job_order.it_service.index')">
-              <TabsTrigger value="job_order.it_service" class="px-7">
+              <TabsTrigger
+                value="job_order.it_service"
+                class="px-7"
+              >
                 IT Services
               </TabsTrigger>
             </Link>
             <Link :href="route('job_order.other.index')">
-              <TabsTrigger value="job_order.others" class="px-7">
+              <TabsTrigger
+                value="job_order.others"
+                class="px-7"
+              >
                 Other Services
               </TabsTrigger>
             </Link>
           </TabsList>
         </Tabs>
-        <JobOrderDataTable :columns="columns" :data="data" :meta="meta" />
+        <JobOrderDataTable
+          :columns="columns"
+          :data="data"
+          :meta="meta"
+        />
       </div>
     </div>
   </AppLayout>

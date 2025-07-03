@@ -79,11 +79,20 @@ const handlePageSizeArchival = () => {
 
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
-        <Button variant="ghost" class="mx-1">
-          <Settings2 class="mr-2" :stroke-width="1" />
+        <Button
+          variant="ghost"
+          class="mx-1"
+        >
+          <Settings2
+            class="mr-2"
+            :stroke-width="1"
+          />
           View
           <div class="hidden space-x-1 lg:flex">
-            <Badge variant="secondary" class="rounded-full font-normal">
+            <Badge
+              variant="secondary"
+              class="rounded-full font-normal"
+            >
               {{ visibleColumnCount }}
             </Badge>
           </div>
@@ -103,8 +112,14 @@ const handlePageSizeArchival = () => {
       </DropdownMenuContent>
     </DropdownMenu>
 
-    <Button @click="handleExport" variant="ghost">
-      <Download class="mr-2" :stroke-width="1" />
+    <Button
+      @click="handleExport"
+      variant="ghost"
+    >
+      <Download
+        class="mr-2"
+        :stroke-width="1"
+      />
       Export
     </Button>
 
@@ -119,7 +134,9 @@ const handlePageSizeArchival = () => {
         Archive
         <template v-if="hasRowSelection">
           <div class="hidden lg:flex">
-            <Badge variant="destructive" class="rounded-full font-normal"
+            <Badge
+              variant="destructive"
+              class="rounded-full font-normal"
               >{{ table.getSelectedRowModel().rows.length }}
             </Badge>
           </div>

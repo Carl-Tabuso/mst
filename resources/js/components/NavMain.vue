@@ -40,7 +40,10 @@ const page = usePage<SharedData>()
           <div v-if="item?.items?.length > 0">
             <CollapsibleTrigger as-child>
               <SidebarMenuButton :tooltip="item.title">
-                <component :is="item.icon" v-if="item.icon" />
+                <component
+                  :is="item.icon"
+                  v-if="item.icon"
+                />
                 <span>{{ item.title }}</span>
                 <ChevronRight
                   class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"

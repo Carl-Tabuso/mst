@@ -54,7 +54,12 @@ export const columns: ColumnDef<JobOrder>[] = [
     accessorKey: 'id',
     meta: { label: 'Ticket' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) => h('div', { class: 'text-[13px] font-medium truncate' }, row.getValue('id')),
+    cell: ({ row }) =>
+      h(
+        'div',
+        { class: 'text-[13px] font-medium truncate' },
+        row.getValue('id'),
+      ),
     enableHiding: false,
   },
   {
@@ -66,7 +71,7 @@ export const columns: ColumnDef<JobOrder>[] = [
         'div',
         { class: 'text-[13px] font-medium truncate' },
         row.getValue('client'),
-      )
+      ),
   },
   {
     accessorKey: 'serviceableType',

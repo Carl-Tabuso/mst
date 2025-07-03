@@ -112,19 +112,31 @@ const clearFilters = () => {
 <template>
   <Popover v-model:open="isParentPopoverOpen">
     <PopoverTrigger as-child>
-      <Button variant="ghost" class="ml-1">
-        <Filter class="mr-2" :stroke-width="1" />
+      <Button
+        variant="ghost"
+        class="ml-1"
+      >
+        <Filter
+          class="mr-2"
+          :stroke-width="1"
+        />
         Filter
         <template v-if="selectedStatuses.size > 0">
           <div class="hidden lg:flex">
-            <Badge variant="secondary" class="rounded-full font-normal">
+            <Badge
+              variant="secondary"
+              class="rounded-full font-normal"
+            >
               {{ selectedStatuses.size }}
             </Badge>
           </div>
         </template>
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-full" align="start">
+    <PopoverContent
+      class="w-full"
+      align="start"
+    >
       <div class="mb-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">Status</div>
         <div class="grid grid-cols-3 gap-x-10 gap-y-6">
@@ -141,7 +153,10 @@ const clearFilters = () => {
               "
               class="border-gray-400 dark:border-white"
             />
-            <Label :for="status.id" class="font-normal">
+            <Label
+              :for="status.id"
+              class="font-normal"
+            >
               {{ status.label }}
             </Label>
           </div>
@@ -218,8 +233,16 @@ const clearFilters = () => {
         </div>
       </div>
       <div class="flex items-center justify-end space-x-2">
-        <Button @click="clearFilters" variant="outline">Clear</Button>
-        <Button @click="applyFilters" variant="default">Apply Filter</Button>
+        <Button
+          @click="clearFilters"
+          variant="outline"
+          >Clear</Button
+        >
+        <Button
+          @click="applyFilters"
+          variant="default"
+          >Apply Filter</Button
+        >
       </div>
     </PopoverContent>
   </Popover>

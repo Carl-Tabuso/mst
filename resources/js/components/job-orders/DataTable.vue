@@ -124,7 +124,10 @@ const table = useVueTable({
 </script>
 
 <template>
-  <DataTableToolbar :table="table" :globalFilter="globalFilter" />
+  <DataTableToolbar
+    :table="table"
+    :globalFilter="globalFilter"
+  />
   <div class="rounded-md border">
     <Table>
       <TableHeader>
@@ -133,7 +136,10 @@ const table = useVueTable({
           :key="headerGroup.id"
           class=""
         >
-          <TableHead v-for="header in headerGroup.headers" :key="header.id">
+          <TableHead
+            v-for="header in headerGroup.headers"
+            :key="header.id"
+          >
             <FlexRender
               v-if="!header.isPlaceholder"
               :render="header.column.columnDef.header"
@@ -144,7 +150,10 @@ const table = useVueTable({
       </TableHeader>
       <TableBody>
         <template v-if="table.getRowModel().rows?.length">
-          <template v-for="row in table.getRowModel().rows" :key="row.id">
+          <template
+            v-for="row in table.getRowModel().rows"
+            :key="row.id"
+          >
             <TableRow
               :data-state="row.getIsSelected() ? 'selected' : undefined"
             >
@@ -163,7 +172,10 @@ const table = useVueTable({
         </template>
         <template v-else>
           <TableRow>
-            <TableCell :colspan="columns.length" class="h-24 text-center">
+            <TableCell
+              :colspan="columns.length"
+              class="h-24 text-center"
+            >
               No results.
             </TableCell>
           </TableRow>
@@ -171,5 +183,8 @@ const table = useVueTable({
       </TableBody>
     </Table>
   </div>
-  <DataTablePagination :table="table" :lastPage="props.meta.last_page" />
+  <DataTablePagination
+    :table="table"
+    :lastPage="props.meta.last_page"
+  />
 </template>

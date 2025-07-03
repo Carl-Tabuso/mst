@@ -50,13 +50,13 @@ const onSubmit = () => {
   console.log(form)
   form
     .transform((data) => ({
-    ...data,
-    appraisers: data.appraisers?.map((a: Employee) => a.id),
-    haulers: data.haulers?.map((h: Employee) => h.id),
-    team_leader: data.team_leader?.id,
-    team_driver: data.team_driver?.id,
-    safety_officer: data.safety_officer?.id,
-    team_mechanic: data.team_mechanic?.id
+      ...data,
+      appraisers: data.appraisers?.map((a: Employee) => a.id),
+      haulers: data.haulers?.map((h: Employee) => h.id),
+      team_leader: data.team_leader?.id,
+      team_driver: data.team_driver?.id,
+      safety_officer: data.safety_officer?.id,
+      team_mechanic: data.team_mechanic?.id,
     }))
     .patch(route('job_order.waste_management.update', form4.id))
 }

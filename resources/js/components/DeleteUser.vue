@@ -62,7 +62,10 @@ const closeModal = () => {
           <Button variant="destructive">Delete account</Button>
         </DialogTrigger>
         <DialogContent>
-          <form class="space-y-6" @submit="deleteUser">
+          <form
+            class="space-y-6"
+            @submit="deleteUser"
+          >
             <DialogHeader class="space-y-3">
               <DialogTitle
                 >Are you sure you want to delete your account?</DialogTitle
@@ -75,7 +78,11 @@ const closeModal = () => {
             </DialogHeader>
 
             <div class="grid gap-2">
-              <Label for="password" class="sr-only">Password</Label>
+              <Label
+                for="password"
+                class="sr-only"
+                >Password</Label
+              >
               <Input
                 id="password"
                 type="password"
@@ -89,12 +96,18 @@ const closeModal = () => {
 
             <DialogFooter class="gap-2">
               <DialogClose as-child>
-                <Button variant="secondary" @click="closeModal">
+                <Button
+                  variant="secondary"
+                  @click="closeModal"
+                >
                   Cancel
                 </Button>
               </DialogClose>
 
-              <Button variant="destructive" :disabled="form.processing">
+              <Button
+                variant="destructive"
+                :disabled="form.processing"
+              >
                 <button type="submit">Delete account</button>
               </Button>
             </DialogFooter>

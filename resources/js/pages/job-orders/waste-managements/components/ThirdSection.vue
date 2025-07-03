@@ -37,13 +37,13 @@ const paymentDate = defineModel<any>('paymentDate', {
   get(value) {
     if (value) return parseDate(value.split('T')[0])
   },
-  default: ''
+  default: '',
 })
 const approvedDate = defineModel<any>('approvedDate', {
   get(value) {
-    if (value) return parseDate(value.split('T')[0])      
+    if (value) return parseDate(value.split('T')[0])
   },
-  default: ''
+  default: '',
 })
 const status = defineModel<string>('status')
 
@@ -74,7 +74,12 @@ const isStatusPopoverOpen = ref<boolean>(false)
 <template>
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="paymentType" class="w-48 shrink-0"> Type of Payment </Label>
+      <Label
+        for="paymentType"
+        class="w-48 shrink-0"
+      >
+        Type of Payment
+      </Label>
       <Input
         id="paymentType"
         placeholder="Enter client's payment type"
@@ -83,7 +88,12 @@ const isStatusPopoverOpen = ref<boolean>(false)
       />
     </div>
     <div class="flex items-center">
-      <Label for="bidBond" class="w-36 shrink-0"> Bid Bond </Label>
+      <Label
+        for="bidBond"
+        class="w-36 shrink-0"
+      >
+        Bid Bond
+      </Label>
       <Input
         id="bidBond"
         placeholder="Enter job order's bid bond"
@@ -95,7 +105,12 @@ const isStatusPopoverOpen = ref<boolean>(false)
 
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="orNumber" class="w-48 shrink-0"> OR Number </Label>
+      <Label
+        for="orNumber"
+        class="w-48 shrink-0"
+      >
+        OR Number
+      </Label>
       <Input
         id="orNumber"
         placeholder="Enter OR Number"
@@ -104,7 +119,12 @@ const isStatusPopoverOpen = ref<boolean>(false)
       />
     </div>
     <div class="flex items-center">
-      <Label for="paymentDate" class="w-36 shrink-0"> Date of Payment </Label>
+      <Label
+        for="paymentDate"
+        class="w-36 shrink-0"
+      >
+        Date of Payment
+      </Label>
       <Popover v-model:open="isPaymentDatePopoverOpen">
         <PopoverTrigger as-child>
           <Button
@@ -112,13 +132,14 @@ const isStatusPopoverOpen = ref<boolean>(false)
             variant="outline"
             :class="[
               'w-full ps-3 text-start font-normal',
-              { 'text-muted-foreground': ! paymentDate },
+              { 'text-muted-foreground': !paymentDate },
             ]"
           >
             <span>
-              {{ paymentDate
-                ? formatToDateString(paymentDate.toString())
-                : 'Pick a date' 
+              {{
+                paymentDate
+                  ? formatToDateString(paymentDate.toString())
+                  : 'Pick a date'
               }}
             </span>
             <Calendar class="ms-auto h-4 w-4 opacity-50" />
@@ -136,7 +157,12 @@ const isStatusPopoverOpen = ref<boolean>(false)
 
   <div class="col-span-2 grid grid-cols-2 gap-x-24">
     <div class="flex items-center gap-x-4">
-      <Label for="approvedDate" class="w-48 shrink-0"> Date Approved </Label>
+      <Label
+        for="approvedDate"
+        class="w-48 shrink-0"
+      >
+        Date Approved
+      </Label>
       <Popover v-model:open="isApprovedDatePopoverOpen">
         <PopoverTrigger as-child>
           <Button
@@ -144,13 +170,14 @@ const isStatusPopoverOpen = ref<boolean>(false)
             variant="outline"
             :class="[
               'w-full ps-3 text-start font-normal',
-              { 'text-muted-foreground': ! approvedDate },
+              { 'text-muted-foreground': !approvedDate },
             ]"
           >
             <span>
-              {{ approvedDate 
-                ? formatToDateString(approvedDate.toString()) 
-                : 'Pick a date' 
+              {{
+                approvedDate
+                  ? formatToDateString(approvedDate.toString())
+                  : 'Pick a date'
               }}
             </span>
             <Calendar class="ms-auto h-4 w-4 opacity-50" />
@@ -166,10 +193,21 @@ const isStatusPopoverOpen = ref<boolean>(false)
       </Popover>
     </div>
     <div class="flex items-center">
-      <Label for="status" class="w-36 shrink-0"> Status </Label>
+      <Label
+        for="status"
+        class="w-36 shrink-0"
+      >
+        Status
+      </Label>
       <Popover v-model:open="isStatusPopoverOpen">
-        <PopoverTrigger class="w-[400px]" as-child>
-          <Button variant="outline" class="">
+        <PopoverTrigger
+          class="w-[400px]"
+          as-child
+        >
+          <Button
+            variant="outline"
+            class=""
+          >
             <Badge
               class="overflow-hidden truncate text-ellipsis rounded-full font-normal"
               :variant="jobOrderStatus?.badge"

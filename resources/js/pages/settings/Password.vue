@@ -61,7 +61,10 @@ const updatePassword = () => {
           description="Ensure your account is using a long, random password to stay secure"
         />
 
-        <form @submit.prevent="updatePassword" class="space-y-6">
+        <form
+          @submit.prevent="updatePassword"
+          class="space-y-6"
+        >
           <div class="grid gap-2">
             <Label for="current_password">Current password</Label>
             <Input
