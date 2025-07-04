@@ -53,12 +53,10 @@ const jobOrderStatus = computed(() =>
 
 const handlePaymentDateChange = (value: any) => {
   paymentDate.value = new Date(value).toISOString()
-  isPaymentDatePopoverOpen.value = false
 }
 
 const handleApprovedDateChange = (value: any) => {
   approvedDate.value = new Date(value).toISOString()
-  isApprovedDatePopoverOpen.value = false
 }
 
 const handleStatusChange = (value: string) => {
@@ -66,8 +64,6 @@ const handleStatusChange = (value: string) => {
   isStatusPopoverOpen.value = false
 }
 
-const isApprovedDatePopoverOpen = ref<boolean>(false)
-const isPaymentDatePopoverOpen = ref<boolean>(false)
 const isStatusPopoverOpen = ref<boolean>(false)
 </script>
 
@@ -125,7 +121,7 @@ const isStatusPopoverOpen = ref<boolean>(false)
       >
         Date of Payment
       </Label>
-      <Popover v-model:open="isPaymentDatePopoverOpen">
+      <Popover>
         <PopoverTrigger as-child>
           <Button
             type="button"
@@ -163,7 +159,7 @@ const isStatusPopoverOpen = ref<boolean>(false)
       >
         Date Approved
       </Label>
-      <Popover v-model:open="isApprovedDatePopoverOpen">
+      <Popover>
         <PopoverTrigger as-child>
           <Button
             type="button"

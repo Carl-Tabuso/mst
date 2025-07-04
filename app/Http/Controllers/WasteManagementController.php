@@ -39,20 +39,28 @@ class WasteManagementController extends Controller
     {
         $loads = $ticket->load([
             'serviceable' => [
-                'form3' => [
-                    'teamLeader',
-                    'teamDriver',
-                    'safetyOfficer',
-                    'mechanic',
-                    'haulers',
+                'appraisers' => [
+                    'account'
                 ],
-                'appraisers',
+                'form3' => [
+                    'haulings' => [
+                        'haulers' => [
+                            'account'
+                        ],
+                        'assignedPersonnel' => [
+                            'teamLeader' => ['account'],
+                            'teamDriver' => ['account'],
+                            'safetyOfficer' => ['account'],
+                            'teamMechanic' => ['account'],
+                        ],
+                    ],
+                ],
             ],
         ]);
 
         $jobOrder = JobOrderResource::make($loads);
 
-        $employees = Employee::all()->toResourceCollection();
+        $employees = Employee::with('account')->get()->toResourceCollection();
 
         return Inertia::render('job-orders/waste-managements/Edit', compact('jobOrder', 'employees'));
     }

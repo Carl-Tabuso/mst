@@ -51,14 +51,14 @@ export const columns: ColumnDef<JobOrder>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'id',
+    accessorKey: 'ticket',
     meta: { label: 'Ticket' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) =>
       h(
         'div',
         { class: 'text-[13px] font-medium truncate' },
-        row.getValue('id'),
+        row.getValue('ticket'),
       ),
     enableHiding: false,
   },

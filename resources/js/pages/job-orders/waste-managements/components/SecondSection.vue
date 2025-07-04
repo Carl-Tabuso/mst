@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppCalendar from '@/components/AppCalendar.vue'
-import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -17,10 +17,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { formatToDateString } from '@/composables/useDateFormatter'
-import { cn } from '@/lib/utils'
+import { getInitials } from '@/composables/useInitials'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
-import { Calendar, CheckIcon, ChevronsUpDown } from 'lucide-vue-next'
+import { Calendar, CheckIcon, ChevronsUpDown, X } from 'lucide-vue-next'
 
 interface SecondSectionProps {
   employees: Employee[]
@@ -61,6 +61,8 @@ const handleEmployeeMultiselect = (employee: Employee) => {
 const handleAppraisedDateChange = (value: any) => {
   appraisedDate.value = new Date(value).toISOString()
 }
+
+// const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '');
 </script>
 
 <template>
@@ -80,37 +82,53 @@ const handleAppraisedDateChange = (value: any) => {
         >
           <Button
             variant="outline"
-            class=""
+            class="bg-muted"
           >
             <template v-if="appraisers?.length">
-              <template v-if="appraisers.length < 3">
-                <Badge
-                  v-for="appraiser in appraisers?.slice(0, 2)"
-                  :key="appraiser.id"
-                  class="overflow-hidden truncate text-ellipsis rounded-full font-normal"
-                  variant="secondary"
-                  >{{ appraiser.fullName }}
-                </Badge>
-              </template>
-              <template v-else>
-                <Badge
-                  v-for="appraiser in appraisers?.slice(0, 1)"
-                  :key="appraiser.id"
-                  class="rounded-full font-normal"
-                  variant="secondary"
-                  >{{
-                    `${appraiser.fullName} and ${appraisers.length - 1} more`
-                  }}
-                </Badge>
-              </template>
+              <div
+                :key="appraisers[0].id"
+                class="flex items-center justify-between gap-2 rounded-md text-xs"
+              >
+                <div class="flex items-center gap-2 overflow-hidden">
+                  <Avatar class="h-6 w-6 rounded-full shrink-0">
+                    <AvatarImage
+                      v-if="appraisers[0]?.account?.avatar"
+                      :src="appraisers[0].account.avatar"
+                      :alt="appraisers[0].fullName"
+                    />
+                    <AvatarFallback>
+                      {{ getInitials(appraisers[0].fullName) }}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span class="truncate">
+                    <template v-if="appraisers.length < 2">
+                      {{ appraisers[0].fullName }}
+                    </template>
+                    <template v-else>
+                      {{ `${appraisers[0].fullName} and ${appraisers.length - 1} more` }}
+                    </template>
+                  </span>
+                </div>
+                <Button
+                  v-if="appraisers.length < 2"
+                  variant="ghost"
+                  size="icon"
+                  type="button"
+                  class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
+                  @click="() => handleEmployeeMultiselect(appraisers[0])"
+                >
+                  <X />
+                </Button>
+              </div>
             </template>
+
             <template v-else>
               <span class="text-muted-foreground"> Select appraisers </span>
             </template>
             <ChevronsUpDown class="ml-auto h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent class="p-0">
+        <PopoverContent class="p-0 w-[323px]">
           <Command>
             <CommandInput placeholder="Search for appraisers" />
             <CommandList>
@@ -130,11 +148,19 @@ const handleAppraisedDateChange = (value: any) => {
                         : 'opacity-50 [&_svg]:invisible',
                     ]"
                   >
-                    <CheckIcon :class="cn('h-4 w-4')" />
+                    <CheckIcon class="h-4 w-4" />
                   </div>
-                  <span>
-                    {{ employee.fullName }}
-                  </span>
+                  <Avatar class="h-6 w-6 overflow-hidden rounded-full">
+                    <AvatarImage v-if="employee?.account?.avatar" :src="employee?.account?.avatar" :alt="employee.fullName" />
+                    <AvatarFallback class="rounded-full">
+                      {{ getInitials(employee.fullName) }}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div class="grid flex-1 text-left text-sm leading-tight">
+                    <span class="truncate">
+                      {{ employee.fullName }}
+                    </span>
+                  </div>
                 </CommandItem>
               </CommandGroup>
             </CommandList>

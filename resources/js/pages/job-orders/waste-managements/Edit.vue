@@ -36,27 +36,21 @@ const form = useForm({
   status: jobOrder.status,
   appraised_date: form3?.appraisedDate,
   approved_date: form3?.approvedDate,
-  team_leader: form3?.teamLeader,
-  team_driver: form3?.teamDriver,
-  safety_officer: form3?.safetyOfficer,
-  team_mechanic: form3?.teamMechanic,
-  truck_no: form3?.truckNo,
-  haulers: form3?.haulers,
   appraisers: form4?.appraisers,
+  haulings: form3.haulings
 })
-// console.log(form4.paymentDate)
 
 const onSubmit = () => {
   console.log(form)
   form
     .transform((data) => ({
       ...data,
-      appraisers: data.appraisers?.map((a: Employee) => a.id),
-      haulers: data.haulers?.map((h: Employee) => h.id),
-      team_leader: data.team_leader?.id,
-      team_driver: data.team_driver?.id,
-      safety_officer: data.safety_officer?.id,
-      team_mechanic: data.team_mechanic?.id,
+      // appraisers: data.appraisers?.map((a: Employee) => a.id),
+      // haulers: data.haulers?.map((h: Employee) => h.id),
+      // team_leader: data.team_leader?.id,
+      // team_driver: data.team_driver?.id,
+      // safety_officer: data.safety_officer?.id,
+      // team_mechanic: data.team_mechanic?.id,
     }))
     .patch(route('job_order.waste_management.update', form4.id))
 }
@@ -132,12 +126,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               />
               <Separator class="col-[1/-1] my-2 w-full" />
               <FourthSection
-                v-model:teamLeader="form.team_leader"
-                v-model:safetyOfficer="form.safety_officer"
-                v-model:teamDriver="form.team_driver"
-                v-model:teamMechanic="form.team_mechanic"
-                v-model:haulers="form.haulers"
-                v-model:truckNumber="form.truck_no"
+                v-model:haulings="form.haulings"
                 :employees="employees"
               />
               <Separator class="col-[1/-1] my-2 w-full" />

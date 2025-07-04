@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Form3 extends Model
 {
@@ -31,33 +31,8 @@ class Form3 extends Model
         return $this->belongsTo(Form4::class);
     }
 
-    public function teamLeader(): BelongsTo
+    public function haulings(): HasMany
     {
-        return $this->belongsTo(Employee::class, 'team_leader');
-    }
-
-    public function teamDriver(): BelongsTo
-    {
-        return $this->belongsTo(Employee::class, 'team_driver');
-    }
-
-    public function safetyOfficer(): BelongsTo
-    {
-        return $this->belongsTo(Employee::class, 'safety_officer');
-    }
-
-    public function mechanic(): BelongsTo
-    {
-        return $this->belongsTo(Employee::class, 'team_mechanic');
-    }
-
-    public function haulers(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Employee::class,
-            'form3_haulers',
-            'form3_id',
-            'hauler'
-        );
+        return $this->hasMany(Form3Hauling::class);
     }
 }

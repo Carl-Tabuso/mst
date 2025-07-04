@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\JobOrderStatus;
 use App\Models\Employee;
 use App\Models\Form3;
+use App\Models\Form3Hauling;
 use App\Models\Form4;
 use App\Models\JobOrder;
 use App\Models\PerformanceCategory;
@@ -12,11 +13,14 @@ use App\Models\PerformanceRating;
 use App\Models\Position;
 use App\Models\TeamLeaderPerformance;
 use App\Models\TeamLeaderRating;
+use App\Traits\RandomEmployee;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class TeamLeaderPerformanceSeeder extends Seeder
 {
+    use RandomEmployee;
+
     /**
      * Run the database seeds.
      */
@@ -32,29 +36,41 @@ class TeamLeaderPerformanceSeeder extends Seeder
         );
 
         $form3 = Form3::factory()
-            ->create([
-                'form4_id' => $jobOrder->serviceable->id,
-                'from'     => now()->subDays(5),
-                'to'       => now(),
-            ]);
+            ->create(['form4_id' => $jobOrder->serviceable->id]);
 
-        $position = Position::firstWhere(['name' => 'Hauler']);
-        $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
-        $form3->haulers()->attach($haulers);
+        $days = now()->subDays(5);
 
-        $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
-            $form3->team_driver,
-            $form3->safety_officer,
-            $form3->team_mechanic,
-        ]);
+        $haulings = Form3Hauling::factory(5)
+            ->sequence(fn () => ['date' => $days->addDay()])
+            ->create(['form3_id' => $form3->id]);
 
         $assignedEmployees = [];
-        foreach ($employeeIds as $employeeId) {
-            $assignedEmployees[] = [
-                'job_order_id' => $jobOrder->id,
-                'evaluator_id' => $employeeId,
-                'evaluatee_id' => $form3->team_leader,
-            ];
+
+        foreach ($haulings as $hauling) {
+            $personnel = $hauling->assignedPersonnel()->create([
+                'team_leader'    => $this->getByPosition('Team Leader')->id,
+                'team_driver'    => $this->getByPosition('Driver')->id,
+                'safety_officer' => $this->getByPosition('Safety Officer')->id,
+                'team_mechanic'  => $this->getByPosition('Mechanic')->id,
+            ]);
+
+            $position = Position::firstWhere(['name' => 'Hauler']);
+            $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
+            $hauling->haulers()->attach($haulers);
+
+            $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
+                $personnel->team_driver,
+                $personnel->safety_officer,
+                $personnel->team_mechanic,
+            ]);
+
+            foreach ($employeeIds as $employeeId) {
+                $assignedEmployees[] = [
+                    'job_order_id' => $jobOrder->id,
+                    'evaluator_id' => $employeeId,
+                    'evaluatee_id' => $personnel->team_leader,
+                ];
+            }
         }
 
         DB::transaction(fn () => TeamLeaderPerformance::insert($assignedEmployees));

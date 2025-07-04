@@ -32,14 +32,28 @@ class JobOrder extends Model
         'status' => JobOrderStatus::ForAppraisal,
     ];
 
+    private $ticketPrefix;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->ticketPrefix = 'JO-'.now()->format('y');
+    }
+
     public function getDeletedAtColumn(): string
     {
         return 'archived_at';
     }
 
+    public function getTicketAttribute(): string
+    {
+        return $this->ticketPrefix.str_pad($this->id, 7, 0, STR_PAD_LEFT);
+    }
+
     public function resolveRouteBinding($value, $field = null): Model
     {
-        $modelId = (int) str_replace('JO-', '', $value);
+        $modelId = (int) str_replace($this->ticketPrefix, '', $value);
 
         return parent::resolveRouteBinding($modelId, $field);
     }

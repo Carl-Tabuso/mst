@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useInitials } from '@/composables/useInitials'
 import type { User } from '@/types'
+import { computed } from 'vue'
 
 interface Props {
   user: User
@@ -15,13 +16,13 @@ const props = withDefaults(defineProps<Props>(), {
 const { getInitials } = useInitials()
 
 // Compute whether we should show the avatar image
-// const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '');
+const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '');
 </script>
 
 <template>
-  <Avatar class="h-8 w-8 overflow-hidden rounded-lg">
-    <!-- <AvatarImage v-if="showAvatar" :src="user.avatar" :alt="user.employee.fullName" /> -->
-    <AvatarFallback class="rounded-lg text-black dark:text-white">
+  <Avatar class="h-8 w-8 overflow-hidden rounded-full">
+    <AvatarImage v-if="showAvatar" :src="user.avatar" :alt="user.employee.full_name" />
+    <AvatarFallback class="rounded-full text-black dark:text-white">
       {{ getInitials(user.employee.full_name) }}
     </AvatarFallback>
   </Avatar>

@@ -19,7 +19,7 @@ const props = defineProps<{
 const { jobOrder } = props
 
 const handlerRowArchival = () => {
-  router.delete(route('job_order.destroy', jobOrder.id), {
+  router.delete(route('job_order.destroy', jobOrder.ticket), {
     replace: true,
     onBefore: () =>
       confirm(`Are you sure you want to archive ${jobOrder.client}`),
@@ -32,8 +32,8 @@ const handleRowView = () => {
 
 const handleRowEdit = () => {
   const path = jobOrderRouteNames.find((j) => j.id === jobOrder.serviceableType)
-  console.log(route(`job_order.${path?.route}.edit`, jobOrder.id))
-  router.visit(route(`job_order.${path?.route}.edit`, jobOrder.id), {
+  
+  router.visit(route(`job_order.${path?.route}.edit`, jobOrder.ticket), {
     preserveState: true,
     // only: ['form4']
   })

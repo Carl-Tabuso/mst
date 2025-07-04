@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             Form4Seeder::class,
             Form3Seeder::class,
+            Form3HaulingSeeder::class,
+            Form3AssignedPersonnelSeeder::class,
             Form5Seeder::class,
             ITServiceSeeder::class,
             IncidentSeeder::class,

@@ -13,6 +13,7 @@ class JobOrderExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'Job Order',
             'Client',
             'Service Type',
             'Date & Time of Service',
@@ -31,6 +32,7 @@ class JobOrderExport implements FromCollection, WithHeadings
             JobOrder::with('creator')
                 ->get()
                 ->map(fn ($jO) => [
+                    $jO->ticket,
                     $jO->client,
                     JobOrderServiceType::from($jO->serviceable->getMorphClass())->getLabel(),
                     $jO->date_time,

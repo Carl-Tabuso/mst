@@ -54,7 +54,7 @@ export interface Employee {
 }
 
 export interface JobOrder {
-  id: number
+  ticket: string
   serviceableId: number
   serviceableType: string
   dateTime: string
@@ -88,23 +88,41 @@ export interface Form4 {
 export interface Form3 {
   id: number
   form4Id: number
-  truckNo: string
   paymentType: string
   appraisedDate: string
   approvedDate: string
   from: string
   to: string
+  createdAt: string
+  updatedAt: string
+  form4: Form4
+  haulings: Form3Hauling[]
+}
+
+export interface Form3Hauling {
+  id: number
+  form3Id: number
+  truckNo: string
+  date: string
+  form3: Form3
+  assignedPersonnel: Form3AssignedPersonnel
+  haulers: Employee[]
+}
+
+export interface Form3AssignedPersonnel {
+  id: number,
+  form3HaulingId: number
   teamLeaderId: number
   teamDriverId: number
   safetyOfficerId: number
   teamMechanicId: number
   createdAt: string
   updatedAt: string
+  hauling: Form3Hauling
   teamLeader: Employee
   teamDriver: Employee
   safetyOfficer: Employee
   teamMechanic: Employee
-  haulers: Employee[]
 }
 
 export interface EloquentCollection {
