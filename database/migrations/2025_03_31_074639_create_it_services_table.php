@@ -18,14 +18,10 @@ return new class extends Migration
             $table->string('model');
             $table->string('serial_no');
             $table->string('tag_no');
-            $table->longText('marchine_problem')->nullable();
+            $table->longText('machine_problem')->nullable();
             $table->longText('service_performed')->nullable();
             $table->longText('recommendation')->nullable();
             $table->string('machine_status')->nullable();
-            $table->foreignIdFor(Employee::class, 'cse')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
             $table->timestamps();
         });
     }

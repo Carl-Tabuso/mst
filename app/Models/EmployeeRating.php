@@ -13,4 +13,9 @@ class EmployeeRating extends Pivot
     {
         return $this->belongsTo(EmployeePerformance::class);
     }
+
+    public function performanceRating(): BelongsTo
+    {
+        return $this->belongsTo(PerformanceRating::class, 'performance_rating_id');
+    }
 }

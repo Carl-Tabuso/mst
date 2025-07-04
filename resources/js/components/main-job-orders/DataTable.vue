@@ -103,6 +103,7 @@ const table = useVueTable({
       replace: true,
     })
   },
+    getRowId: row => (row as { id?: string | number; serviceableId?: string | number }).id ?? (row as any).serviceableId,
   state: {
     get sorting() {
       return sorting.value

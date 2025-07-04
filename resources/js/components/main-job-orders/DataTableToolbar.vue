@@ -15,6 +15,9 @@ import { Archive, Download, Search, Settings2 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import FilterPopover from './FilterPopover.vue'
+import { useRouter } from 'vue-router'
+import { router } from '@inertiajs/vue3'
+import { route } from 'ziggy-js'
 
 interface DataTableToolbarProps {
   table: Table<TData>
@@ -23,26 +26,40 @@ interface DataTableToolbarProps {
 }
 
 const props = defineProps<DataTableToolbarProps>()
-const router = useRouter()
+const vueRouter = useRouter()
 
 const handleOnSearch = (value: string | number) => {
-  props.table.setGlobalFilter(value)
-  router.replace({
-    name: props.routeName,
-    query: { search: value },
-  })
+    props.table.setGlobalFilter(value)
+    vueRouter.replace({
+        name: props.routeName,
+        query: { search: value }
+    })
 }
 
 const hasRowSelection = computed(
   () => props.table.getSelectedRowModel().rows.length > 0,
 )
 
-const visibleColumnCount = computed(
-  () =>
-    props.table
-      .getAllColumns()
-      .filter((column) => column.getCanHide() && column.getIsVisible()).length,
+const visibleColumnCount = computed(() =>
+    props.table.getAllColumns().filter((column) =>
+        column.getCanHide() && column.getIsVisible()
+    ).length
 )
+
+const handleArchive = () => {
+    const selectedIds = props.table.getSelectedRowModel().rows.map(row => row.original.id)
+    if (!selectedIds.length) return
+
+    let archiveRoute = props.routeName.endsWith('.index')
+        ? props.routeName.replace('.index', '.archive')
+        : props.routeName + '.archive';
+
+    router.post(route(archiveRoute), { ids: selectedIds }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    })
+}
 </script>
 
 <template>
