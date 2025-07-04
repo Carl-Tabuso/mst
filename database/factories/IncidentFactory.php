@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class IncidentFactory extends Factory
 {
-        use RandomEmployee;
+    use RandomEmployee;
 
     /**
      * Define the model's default state.
@@ -22,14 +22,14 @@ class IncidentFactory extends Factory
     public function definition(): array
     {
         return [
-            'job_order_id' => JobOrder::inRandomOrder()->first()->id ?? JobOrder::factory(),
-            'occured_at' => fake()->dateTimeBetween('-1 week', '-1 day'),
-            'description' => fake()->paragraph(),
-            'subject'=>fake()->sentence(),
-            'location'=>fake()->city(),
-            'infraction_type'=>fake()->word(),
-            'status' => fake()->randomElement(IncidentStatus::cases()),
-            'created_by' => $this->getByPosition('Team Leader'),
+            'job_order_id'    => JobOrder::inRandomOrder()->first()->id ?? JobOrder::factory(),
+            'occured_at'      => fake()->dateTimeBetween('-1 week', '-1 day'),
+            'description'     => fake()->paragraph(),
+            'subject'         => fake()->sentence(),
+            'location'        => fake()->city(),
+            'infraction_type' => fake()->word(),
+            'status'          => fake()->randomElement(IncidentStatus::cases()),
+            'created_by'      => $this->getByPosition('Team Leader'),
 
         ];
     }

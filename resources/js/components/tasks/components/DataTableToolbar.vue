@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { CrossIcon } from 'lucide-vue-next'
-import {  Button } from '@/components/ui/button'
-import {  Input } from '@/components/ui/input'
+import { computed } from 'vue'
 
-import DataTableFacetedFilter from './DataTableFacetedFilter.vue'
 import { statuses } from '@/types/user'
+import DataTableFacetedFilter from './DataTableFacetedFilter.vue'
 
 const props = defineProps<{
   table: any
@@ -29,7 +29,7 @@ const statusColumn = computed(() => props.table.getColumn('status'))
         class="h-8 w-[150px] lg:w-[250px]"
         @update:model-value="emailColumn.setFilterValue"
       />
-      
+
       <DataTableFacetedFilter
         v-if="statusColumn"
         :column="statusColumn"

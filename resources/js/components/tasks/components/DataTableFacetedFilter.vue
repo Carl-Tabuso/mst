@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import type { Column } from '@tanstack/vue-table'
+import { CheckIcon, PlusCircleIcon } from 'lucide-vue-next'
 import type { Component } from 'vue'
-import type { Task } from '../data/schema'
 import { computed } from 'vue'
-import {CheckIcon} from 'lucide-vue-next';
-import {PlusCircleIcon}  from 'lucide-vue-next';
+import type { Task } from '../data/schema'
 
-import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command'
 import {
   Popover,
   PopoverContent,
@@ -31,17 +38,26 @@ interface DataTableFacetedFilter {
 const props = defineProps<DataTableFacetedFilter>()
 
 const facets = computed(() => props.column?.getFacetedUniqueValues())
-const selectedValues = computed(() => new Set(props.column?.getFilterValue() as string[]))
+const selectedValues = computed(
+  () => new Set(props.column?.getFilterValue() as string[]),
+)
 </script>
 
 <template>
   <Popover>
     <PopoverTrigger as-child>
-      <Button variant="outline" size="sm" class="h-8 border-dashed">
+      <Button
+        variant="outline"
+        size="sm"
+        class="h-8 border-dashed"
+      >
         <PlusCircleIcon class="mr-2 h-4 w-4" />
         {{ title }}
         <template v-if="selectedValues.size > 0">
-          <Separator orientation="vertical" class="mx-2 h-4" />
+          <Separator
+            orientation="vertical"
+            class="mx-2 h-4"
+          />
           <Badge
             variant="secondary"
             class="rounded-sm px-1 font-normal lg:hidden"
@@ -59,8 +75,9 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
 
             <template v-else>
               <Badge
-                v-for="option in options
-                  .filter((option) => selectedValues.has(option.value))"
+                v-for="option in options.filter((option) =>
+                  selectedValues.has(option.value),
+                )"
                 :key="option.value"
                 variant="secondary"
                 class="rounded-sm px-1 font-normal"
@@ -72,7 +89,10 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
         </template>
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-[200px] p-0" align="start">
+    <PopoverContent
+      class="w-[200px] p-0"
+      align="start"
+    >
       <Command>
         <CommandInput :placeholder="title" />
         <CommandList>
@@ -82,34 +102,44 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
               v-for="option in options"
               :key="option.value"
               :value="option"
-              @select="(e) => {
-                console.log(e.detail.value)
-                const isSelected = selectedValues.has(option.value)
-                if (isSelected) {
-                  selectedValues.delete(option.value)
+              @select="
+                (e) => {
+                  console.log(e.detail.value)
+                  const isSelected = selectedValues.has(option.value)
+                  if (isSelected) {
+                    selectedValues.delete(option.value)
+                  } else {
+                    selectedValues.add(option.value)
+                  }
+                  const filterValues = Array.from(selectedValues)
+                  column?.setFilterValue(
+                    filterValues.length ? filterValues : undefined,
+                  )
                 }
-                else {
-                  selectedValues.add(option.value)
-                }
-                const filterValues = Array.from(selectedValues)
-                column?.setFilterValue(
-                  filterValues.length ? filterValues : undefined,
-                )
-              }"
+              "
             >
               <div
-                :class="cn(
-                  'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                  selectedValues.has(option.value)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'opacity-50 [&_svg]:invisible',
-                )"
+                :class="
+                  cn(
+                    'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                    selectedValues.has(option.value)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'opacity-50 [&_svg]:invisible',
+                  )
+                "
               >
                 <CheckIcon :class="cn('h-4 w-4')" />
               </div>
-              <component :is="option.icon" v-if="option.icon" class="mr-2 h-4 w-4 text-muted-foreground" />
+              <component
+                :is="option.icon"
+                v-if="option.icon"
+                class="mr-2 h-4 w-4 text-muted-foreground"
+              />
               <span>{{ option.label }}</span>
-              <span v-if="facets?.get(option.value)" class="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+              <span
+                v-if="facets?.get(option.value)"
+                class="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs"
+              >
                 {{ facets.get(option.value) }}
               </span>
             </CommandItem>

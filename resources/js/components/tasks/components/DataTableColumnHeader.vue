@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import type { Column } from '@tanstack/vue-table'
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ChevronsUpDown,
+  EyeOff,
+} from 'lucide-vue-next'
 import type { Task } from '../data/schema'
-import {ArrowDownIcon, ArrowUpIcon, ChevronsUpDown, EyeOff} from 'lucide-vue-next'
 
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -12,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 
 interface DataTableColumnHeaderProps {
   column: Column<Task, any>
@@ -28,7 +33,10 @@ export default {
 </script>
 
 <template>
-  <div v-if="column.getCanSort()" :class="cn('flex items-center space-x-2', $attrs.class ?? '')">
+  <div
+    v-if="column.getCanSort()"
+    :class="cn('flex items-center space-x-2', $attrs.class ?? '')"
+  >
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <Button
@@ -37,9 +45,18 @@ export default {
           class="-ml-3 h-8 data-[state=open]:bg-accent"
         >
           <span>{{ title }}</span>
-          <ArrowDownIcon v-if="column.getIsSorted() === 'desc'" class="ml-2 h-4 w-4" />
-          <ArrowUpIcon v-else-if=" column.getIsSorted() === 'asc'" class="ml-2 h-4 w-4" />
-          <ChevronsUpDown v-else class="ml-2 h-4 w-4" />
+          <ArrowDownIcon
+            v-if="column.getIsSorted() === 'desc'"
+            class="ml-2 h-4 w-4"
+          />
+          <ArrowUpIcon
+            v-else-if="column.getIsSorted() === 'asc'"
+            class="ml-2 h-4 w-4"
+          />
+          <ChevronsUpDown
+            v-else
+            class="ml-2 h-4 w-4"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
@@ -60,7 +77,10 @@ export default {
     </DropdownMenu>
   </div>
 
-  <div v-else :class="$attrs.class">
+  <div
+    v-else
+    :class="$attrs.class"
+  >
     {{ title }}
   </div>
 </template>

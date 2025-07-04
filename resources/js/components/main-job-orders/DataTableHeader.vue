@@ -1,22 +1,26 @@
 <script lang="ts" setup>
-import { Column } from '@tanstack/vue-table'
-import type { JobOrder } from '@/types'
 import { Button } from '@/components/ui/button'
+import type { JobOrder } from '@/types'
+import { Column } from '@tanstack/vue-table'
 import { ChevronsUpDown } from 'lucide-vue-next'
 
 const props = defineProps<{
-    column: Column<JobOrder>
+  column: Column<JobOrder>
 }>()
 
-const toggleSort = () => props.column.toggleSorting(props.column.getIsSorted() === 'asc')
+const toggleSort = () =>
+  props.column.toggleSorting(props.column.getIsSorted() === 'asc')
 </script>
 
 <template>
-    <Button variant="ghost" @click="toggleSort"
-        class="flex items-center justify-start text-[13px] pl-0 hover:bg-transparent [&_svg]:size-3">
-        <span class="">
-            {{ props.column.columnDef.meta?.label || '' }}
-        </span>
-        <ChevronsUpDown class="ml-2" />
-    </Button>
+  <Button
+    variant="ghost"
+    @click="toggleSort"
+    class="flex items-center justify-start pl-0 text-[13px] hover:bg-transparent [&_svg]:size-3"
+  >
+    <span class="">
+      {{ props.column.columnDef.meta?.label || '' }}
+    </span>
+    <ChevronsUpDown class="ml-2" />
+  </Button>
 </template>

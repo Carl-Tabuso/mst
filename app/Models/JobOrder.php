@@ -28,9 +28,20 @@ class JobOrder extends Model
         'status'     => JobOrderStatus::class,
     ];
 
+    protected $attributes = [
+        'status' => JobOrderStatus::ForAppraisal,
+    ];
+
     public function getDeletedAtColumn(): string
     {
         return 'archived_at';
+    }
+
+    public function resolveRouteBinding($value, $field = null): Model
+    {
+        $modelId = (int) str_replace('JO-', '', $value);
+
+        return parent::resolveRouteBinding($modelId, $field);
     }
 
     public function scopeOfStatuses(Builder $query, JobOrderStatus|array $statuses): Builder

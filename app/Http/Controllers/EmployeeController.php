@@ -27,58 +27,60 @@ class EmployeeController extends Controller
     {
         //
     }
+
     public function storeWithAccount(Request $request)
-{
-    $validated = $request->validate([
-        // Employee fields
-        'first_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'suffix' => 'nullable|string|max:10',
-        'position_id' => 'required|exists:positions,id',
-        
-        'email' => 'required|email|unique:users,email',
-    ]);
+    {
+        $validated = $request->validate([
+            // Employee fields
+            'first_name'  => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name'   => 'required|string|max:255',
+            'suffix'      => 'nullable|string|max:10',
+            'position_id' => 'required|exists:positions,id',
 
-    try {
-        DB::beginTransaction();
-
-        // Create employee
-        $employee = Employee::create([
-            'first_name' => $validated['first_name'],
-            'middle_name' => $validated['middle_name'],
-            'last_name' => $validated['last_name'],
-            'suffix' => $validated['suffix'],
-            'position_id' => $validated['position_id'],
+            'email' => 'required|email|unique:users,email',
         ]);
 
-        // Generate random password
-        $password = \Illuminate\Support\Str::random(12);
-        
-        // Create user account
-        $user = User::create([
-            'employee_id' => $employee->id,
-            'email' => $validated['email'],
-            'password' => Hash::make($password),
-        ]);
+        try {
+            DB::beginTransaction();
 
-Mail::to($user->email)->send(new NewUserCredentials($user, $password));
-        DB::commit();
+            // Create employee
+            $employee = Employee::create([
+                'first_name'  => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'last_name'   => $validated['last_name'],
+                'suffix'      => $validated['suffix'],
+                'position_id' => $validated['position_id'],
+            ]);
 
-        return response()->json([
-            'message' => 'Employee and account created successfully',
-            'employee' => $employee,
-            'user' => $user
-        ], 201);
+            // Generate random password
+            $password = \Illuminate\Support\Str::random(12);
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'message' => 'Error creating employee and account',
-            'error' => $e->getMessage()
-        ], 500);
+            // Create user account
+            $user = User::create([
+                'employee_id' => $employee->id,
+                'email'       => $validated['email'],
+                'password'    => Hash::make($password),
+            ]);
+
+            Mail::to($user->email)->send(new NewUserCredentials($user, $password));
+            DB::commit();
+
+            return response()->json([
+                'message'  => 'Employee and account created successfully',
+                'employee' => $employee,
+                'user'     => $user,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Error creating employee and account',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
     }
-}
 
     /**
      * Store a newly created resource in storage.
@@ -119,14 +121,15 @@ Mail::to($user->email)->send(new NewUserCredentials($user, $password));
     {
         //
     }
+
     public function dropdown()
-{
-    return Employee::select('id', 'first_name', 'last_name')
-        ->orderBy('last_name')
-        ->get()
-        ->map(fn($e) => [
-            'id' => $e->id,
-            'name' => "{$e->first_name} {$e->last_name}",
-        ]);
-}
+    {
+        return Employee::select('id', 'first_name', 'last_name')
+            ->orderBy('last_name')
+            ->get()
+            ->map(fn ($e) => [
+                'id'   => $e->id,
+                'name' => "{$e->first_name} {$e->last_name}",
+            ]);
+    }
 }

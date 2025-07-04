@@ -1,15 +1,46 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { jobOrderRouteNames } from '@/constants/job-order-route'
+import AppLayout from '@/layouts/AppLayout.vue'
+import { type BreadcrumbItem } from '@/types'
+import { useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import FirstSection from './waste-managements/components/FirstSection.vue'
 
-// defineProps();
+const form = useForm({
+  service_type: 'form4',
+  date_time: new Date().toISOString(),
+  client: '',
+  address: '',
+  department: '',
+  contact_position: '',
+  contact_person: '',
+  contact_no: '',
+})
+
+const timeOfService = ref('')
+
+const onSubmit = () => {
+  const [hours, min] = timeOfService.value.split(':')
+  const epoch = new Date(form.date_time).setHours(Number(hours), Number(min))
+  // found this abomination online. I need to format the date to Y-m-d H:i:s
+  const formatted = new Date(epoch).toJSON().split('.')[0].split('T').join(' ')
+
+  form.transform((data) => ({
+    ...data,
+    date_time: formatted,
+  }))
+
+  const path = jobOrderRouteNames.find((j) => j.id === form.service_type)
+
+  form.post(route(`job_order.${path?.route}.store`))
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Job Orders',
-    href: '/job-orders'
+    href: '/job-orders',
   },
   {
     title: 'List',
@@ -17,39 +48,58 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Create',
-    href: '#'
-  }
+    href: '#',
+  },
 ]
 </script>
 
 <template>
-    <Head title="Create Job Order" />
+  <Head title="Create Job Order" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-      <div class="px-3 py-3">
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-          <div class="flex items-center mb-3">
-            <div class="flex flex-col gap-y-1">
-              <h3 class="scroll-m-20 text-3xl font-bold">
-                Add Job Order
-              </h3>
-              <RadioGroup class="flex items-center space-x-9">
-                <div class="flex items-center space-x-2">
-                  <RadioGroupItem id="r1" value="default" />
-                  <Label for="r1">Default</Label>
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="px-3 py-3">
+      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+        <div class="mb-3 flex items-center">
+          <div class="flex flex-col">
+            <h3 class="mb-8 scroll-m-20 text-3xl font-bold">Add Job Order</h3>
+            <form
+              @submit.prevent="onSubmit"
+              class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6"
+            >
+              <FirstSection
+                v-model:serviceType="form.service_type"
+                v-model:serviceDate="form.date_time"
+                v-model:serviceTime="timeOfService"
+                v-model:client="form.client"
+                v-model:address="form.address"
+                v-model:department="form.department"
+                v-model:contactPosition="form.contact_position"
+                v-model:contactPerson="form.contact_person"
+                v-model:contactNumber="form.contact_no"
+              />
+
+              <Separator class="col-[1/-1] my-4 w-full" />
+
+              <div class="col-[1/-1] flex w-full items-center">
+                <div class="ml-auto space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="default"
+                  >
+                    Add Job Order
+                  </Button>
                 </div>
-                <div class="flex items-center space-x-2">
-                  <RadioGroupItem id="r2" value="comfortable" />
-                  <Label for="r2">Comfortable</Label>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <RadioGroupItem id="r3" value="compact" />
-                  <Label for="r3">Compact</Label>
-                </div>
-              </RadioGroup>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-    </AppLayout>
+    </div>
+  </AppLayout>
 </template>

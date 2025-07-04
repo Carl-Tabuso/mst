@@ -14,7 +14,7 @@ class Incident extends Model
 
     protected $fillable = [
         'job_order_id',
-        'created_by', 
+        'created_by',
         'subject',
         'location',
         'infraction_type',
@@ -22,15 +22,15 @@ class Incident extends Model
         'description',
         'action_taken',
         'status',
-        'is_read', 
+        'is_read',
     ];
 
     protected $casts = [
         'occured_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'status' => IncidentStatus::class,
-        'is_read' => 'boolean', 
+        'status'     => IncidentStatus::class,
+        'is_read'    => 'boolean',
     ];
 
     public function jobOrder(): BelongsTo
@@ -52,6 +52,7 @@ class Incident extends Model
     {
         return $this->belongsToMany(Employee::class, 'incident_employee_injuries');
     }
+
     public function scopeUnread($query)
     {
         return $query->where('is_read', false);

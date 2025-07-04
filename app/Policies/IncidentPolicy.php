@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Incident;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class IncidentPolicy
 {
@@ -16,15 +15,12 @@ class IncidentPolicy
         return false;
     }
 
-public function verify(User $user, Incident $incident)
-{
-    $employee = \App\Models\Employee::with('position')->find($user->employee_id);
+    public function verify(User $user, Incident $incident)
+    {
+        $employee = \App\Models\Employee::with('position')->find($user->employee_id);
 
-
-    return optional($employee->position)->name === 'Human Resource';
-}
-
-
+        return optional($employee->position)->name === 'Human Resource';
+    }
 
     /**
      * Determine whether the user can view the model.

@@ -19,20 +19,24 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->string('truck_no');
-            $table->string('payment_type');
-            $table->timestamp('appraised_date');
+            $table->timestamp('approved_date')->nullable();
+            $table->string('truck_no')->nullable();
+            $table->string('payment_type')->nullable();
+            $table->timestamp('appraised_date')->nullable();
             $table->date('from')->nullable();
             $table->date('to')->nullable();
             $table->foreignIdFor(Employee::class, 'team_leader')
+                ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignIdFor(Employee::class, 'team_driver')
+                ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignIdFor(Employee::class, 'safety_officer')
+                ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
