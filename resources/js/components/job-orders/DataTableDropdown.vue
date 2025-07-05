@@ -32,7 +32,7 @@ const handleRowView = () => {
 
 const handleRowEdit = () => {
   const path = jobOrderRouteNames.find((j) => j.id === jobOrder.serviceableType)
-  
+
   router.visit(route(`job_order.${path?.route}.edit`, jobOrder.ticket), {
     preserveState: true,
     // only: ['form4']

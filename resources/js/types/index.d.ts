@@ -110,7 +110,7 @@ export interface Form3Hauling {
 }
 
 export interface Form3AssignedPersonnel {
-  id: number,
+  id: number
   form3HaulingId: number
   teamLeaderId: number
   teamDriverId: number
