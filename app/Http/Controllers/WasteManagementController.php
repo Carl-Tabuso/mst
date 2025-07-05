@@ -39,19 +39,15 @@ class WasteManagementController extends Controller
     {
         $loads = $ticket->load([
             'serviceable' => [
-                'appraisers' => [
-                    'account'
-                ],
-                'form3' => [
+                'appraisers' => ['account:avatar'],
+                'form3'      => [
                     'haulings' => [
-                        'haulers' => [
-                            'account'
-                        ],
+                        'haulers'           => ['account:avatar'],
                         'assignedPersonnel' => [
-                            'teamLeader' => ['account'],
-                            'teamDriver' => ['account'],
-                            'safetyOfficer' => ['account'],
-                            'teamMechanic' => ['account'],
+                            'teamLeader'    => ['account:avatar'],
+                            'teamDriver'    => ['account:avatar'],
+                            'safetyOfficer' => ['account:avatar'],
+                            'teamMechanic'  => ['account:avatar'],
                         ],
                     ],
                 ],
@@ -60,7 +56,7 @@ class WasteManagementController extends Controller
 
         $jobOrder = JobOrderResource::make($loads);
 
-        $employees = Employee::with('account')->get()->toResourceCollection();
+        $employees = Employee::with('account:employee_id')->get()->toResourceCollection();
 
         return Inertia::render('job-orders/waste-managements/Edit', compact('jobOrder', 'employees'));
     }
@@ -71,6 +67,7 @@ class WasteManagementController extends Controller
         // disable first section (form 4)
         //
 
+        // needs update
         DB::transaction(function () use ($request, $form4) {
             $validated = $request->safe();
 

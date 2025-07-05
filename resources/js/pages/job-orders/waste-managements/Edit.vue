@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { useForm } from '@inertiajs/vue3'
+import { computed } from 'vue'
 import FirstSection from './components/FirstSection.vue'
 import FourthSection from './components/FourthSection.vue'
 import SecondSection from './components/SecondSection.vue'
@@ -28,6 +31,10 @@ const timeRange = new Date(serviceDate).toLocaleTimeString(undefined, {
   hour12: false,
 })
 
+const jobOrderStatus = computed(() =>
+  JobOrderStatuses.find((s) => jobOrder.status === s.id),
+)
+
 const form = useForm({
   payment_date: form4?.paymentDate,
   payment_type: form3?.paymentType,
@@ -37,21 +44,21 @@ const form = useForm({
   appraised_date: form3?.appraisedDate,
   approved_date: form3?.approvedDate,
   appraisers: form4?.appraisers,
-  haulings: form3.haulings
+  haulings: form3?.haulings,
 })
 
 const onSubmit = () => {
   console.log(form)
   form
-    .transform((data) => ({
-      ...data,
-      // appraisers: data.appraisers?.map((a: Employee) => a.id),
-      // haulers: data.haulers?.map((h: Employee) => h.id),
-      // team_leader: data.team_leader?.id,
-      // team_driver: data.team_driver?.id,
-      // safety_officer: data.safety_officer?.id,
-      // team_mechanic: data.team_mechanic?.id,
-    }))
+    // .transform((data) => ({
+    //   ...data,
+    //   appraisers: data.appraisers?.map((a: Employee) => a.id),
+    //   haulers: data.haulers?.map((h: Employee) => h.id),
+    //   team_leader: data.team_leader?.id,
+    //   team_driver: data.team_driver?.id,
+    //   safety_officer: data.safety_officer?.id,
+    //   team_mechanic: data.team_mechanic?.id,
+    // }))
     .patch(route('job_order.waste_management.update', form4.id))
 }
 
@@ -91,7 +98,18 @@ const breadcrumbs: BreadcrumbItem[] = [
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div class="mb-3 flex items-center">
           <div class="flex flex-col">
-            <h3 class="mb-8 scroll-m-20 text-3xl font-bold">Edit Job Order</h3>
+            <div class="mb-8 flex items-center justify-between">
+              <div class="list-inline-item flex items-center gap-4">
+                <h3 class="scroll-m-20 text-2xl font-bold">Edit Job Order</h3>
+                <Badge
+                  :variant="jobOrderStatus?.badge"
+                  class="overflow-hidden truncate text-ellipsis rounded-full font-semibold"
+                >
+                  {{ jobOrderStatus?.label }}
+                </Badge>
+              </div>
+              <div class="font-medium">{{ jobOrder.ticket }}</div>
+            </div>
             <form
               @submit.prevent="onSubmit"
               class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6"
@@ -124,12 +142,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                 v-model:status="form.status"
                 :employees="employees"
               />
-              <Separator class="col-[1/-1] my-2 w-full" />
+              <Separator class="col-[1/-1] mt-2 w-full" />
               <FourthSection
                 v-model:haulings="form.haulings"
                 :employees="employees"
               />
-              <Separator class="col-[1/-1] my-2 w-full" />
               <div class="col-[1/-1] flex w-full items-center">
                 <div class="ml-auto space-x-3">
                   <Button

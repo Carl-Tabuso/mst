@@ -58,11 +58,13 @@ const handleEmployeeMultiselect = (employee: Employee) => {
   }
 }
 
+const removeExistingAppraisers = () => {
+  appraisers.value = []
+}
+
 const handleAppraisedDateChange = (value: any) => {
   appraisedDate.value = new Date(value).toISOString()
 }
-
-// const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '');
 </script>
 
 <template>
@@ -90,7 +92,7 @@ const handleAppraisedDateChange = (value: any) => {
                 class="flex items-center justify-between gap-2 rounded-md text-xs"
               >
                 <div class="flex items-center gap-2 overflow-hidden">
-                  <Avatar class="h-6 w-6 rounded-full shrink-0">
+                  <Avatar class="h-7 w-7 shrink-0 rounded-full">
                     <AvatarImage
                       v-if="appraisers[0]?.account?.avatar"
                       :src="appraisers[0].account.avatar"
@@ -105,17 +107,23 @@ const handleAppraisedDateChange = (value: any) => {
                       {{ appraisers[0].fullName }}
                     </template>
                     <template v-else>
-                      {{ `${appraisers[0].fullName} and ${appraisers.length - 1} more` }}
+                      {{
+                        `${appraisers[0].fullName} and ${appraisers.length - 1} more`
+                      }}
                     </template>
                   </span>
                 </div>
                 <Button
-                  v-if="appraisers.length < 2"
                   variant="ghost"
                   size="icon"
                   type="button"
                   class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
-                  @click="() => handleEmployeeMultiselect(appraisers[0])"
+                  @click="
+                    () =>
+                      appraisers?.length < 2
+                        ? handleEmployeeMultiselect(appraisers[0])
+                        : removeExistingAppraisers()
+                  "
                 >
                   <X />
                 </Button>
@@ -128,7 +136,7 @@ const handleAppraisedDateChange = (value: any) => {
             <ChevronsUpDown class="ml-auto h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent class="p-0 w-[323px]">
+        <PopoverContent class="w-[323px] p-0">
           <Command>
             <CommandInput placeholder="Search for appraisers" />
             <CommandList>
@@ -150,8 +158,12 @@ const handleAppraisedDateChange = (value: any) => {
                   >
                     <CheckIcon class="h-4 w-4" />
                   </div>
-                  <Avatar class="h-6 w-6 overflow-hidden rounded-full">
-                    <AvatarImage v-if="employee?.account?.avatar" :src="employee?.account?.avatar" :alt="employee.fullName" />
+                  <Avatar class="h-7 w-7 overflow-hidden rounded-full">
+                    <AvatarImage
+                      v-if="employee?.account?.avatar"
+                      :src="employee?.account?.avatar"
+                      :alt="employee.fullName"
+                    />
                     <AvatarFallback class="rounded-full">
                       {{ getInitials(employee.fullName) }}
                     </AvatarFallback>

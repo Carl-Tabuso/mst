@@ -20,7 +20,7 @@ class Form3Resource extends JsonResource
             'createdAt'     => $this->created_at,
             'updatedAt'     => $this->updated_at,
             'form4'         => Form4Resource::make($this->whenLoaded('form4')),
-            'haulings'      => Form3HaulingResource::collection($this->whenLoaded('haulings'))
+            'haulings'      => Form3HaulingResource::collection($this->whenLoaded('haulings')),
         ];
     }
 }
