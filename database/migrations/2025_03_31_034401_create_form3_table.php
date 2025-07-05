@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Employee;
 use App\Models\Form4;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,31 +19,10 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->timestamp('approved_date')->nullable();
-            $table->string('truck_no')->nullable();
             $table->string('payment_type')->nullable();
             $table->timestamp('appraised_date')->nullable();
             $table->date('from')->nullable();
             $table->date('to')->nullable();
-            $table->foreignIdFor(Employee::class, 'team_leader')
-                ->nullable()
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
-            $table->foreignIdFor(Employee::class, 'team_driver')
-                ->nullable()
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
-            $table->foreignIdFor(Employee::class, 'safety_officer')
-                ->nullable()
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
-            $table->foreignIdFor(Employee::class, 'team_mechanic')
-                ->nullable()
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
             $table->timestamps();
         });
     }

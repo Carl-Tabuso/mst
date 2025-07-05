@@ -73,7 +73,7 @@ const table = useVueTable({
     valueUpdater(updater, globalFilter)
 
     table.setPageIndex(0)
-
+    // add debounce
     router.get(
       route('job_order.index'),
       {
