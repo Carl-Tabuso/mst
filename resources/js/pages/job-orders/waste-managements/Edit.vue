@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { formatToDateString } from '@/composables/useDateFormatter'
+import { getInitials } from '@/composables/useInitials'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { useForm } from '@inertiajs/vue3'
+import { Pencil } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FirstSection from './components/FirstSection.vue'
 import FourthSection from './components/FourthSection.vue'
@@ -84,35 +88,67 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/job-orders',
   },
   {
-    title: 'Edit',
+    title: jobOrder.ticket,
     href: '#',
   },
 ]
 </script>
 
 <template>
-  <Head title="Edit Job Order" />
+  <Head :title="jobOrder.ticket" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
+    <div
+      class="sticky top-0 z-10 flex items-start justify-between bg-background p-6"
+    >
+      <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-4">
+          <h3 class="scroll-m-20 text-3xl font-semibold">
+            Ticket:
+            <span class="tracking-tighter text-muted-foreground">
+              {{ jobOrder.ticket }}
+            </span>
+          </h3>
+          <Badge
+            :variant="jobOrderStatus?.badge"
+            class="overflow-hidden truncate text-ellipsis rounded-full"
+          >
+            {{ jobOrderStatus?.label }}
+          </Badge>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-muted-foreground">
+          <Avatar class="h-7 w-7 shrink-0 rounded-full">
+            <AvatarImage
+              v-if="jobOrder.creator?.account?.avatar"
+              :src="jobOrder.creator.account.avatar"
+              :alt="jobOrder.creator.fullName"
+            />
+            <AvatarFallback>
+              {{ getInitials(jobOrder.creator?.fullName) }}
+            </AvatarFallback>
+          </Avatar>
+          <div class="flex items-center gap-1">
+            <span>{{ jobOrder.creator?.fullName }}</span>
+            <span class="mx-1">•</span>
+            <span>{{ formatToDateString(jobOrder.createdAt) }}</span>
+          </div>
+        </div>
+      </div>
+      <Button
+        variant="outline"
+        class="rounded-full"
+      >
+        <Pencil class="mr-2" />
+        Edit Job Order
+      </Button>
+    </div>
     <div class="px-3 py-3">
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div class="mb-3 flex items-center">
-          <div class="flex flex-col">
-            <div class="mb-8 flex items-center justify-between">
-              <div class="list-inline-item flex items-center gap-4">
-                <h3 class="scroll-m-20 text-2xl font-bold">Edit Job Order</h3>
-                <Badge
-                  :variant="jobOrderStatus?.badge"
-                  class="overflow-hidden truncate text-ellipsis rounded-full font-semibold"
-                >
-                  {{ jobOrderStatus?.label }}
-                </Badge>
-              </div>
-              <div class="font-medium">{{ jobOrder.ticket }}</div>
-            </div>
+          <div class="flex w-full flex-col">
             <form
               @submit.prevent="onSubmit"
-              class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6"
+              class="grid gap-y-6"
             >
               <FirstSection
                 v-bind="firstSectionBindings"

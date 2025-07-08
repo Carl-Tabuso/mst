@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
+use App\Enums\UserPermission;
 use App\Http\Requests\StoreWasteManagementRequest;
 use App\Http\Requests\UpdateWasteManagementRequest;
 use App\Http\Resources\JobOrderResource;
@@ -38,6 +39,7 @@ class WasteManagementController extends Controller
     public function edit(JobOrder $ticket): Response
     {
         $loads = $ticket->load([
+            'creator'     => ['account:avatar'],
             'serviceable' => [
                 'appraisers' => ['account:avatar'],
                 'form3'      => [
@@ -56,9 +58,12 @@ class WasteManagementController extends Controller
 
         $jobOrder = JobOrderResource::make($loads);
 
-        $employees = Employee::with('account:employee_id')->get()->toResourceCollection();
+        // $employees = Employee::with('account:employee_id')->get()->toResourceCollection();
+        $employees = Employee::take(10)->get()->toResourceCollection();
 
-        return Inertia::render('job-orders/waste-managements/Edit', compact('jobOrder', 'employees'));
+        $permissions = UserPermission::forFrontendMapping();
+
+        return Inertia::render('job-orders/waste-managements/Edit', compact('jobOrder', 'employees', 'permissions'));
     }
 
     public function update(UpdateWasteManagementRequest $request, Form4 $form4)
@@ -67,7 +72,7 @@ class WasteManagementController extends Controller
         // disable first section (form 4)
         //
 
-        // needs update
+        dd($request->all());
         DB::transaction(function () use ($request, $form4) {
             $validated = $request->safe();
 

@@ -75,5 +75,7 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::get('test', fn () => \App\Enums\UserPermission::forFrontendMapping());
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

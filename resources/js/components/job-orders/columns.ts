@@ -6,6 +6,7 @@ import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
 import { h } from 'vue'
+import CreatorAndTimestamp from './CreatorAndTimestamp.vue'
 import DropdownAction from './DataTableDropdown.vue'
 import DataTableHeader from './DataTableHeader.vue'
 
@@ -57,7 +58,7 @@ export const columns: ColumnDef<JobOrder>[] = [
     cell: ({ row }) =>
       h(
         'div',
-        { class: 'text-[13px] font-medium truncate' },
+        { class: 'text-[13px] font-medium truncate tracking-tighter' },
         row.getValue('ticket'),
       ),
     enableHiding: false,
@@ -133,29 +134,7 @@ export const columns: ColumnDef<JobOrder>[] = [
     accessorKey: 'creator',
     meta: { label: 'Frontliner' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) => {
-      const dateTime = new Date(row.original.createdAt)
-      const formattedDateTime = dateTime.toLocaleString('en-ph', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-
-      return h('div', [
-        h(
-          'div',
-          { class: 'text-xs font-semibold' },
-          row.original.creator?.fullName,
-        ),
-        h(
-          'div',
-          { class: 'text-[11px] text-muted-foreground' },
-          `on ${formattedDateTime}`,
-        ),
-      ])
-    },
+    cell: ({ row }) => h(CreatorAndTimestamp, { row: row }),
   },
   {
     accessorKey: 'dateTime',

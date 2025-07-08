@@ -37,9 +37,14 @@ const page = usePage<SharedData>()
         class="group/collapsible"
       >
         <SidebarMenuItem>
-          <div v-if="item?.items?.length > 0">
+          <div v-if="item.items?.length">
             <CollapsibleTrigger as-child>
-              <SidebarMenuButton :tooltip="item.title">
+              <SidebarMenuButton
+                :tooltip="item.title"
+                :is-active="
+                  item.items.flatMap((i) => i.href).includes(page.url)
+                "
+              >
                 <component
                   :is="item.icon"
                   v-if="item.icon"
@@ -56,8 +61,15 @@ const page = usePage<SharedData>()
                   v-for="subItem in item.items"
                   :key="subItem.title"
                 >
-                  <SidebarMenuSubButton as-child>
-                    <Link :href="subItem.href">
+                  <SidebarMenuSubButton
+                    as-child
+                    :class="{ 'font-medium': subItem.href === page.url }"
+                  >
+                    <Link
+                      :href="subItem.href"
+                      preserve-state
+                      prefetch
+                    >
                       <span>{{ subItem.title }}</span>
                     </Link>
                   </SidebarMenuSubButton>
@@ -71,7 +83,11 @@ const page = usePage<SharedData>()
               :is-active="item.href === page.url"
               :tooltip="item.title"
             >
-              <Link :href="item.href">
+              <Link
+                :href="item.href"
+                preserve-state
+                prefetch
+              >
                 <component :is="item.icon" />
                 <span>{{ item.title }}</span>
               </Link>

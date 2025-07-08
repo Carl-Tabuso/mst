@@ -67,7 +67,7 @@ export const JobOrderStatuses = [
   {
     id: 'closed',
     label: 'Closed',
-    badge: 'secondary',
+    badge: 'error',
   },
   {
     id: 'completed',
