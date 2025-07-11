@@ -31,6 +31,8 @@ class User extends Authenticatable
         'password'          => 'hashed',
     ];
 
+    protected $guard_name = 'web';
+
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);

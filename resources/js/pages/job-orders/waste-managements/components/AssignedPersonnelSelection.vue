@@ -8,6 +8,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from '@/components/ui/command'
 import { Label } from '@/components/ui/label'
 import {
@@ -15,18 +16,38 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { getInitials } from '@/composables/useInitials'
 import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
+import EmployeePopoverSelection from './EmployeePopoverSelection.vue'
+import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
-type Roles = 'teamLeader' | 'teamDriver' | 'safetyOfficer' | 'teamMechanic'
+const Roles = [
+  {
+    id: 'teamLeader',
+    label: 'Team Leader',
+  },
+  {
+    id: 'teamMechanic',
+    label: 'Mechanic',
+  },
+  {
+    id: 'safetyOfficer',
+    label: 'Safety Officer',
+  },
+  {
+    id: 'teamDriver',
+    label: 'Driver',
+  },
+] as const
+
+type RoleType = (typeof Roles)[number]['id']
 
 interface AssignedPersonnelSelectionProps {
-  employees: Employee[]
+  employees?: Employee[]
   hauling?: Form3Hauling
-  role?: Roles
+  role?: RoleType
   index?: number
   label: string
   open?: boolean
@@ -43,6 +64,14 @@ const isExistingHauler = (employeeId: number) => {
 }
 
 const isSingleSelect = computed(() => props.role)
+
+const remainingEmployees = computed(() => {
+  const filtered = props.employees?.filter(
+    (e) => !props.selectedHaulers?.flatMap((sh) => sh.id).includes(e.id),
+  )
+
+  return new Set(filtered)
+})
 </script>
 
 <template>
@@ -57,7 +86,9 @@ const isSingleSelect = computed(() => props.role)
               open,
               'onUpdate:open': (value) => $emit('toggled', role, index, value),
             }
-          : {}
+          : {
+              'onUpdate:open': (value) => $emit('onHaulerToggle', value),
+            }
       "
     >
       <PopoverTrigger
@@ -101,7 +132,7 @@ const isSingleSelect = computed(() => props.role)
                   size="icon"
                   type="button"
                   class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
-                  @click="$emit('onRemoveExistingHaulers')"
+                  @click="$emit('onRemoveExistingHaulers', index)"
                 >
                   <X />
                 </Button>
@@ -147,15 +178,36 @@ const isSingleSelect = computed(() => props.role)
           <ChevronsUpDown class="ml-auto h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent class="w-full p-0">
+      <PopoverContent class="w-72 p-0">
         <Command>
           <CommandInput :placeholder="`Search for a ${label.toLowerCase()}`" />
           <CommandList>
             <CommandEmpty> No results found. </CommandEmpty>
-            <ScrollArea class="h-72">
-              <CommandGroup>
+            <template v-if="areHaulers && selectedHaulers?.length">
+              <div class="max-h-40 overflow-y-auto">
+                <CommandGroup>
+                  <CommandItem
+                    v-for="hauler in selectedHaulers"
+                    :key="hauler.id"
+                    :value="hauler"
+                    @select="$emit('onHaulerSelect', hauler, index)"
+                  >
+                    <EmployeePopoverSelection
+                      :employee="hauler"
+                      is-selected
+                    />
+                  </CommandItem>
+                </CommandGroup>
+              </div>
+              <CommandSeparator />
+            </template>
+            <CommandGroup>
+              <template v-if="!employees">
+                <EmployeeCommandListPlaceholder :count="7" />
+              </template>
+              <template v-else>
                 <CommandItem
-                  v-for="employee in employees"
+                  v-for="employee in remainingEmployees"
                   :key="employee.id"
                   :value="employee"
                   @select="
@@ -165,13 +217,8 @@ const isSingleSelect = computed(() => props.role)
                   "
                 >
                   <div
-                    v-if="areHaulers"
-                    :class="[
-                      'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                      isExistingHauler(employee.id)
-                        ? 'bg-primary text-primary-foreground'
-                        : 'opacity-50 [&_svg]:invisible',
-                    ]"
+                    v-if="areHaulers && !isExistingHauler(employee.id)"
+                    class="mr-1 flex h-4 w-4 items-center justify-center rounded-sm border border-primary opacity-50 [&_svg]:invisible"
                   >
                     <Check :class="['h-4 w-4']" />
                   </div>
@@ -202,8 +249,8 @@ const isSingleSelect = computed(() => props.role)
                     ]"
                   />
                 </CommandItem>
-              </CommandGroup>
-            </ScrollArea>
+              </template>
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>

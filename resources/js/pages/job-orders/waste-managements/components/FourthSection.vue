@@ -10,15 +10,24 @@ import { Label } from '@/components/ui/label'
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { Employee, Form3Hauling } from '@/types'
 import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 import AssignedPersonnelSelection from './AssignedPersonnelSelection.vue'
 
 interface FourthSectionProps {
-  employees: Employee[]
+  employees?: Employee[]
 }
 
-defineProps<FourthSectionProps>()
+interface FourthSectionEmits {
+  (e: 'loadEmployees'): void
+}
 
-const haulings = defineModel<Form3Hauling[]>('haulings')
+const props = defineProps<FourthSectionProps>()
+
+const emit = defineEmits<FourthSectionEmits>()
+
+const haulings = defineModel<Form3Hauling[]>('haulings', {
+  default: () => [],
+})
 
 const isExistingHauler = (employeeId: number, index: number) => {
   if (haulings.value) {
@@ -26,42 +35,97 @@ const isExistingHauler = (employeeId: number, index: number) => {
   }
 }
 
+const removeHauler = (employee: Employee, index: number) => {
+  const objIndex = haulings.value[index].haulers.findIndex(
+    (h) => h.id === employee.id,
+  )
+  haulings.value[index].haulers.splice(objIndex, 1)
+}
+
 const handleHaulerMultiSelection = (employee: Employee, index: number) => {
-  if (haulings.value) {
-    if (isExistingHauler(employee.id, index)) {
-      const objIndex = haulings.value[index].haulers.findIndex(
-        (h) => h.id === employee.id,
-      )
-      haulings.value[index].haulers.splice(objIndex, 1)
-    } else {
-      haulings.value[index].haulers.push(employee)
-    }
+  if (isExistingHauler(employee.id, index)) {
+    removeHauler(employee, index)
+
+    toast(`Removed ${employee.fullName} from haulers`, {
+      position: 'top-right',
+      description: `on ${formatToDateString(haulings.value[index].date)} hauling`,
+      action: {
+        label: 'Undo',
+        onClick: () => haulings.value[index].haulers.push(employee),
+      },
+    })
+  } else {
+    haulings.value[index].haulers.push(employee)
+    toast(`Added ${employee.fullName} as hauler`, {
+      position: 'top-right',
+      description: `on ${formatToDateString(haulings.value[index].date)} hauling`,
+      action: {
+        label: 'Undo',
+        onClick: () => removeHauler(employee, index),
+      },
+    })
   }
 }
 
 const removeExistingHaulers = (index: number) => {
-  if (haulings.value) {
-    haulings.value[index].haulers = []
-  }
+  const temp = haulings.value[index].haulers
+
+  haulings.value[index].haulers = []
+
+  toast(`Remove all haulers`, {
+    position: 'top-right',
+    description: `for ${formatToDateString(haulings.value[index].date)} hauling`,
+    action: {
+      label: 'Undo',
+      onClick: () => (haulings.value[index].haulers = temp),
+    },
+  })
 }
 
-type Roles = 'teamLeader' | 'teamMechanic' | 'safetyOfficer' | 'teamDriver'
+const HaulingRoles = [
+  {
+    id: 'teamLeader',
+    label: 'Team Leader',
+  },
+  {
+    id: 'teamMechanic',
+    label: 'Mechanic',
+  },
+  {
+    id: 'safetyOfficer',
+    label: 'Safety Officer',
+  },
+  {
+    id: 'teamDriver',
+    label: 'Driver',
+  },
+] as const
+
+type HaulingRoleType = (typeof HaulingRoles)[number]['id']
 
 const handleAssignedPersonnelChanges = (
-  role: Roles,
+  role: HaulingRoleType,
   employee: Employee,
   index: number,
 ) => {
-  if (haulings.value) {
-    haulings.value[index].assignedPersonnel[role] = employee
-    isPopoverOpen.value[role] = null
-  }
+  const temp = haulings.value[index].assignedPersonnel[role]
+
+  haulings.value[index].assignedPersonnel[role] = employee
+  isPopoverOpen.value[role] = null
+
+  const roleLabel = HaulingRoles.find((r) => r.id === role)?.label
+  toast(`Assigned ${employee.fullName} as ${roleLabel}`, {
+    position: 'top-right',
+    description: `on ${formatToDateString(haulings.value[index].date)} hauling`,
+    action: {
+      label: 'Undo',
+      onClick: () => (haulings.value[index].assignedPersonnel[role] = temp),
+    },
+  })
 }
 
-const removeAssignedPersonnel = (role: Roles, index: number) => {
-  if (haulings.value) {
-    haulings.value[index].assignedPersonnel[role] = null as any
-  }
+const removeAssignedPersonnel = (role: HaulingRoleType, index: number) => {
+  haulings.value[index].assignedPersonnel[role] = null as any
 }
 
 const isPopoverOpen = ref<Record<string, number | null>>({
@@ -71,8 +135,19 @@ const isPopoverOpen = ref<Record<string, number | null>>({
   teamMechanic: null,
 })
 
-const onPopoverToggle = (role: Roles, index: number, value: boolean) => {
+const loadEmployeesIfMissing = () => {
+  if (props.employees === undefined) {
+    emit('loadEmployees')
+  }
+}
+
+const onPopoverToggle = (
+  role: HaulingRoleType,
+  index: number,
+  value: boolean,
+) => {
   isPopoverOpen.value[role] = value ? index : null
+  loadEmployeesIfMissing()
 }
 </script>
 
@@ -155,13 +230,13 @@ const onPopoverToggle = (role: Roles, index: number, value: boolean) => {
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
               :employees="employees"
-              :are-haulers="true"
+              are-haulers
               label="Haulers"
-              :selectedHaulers="hauling.haulers"
-              :open="true"
+              :selected-haulers="hauling.haulers"
               :index="index"
               @on-hauler-select="handleHaulerMultiSelection"
               @on-remove-existing-haulers="removeExistingHaulers"
+              @on-hauler-toggle="() => loadEmployeesIfMissing()"
             />
             <div class="flex items-center gap-x-10">
               <Label

@@ -13,8 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PositionSeeder::class,
-            RolesAndPermissionSeeder::class,
-            UserSeeder::class,
+            RolesAndPermissionsSeeder::class,
             Form4Seeder::class,
             Form3Seeder::class,
             Form3HaulingSeeder::class,
@@ -30,6 +29,7 @@ class DatabaseSeeder extends Seeder
             TeamLeaderPerformanceSeeder::class,
             EmployeePerformanceSeeder::class,
             JobOrderCorrectionSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

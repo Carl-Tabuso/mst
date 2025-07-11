@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
-use App\Enums\UserPermission;
 use App\Http\Requests\StoreWasteManagementRequest;
 use App\Http\Requests\UpdateWasteManagementRequest;
 use App\Http\Resources\JobOrderResource;
@@ -58,12 +57,9 @@ class WasteManagementController extends Controller
 
         $jobOrder = JobOrderResource::make($loads);
 
-        // $employees = Employee::with('account:employee_id')->get()->toResourceCollection();
-        $employees = Employee::take(10)->get()->toResourceCollection();
+        $employees = Inertia::optional(fn () => Employee::with('account:avatar')->get()->toResourceCollection());
 
-        $permissions = UserPermission::forFrontendMapping();
-
-        return Inertia::render('job-orders/waste-managements/Edit', compact('jobOrder', 'employees', 'permissions'));
+        return Inertia::render('job-orders/waste-managements/Edit', compact('jobOrder', 'employees'));
     }
 
     public function update(UpdateWasteManagementRequest $request, Form4 $form4)

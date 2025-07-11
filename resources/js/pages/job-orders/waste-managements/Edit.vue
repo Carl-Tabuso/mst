@@ -8,7 +8,7 @@ import { getInitials } from '@/composables/useInitials'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
-import { useForm } from '@inertiajs/vue3'
+import { router, useForm } from '@inertiajs/vue3'
 import { Pencil } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FirstSection from './components/FirstSection.vue'
@@ -18,12 +18,11 @@ import ThirdSection from './components/ThirdSection.vue'
 
 interface WasteManagementEditProps {
   jobOrder: JobOrder
-  employees: Employee[]
+  employees?: Employee[]
 }
 
-const props = defineProps<WasteManagementEditProps>()
+const { jobOrder, employees } = defineProps<WasteManagementEditProps>()
 
-const { jobOrder, employees } = props
 const { serviceable: form4 } = jobOrder
 const { form3 } = form4
 
@@ -76,6 +75,12 @@ const firstSectionBindings = {
   isContactPositionInputDisabled: true,
   isContactPersonInputDisabled: true,
   isContactNumberInputDisabled: true,
+}
+
+const loadEmployees = () => {
+  router.reload({
+    only: ['employees'],
+  })
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -167,6 +172,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 v-model:appraisers="form.appraisers"
                 v-model:appraisedDate="form.appraised_date"
                 :employees="employees"
+                @load-employees="loadEmployees"
               />
               <Separator class="col-[1/-1] my-2 w-full" />
               <ThirdSection
@@ -182,6 +188,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               <FourthSection
                 v-model:haulings="form.haulings"
                 :employees="employees"
+                @load-employees="loadEmployees"
               />
               <div class="col-[1/-1] flex w-full items-center">
                 <div class="ml-auto space-x-3">

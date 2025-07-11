@@ -26,7 +26,7 @@ import { Calendar, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
 interface ThirdSectionProps {
-  employees: Employee[]
+  employees?: Employee[]
 }
 
 defineProps<ThirdSectionProps>()

@@ -9,6 +9,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from '@/components/ui/command'
 import { Label } from '@/components/ui/label'
 import {
@@ -16,25 +17,30 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { getInitials } from '@/composables/useInitials'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
-import { Calendar, CheckIcon, ChevronsUpDown, X } from 'lucide-vue-next'
+import { Calendar, ChevronsUpDown, X } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { toast } from 'vue-sonner'
+import EmployeePopoverSelection from './EmployeePopoverSelection.vue'
+import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
 interface SecondSectionProps {
-  employees: Employee[]
+  employees?: Employee[]
   isAppraisersInputDisabled?: boolean
   isAppraisedDateInputDisabled?: boolean
 }
 
-withDefaults(defineProps<SecondSectionProps>(), {
+const props = withDefaults(defineProps<SecondSectionProps>(), {
   isAppraisersInputDisabled: false,
   isAppraisedDateInputDisabled: false,
 })
 
-const appraisers = defineModel<Employee[]>('appraisers')
+const appraisers = defineModel<Employee[]>('appraisers', {
+  default: () => [],
+})
 const appraisedDate = defineModel<any>('appraisedDate', {
   get(value) {
     if (value) return parseDate(value.split('T')[0])
@@ -42,30 +48,73 @@ const appraisedDate = defineModel<any>('appraisedDate', {
   default: '',
 })
 
-const isExistingAppraiser = (employeeId: number) => {
-  return appraisers.value?.map((a) => a.id).includes(employeeId)
+const removeAppraiser = (employee: Employee) => {
+  const index = appraisers.value.findIndex((a) => a.id === employee.id)
+  appraisers.value.splice(index, 1)
 }
 
 const handleEmployeeMultiselect = (employee: Employee) => {
-  if (appraisers.value === undefined) {
-    appraisers.value = []
-  }
+  const isExistingAppraiser = appraisers.value
+    ?.map((a) => a.id)
+    .includes(employee.id)
 
-  if (isExistingAppraiser(employee.id)) {
-    const index = appraisers.value.findIndex((a) => a.id === employee.id)
-    appraisers.value.splice(index, 1)
+  if (isExistingAppraiser) {
+    removeAppraiser(employee)
+    toast.info(`Removed ${employee.fullName} as appraiser`, {
+      position: 'top-right',
+      action: {
+        label: 'Undo',
+        onClick: () => appraisers.value.push(employee),
+      },
+    })
   } else {
     appraisers.value.push(employee)
+    toast.success(`Added ${employee.fullName} as appraiser`, {
+      position: 'top-right',
+      action: {
+        label: 'Undo',
+        onClick: () => removeAppraiser(employee),
+      },
+    })
   }
 }
 
-const removeExistingAppraisers = () => {
+const removeAllAppraisers = () => {
+  const temp = appraisers.value
+
   appraisers.value = []
+
+  toast.warning(`Removed all appraisers`, {
+    position: 'top-right',
+    duration: 60000, // 1 min
+    action: {
+      label: 'Undo',
+      onClick: () => (appraisers.value = temp),
+    },
+  })
 }
 
 const handleAppraisedDateChange = (value: any) => {
   appraisedDate.value = new Date(value).toISOString()
 }
+
+const emit = defineEmits<{
+  (e: 'loadEmployees'): void
+}>()
+
+const handleAppraisersPopover = (isOpen: boolean) => {
+  if (isOpen && props.employees === undefined) {
+    emit('loadEmployees')
+  }
+}
+
+const remainingEmployees = computed(() => {
+  const filtered = props.employees?.filter(
+    (e) => !appraisers.value?.flatMap((a) => a.id).includes(e.id),
+  )
+
+  return new Set(filtered)
+})
 </script>
 
 <template>
@@ -78,7 +127,7 @@ const handleAppraisedDateChange = (value: any) => {
         >
           Appraisers
         </Label>
-        <Popover>
+        <Popover @update:open="(value) => handleAppraisersPopover(value)">
           <PopoverTrigger
             class="w-[400px]"
             as-child
@@ -124,7 +173,7 @@ const handleAppraisedDateChange = (value: any) => {
                       () =>
                         appraisers?.length < 2
                           ? handleEmployeeMultiselect(appraisers[0])
-                          : removeExistingAppraisers()
+                          : removeAllAppraisers()
                     "
                   >
                     <X />
@@ -138,47 +187,44 @@ const handleAppraisedDateChange = (value: any) => {
               <ChevronsUpDown class="ml-auto h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent class="w-full p-0">
+          <PopoverContent class="w-72 p-0">
             <Command>
               <CommandInput placeholder="Search for appraisers" />
               <CommandList>
                 <CommandEmpty> No employee found. </CommandEmpty>
-                <ScrollArea class="h-72">
-                  <CommandGroup>
+                <template v-if="appraisers?.length">
+                  <div class="max-h-40 overflow-y-auto">
+                    <CommandGroup>
+                      <CommandItem
+                        v-for="appraiser in appraisers"
+                        :key="appraiser.id"
+                        :value="appraiser"
+                        @select="() => handleEmployeeMultiselect(appraiser)"
+                      >
+                        <EmployeePopoverSelection
+                          :employee="appraiser"
+                          is-selected
+                        />
+                      </CommandItem>
+                    </CommandGroup>
+                  </div>
+                  <CommandSeparator />
+                </template>
+                <CommandGroup>
+                  <template v-if="!employees">
+                    <EmployeeCommandListPlaceholder />
+                  </template>
+                  <template v-else>
                     <CommandItem
-                      v-for="employee in employees"
+                      v-for="employee in remainingEmployees"
                       :key="employee.id"
                       :value="employee"
                       @select="() => handleEmployeeMultiselect(employee)"
                     >
-                      <div
-                        :class="[
-                          'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                          isExistingAppraiser(employee.id)
-                            ? 'bg-primary text-primary-foreground'
-                            : 'opacity-50 [&_svg]:invisible',
-                        ]"
-                      >
-                        <CheckIcon class="h-4 w-4" />
-                      </div>
-                      <Avatar class="h-7 w-7 overflow-hidden rounded-full">
-                        <AvatarImage
-                          v-if="employee?.account?.avatar"
-                          :src="employee?.account?.avatar"
-                          :alt="employee.fullName"
-                        />
-                        <AvatarFallback class="rounded-full">
-                          {{ getInitials(employee.fullName) }}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div class="grid flex-1 text-left text-sm leading-tight">
-                        <span class="truncate">
-                          {{ employee.fullName }}
-                        </span>
-                      </div>
+                      <EmployeePopoverSelection :employee="employee" />
                     </CommandItem>
-                  </CommandGroup>
-                </ScrollArea>
+                  </template>
+                </CommandGroup>
               </CommandList>
             </Command>
           </PopoverContent>
