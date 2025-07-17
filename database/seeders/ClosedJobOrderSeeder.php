@@ -12,9 +12,7 @@ use App\Models\Form4;
 use App\Models\JobOrder;
 use App\Models\Position;
 use App\Traits\RandomEmployee;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
 
 class ClosedJobOrderSeeder extends Seeder
 {
@@ -30,25 +28,18 @@ class ClosedJobOrderSeeder extends Seeder
             ->status(JobOrderStatus::Closed)
             ->create();
 
-        $form3 = Form3::factory()->create([
-            'form4_id' => $jobOrder->serviceable->id,
-            'from'     => $from = Carbon::parse(fake()->dateTimeBetween('-2 months', '-3 weeks')),
-            'to'       => $to   = $from->copy()->addDays(3),
-        ]);
+        $form3 = Form3::factory()->create(['form4_id' => $jobOrder->serviceable->id]);
 
-        $haulings = Form3Hauling::factory()
-            ->count((int) $from->diffInDays($to) + 1)
-            ->sequence(fn (Sequence $sequence) => ['date' => $from->copy()->addDays($sequence->index)])
+        $days = now()->subWeek();
+
+        $haulings = Form3Hauling::factory(3)
+            ->sequence(fn () => ['date' => $days->addDay()])
             ->create(['form3_id' => $form3->id]);
 
         $position = Position::firstWhere(['name' => 'Hauler']);
         $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
 
-        $haulings->each(function ($hauling) use ($haulers) {
-            $hauling->checklist()->create()->checkAllFields();
-
-            $hauling->haulers()->attach($haulers);
-        });
+        $haulings->each(fn ($hauling) => $hauling->haulers()->attach($haulers));
 
         Form3AssignedPersonnel::factory()->create([
             'form3_hauling_id' => $haulings->first()->id,

@@ -11,6 +11,7 @@ enum UserRole: string
     case SafetyOfficer  = 'safety officer';
     case HumanResource  = 'human resource';
     case Consultant     = 'consultant';
+    case Driver         = 'driver';
+    case Mechanic       = 'mechanic';
     case Regular        = 'regular';
-    case ITAdmin        = 'it admin';
 }

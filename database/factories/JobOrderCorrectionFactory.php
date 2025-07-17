@@ -23,8 +23,7 @@ class JobOrderCorrectionFactory extends Factory
         return [
             'job_order_id' => JobOrder::inRandomOrder()->first(),
             'properties'   => null,
-            'approved_at'  => fake()->optional()->dateTime(),
-            'reason'       => fake()->paragraph(),
+            'is_approved'  => fake()->boolean(),
         ];
     }
 }

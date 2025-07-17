@@ -41,9 +41,4 @@ class Form3Hauling extends Model
             'hauler'
         );
     }
-
-    public function checklist(): HasOne
-    {
-        return $this->hasOne(Form3HaulingChecklist::class);
-    }
 }

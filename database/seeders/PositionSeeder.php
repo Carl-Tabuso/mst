@@ -23,7 +23,6 @@ class PositionSeeder extends Seeder
         'Mechanic',
         'Hauler',
         'Technician',
-        'Head Frontliner',
     ];
 
     /**

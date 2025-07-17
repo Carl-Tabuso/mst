@@ -43,7 +43,6 @@ class WasteManagementController extends Controller
                 'appraisers' => ['account:avatar'],
                 'form3'      => [
                     'haulings' => [
-                        'checklist',
                         'haulers'           => ['account:avatar'],
                         'assignedPersonnel' => [
                             'teamLeader'    => ['account:avatar'],

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -11,8 +10,6 @@ use Illuminate\Support\Str;
  */
 class Form4Factory extends Factory
 {
-    use RandomEmployee;
-
     /**
      * Define the model's default state.
      *
@@ -24,7 +21,6 @@ class Form4Factory extends Factory
             'payment_date' => now(),
             'bid_bond'     => rand(10000, 50000),
             'or_number'    => strtoupper(Str::random()),
-            'dispatcher'   => $this->getByPosition('Dispatcher')
         ];
     }
 

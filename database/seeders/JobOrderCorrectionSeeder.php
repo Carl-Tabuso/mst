@@ -38,6 +38,7 @@ class JobOrderCorrectionSeeder extends Seeder
         JobOrderCorrection::factory()->create([
             'job_order_id' => $jobOrder->id,
             'properties'   => $properties,
+            'is_approved'  => false,
         ]);
     }
 }

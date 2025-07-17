@@ -24,18 +24,16 @@ import { parseDate } from '@internationalized/date'
 import { Calendar, ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { toast } from 'vue-sonner'
-import EmployeePopoverSelection from '../EmployeePopoverSelection.vue'
-import EmployeeCommandListPlaceholder from '../placeholders/EmployeeCommandListPlaceholder.vue'
+import EmployeePopoverSelection from './EmployeePopoverSelection.vue'
+import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
 interface SecondSectionProps {
-  canEdit?: boolean
   employees?: Employee[]
   isAppraisersInputDisabled?: boolean
   isAppraisedDateInputDisabled?: boolean
 }
 
 const props = withDefaults(defineProps<SecondSectionProps>(), {
-  canEdit: false,
   isAppraisersInputDisabled: false,
   isAppraisedDateInputDisabled: false,
 })
@@ -56,8 +54,6 @@ const removeAppraiser = (employee: Employee) => {
 }
 
 const handleEmployeeMultiselect = (employee: Employee) => {
-  if (!props.canEdit) return
-
   const isExistingAppraiser = appraisers.value
     ?.map((a) => a.id)
     .includes(employee.id)
@@ -75,6 +71,10 @@ const handleEmployeeMultiselect = (employee: Employee) => {
     appraisers.value.push(employee)
     toast.success(`Added ${employee.fullName} as appraiser`, {
       position: 'top-right',
+      action: {
+        label: 'Undo',
+        onClick: () => removeAppraiser(employee),
+      },
     })
   }
 }
@@ -84,7 +84,7 @@ const removeAllAppraisers = () => {
 
   appraisers.value = []
 
-  toast.warning(`Removed all ${temp.length} appraisers`, {
+  toast.warning(`Removed all appraisers`, {
     position: 'top-right',
     duration: 60000, // 1 min
     action: {
@@ -119,13 +119,7 @@ const remainingEmployees = computed(() => {
 
 <template>
   <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
-    <div>
-      <div class="text-xl font-semibold leading-6">Ocular Inspection</div>
-      <p class="text-sm text-muted-foreground">
-        The assigned appraisers and appraisal date of site viewing.
-      </p>
-    </div>
-    <div class="col-span-2 mx-6 grid grid-cols-2 gap-x-24">
+    <div class="col-span-2 grid grid-cols-2 gap-x-24">
       <div class="flex items-center gap-x-4">
         <Label
           for="appraisers"
@@ -137,6 +131,7 @@ const remainingEmployees = computed(() => {
           <PopoverTrigger
             class="w-[400px]"
             as-child
+            :disabled="isAppraisersInputDisabled"
           >
             <Button
               variant="outline"
@@ -170,7 +165,6 @@ const remainingEmployees = computed(() => {
                     </span>
                   </div>
                   <Button
-                    v-if="canEdit"
                     variant="ghost"
                     size="icon"
                     type="button"
@@ -186,6 +180,7 @@ const remainingEmployees = computed(() => {
                   </Button>
                 </div>
               </template>
+
               <template v-else>
                 <span class="text-muted-foreground"> Select appraisers </span>
               </template>
@@ -198,7 +193,7 @@ const remainingEmployees = computed(() => {
               <CommandList>
                 <CommandEmpty> No employee found. </CommandEmpty>
                 <template v-if="appraisers?.length">
-                  <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
+                  <div class="max-h-40 overflow-y-auto">
                     <CommandGroup>
                       <CommandItem
                         v-for="appraiser in appraisers"
@@ -209,14 +204,13 @@ const remainingEmployees = computed(() => {
                         <EmployeePopoverSelection
                           :employee="appraiser"
                           is-selected
-                          is-disabled
                         />
                       </CommandItem>
                     </CommandGroup>
                   </div>
-                  <CommandSeparator v-if="canEdit" />
+                  <CommandSeparator />
                 </template>
-                <CommandGroup v-if="canEdit">
+                <CommandGroup>
                   <template v-if="!employees">
                     <EmployeeCommandListPlaceholder />
                   </template>
@@ -241,7 +235,7 @@ const remainingEmployees = computed(() => {
         <Popover>
           <PopoverTrigger
             as-child
-            :disabled="!canEdit"
+            :disabled="isAppraisedDateInputDisabled"
           >
             <Button
               type="button"

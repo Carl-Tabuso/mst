@@ -52,7 +52,7 @@ const handlePageSizeArchival = () => {
     data: { jobOrderIds },
     preserveScroll: true,
     onBefore: () => confirm('Are you sure you want to archive?'),
-    // onSuccess: () => console.log(), // show feedback
+    onSuccess: () => console.log(), // show feedback
   })
 }
 </script>

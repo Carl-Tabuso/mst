@@ -16,13 +16,27 @@ import { Calendar } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 interface FirstSectionProps {
-  isEditing?: boolean
-  isServiceTypeDisabled?: boolean
+  isServiceTypeInputDisabled?: boolean
+  isServiceDateInputDisabled?: boolean
+  isServiceTimeInputDisabled?: boolean
+  isClientInputDisabled?: boolean
+  isAddressInputDisabled?: boolean
+  isDepartmentInputDisabled?: boolean
+  isContactPositionInputDisabled?: boolean
+  isContactPersonInputDisabled?: boolean
+  isContactNumberInputDisabled?: boolean
 }
 
 withDefaults(defineProps<FirstSectionProps>(), {
-  isEditing: false,
-  isServiceTypeDisabled: false,
+  isServiceTypeInputDisabled: false,
+  isServiceDateInputDisabled: false,
+  isServiceTimeInputDisabled: false,
+  isClientInputDisabled: false,
+  isAddressInputDisabled: false,
+  isDepartmentInputDisabled: false,
+  isContactPositionInputDisabled: false,
+  isContactPersonInputDisabled: false,
+  isContactNumberInputDisabled: false,
 })
 
 const serviceType = defineModel<string>('serviceType')
@@ -48,18 +62,12 @@ const handleDateOfServiceChange = (value: any) => {
 </script>
 
 <template>
-  <div class="mb-6">
-    <div class="text-xl font-semibold leading-6">Job Order Details</div>
-    <p class="text-sm text-muted-foreground">
-      General information of the requested service and client information.
-    </p>
-  </div>
-  <div class="grid grid-cols-[auto,1fr] gap-x-12 mx-6 gap-y-3">
+  <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
     <Label class="self-center"> Type of Service </Label>
     <RadioGroup
       required
+      :disabled="isServiceTypeInputDisabled"
       v-model="serviceType"
-      :disabled="isServiceTypeDisabled"
       class="flex items-center gap-x-10"
     >
       <div class="flex items-center gap-x-2">
@@ -89,7 +97,7 @@ const handleDateOfServiceChange = (value: any) => {
       <Popover v-model:open="isDateOfServicePopoverOpen">
         <PopoverTrigger
           as-child
-          :disabled="!isEditing"
+          :disabled="isServiceDateInputDisabled"
         >
           <Button
             type="button"
@@ -114,7 +122,7 @@ const handleDateOfServiceChange = (value: any) => {
         type="time"
         v-model="serviceTime"
         required
-        :disabled="!isEditing"
+        :disabled="isServiceTimeInputDisabled"
         class="w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"
         placeholder="Select a time"
       />
@@ -129,10 +137,10 @@ const handleDateOfServiceChange = (value: any) => {
       id="client"
       type="text"
       required
-      :disabled="!isEditing"
+      :disabled="isClientInputDisabled"
       placeholder="Enter client/company name"
       v-model="client"
-      class="w-[515px]"
+      class="w-[400px]"
     />
     <Label
       for="address"
@@ -143,7 +151,7 @@ const handleDateOfServiceChange = (value: any) => {
     <Textarea
       id="address"
       required
-      :disabled="!isEditing"
+      :disabled="isAddressInputDisabled"
       placeholder="Enter client's complete address"
       v-model="address"
       class="w-full"
@@ -160,7 +168,7 @@ const handleDateOfServiceChange = (value: any) => {
           id="department"
           type="text"
           required
-          :disabled="!isEditing"
+          :disabled="isDepartmentInputDisabled"
           placeholder="Enter client/company's department"
           v-model="department"
           class="w-[400px]"
@@ -171,13 +179,13 @@ const handleDateOfServiceChange = (value: any) => {
           for="position"
           class="w-36 shrink-0"
         >
-          Contact Position
+          Position
         </Label>
         <Input
           id="position"
           type="text"
           required
-          :disabled="!isEditing"
+          :disabled="isContactPositionInputDisabled"
           placeholder="Enter contact's position"
           v-model="contactPosition"
           class="w-full"
@@ -196,7 +204,7 @@ const handleDateOfServiceChange = (value: any) => {
           id="contactPerson"
           type="text"
           required
-          :disabled="!isEditing"
+          :disabled="isContactPersonInputDisabled"
           placeholder="Enter contact person"
           v-model="contactPerson"
           class="w-full"
@@ -215,7 +223,7 @@ const handleDateOfServiceChange = (value: any) => {
           minlength="11"
           maxlength="11"
           required
-          :disabled="!isEditing"
+          :disabled="isContactNumberInputDisabled"
           placeholder="Enter contact person number"
           v-model="contactNumber"
           class="w-full"
@@ -223,17 +231,4 @@ const handleDateOfServiceChange = (value: any) => {
       </div>
     </div>
   </div>
-  <!-- <template v-else>
-    <FirstSectionView
-      :serviceType="serviceType"
-      :serviceDate="serviceDate"
-      :serviceTime="serviceTime"
-      :client="client"
-      :address="address"
-      :department="department"
-      :contactPosition="contactPosition"
-      :contactNumber="contactNumber"
-      :contactPerson="contactPerson"
-    />
-  </template> -->
 </template>
