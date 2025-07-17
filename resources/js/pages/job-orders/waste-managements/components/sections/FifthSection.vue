@@ -5,25 +5,48 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { formatToDateString } from '@/composables/useDateFormatter'
+import { getInitials } from '@/composables/useInitials'
 import { Employee, Form3Hauling } from '@/types'
+import { ClipboardCheck, FilePenLine } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import AssignedPersonnelSelection from './AssignedPersonnelSelection.vue'
+import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
+import HaulersSelection from '../HaulersSelection.vue'
 
-interface FourthSectionProps {
+interface FifthSectionProps {
+  canEdit?: boolean
   employees?: Employee[]
 }
 
-interface FourthSectionEmits {
+interface FifthSectionEmits {
   (e: 'loadEmployees'): void
 }
 
-const props = defineProps<FourthSectionProps>()
+const props = withDefaults(defineProps<FifthSectionProps>(), {
+  canEdit: false,
+})
 
-const emit = defineEmits<FourthSectionEmits>()
+const emit = defineEmits<FifthSectionEmits>()
 
 const haulings = defineModel<Form3Hauling[]>('haulings', {
   default: () => [],
@@ -43,6 +66,8 @@ const removeHauler = (employee: Employee, index: number) => {
 }
 
 const handleHaulerMultiSelection = (employee: Employee, index: number) => {
+  if (! props.canEdit) return
+
   if (isExistingHauler(employee.id, index)) {
     removeHauler(employee, index)
 
@@ -72,7 +97,7 @@ const removeExistingHaulers = (index: number) => {
 
   haulings.value[index].haulers = []
 
-  toast(`Remove all haulers`, {
+  toast(`Removed all ${temp.length} haulers`, {
     position: 'top-right',
     description: `for ${formatToDateString(haulings.value[index].date)} hauling`,
     action: {
@@ -108,20 +133,8 @@ const handleAssignedPersonnelChanges = (
   employee: Employee,
   index: number,
 ) => {
-  const temp = haulings.value[index].assignedPersonnel[role]
-
   haulings.value[index].assignedPersonnel[role] = employee
   isPopoverOpen.value[role] = null
-
-  const roleLabel = HaulingRoles.find((r) => r.id === role)?.label
-  toast(`Assigned ${employee.fullName} as ${roleLabel}`, {
-    position: 'top-right',
-    description: `on ${formatToDateString(haulings.value[index].date)} hauling`,
-    action: {
-      label: 'Undo',
-      onClick: () => (haulings.value[index].assignedPersonnel[role] = temp),
-    },
-  })
 }
 
 const removeAssignedPersonnel = (role: HaulingRoleType, index: number) => {
@@ -149,19 +162,34 @@ const onPopoverToggle = (
   isPopoverOpen.value[role] = value ? index : null
   loadEmployeesIfMissing()
 }
+
+const checklist = [
+  {
+    id: 'isVehicleInspectionFilled',
+    description: 'Vehicle Inspection Form',
+  },
+  {
+    id: 'isUniformPpeFilled',
+    description: 'Uniform and PPE Request Form',
+  },
+  {
+    id: 'isToolsEquipmentFilled',
+    description: 'Tools and Equipment Request Form',
+  },
+] as const
 </script>
 
 <template>
   <div class="grid grid-cols-[auto,1fr] gap-y-6">
     <div v-if="haulings?.length">
-      <div class="text-xl font-semibold">Assigned Personnel</div>
+      <div class="text-xl font-semibold leading-6">Assigned Personnel</div>
       <p class="text-sm text-muted-foreground">
         List of assigned personnel for each hauling operations.
       </p>
     </div>
     <Accordion
       type="multiple"
-      class="col-[1/-1] w-full"
+      class="col-[1/-1] w-full px-5"
       collapsible
     >
       <AccordionItem
@@ -169,16 +197,112 @@ const onPopoverToggle = (
         :key="hauling.id"
         :value="String(hauling.id)"
       >
-        <AccordionTrigger class="rounded-sm bg-muted px-4 hover:bg-muted">
-          <div class="text-sm">
-            {{ formatToDateString(hauling.date) }}
+        <div class="flex items-center rounded-sm bg-muted">
+          <div class="flex-none pl-2">
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  class="rounded-full"
+                >
+                  <FilePenLine />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent> Incident Report </TooltipContent>
+            </Tooltip>
           </div>
-        </AccordionTrigger>
+          <div class="flex-none">
+            <Dialog>
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <DialogTrigger as-child>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      class="rounded-full"
+                    >
+                      <ClipboardCheck />
+                    </Button>
+                  </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent> Safety Inspection Checklist </TooltipContent>
+              </Tooltip>
+              <DialogContent class="w-[450px]">
+                <DialogHeader>
+                  <DialogTitle> Safety Inspection </DialogTitle>
+                  <DialogDescription class="mb-2">
+                    Checklist filled-out by the Team Leader
+                  </DialogDescription>
+                </DialogHeader>
+                <div class="flex flex-col gap-2">
+                  <div
+                    v-for="list in checklist"
+                    :key="`${hauling.id}-${list.id}`"
+                    class="flex items-center gap-x-3"
+                  >
+                    <Checkbox
+                      :id="`${hauling.id}-${list.id}`"
+                      :checked="Boolean(hauling.checklist[list.id])"
+                      disabled
+                    />
+                    <Label
+                      :for="`${hauling.id}-${list.id}`"
+                      class="text-sm font-normal"
+                    >
+                      {{ list.description }}
+                    </Label>
+                  </div>
+                </div>
+                <Separator class="-mx-6 mt-3 w-[450px]" />
+                <div
+                  class="flex items-center justify-between text-xs text-muted-foreground"
+                >
+                  <div class="flex items-center gap-x-2">
+                    <Avatar class="h-6 w-6 rounded-full">
+                      <AvatarImage
+                        v-if="
+                          hauling.assignedPersonnel.teamLeader?.account?.avatar
+                        "
+                        :src="
+                          hauling.assignedPersonnel.teamLeader.account.avatar
+                        "
+                        :alt="hauling.assignedPersonnel.teamLeader.fullName"
+                      />
+                      <AvatarFallback>
+                        {{
+                          getInitials(
+                            hauling.assignedPersonnel.teamLeader.fullName,
+                          )
+                        }}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span class="truncate text-muted-foreground">
+                      {{ hauling.assignedPersonnel.teamLeader.fullName }}
+                    </span>
+                  </div>
+                  <div>{{ '3 days ago' }}</div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+          <div class="flex-1 pl-3 pr-5">
+            <AccordionTrigger>
+              <div class="text-sm">
+                {{ formatToDateString(hauling.date) }}
+              </div>
+            </AccordionTrigger>
+          </div>
+        </div>
+
         <AccordionContent
-          class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6 px-4 py-8"
+          class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-3 px-4 py-5"
         >
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
+              :is-disabled="!canEdit"
               :employees="employees"
               :hauling="hauling"
               :role="'teamLeader'"
@@ -190,6 +314,7 @@ const onPopoverToggle = (
               @removed="removeAssignedPersonnel"
             />
             <AssignedPersonnelSelection
+              :is-disabled="!canEdit"
               :employees="employees"
               :hauling="hauling"
               role="safetyOfficer"
@@ -204,6 +329,7 @@ const onPopoverToggle = (
 
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
+              :is-disabled="!canEdit"
               :employees="employees"
               :hauling="hauling"
               role="teamDriver"
@@ -215,6 +341,7 @@ const onPopoverToggle = (
               @removed="removeAssignedPersonnel"
             />
             <AssignedPersonnelSelection
+              :is-disabled="!canEdit"
               :employees="employees"
               :hauling="hauling"
               role="teamMechanic"
@@ -228,12 +355,11 @@ const onPopoverToggle = (
           </div>
 
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
-            <AssignedPersonnelSelection
+            <HaulersSelection
+              :is-disabled="!canEdit"
               :employees="employees"
-              are-haulers
-              label="Haulers"
-              :selected-haulers="hauling.haulers"
               :index="index"
+              :selected-haulers="hauling.haulers"
               @on-hauler-select="handleHaulerMultiSelection"
               @on-remove-existing-haulers="removeExistingHaulers"
               @on-hauler-toggle="() => loadEmployeesIfMissing()"
@@ -247,6 +373,7 @@ const onPopoverToggle = (
               </Label>
               <Input
                 :id="'truckNo-' + hauling.id"
+                :disabled="!canEdit"
                 placeholder="Enter truck plate number"
                 v-model="hauling.truckNo"
                 class="w-full"

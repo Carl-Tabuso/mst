@@ -2,10 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Enums\JobOrderStatus;
 use App\Models\Employee;
+use App\Models\Form3;
 use App\Models\Form3Hauling;
+use App\Models\Form4;
+use App\Models\JobOrder;
 use App\Models\Position;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 class Form3HaulingSeeder extends Seeder
 {
@@ -14,11 +20,25 @@ class Form3HaulingSeeder extends Seeder
      */
     public function run(): void
     {
-        $days = now()->subWeek();
-
-        $haulings = Form3Hauling::factory(5)
-            ->sequence(fn () => ['date' => $days->addDay()])
+        $jobOrder = JobOrder::factory()
+            ->for(Form4::factory(), 'serviceable')
+            ->status(JobOrderStatus::Completed)
             ->create();
+
+        $jobOrder->serviceable->appraisers()->attach(
+            Employee::inRandomOrder()->take(rand(2, 4))->get()
+        );
+
+        $form3 = Form3::factory()->create([
+            'form4_id' => $jobOrder->serviceable->id,
+            'from'     => $from = Carbon::parse(fake()->dateTimeBetween('-2 months', '-3 weeks')),
+            'to'       => $to   = $from->copy()->addDays(6),
+        ]);
+
+        $haulings = Form3Hauling::factory()
+            ->count((int) $from->diffInDays($to) + 1)
+            ->sequence(fn (Sequence $sequence) => ['date' => $from->copy()->addDays($sequence->index)])
+            ->create(['form3_id' => $form3->id]);
 
         $position = Position::firstWhere(['name' => 'Hauler']);
         $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);

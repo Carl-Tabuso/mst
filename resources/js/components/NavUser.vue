@@ -11,13 +11,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { type SharedData, type User } from '@/types'
+import { type SharedData } from '@/types'
 import { usePage } from '@inertiajs/vue3'
 import { ChevronsUpDown } from 'lucide-vue-next'
 import UserMenuContent from './UserMenuContent.vue'
 
 const page = usePage<SharedData>()
-const user = page.props.auth.user as User
+const user = page.props.auth.user
 const { isMobile, state } = useSidebar()
 </script>
 
@@ -30,7 +30,10 @@ const { isMobile, state } = useSidebar()
             size="lg"
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <UserInfo :user="user" />
+            <UserInfo
+              :user="user"
+              show-role
+            />
             <ChevronsUpDown class="ml-auto size-4" />
           </SidebarMenuButton>
         </DropdownMenuTrigger>

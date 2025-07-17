@@ -68,7 +68,6 @@ const page = usePage<SharedData>()
                     <Link
                       :href="subItem.href"
                       preserve-state
-                      prefetch
                     >
                       <span>{{ subItem.title }}</span>
                     </Link>
@@ -86,7 +85,6 @@ const page = usePage<SharedData>()
               <Link
                 :href="item.href"
                 preserve-state
-                prefetch
               >
                 <component :is="item.icon" />
                 <span>{{ item.title }}</span>

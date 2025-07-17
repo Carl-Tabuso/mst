@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Employee;
+use App\Models\Form3Hauling;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,16 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('form4', function (Blueprint $table) {
+        Schema::create('form3_hauling_checklists', function (Blueprint $table) {
             $table->id();
-            $table->date('payment_date')->nullable();
-            $table->double('bid_bond')->nullable();
-            $table->string('or_number')->nullable();
-            $table->foreignIdFor(Employee::class, 'dispatcher')
-                ->nullable()
+            $table->foreignIdFor(Form3Hauling::class)
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+            $table->boolean('is_vehicle_inspection_filled')->default(false);
+            $table->boolean('is_uniform_ppe_filled')->default(false);
+            $table->boolean('is_tools_equipment_filled')->default(false);
+            $table->boolean('is_certify')->default(false);
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('form4');
+        Schema::dropIfExists('form3_hauling_checklists');
     }
 };

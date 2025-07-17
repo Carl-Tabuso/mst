@@ -1,11 +1,14 @@
 <?php
 
+use App\Enums\UserPermission;
+use App\Enums\UserRole;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -75,7 +78,11 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-Route::get('test', fn () => \App\Enums\UserPermission::forFrontendMapping());
+Route::get('test', function () {
+    $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get();
+    $dispatcherRole = User::role(UserRole::Dispatcher)->get();
+    dd($dispatcherPermission, $dispatcherRole);
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

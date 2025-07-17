@@ -14,7 +14,9 @@ use App\Models\Position;
 use App\Models\TeamLeaderPerformance;
 use App\Models\TeamLeaderRating;
 use App\Traits\RandomEmployee;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class TeamLeaderPerformanceSeeder extends Seeder
@@ -35,13 +37,15 @@ class TeamLeaderPerformanceSeeder extends Seeder
             Employee::inRandomOrder()->take(rand(2, 4))->get()
         );
 
-        $form3 = Form3::factory()
-            ->create(['form4_id' => $jobOrder->serviceable->id]);
+        $form3 = Form3::factory()->create([
+            'form4_id' => $jobOrder->serviceable->id,
+            'from'     => $from = Carbon::parse(fake()->dateTimeBetween('-2 months', '-3 weeks')),
+            'to'       => $to   = $from->copy()->addDays(4),
+        ]);
 
-        $days = now()->subDays(5);
-
-        $haulings = Form3Hauling::factory(5)
-            ->sequence(fn () => ['date' => $days->addDay()])
+        $haulings = Form3Hauling::factory()
+            ->count((int) $from->diffInDays($to) + 1)
+            ->sequence(fn (Sequence $sequence) => ['date' => $from->copy()->addDays($sequence->index)])
             ->create(['form3_id' => $form3->id]);
 
         $assignedEmployees = [];
@@ -57,6 +61,7 @@ class TeamLeaderPerformanceSeeder extends Seeder
             $position = Position::firstWhere(['name' => 'Hauler']);
             $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
             $hauling->haulers()->attach($haulers);
+            $hauling->checklist()->create()->checkAllFields();
 
             $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
                 $personnel->team_driver,

@@ -19,7 +19,8 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->json('properties'); // before and after
-            $table->boolean('is_approved')->default(false);
+            $table->timestamp('approved_at')->nullable();
+            $table->text('reason');
             $table->timestamps();
         });
     }
