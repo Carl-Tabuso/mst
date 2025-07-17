@@ -3,6 +3,7 @@ import { columns } from '@/components/job-orders/columns'
 import JobOrderDataTable from '@/components/job-orders/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { usePermissions } from '@/composables/usePermissions'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
 import { Link } from '@inertiajs/vue3'
@@ -24,6 +25,8 @@ watch(
     meta.value = update.meta
   },
 )
+
+const { can } = usePermissions()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -50,7 +53,10 @@ const breadcrumbs: BreadcrumbItem[] = [
               You can manage the list of recent active job orders here!
             </p>
           </div>
-          <div class="ml-auto">
+          <div
+            v-if="can('create:job_order')"
+            class="ml-auto"
+          >
             <Link
               :href="route('job_order.create')"
               preserve-state

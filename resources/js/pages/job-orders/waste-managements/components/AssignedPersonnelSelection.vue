@@ -8,7 +8,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from '@/components/ui/command'
 import { Label } from '@/components/ui/label'
 import {
@@ -19,10 +18,23 @@ import {
 import { getInitials } from '@/composables/useInitials'
 import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
-import { computed } from 'vue'
-import EmployeePopoverSelection from './EmployeePopoverSelection.vue'
 import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
+interface AssignedPersonnelSelectionProps {
+  employees?: Employee[]
+  hauling: Form3Hauling
+  role: RoleType
+  index: number
+  label: string
+  open: boolean
+  isDisabled?: boolean
+}
+
+withDefaults(defineProps<AssignedPersonnelSelectionProps>(), {
+  isDisabled: false,
+})
+
+type RoleType = (typeof Roles)[number]['id']
 const Roles = [
   {
     id: 'teamLeader',
@@ -41,37 +53,6 @@ const Roles = [
     label: 'Driver',
   },
 ] as const
-
-type RoleType = (typeof Roles)[number]['id']
-
-interface AssignedPersonnelSelectionProps {
-  employees?: Employee[]
-  hauling?: Form3Hauling
-  role?: RoleType
-  index?: number
-  label: string
-  open?: boolean
-  areHaulers?: boolean
-  selectedHaulers?: Employee[]
-}
-
-const props = withDefaults(defineProps<AssignedPersonnelSelectionProps>(), {
-  areHaulers: false,
-})
-
-const isExistingHauler = (employeeId: number) => {
-  return props?.selectedHaulers?.map((h) => h.id).includes(employeeId)
-}
-
-const isSingleSelect = computed(() => props.role)
-
-const remainingEmployees = computed(() => {
-  const filtered = props.employees?.filter(
-    (e) => !props.selectedHaulers?.flatMap((sh) => sh.id).includes(e.id),
-  )
-
-  return new Set(filtered)
-})
 </script>
 
 <template>
@@ -80,100 +61,49 @@ const remainingEmployees = computed(() => {
       {{ label }}
     </Label>
     <Popover
-      v-bind="
-        isSingleSelect
-          ? {
-              open,
-              'onUpdate:open': (value) => $emit('toggled', role, index, value),
-            }
-          : {
-              'onUpdate:open': (value) => $emit('onHaulerToggle', value),
-            }
-      "
+      :open="open"
+      @update:open="(value) => $emit('toggled', role, index, value)"
     >
       <PopoverTrigger
         class="w-[400px]"
         as-child
+        :disabled="isDisabled"
       >
         <Button
           variant="outline"
           class="bg-muted"
         >
-          <template v-if="areHaulers">
-            <template v-if="selectedHaulers?.length">
-              <div
-                :key="selectedHaulers[0].id"
-                class="flex items-center justify-between gap-2 rounded-md text-xs"
+          <template v-if="hauling?.assignedPersonnel[role]">
+            <Avatar class="h-7 w-7 shrink-0 rounded-full">
+              <AvatarImage
+                v-if="hauling.assignedPersonnel[role]?.account?.avatar"
+                :src="hauling.assignedPersonnel[role].account.avatar"
+                :alt="hauling.assignedPersonnel[role].fullName"
+              />
+              <AvatarFallback>
+                {{ getInitials(hauling.assignedPersonnel[role].fullName) }}
+              </AvatarFallback>
+            </Avatar>
+            <div
+              class="flex items-center justify-between gap-2 rounded-md text-xs"
+            >
+              {{ hauling.assignedPersonnel[role]?.fullName }}
+              <Button
+                v-if="! isDisabled"
+                variant="ghost"
+                size="icon"
+                type="button"
+                class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
+                @click="$emit('removed', role, index)"
               >
-                <div class="flex items-center gap-2 overflow-hidden">
-                  <Avatar class="h-7 w-7 shrink-0 rounded-full">
-                    <AvatarImage
-                      v-if="selectedHaulers[0]?.account?.avatar"
-                      :src="selectedHaulers[0].account.avatar"
-                      :alt="selectedHaulers[0].fullName"
-                    />
-                    <AvatarFallback>
-                      {{ getInitials(selectedHaulers[0].fullName) }}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span class="truncate">
-                    <template v-if="selectedHaulers.length < 2">
-                      {{ selectedHaulers[0].fullName }}
-                    </template>
-                    <template v-else>
-                      {{
-                        `${selectedHaulers[0].fullName} and ${selectedHaulers.length - 1} more`
-                      }}
-                    </template>
-                  </span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  type="button"
-                  class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
-                  @click="$emit('onRemoveExistingHaulers', index)"
-                >
-                  <X />
-                </Button>
-              </div>
-            </template>
-            <template v-else>
-              <span class="text-muted-foreground"> Select haulers </span>
-            </template>
+                <X />
+              </Button>
+            </div>
           </template>
           <template v-else>
-            <template v-if="role && hauling?.assignedPersonnel[role]">
-              <Avatar class="h-7 w-7 shrink-0 rounded-full">
-                <AvatarImage
-                  v-if="hauling.assignedPersonnel[role]?.account?.avatar"
-                  :src="hauling.assignedPersonnel[role]?.account?.avatar"
-                  :alt="hauling.assignedPersonnel[role].fullName"
-                />
-                <AvatarFallback>
-                  {{ getInitials(hauling.assignedPersonnel[role].fullName) }}
-                </AvatarFallback>
-              </Avatar>
-              <div
-                class="flex items-center justify-between gap-2 rounded-md text-xs"
-              >
-                {{ hauling.assignedPersonnel[role]?.fullName }}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  type="button"
-                  class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
-                  @click="$emit('removed', role, index)"
-                >
-                  <X />
-                </Button>
-              </div>
-            </template>
-            <template v-else>
-              <span class="text-muted-foreground">
-                {{ `Select a ${label}` }}
-              </span>
-            </template>
+            <span class="text-muted-foreground">
+              {{ `Select a ${label}` }}
+            </span>
           </template>
           <ChevronsUpDown class="ml-auto h-4 w-4" />
         </Button>
@@ -183,45 +113,17 @@ const remainingEmployees = computed(() => {
           <CommandInput :placeholder="`Search for a ${label.toLowerCase()}`" />
           <CommandList>
             <CommandEmpty> No results found. </CommandEmpty>
-            <template v-if="areHaulers && selectedHaulers?.length">
-              <div class="max-h-40 overflow-y-auto">
-                <CommandGroup>
-                  <CommandItem
-                    v-for="hauler in selectedHaulers"
-                    :key="hauler.id"
-                    :value="hauler"
-                    @select="$emit('onHaulerSelect', hauler, index)"
-                  >
-                    <EmployeePopoverSelection
-                      :employee="hauler"
-                      is-selected
-                    />
-                  </CommandItem>
-                </CommandGroup>
-              </div>
-              <CommandSeparator />
-            </template>
             <CommandGroup>
               <template v-if="!employees">
                 <EmployeeCommandListPlaceholder :count="7" />
               </template>
               <template v-else>
                 <CommandItem
-                  v-for="employee in remainingEmployees"
+                  v-for="employee in employees"
                   :key="employee.id"
                   :value="employee"
-                  @select="
-                    areHaulers
-                      ? $emit('onHaulerSelect', employee, index)
-                      : $emit('clicked', role, employee, index)
-                  "
+                  @select="$emit('clicked', role, employee, index)"
                 >
-                  <div
-                    v-if="areHaulers && !isExistingHauler(employee.id)"
-                    class="mr-1 flex h-4 w-4 items-center justify-center rounded-sm border border-primary opacity-50 [&_svg]:invisible"
-                  >
-                    <Check :class="['h-4 w-4']" />
-                  </div>
                   <Avatar class="h-7 w-7 overflow-hidden rounded-full">
                     <AvatarImage
                       v-if="employee?.account?.avatar"
@@ -238,9 +140,7 @@ const remainingEmployees = computed(() => {
                     </span>
                   </div>
                   <Check
-                    v-if="
-                      !areHaulers && role && hauling?.assignedPersonnel[role]
-                    "
+                    v-if="hauling?.assignedPersonnel[role]"
                     :class="[
                       'ml-auto h-4 w-4',
                       hauling.assignedPersonnel[role]?.id === employee.id

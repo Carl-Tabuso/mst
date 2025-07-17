@@ -4,6 +4,7 @@ import type { Config } from 'ziggy-js'
 
 export interface Auth {
   user: User
+  permissions: string[]
 }
 
 export interface BreadcrumbItem {
@@ -107,6 +108,18 @@ export interface Form3Hauling {
   form3: Form3
   assignedPersonnel: Form3AssignedPersonnel
   haulers: Employee[]
+  checklist: Form3HaulingChecklist
+}
+
+export interface Form3HaulingChecklist {
+  id: number
+  form3HaulingId: number
+  isVehicleInspectionFilled: boolean
+  isUniformPpeFilled: boolean
+  isToolsEquipmentFilled: boolean
+  isCertified: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Form3AssignedPersonnel {

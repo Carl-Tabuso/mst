@@ -6,13 +6,14 @@ use Illuminate\Http\JsonResponse;
 
 enum UserPermission: string
 {
-    case CreateJobOrder                   = 'create jo';
-    case UpdateJobOrder                   = 'update jo';
-    case SubmitJobOrderCorrection         = 'submit jo correction';
-    case ApproveJobOrderCorrection        = 'approve jo correction';
-    case FillOutSafetyInspectionChecklist = 'fill out checklist';
-    case AssignHaulingPersonnel           = 'assign hauling personnel';
-    case AssignAppraisers                 = 'assign appraisers';
+    case CreateJobOrder                   = 'create:job_order';
+    case UpdateJobOrder                   = 'update:job_order';
+    case SubmitJobOrderCorrection         = 'submit:job_order_correction';
+    case ApproveJobOrderCorrection        = 'approve:job_order_correction';
+    case FillOutSafetyInspectionChecklist = 'fill:safety_inspection_checklist';
+    case AssignHaulingPersonnel           = 'assign:hauling_personnel';
+    case AssignAppraisers                 = 'assign:appraisers';
+    case SetHaulingDuration               = 'set:hauling_duration';
 
     public function getLabel(): string
     {
@@ -24,6 +25,7 @@ enum UserPermission: string
             self::FillOutSafetyInspectionChecklist => 'Fill-out Safety Inspection Checklist',
             self::AssignHaulingPersonnel           => 'Assign Hauling Personnel',
             self::AssignAppraisers                 => 'Assign Hauling Appraisers',
+            self::SetHaulingDuration               => 'Set Hauling Duration',
         };
     }
 
@@ -48,6 +50,7 @@ enum UserPermission: string
     {
         return [
             self::FillOutSafetyInspectionChecklist,
+            self::SetHaulingDuration,
         ];
     }
 

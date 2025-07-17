@@ -41,9 +41,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Role::firstOrCreate(['name' => UserRole::SafetyOfficer]);
             Role::firstOrCreate(['name' => UserRole::HumanResource]);
             Role::firstOrCreate(['name' => UserRole::Consultant]);
-            Role::firstOrCreate(['name' => UserRole::Driver]);
-            Role::firstOrCreate(['name' => UserRole::Mechanic]);
             Role::firstOrCreate(['name' => UserRole::Regular]);
+            Role::firstOrCreate(['name' => USerRole::ITAdmin]);
         });
     }
 
