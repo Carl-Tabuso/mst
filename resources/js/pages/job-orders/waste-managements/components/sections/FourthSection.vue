@@ -8,16 +8,29 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { formatToDateString } from '@/composables/useDateFormatter'
+import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
+import FormAreaInfo from '../FormAreaInfo.vue'
+import SectionButton from '../SectionButton.vue'
 
 interface FourthSectionProps {
   canEdit?: boolean
+  status: JobOrderStatus
+  isSubmitBtnDisabled?: boolean
+}
+
+interface FourthSectionEmits {
+  onCancelSubmit: void
 }
 
 withDefaults(defineProps<FourthSectionProps>(), {
   canEdit: false,
+  isSubmitBtnDisabled: false,
 })
+
+defineEmits<FourthSectionEmits>()
 
 const startingDate = defineModel<any>('startingDate', {
   get(value) {
@@ -35,9 +48,18 @@ const endingDate = defineModel<any>('endingDate', {
   },
   default: '',
 })
+
+const { isPreHauling } = useWasteManagementStages()
 </script>
 
 <template>
+  <FormAreaInfo
+    :condition="isPreHauling(status)"
+    class="mb-2"
+  >
+    <span class="pr-1 font-semibold">Dispatcher</span>
+    is required to complete this section to continue with personnel assignment.
+  </FormAreaInfo>
   <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
     <div>
       <div class="text-xl font-semibold leading-6">Hauling Duration</div>
@@ -45,9 +67,9 @@ const endingDate = defineModel<any>('endingDate', {
         Estimated starting and ending date of hauling operations.
       </p>
     </div>
-    <div class="col-span-2 mx-6 grid grid-cols-2 gap-x-24">
+    <div class="col-span-2 grid grid-cols-2 gap-x-10">
       <div class="flex items-center gap-x-4">
-        <Label class="w-48 shrink-0">Start Date</Label>
+        <Label class="w-44 shrink-0">Start Date</Label>
         <Popover>
           <PopoverTrigger
             as-child
@@ -121,5 +143,14 @@ const endingDate = defineModel<any>('endingDate', {
         </Popover>
       </div>
     </div>
+  </div>
+  <div
+    v-if="canEdit"
+    class="mt-6 flex justify-end space-x-2"
+  >
+    <SectionButton
+      :is-submit-btn-disabled="isSubmitBtnDisabled"
+      @on-cancel-submit="$emit('onCancelSubmit')"
+    />
   </div>
 </template>

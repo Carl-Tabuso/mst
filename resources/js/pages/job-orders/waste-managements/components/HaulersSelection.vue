@@ -108,7 +108,7 @@ const remainingEmployees = computed(() => {
           <CommandList>
             <CommandEmpty> No results found. </CommandEmpty>
             <template v-if="selectedHaulers?.length">
-              <div :class="['overflow-y-auto', { 'max-h-40': ! isDisabled }]">
+              <div :class="['overflow-y-auto', { 'max-h-40': !isDisabled }]">
                 <CommandGroup>
                   <CommandItem
                     v-for="hauler in selectedHaulers"
@@ -123,9 +123,9 @@ const remainingEmployees = computed(() => {
                   </CommandItem>
                 </CommandGroup>
               </div>
-              <CommandSeparator v-if="! isDisabled" />
+              <CommandSeparator v-if="!isDisabled" />
             </template>
-            <CommandGroup v-if="! isDisabled">
+            <CommandGroup v-if="!isDisabled">
               <template v-if="!employees">
                 <EmployeeCommandListPlaceholder :count="7" />
               </template>

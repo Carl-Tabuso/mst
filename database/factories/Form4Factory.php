@@ -21,10 +21,10 @@ class Form4Factory extends Factory
     public function definition(): array
     {
         return [
-            'payment_date' => now(),
-            'bid_bond'     => rand(10000, 50000),
-            'or_number'    => strtoupper(Str::random()),
-            'dispatcher'   => $this->getByPosition('Dispatcher')
+            'payment_date'    => now(),
+            'bid_bond'        => rand(10000, 50000),
+            'or_number'       => strtoupper(Str::random()),
+            'form_dispatcher' => $this->getByPosition('Dispatcher'),
         ];
     }
 

@@ -54,7 +54,7 @@ const handleDateOfServiceChange = (value: any) => {
       General information of the requested service and client information.
     </p>
   </div>
-  <div class="grid grid-cols-[auto,1fr] gap-x-12 mx-6 gap-y-3">
+  <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
     <Label class="self-center"> Type of Service </Label>
     <RadioGroup
       required
@@ -148,11 +148,11 @@ const handleDateOfServiceChange = (value: any) => {
       v-model="address"
       class="w-full"
     />
-    <div class="col-span-2 grid grid-cols-2 gap-x-24">
+    <div class="col-span-2 grid grid-cols-2 gap-x-10">
       <div class="flex items-center gap-x-4">
         <Label
           for="department"
-          class="w-48 shrink-0"
+          class="w-44 shrink-0"
         >
           Department/Branch
         </Label>
@@ -184,11 +184,11 @@ const handleDateOfServiceChange = (value: any) => {
         />
       </div>
     </div>
-    <div class="col-span-2 grid grid-cols-2 gap-x-24">
+    <div class="col-span-2 grid grid-cols-2 gap-x-10">
       <div class="flex items-center gap-x-4">
         <Label
           for="contactPerson"
-          class="w-48 shrink-0"
+          class="w-44 shrink-0"
         >
           Contact Person
         </Label>
@@ -223,17 +223,4 @@ const handleDateOfServiceChange = (value: any) => {
       </div>
     </div>
   </div>
-  <!-- <template v-else>
-    <FirstSectionView
-      :serviceType="serviceType"
-      :serviceDate="serviceDate"
-      :serviceTime="serviceTime"
-      :client="client"
-      :address="address"
-      :department="department"
-      :contactPosition="contactPosition"
-      :contactNumber="contactNumber"
-      :contactPerson="contactPerson"
-    />
-  </template> -->
 </template>

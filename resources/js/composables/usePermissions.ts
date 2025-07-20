@@ -1,4 +1,3 @@
-import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { SharedData } from '@/types'
 import { usePage } from '@inertiajs/vue3'
 
@@ -12,7 +11,7 @@ export function usePermissions() {
   }
 
   const cannot = (permission: string) => {
-    return ! authUserPermissions.has(permission)
+    return !authUserPermissions.has(permission)
   }
 
   return {

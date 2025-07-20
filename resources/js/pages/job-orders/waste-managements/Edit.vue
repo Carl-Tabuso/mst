@@ -17,21 +17,25 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
+import { useJobOrderStatus } from '@/composables/useJobOrderStatus'
 import { usePermissions } from '@/composables/usePermissions'
-import { JobOrderStatuses, type JobOrderStatus } from '@/constants/job-order-statuses'
+import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
+import {
+  JobOrderStatuses,
+  type JobOrderStatus,
+} from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { router, useForm } from '@inertiajs/vue3'
 import { ChevronRight, Pencil, X } from 'lucide-vue-next'
-import { computed, nextTick, Ref, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, Ref, ref, useTemplateRef, watch } from 'vue'
 import FifthSection from './components/sections/FifthSection.vue'
 import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
 import SecondSection from './components/sections/SecondSection.vue'
-import ThirdSection from './components/sections/ThirdSection.vue'
 import SixthSection from './components/sections/SixthSection.vue'
-import { useJobOrderStatus } from '@/composables/useJobOrderStatus'
-import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
+import ThirdSection from './components/sections/ThirdSection.vue'
+import StatusUpdater from './components/StatusUpdater.vue'
 
 interface WasteManagementEditProps {
   jobOrder: JobOrder
@@ -51,13 +55,21 @@ const timeRange = new Date(serviceDate).toLocaleTimeString(undefined, {
 const { can, cannot } = usePermissions()
 const {
   isForAppraisal,
+  isPreHauling,
   canUpdateProposalInformation,
-  canUpdateHaulingDuration
+  canUpdateHaulingDuration,
 } = useWasteManagementStages()
 const { getCancelledStatuses } = useJobOrderStatus()
 
 const status = ref<string>(jobOrder.status) as Ref<JobOrderStatus>
 const sixthSectionRef = useTemplateRef('sixthSection')
+
+watch(
+  () => jobOrder.status,
+  (newValue) => {
+    status.value = newValue
+  },
+)
 
 const { serviceable: form4 } = jobOrder
 const { form3 } = form4
@@ -74,18 +86,20 @@ const form = useForm({
   haulings: form3?.haulings,
   from: form3?.from,
   to: form3?.to,
-  remarks: ''
+  remarks: '',
 })
 
 const jobOrderStatus = computed(() =>
   JobOrderStatuses.find((s) => status.value === s.id),
 )
 
-const handleStatusChange = async(value: JobOrderStatus) => {
+const handleStatusChange = async (value: JobOrderStatus) => {
   status.value = value
   isStatusPopoverOpen.value = false
-  
-  const isCancelled = getCancelledStatuses.value.map(cs => cs.id).includes(value)
+
+  const isCancelled = getCancelledStatuses.value
+    .map((cs) => cs.id)
+    .includes(value)
 
   if (isCancelled) {
     await nextTick()
@@ -106,7 +120,24 @@ const onSubmit = () => {
     //   safety_officer: data.safety_officer?.id,
     //   team_mechanic: data.team_mechanic?.id,
     // }))
-    .patch(route('job_order.waste_management.update', jobOrder.serviceable.id))
+    .patch(
+      route('job_order.waste_management.update', jobOrder.serviceable.id),
+      {
+        preserveScroll: true,
+      },
+    )
+}
+
+const markAsUpdate = (nextStep: JobOrderStatus) => {
+  router.patch(
+    route('job_order.update', jobOrder.ticket),
+    {
+      status: nextStep,
+    },
+    {
+      preserveScroll: true,
+    },
+  )
 }
 
 const loadEmployees = () => {
@@ -119,11 +150,17 @@ const isStatusPopoverOpen = ref<boolean>(false)
 
 const onStatusPopoverToggle = () => {
   cannot('update:job_order')
-    ? isStatusPopoverOpen.value = false
-    : isStatusPopoverOpen.value = ! isStatusPopoverOpen.value
+    ? (isStatusPopoverOpen.value = false)
+    : (isStatusPopoverOpen.value = !isStatusPopoverOpen.value)
 }
 
 const isEditing = ref<boolean>(false)
+
+const manualStatuses: Array<JobOrderStatus> = ['for viewing', 'for proposal']
+
+const canManuallyUpdate = computed(() =>
+  manualStatuses.includes(jobOrder.status),
+)
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -156,15 +193,19 @@ const breadcrumbs: BreadcrumbItem[] = [
               {{ jobOrder.ticket }}
             </span>
           </h3>
-          <Popover :open="isStatusPopoverOpen" @update:open="onStatusPopoverToggle">
+          <Popover
+            :open="isStatusPopoverOpen"
+            @update:open="onStatusPopoverToggle"
+          >
             <PopoverTrigger
               as-child
               class="flex items-center gap-1"
             >
               <Button
                 variant="ghost"
-                :class="['h-auto w-auto rounded-full p-1',
-                  { 'cursor-default hover:bg-0': cannot('update:job_order') }
+                :class="[
+                  'h-auto w-auto rounded-full p-1',
+                  { 'hover:bg-0 cursor-default': cannot('update:job_order') },
                 ]"
               >
                 <Badge
@@ -173,7 +214,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                 >
                   {{ jobOrderStatus?.label }}
                 </Badge>
-                <ChevronRight v-if="can('update:job_order')" class="h-4 w-4" />
+                <ChevronRight
+                  v-if="can('update:job_order')"
+                  class="h-4 w-4"
+                />
               </Button>
             </PopoverTrigger>
             <PopoverContent
@@ -230,11 +274,27 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </div>
       </div>
-      <template v-if="can('submit:job_order_correction')">
+      <div
+        v-if="can('submit:job_order_correction')"
+        class="flex h-8 items-center gap-2"
+      >
+        <div
+          v-if="canManuallyUpdate"
+          class="ml-auto"
+        >
+          <StatusUpdater
+            :status="jobOrder.status"
+            @mark-as-update="markAsUpdate"
+          />
+        </div>
+        <Separator
+          v-if="canManuallyUpdate"
+          orientation="vertical"
+        />
         <Button
-          v-if="! isEditing"
+          v-if="!isEditing"
           variant="outline"
-          @click="() => (isEditing = true)"
+          @click="() => (isEditing = !isEditing)"
         >
           <Pencil class="mr-2" />
           Request Ticket Correction
@@ -242,13 +302,13 @@ const breadcrumbs: BreadcrumbItem[] = [
         <template v-else>
           <Button
             variant="outline"
-            @click="() => (isEditing = false)"
+            @click="() => (isEditing = !isEditing)"
           >
             <X class="mr-2" />
             Cancel Ticket Correction
-          </Button> 
+          </Button>
         </template>
-      </template>
+      </div>
     </div>
     <div class="my-4 flex h-full flex-1 flex-col gap-4 rounded-xl">
       <div class="mb-3 flex items-center">
@@ -275,43 +335,63 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div class="mt-2">
               <Separator class="mb-3 w-full" />
               <SecondSection
-                :can-edit="can('assign:appraisers') && isForAppraisal(jobOrder)"
+                :can-edit="
+                  can('assign:appraisers') && isForAppraisal(jobOrder.status)
+                "
+                :status="jobOrder.status"
+                :errors="form.errors"
+                :is-submit-btn-disabled="form.processing"
                 v-model:appraisers="form.appraisers"
                 v-model:appraised-date="form.appraised_date"
                 :employees="employees"
                 @load-employees="loadEmployees"
+                @on-cancel-submit="form.cancel()"
               />
             </div>
             <div class="mt-2">
               <Separator class="mb-3 w-full" />
               <ThirdSection
-                :is-editing="isEditing && canUpdateProposalInformation(jobOrder.status as JobOrderStatus)"
+                :is-editing="
+                  isEditing && canUpdateProposalInformation(jobOrder.status)
+                "
+                :is-submit-btn-disabled="form.processing"
+                :status="jobOrder.status"
                 v-model:payment-type="form.payment_type"
                 v-model:bid-bond="form.bid_bond"
                 v-model:or-number="form.or_number"
                 v-model:payment-date="form.payment_date"
                 v-model:approved-date="form.approved_date"
                 :employees="employees"
+                @on-cancel-submit="form.cancel()"
               />
             </div>
             <div class="mt-2">
               <Separator class="mb-3 w-full" />
               <FourthSection
-                :can-edit="canUpdateHaulingDuration(jobOrder.status as JobOrderStatus)"
+                :can-edit="canUpdateHaulingDuration(jobOrder.status)"
+                :status="status"
+                :is-submit-btn-disabled="form.processing"
                 v-model:starting-date="form.from"
                 v-model:ending-date="form.to"
+                @on-cancel-submit="form.cancel()"
               />
             </div>
             <div class="mt-2">
-              <Separator class="col-[1/-1] mb-3 w-full" />
+              <Separator class="mb-3 w-full" />
               <FifthSection
                 :can-edit="can('assign:hauling_personnel')"
+                :status="status"
                 v-model:haulings="form.haulings"
                 :employees="employees"
                 @load-employees="loadEmployees"
               />
             </div>
-            <div v-if="getCancelledStatuses.map(cs => cs.id).includes(status)" class="mt-2">
+            <div
+              v-if="
+                getCancelledStatuses.map((cs) => cs.id).includes(status) ||
+                isEditing
+              "
+            >
               <Separator class="col-[1/-1] mb-3 w-full" />
               <SixthSection
                 ref="sixthSection"
@@ -319,7 +399,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                 v-model:remarks="form.remarks"
               />
             </div>
-            <div class="col-[1/-1] mt-4 flex w-full items-center pr-6">
+            <div
+              v-if="can('update:job_order')"
+              class="col-[1/-1] mt-4 flex w-full items-center"
+            >
               <div class="ml-auto space-x-3">
                 <Button
                   type="button"
@@ -330,8 +413,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Button
                   type="submit"
                   variant="default"
+                  :disabled="form.processing"
                 >
-                  Update Job Order
+                  Submit Corrections
                 </Button>
               </div>
             </div>

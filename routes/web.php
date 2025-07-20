@@ -18,6 +18,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [JobOrderController::class, 'index'])->name('index');
         Route::get('create', [JobOrderController::class, 'create'])->name('create');
         Route::post('/', [JobOrderController::class, 'store'])->name('store');
+        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
         Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
 
@@ -80,8 +81,11 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('test', function () {
     $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get();
-    $dispatcherRole = User::role(UserRole::Dispatcher)->get();
-    dd($dispatcherPermission, $dispatcherRole);
+    $dispatcherRole       = User::role(UserRole::Dispatcher)->get();
+    dd(
+        $dispatcherPermission,
+        $dispatcherRole,
+    );
 });
 
 require __DIR__.'/settings.php';

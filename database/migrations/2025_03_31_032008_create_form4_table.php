@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('payment_date')->nullable();
             $table->double('bid_bond')->nullable();
             $table->string('or_number')->nullable();
-            $table->foreignIdFor(Employee::class, 'dispatcher')
+            $table->foreignIdFor(Employee::class, 'form_dispatcher')
                 ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()

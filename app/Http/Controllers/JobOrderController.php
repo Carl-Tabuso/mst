@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\JobOrderStatus;
+use App\Http\Requests\UpdateJobOrderRequest;
 use App\Models\JobOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -78,9 +80,13 @@ class JobOrderController extends Controller
         //
     }
 
-    public function update(Request $request, JobOrder $jobOrder)
+    public function update(UpdateJobOrderRequest $request, JobOrder $jobOrder)
     {
-        //
+        $jobOrder->update([
+            'status' => $request->enum('status', JobOrderStatus::class),
+        ]);
+
+        return redirect()->back();
     }
 
     public function destroy(Request $request, ?JobOrder $jobOrder = null)

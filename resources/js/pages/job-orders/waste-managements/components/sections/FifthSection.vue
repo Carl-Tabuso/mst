@@ -26,15 +26,19 @@ import {
 } from '@/components/ui/tooltip'
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { getInitials } from '@/composables/useInitials'
+import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee, Form3Hauling } from '@/types'
 import { ClipboardCheck, FilePenLine } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
+import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 
 interface FifthSectionProps {
   canEdit?: boolean
+  status: JobOrderStatus
   employees?: Employee[]
 }
 
@@ -66,7 +70,7 @@ const removeHauler = (employee: Employee, index: number) => {
 }
 
 const handleHaulerMultiSelection = (employee: Employee, index: number) => {
-  if (! props.canEdit) return
+  if (!props.canEdit) return
 
   if (isExistingHauler(employee.id, index)) {
     removeHauler(employee, index)
@@ -177,11 +181,27 @@ const checklist = [
     description: 'Tools and Equipment Request Form',
   },
 ] as const
+
+const {
+  isForPersonnelAssignment,
+  isForSafetyInspection,
+} = useWasteManagementStages()
 </script>
 
 <template>
-  <div class="grid grid-cols-[auto,1fr] gap-y-6">
-    <div v-if="haulings?.length">
+  <FormAreaInfo
+    v-if="haulings.length"
+    :condition="isForPersonnelAssignment(status)"
+    class="mb-2"
+  >
+    <span class="pr-1 font-semibold">Dispatcher</span>is required to assign the personnel and haulers
+    daily during the duration of hauling period.
+  </FormAreaInfo>
+  <div
+    v-if="haulings?.length"
+    class="grid grid-cols-[auto,1fr] gap-y-6"
+  >
+    <div>
       <div class="text-xl font-semibold leading-6">Assigned Personnel</div>
       <p class="text-sm text-muted-foreground">
         List of assigned personnel for each hauling operations.
@@ -189,7 +209,7 @@ const checklist = [
     </div>
     <Accordion
       type="multiple"
-      class="col-[1/-1] w-full px-5"
+      class="col-[1/-1] w-full"
       collapsible
     >
       <AccordionItem
@@ -264,7 +284,8 @@ const checklist = [
                     <Avatar class="h-6 w-6 rounded-full">
                       <AvatarImage
                         v-if="
-                          hauling.assignedPersonnel.teamLeader?.account?.avatar
+                          hauling?.assignedPersonnel?.teamLeader?.account
+                            ?.avatar
                         "
                         :src="
                           hauling.assignedPersonnel.teamLeader.account.avatar
@@ -274,13 +295,13 @@ const checklist = [
                       <AvatarFallback>
                         {{
                           getInitials(
-                            hauling.assignedPersonnel.teamLeader.fullName,
+                            hauling?.assignedPersonnel?.teamLeader?.fullName,
                           )
                         }}
                       </AvatarFallback>
                     </Avatar>
                     <span class="truncate text-muted-foreground">
-                      {{ hauling.assignedPersonnel.teamLeader.fullName }}
+                      {{ hauling.assignedPersonnel?.teamLeader?.fullName }}
                     </span>
                   </div>
                   <div>{{ '3 days ago' }}</div>

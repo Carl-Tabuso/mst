@@ -1,3 +1,4 @@
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
 import type { Config } from 'ziggy-js'
@@ -66,7 +67,7 @@ export interface JobOrder {
   contactPerson: string
   contactPosition: string
   createdBy: number
-  status: string
+  status: JobOrderStatus
   errorCount: number
   createdAt: string
   updatedAt: string
@@ -125,17 +126,13 @@ export interface Form3HaulingChecklist {
 export interface Form3AssignedPersonnel {
   id: number
   form3HaulingId: number
-  teamLeaderId: number
-  teamDriverId: number
-  safetyOfficerId: number
-  teamMechanicId: number
   createdAt: string
   updatedAt: string
   hauling: Form3Hauling
-  teamLeader: Employee
-  teamDriver: Employee
-  safetyOfficer: Employee
-  teamMechanic: Employee
+  teamLeader: Employee | null
+  teamDriver: Employee | null
+  safetyOfficer: Employee | null
+  teamMechanic: Employee | null
 }
 
 export interface EloquentCollection {

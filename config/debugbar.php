@@ -126,10 +126,10 @@ return [
      */
 
     'capture_ajax'            => true,
-    'add_ajax_timing'         => false,
+    'add_ajax_timing'         => true,
     'ajax_handler_auto_show'  => true,
     'ajax_handler_enable_tab' => true,
-    'defer_datasets'          => false,
+    'defer_datasets'          => true,
     /*
      |--------------------------------------------------------------------------
      | Custom Error Handler for Deprecated warnings
@@ -173,7 +173,7 @@ return [
         'route'           => false,  // Current route information
         'auth'            => false, // Display Laravel authentication status
         'gate'            => true,  // Display Laravel Gate checks
-        'session'         => false,  // Display session data
+        'session'         => true,  // Display session data
         'symfony_request' => true,  // Only one can be enabled..
         'mail'            => true,  // Catch mail messages
         'laravel'         => true, // Laravel version and environment

@@ -12,10 +12,6 @@ class Form3AssignedPersonnelResource extends JsonResource
         return [
             'id'              => $this->id,
             'form3HaulingId'  => $this->form3_hauling_id,
-            'teamLeaderId'    => $this->team_leader,
-            'teamDriverId'    => $this->team_driver,
-            'safetyOfficerId' => $this->safety_officer,
-            'teamMechanicId'  => $this->team_mechanic,
             'createdAt'       => $this->created_at,
             'updatedAt'       => $this->updated_at,
             'hauling'         => Form3HaulingResource::make($this->whenLoaded('hauling')),

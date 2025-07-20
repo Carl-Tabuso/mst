@@ -36,7 +36,7 @@ const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '')
 </script>
 
 <template>
-  <Avatar class="h-9 w-9 overflow-hidden rounded-full">
+  <Avatar class="h-8 w-8 overflow-hidden rounded-full">
     <AvatarImage
       v-if="showAvatar"
       :src="user.avatar"

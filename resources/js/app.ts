@@ -43,7 +43,6 @@ createInertiaApp({
   progress: {
     delay: 250,
     color: getProgressBarColor(),
-    showSpinner: true,
   },
 })
 

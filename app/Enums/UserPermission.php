@@ -43,6 +43,7 @@ enum UserPermission: string
         return [
             self::AssignAppraisers,
             self::AssignHaulingPersonnel,
+            self::SetHaulingDuration,
         ];
     }
 
@@ -50,7 +51,6 @@ enum UserPermission: string
     {
         return [
             self::FillOutSafetyInspectionChecklist,
-            self::SetHaulingDuration,
         ];
     }
 

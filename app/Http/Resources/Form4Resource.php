@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Number;
 
 class Form4Resource extends JsonResource
 {
@@ -13,7 +14,7 @@ class Form4Resource extends JsonResource
             'id'          => $this->id,
             'ticket'      => $this->ticket,
             'paymentDate' => $this->payment_date?->toISOString(),
-            'bidBond'     => $this->bid_bond,
+            'bidBond'     => $this->when($this->bid_bond, fn () => Number::format($this->bid_bond, 2)),
             'orNumber'    => $this->or_number,
             'createdAt'   => $this->created_at,
             'updatedAt'   => $this->updated_at,

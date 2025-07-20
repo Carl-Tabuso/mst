@@ -56,7 +56,7 @@ export const JobOrderStatuses = [
   },
   {
     id: 'hauling in-progress',
-    label: 'Hauling In-progress',
+    label: 'Hauling In-Progress',
     badge: 'progress',
   },
   {
@@ -73,6 +73,11 @@ export const JobOrderStatuses = [
     id: 'completed',
     label: 'Completed',
     badge: 'success',
+  },
+  {
+    id: 'pre-hauling',
+    label: 'Pre-Hauling',
+    badge: 'continuous',
   },
 ] as const
 

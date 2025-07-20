@@ -9,18 +9,32 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { formatToDateString } from '@/composables/useDateFormatter'
+import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
+import { computed } from 'vue'
+import FormAreaInfo from '../FormAreaInfo.vue'
+import SectionButton from '../SectionButton.vue'
 
 interface ThirdSectionProps {
   isEditing?: boolean
+  status: JobOrderStatus
   employees?: Employee[]
+  isSubmitBtnDisabled?: boolean
 }
 
-withDefaults(defineProps<ThirdSectionProps>(), {
+interface ThirdSectionEmits {
+  onCancelSubmit: void
+}
+
+const props = withDefaults(defineProps<ThirdSectionProps>(), {
   isEditing: false,
+  isSubmitBtnDisabled: false,
 })
+
+defineEmits<ThirdSectionEmits>()
 
 const paymentType = defineModel<string>('paymentType')
 const bidBond = defineModel<string | number>('bidBond')
@@ -45,9 +59,24 @@ const handlePaymentDateChange = (value: any) => {
 const handleApprovedDateChange = (value: any) => {
   approvedDate.value = new Date(value).toISOString()
 }
+
+const { isSuccessfulProposal } = useWasteManagementStages()
+
+const canNextStage = computed(() => isSuccessfulProposal(props.status))
+
+const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
 </script>
 
 <template>
+  <FormAreaInfo
+    :condition="canNextStage"
+    class="mb-2"
+  >
+    <span class="px-1 font-semibold">Frontliner </span>
+    is required to complete this section if the proposal status was
+    <span class="px-1 font-semibold">Successful, </span>
+    to continue with hauling.
+  </FormAreaInfo>
   <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
     <div>
       <div class="text-xl font-semibold leading-6">Proposal Information</div>
@@ -55,18 +84,18 @@ const handleApprovedDateChange = (value: any) => {
         Information regarding business client's payment.
       </p>
     </div>
-    <div class="col-span-2 mx-6 grid grid-cols-2 gap-x-24 gap-y-3">
-      <div class="col-span-2 grid grid-cols-2 gap-x-24">
+    <div class="col-span-2 grid grid-cols-2 gap-x-24 gap-y-3">
+      <div class="col-span-2 grid grid-cols-2 gap-x-10">
         <div class="flex items-center gap-x-4">
           <Label
             for="paymentType"
-            class="w-48 shrink-0"
+            class="w-44 shrink-0"
           >
             Type of Payment
           </Label>
           <Input
             id="paymentType"
-            :disabled="!isEditing"
+            :disabled="isDisabled"
             placeholder="Enter client's payment type"
             v-model="paymentType"
             class="w-full"
@@ -81,7 +110,7 @@ const handleApprovedDateChange = (value: any) => {
           </Label>
           <Input
             id="bidBond"
-            :disabled="!isEditing"
+            :disabled="isDisabled"
             placeholder="Enter job order's bid bond"
             v-model="bidBond"
             class="w-full"
@@ -89,17 +118,17 @@ const handleApprovedDateChange = (value: any) => {
         </div>
       </div>
 
-      <div class="col-span-2 grid grid-cols-2 gap-x-24">
+      <div class="col-span-2 grid grid-cols-2 gap-x-10">
         <div class="flex items-center gap-x-4">
           <Label
             for="orNumber"
-            class="w-48 shrink-0"
+            class="w-44 shrink-0"
           >
             OR Number
           </Label>
           <Input
             id="orNumber"
-            :disabled="!isEditing"
+            :disabled="isDisabled"
             placeholder="Enter OR Number"
             v-model="orNumber"
             class="w-full"
@@ -115,7 +144,7 @@ const handleApprovedDateChange = (value: any) => {
           <Popover>
             <PopoverTrigger
               as-child
-              :disabled="!isEditing"
+              :disabled="isDisabled"
             >
               <Button
                 type="button"
@@ -145,18 +174,18 @@ const handleApprovedDateChange = (value: any) => {
         </div>
       </div>
 
-      <div class="col-span-2 grid grid-cols-2 gap-x-24">
+      <div class="col-span-2 grid grid-cols-2 gap-x-10">
         <div class="flex items-center gap-x-4">
           <Label
             for="approvedDate"
-            class="w-48 shrink-0"
+            class="w-44 shrink-0"
           >
             Date Approved
           </Label>
           <Popover>
             <PopoverTrigger
               as-child
-              :disabled="!isEditing"
+              :disabled="isDisabled"
             >
               <Button
                 type="button"
@@ -186,5 +215,14 @@ const handleApprovedDateChange = (value: any) => {
         </div>
       </div>
     </div>
+  </div>
+  <div
+    v-if="canNextStage"
+    class="mt-6 flex justify-end space-x-2"
+  >
+    <SectionButton
+      :is-submit-btn-disabled="isSubmitBtnDisabled"
+      @on-cancel-submit="$emit('onCancelSubmit')"
+    />
   </div>
 </template>

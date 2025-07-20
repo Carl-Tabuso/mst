@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->string('truck_no');
+            $table->string('truck_no')->nullable();
             $table->timestamp('date');
         });
     }

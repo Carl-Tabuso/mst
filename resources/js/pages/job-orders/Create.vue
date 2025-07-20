@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem } from '@/types'
@@ -94,6 +93,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                   <Button
                     type="submit"
                     variant="default"
+                    :disabled="form.processing"
                   >
                     Add Job Order
                   </Button>

@@ -73,23 +73,23 @@ const Roles = [
           variant="outline"
           class="bg-muted"
         >
-          <template v-if="hauling?.assignedPersonnel[role]">
+          <template v-if="hauling?.assignedPersonnel?.[role]">
             <Avatar class="h-7 w-7 shrink-0 rounded-full">
               <AvatarImage
-                v-if="hauling.assignedPersonnel[role]?.account?.avatar"
+                v-if="hauling?.assignedPersonnel[role]?.account?.avatar"
                 :src="hauling.assignedPersonnel[role].account.avatar"
                 :alt="hauling.assignedPersonnel[role].fullName"
               />
               <AvatarFallback>
-                {{ getInitials(hauling.assignedPersonnel[role].fullName) }}
+                {{ getInitials(hauling?.assignedPersonnel[role]?.fullName) }}
               </AvatarFallback>
             </Avatar>
             <div
               class="flex items-center justify-between gap-2 rounded-md text-xs"
             >
-              {{ hauling.assignedPersonnel[role]?.fullName }}
+              {{ hauling?.assignedPersonnel[role]?.fullName }}
               <Button
-                v-if="! isDisabled"
+                v-if="!isDisabled"
                 variant="ghost"
                 size="icon"
                 type="button"
@@ -140,7 +140,7 @@ const Roles = [
                     </span>
                   </div>
                   <Check
-                    v-if="hauling?.assignedPersonnel[role]"
+                    v-if="hauling?.assignedPersonnel?.[role]"
                     :class="[
                       'ml-auto h-4 w-4',
                       hauling.assignedPersonnel[role]?.id === employee.id

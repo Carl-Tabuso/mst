@@ -19,6 +19,7 @@ enum JobOrderStatus: string
     case ForVerification        = 'for verification';
     case Verified               = 'verified';
     case ForAppraisal           = 'for appraisal';
+    case PreHauling             = 'pre-hauling';
 
     public static function getCancelledStatuses(): array
     {
@@ -37,6 +38,14 @@ enum JobOrderStatus: string
             self::ForProposal,
             self::Failed,
             self::Successful,
+        ];
+    }
+
+    public static function getManualStagesUpdate(): array
+    {
+        return [
+            self::ForViewing->value,
+            self::ForProposal->value,
         ];
     }
 }
