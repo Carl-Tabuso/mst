@@ -17,10 +17,13 @@ import { Calendar } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
+import { usePermissions } from '@/composables/usePermissions'
+import InputError from '@/components/InputError.vue'
 
 interface ThirdSectionProps {
   isEditing?: boolean
   status: JobOrderStatus
+  errors: any
   employees?: Employee[]
   isSubmitBtnDisabled?: boolean
 }
@@ -61,16 +64,21 @@ const handleApprovedDateChange = (value: any) => {
 }
 
 const { isSuccessfulProposal } = useWasteManagementStages()
+const { can } = usePermissions()
 
-const canNextStage = computed(() => isSuccessfulProposal(props.status))
+const isCurrentStage = computed(() => isSuccessfulProposal(props.status))
+
+const canNextStage = computed(() => {
+  return isCurrentStage.value && can('update:job_order')
+})
 
 const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
 </script>
 
 <template>
   <FormAreaInfo
-    :condition="canNextStage"
-    class="mb-2"
+    :condition="isCurrentStage"
+    class="mb-4"
   >
     <span class="px-1 font-semibold">Frontliner </span>
     is required to complete this section if the proposal status was
@@ -86,139 +94,158 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
     </div>
     <div class="col-span-2 grid grid-cols-2 gap-x-24 gap-y-3">
       <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex items-center gap-x-4">
+        <div class="flex items-start gap-x-4">
           <Label
             for="paymentType"
-            class="w-44 shrink-0"
+            class="w-44 shrink-0 mt-3"
           >
             Type of Payment
           </Label>
-          <Input
-            id="paymentType"
-            :disabled="isDisabled"
-            placeholder="Enter client's payment type"
-            v-model="paymentType"
-            class="w-full"
-          />
+          <div class="flex flex-col gap-1 w-full">
+            <Input
+              id="paymentType"
+              :disabled="isDisabled"
+              placeholder="Enter client's payment type"
+              v-model="paymentType"
+              :class="['w-full', { 'border-destructive focus-visible:ring-0 focus-visible:ring-destructive focus': errors.payment_type }]"
+            />
+            <InputError :message="errors.payment_type" />
+          </div>
         </div>
-        <div class="flex items-center">
+        <div class="flex items-start">
           <Label
             for="bidBond"
-            class="w-36 shrink-0"
+            class="w-36 shrink-0 mt-3"
           >
             Bid Bond
           </Label>
-          <Input
-            id="bidBond"
-            :disabled="isDisabled"
-            placeholder="Enter job order's bid bond"
-            v-model="bidBond"
-            class="w-full"
-          />
+          <div class="flex flex-col gap-1 w-full">
+            <Input
+              id="bidBond"
+              :disabled="isDisabled"
+              placeholder="Enter job order's bid bond"
+              v-model="bidBond"
+              :class="['w-full', { 'border-destructive focus-visible:ring-0 focus-visible:ring-destructive focus': errors.bid_bond }]"
+            />     
+            <InputError :message="errors.bid_bond" />
+          </div>
         </div>
       </div>
 
       <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex items-center gap-x-4">
+        <div class="flex items-start gap-x-4">
           <Label
             for="orNumber"
-            class="w-44 shrink-0"
+            class="w-44 shrink-0 mt-3"
           >
             OR Number
           </Label>
-          <Input
-            id="orNumber"
-            :disabled="isDisabled"
-            placeholder="Enter OR Number"
-            v-model="orNumber"
-            class="w-full"
-          />
+          <div class="flex flex-col gap-1 w-full">
+            <Input
+              id="orNumber"
+              :disabled="isDisabled"
+              placeholder="Enter OR Number"
+              v-model="orNumber"
+              :class="['w-full', { 'border-destructive focus-visible:ring-0 focus-visible:ring-destructive focus': errors.or_number }]"
+            />
+            <InputError :message="errors.or_number" />
+          </div>
         </div>
-        <div class="flex items-center">
+        <div class="flex items-start">
           <Label
             for="paymentDate"
-            class="w-36 shrink-0"
+            class="w-36 shrink-0 mt-3"
           >
             Date of Payment
           </Label>
-          <Popover>
-            <PopoverTrigger
-              as-child
-              :disabled="isDisabled"
-            >
-              <Button
-                type="button"
-                variant="outline"
-                :class="[
-                  'w-full ps-3 text-start font-normal',
-                  { 'text-muted-foreground': !paymentDate },
-                ]"
+          <div class="flex flex-col gap-1 w-full">
+            <Popover>
+              <PopoverTrigger
+                as-child
+                :disabled="isDisabled"
               >
-                <span>
-                  {{
-                    paymentDate
-                      ? formatToDateString(paymentDate.toString())
-                      : 'Pick a date'
-                  }}
-                </span>
-                <Calendar class="ms-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent class="w-auto p-0">
-              <AppCalendar
-                :model-value="paymentDate"
-                @update:model-value="handlePaymentDateChange"
-              />
-            </PopoverContent>
-          </Popover>
+                <Button
+                  type="button"
+                  variant="outline"
+                  :class="[
+                    'w-full ps-3 text-start font-normal',
+                    { 'text-muted-foreground': !paymentDate,
+                      'border-destructive': errors.payment_date,
+                    },
+                  ]"
+                >
+                  <span>
+                    {{
+                      paymentDate
+                        ? formatToDateString(paymentDate.toString())
+                        : 'Pick a date'
+                    }}
+                  </span>
+                  <Calendar class="ms-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent class="w-auto p-0">
+                <AppCalendar
+                  :model-value="paymentDate"
+                  @update:model-value="handlePaymentDateChange"
+                />
+              </PopoverContent>
+            </Popover>
+            <InputError :message="errors.payment_date" />            
+          </div>
         </div>
       </div>
 
       <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex items-center gap-x-4">
+        <div class="flex items-start gap-x-4">
           <Label
             for="approvedDate"
-            class="w-44 shrink-0"
+            class="w-44 shrink-0 mt-3"
           >
             Date Approved
           </Label>
-          <Popover>
-            <PopoverTrigger
-              as-child
-              :disabled="isDisabled"
-            >
-              <Button
-                type="button"
-                variant="outline"
-                :class="[
-                  'w-full ps-3 text-start font-normal',
-                  { 'text-muted-foreground': !approvedDate },
-                ]"
+          <div class="flex flex-col gap-1 w-full">
+            <Popover>
+              <PopoverTrigger
+                as-child
+                :disabled="isDisabled"
               >
-                <span>
-                  {{
-                    approvedDate
-                      ? formatToDateString(approvedDate.toString())
-                      : 'Pick a date'
-                  }}
-                </span>
-                <Calendar class="ms-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent class="w-auto p-0">
-              <AppCalendar
-                :model-value="approvedDate"
-                @update:model-value="handleApprovedDateChange"
-              />
-            </PopoverContent>
-          </Popover>
+                <Button
+                  type="button"
+                  variant="outline"
+                  :class="[
+                    'w-full ps-3 text-start font-normal',
+                    { 'text-muted-foreground': !approvedDate,
+                      'border-destructive': errors.approved_date,
+                    },
+                  ]"
+                >
+                  <span>
+                    {{
+                      approvedDate
+                        ? formatToDateString(approvedDate.toString())
+                        : 'Pick a date'
+                    }}
+                  </span>
+                  <Calendar class="ms-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent class="w-auto p-0">
+                <AppCalendar
+                  :model-value="approvedDate"
+                  @update:model-value="handleApprovedDateChange"
+                />
+              </PopoverContent>
+            </Popover>
+            <InputError :message="errors.approved_date" />
+          </div>
         </div>
       </div>
     </div>
   </div>
   <div
     v-if="canNextStage"
-    class="mt-6 flex justify-end space-x-2"
+    class="flex justify-end"
   >
     <SectionButton
       :is-submit-btn-disabled="isSubmitBtnDisabled"

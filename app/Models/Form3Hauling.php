@@ -22,6 +22,11 @@ class Form3Hauling extends Model
         'date' => 'datetime',
     ];
 
+    public function isOpen(): bool
+    {
+        return today()->lte($this->date);
+    }
+
     public function form3(): BelongsTo
     {
         return $this->belongsTo(Form3::class);

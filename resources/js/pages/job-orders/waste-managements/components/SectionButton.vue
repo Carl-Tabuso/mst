@@ -16,23 +16,25 @@ defineEmits<SectionButtonEmits>()
 </script>
 
 <template>
-  <Button
-    v-show="isSubmitBtnDisabled"
-    variant="outline"
-    type="button"
-    @click="$emit('onCancelSubmit')"
-  >
-    Cancel
-  </Button>
-  <Button
-    variant="default"
-    type="submit"
-    :disabled="isSubmitBtnDisabled"
-  >
-    <LoaderCircle
-      v-if="isSubmitBtnDisabled"
-      class="animate-spin"
-    />
-    Save Changes
-  </Button>
+  <div class="flex items-center space-x-2">
+    <Button
+      v-show="isSubmitBtnDisabled"
+      variant="outline"
+      type="button"
+      @click="$emit('onCancelSubmit')"
+    >
+      Cancel
+    </Button>
+    <Button
+      variant="default"
+      type="submit"
+      :disabled="isSubmitBtnDisabled"
+    >
+      <LoaderCircle
+        v-if="isSubmitBtnDisabled"
+        class="animate-spin"
+      />
+      Save Changes
+    </Button>    
+  </div>
 </template>

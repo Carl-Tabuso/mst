@@ -83,10 +83,7 @@ const handlePageSizeArchival = () => {
           variant="ghost"
           class="mx-1"
         >
-          <Settings2
-            class="mr-2"
-            :stroke-width="1"
-          />
+          <Settings2 class="mr-2" />
           View
           <div class="hidden space-x-1 lg:flex">
             <Badge
@@ -116,10 +113,7 @@ const handlePageSizeArchival = () => {
       @click="handleExport"
       variant="ghost"
     >
-      <Download
-        class="mr-2"
-        :stroke-width="1"
-      />
+      <Download class="mr-2" />
       Export
     </Button>
 

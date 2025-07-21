@@ -30,24 +30,33 @@ import { useWasteManagementStages } from '@/composables/useWasteManagementStages
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee, Form3Hauling } from '@/types'
 import { ClipboardCheck, FilePenLine } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
+import SectionButton from '../SectionButton.vue'
+import { usePermissions } from '@/composables/usePermissions'
 
 interface FifthSectionProps {
-  canEdit?: boolean
   status: JobOrderStatus
   employees?: Employee[]
+  isSubmitBtnDisabled: boolean
 }
 
 interface FifthSectionEmits {
   (e: 'loadEmployees'): void
+  (e: 'onCancelSubmit'): void
+  
 }
+
+const { can } = usePermissions()
+
+const canEdit = computed(() => can('assign:hauling_personnel'))
 
 const props = withDefaults(defineProps<FifthSectionProps>(), {
   canEdit: false,
+  isSubmitBtnDisabled: false
 })
 
 const emit = defineEmits<FifthSectionEmits>()
@@ -70,7 +79,7 @@ const removeHauler = (employee: Employee, index: number) => {
 }
 
 const handleHaulerMultiSelection = (employee: Employee, index: number) => {
-  if (!props.canEdit) return
+  if (!canEdit.value) return
 
   if (isExistingHauler(employee.id, index)) {
     removeHauler(employee, index)
@@ -192,7 +201,7 @@ const {
   <FormAreaInfo
     v-if="haulings.length"
     :condition="isForPersonnelAssignment(status)"
-    class="mb-2"
+    class="mb-4"
   >
     <span class="pr-1 font-semibold">Dispatcher</span>is required to assign the personnel and haulers
     daily during the duration of hauling period.
@@ -323,7 +332,7 @@ const {
         >
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
-              :is-disabled="!canEdit"
+              :can-edit="!canEdit"
               :employees="employees"
               :hauling="hauling"
               :role="'teamLeader'"
@@ -335,7 +344,7 @@ const {
               @removed="removeAssignedPersonnel"
             />
             <AssignedPersonnelSelection
-              :is-disabled="!canEdit"
+              :can-edit="!canEdit"
               :employees="employees"
               :hauling="hauling"
               role="safetyOfficer"
@@ -350,7 +359,7 @@ const {
 
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
-              :is-disabled="!canEdit"
+              :can-edit="!canEdit"
               :employees="employees"
               :hauling="hauling"
               role="teamDriver"
@@ -362,7 +371,7 @@ const {
               @removed="removeAssignedPersonnel"
             />
             <AssignedPersonnelSelection
-              :is-disabled="!canEdit"
+              :can-edit="!canEdit"
               :employees="employees"
               :hauling="hauling"
               role="teamMechanic"
@@ -400,6 +409,15 @@ const {
                 class="w-full"
               />
             </div>
+          </div>
+          <div
+            v-if="hauling.isOpen"
+            class="col-span-2 flex justify-end mt-2"
+          >
+            <SectionButton
+              :is-submit-btn-disabled="isSubmitBtnDisabled"
+              @on-cancel-submit="$emit('onCancelSubmit')"
+            />
           </div>
         </AccordionContent>
       </AccordionItem>

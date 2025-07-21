@@ -55,10 +55,7 @@ const remainingEmployees = computed(() => {
         class="w-[400px]"
         as-child
       >
-        <Button
-          variant="outline"
-          class="bg-muted"
-        >
+        <Button variant="outline">
           <div
             v-if="selectedHaulers?.length"
             class="flex items-center justify-between gap-2 rounded-md text-xs"
@@ -90,14 +87,14 @@ const remainingEmployees = computed(() => {
               variant="ghost"
               size="icon"
               type="button"
-              class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
+              class="ml-1 h-5 w-5 text-muted-foreground hover:text-primary-foreground"
               @click="$emit('onRemoveExistingHaulers', index)"
             >
               <X />
             </Button>
           </div>
           <template v-else>
-            <span class="text-muted-foreground"> Select haulers </span>
+            <span class="text-muted-foreground font-normal"> Select haulers </span>
           </template>
           <ChevronsUpDown class="ml-auto h-4 w-4" />
         </Button>

@@ -25,10 +25,10 @@ import {
   type JobOrderStatus,
 } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
+import { Employee, Form3Hauling, JobOrder, type BreadcrumbItem } from '@/types'
 import { router, useForm } from '@inertiajs/vue3'
 import { ChevronRight, Pencil, X } from 'lucide-vue-next'
-import { computed, nextTick, Ref, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import FifthSection from './components/sections/FifthSection.vue'
 import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
@@ -55,21 +55,12 @@ const timeRange = new Date(serviceDate).toLocaleTimeString(undefined, {
 const { can, cannot } = usePermissions()
 const {
   isForAppraisal,
-  isPreHauling,
   canUpdateProposalInformation,
   canUpdateHaulingDuration,
 } = useWasteManagementStages()
 const { getCancelledStatuses } = useJobOrderStatus()
 
-const status = ref<string>(jobOrder.status) as Ref<JobOrderStatus>
 const sixthSectionRef = useTemplateRef('sixthSection')
-
-watch(
-  () => jobOrder.status,
-  (newValue) => {
-    status.value = newValue
-  },
-)
 
 const { serviceable: form4 } = jobOrder
 const { form3 } = form4
@@ -79,7 +70,7 @@ const form = useForm({
   payment_type: form3?.paymentType,
   bid_bond: form4.bidBond,
   or_number: form4.orNumber,
-  status: status.value,
+  status: jobOrder.status,
   appraised_date: form3?.appraisedDate,
   approved_date: form3?.approvedDate,
   appraisers: form4?.appraisers,
@@ -89,12 +80,28 @@ const form = useForm({
   remarks: '',
 })
 
+watch(() => jobOrder, (newValue) => {
+  const { serviceable: service } = newValue
+  const form3 = service.form3
+
+  form.payment_date = service.paymentDate
+  form.payment_type = form3.paymentType
+  form.bid_bond = service.bidBond
+  form.or_number = service.orNumber
+  form.status = newValue.status
+  form.appraised_date = form3.appraisedDate
+  form.approved_date = form3.approvedDate
+  form.appraisers = service.appraisers
+  form.haulings = form3.haulings
+  form.from = form3.from
+  form.to = form3.to
+})
+
 const jobOrderStatus = computed(() =>
-  JobOrderStatuses.find((s) => status.value === s.id),
+  JobOrderStatuses.find((s) => jobOrder.status === s.id),
 )
 
 const handleStatusChange = async (value: JobOrderStatus) => {
-  status.value = value
   isStatusPopoverOpen.value = false
 
   const isCancelled = getCancelledStatuses.value
@@ -108,21 +115,20 @@ const handleStatusChange = async (value: JobOrderStatus) => {
   }
 }
 
+/**
+ * haulings = []
+ */
 const onSubmit = () => {
-  console.log(form)
   form
     // .transform((data) => ({
     //   ...data,
-    //   appraisers: data.appraisers?.map((a: Employee) => a.id),
-    //   haulers: data.haulers?.map((h: Employee) => h.id),
-    //   team_leader: data.team_leader?.id,
-    //   team_driver: data.team_driver?.id,
-    //   safety_officer: data.safety_officer?.id,
-    //   team_mechanic: data.team_mechanic?.id,
+    //   haulings: data.haulings.map((hauling: Form3Hauling) => {
+    //     return {
+    //       assigned
+    //     }
+    //   })
     // }))
-    .patch(
-      route('job_order.waste_management.update', jobOrder.serviceable.id),
-      {
+    .patch(route('job_order.waste_management.update', jobOrder.serviceable.id), {
         preserveScroll: true,
       },
     )
@@ -183,11 +189,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div
-      class="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background p-6"
+      class="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background p-6 shadow-sm"
     >
       <div class="flex flex-col gap-1">
         <div class="flex items-center gap-4">
-          <h3 class="scroll-m-20 text-3xl font-semibold">
+          <h3 class="scroll-m-20 text-3xl text-primary font-semibold">
             Ticket:
             <span class="tracking-tighter text-muted-foreground">
               {{ jobOrder.ticket }}
@@ -260,7 +266,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             </AvatarFallback>
           </Avatar>
           <div class="flex items-center gap-1">
-            <span>{{ jobOrder.creator?.fullName }}</span>
+            <span>{{ `${jobOrder.creator?.fullName}` }}</span>
             <span class="mx-1">•</span>
             <span>{{
               new Date(jobOrder.createdAt).toLocaleString('en-ph', {
@@ -340,6 +346,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 "
                 :status="jobOrder.status"
                 :errors="form.errors"
+                :dispatcher="form4.dispatcher"
                 :is-submit-btn-disabled="form.processing"
                 v-model:appraisers="form.appraisers"
                 v-model:appraised-date="form.appraised_date"
@@ -356,6 +363,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 "
                 :is-submit-btn-disabled="form.processing"
                 :status="jobOrder.status"
+                :errors="form.errors"
                 v-model:payment-type="form.payment_type"
                 v-model:bid-bond="form.bid_bond"
                 v-model:or-number="form.or_number"
@@ -369,8 +377,9 @@ const breadcrumbs: BreadcrumbItem[] = [
               <Separator class="mb-3 w-full" />
               <FourthSection
                 :can-edit="canUpdateHaulingDuration(jobOrder.status)"
-                :status="status"
+                :status="jobOrder.status"
                 :is-submit-btn-disabled="form.processing"
+                :errors="form.errors"
                 v-model:starting-date="form.from"
                 v-model:ending-date="form.to"
                 @on-cancel-submit="form.cancel()"
@@ -379,28 +388,29 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div class="mt-2">
               <Separator class="mb-3 w-full" />
               <FifthSection
-                :can-edit="can('assign:hauling_personnel')"
-                :status="status"
+                :status="jobOrder.status"
+                :is-submit-btn-disabled="form.processing"
                 v-model:haulings="form.haulings"
                 :employees="employees"
                 @load-employees="loadEmployees"
+                @on-cancel-submit="form.cancel()"
               />
             </div>
             <div
               v-if="
-                getCancelledStatuses.map((cs) => cs.id).includes(status) ||
+                getCancelledStatuses.map((cs) => cs.id).includes(jobOrder.status) ||
                 isEditing
               "
             >
               <Separator class="col-[1/-1] mb-3 w-full" />
               <SixthSection
                 ref="sixthSection"
-                :status="status"
+                :status="jobOrder.status"
                 v-model:remarks="form.remarks"
               />
             </div>
             <div
-              v-if="can('update:job_order')"
+              v-if="can('update:job_order') && isEditing"
               class="col-[1/-1] mt-4 flex w-full items-center"
             >
               <div class="ml-auto space-x-3">

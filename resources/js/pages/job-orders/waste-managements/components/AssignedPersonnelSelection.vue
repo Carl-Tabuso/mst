@@ -19,6 +19,7 @@ import { getInitials } from '@/composables/useInitials'
 import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
 import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
+import { computed } from 'vue'
 
 interface AssignedPersonnelSelectionProps {
   employees?: Employee[]
@@ -27,11 +28,11 @@ interface AssignedPersonnelSelectionProps {
   index: number
   label: string
   open: boolean
-  isDisabled?: boolean
+  canEdit?: boolean
 }
 
-withDefaults(defineProps<AssignedPersonnelSelectionProps>(), {
-  isDisabled: false,
+const props = withDefaults(defineProps<AssignedPersonnelSelectionProps>(), {
+  canEdit: false,
 })
 
 type RoleType = (typeof Roles)[number]['id']
@@ -53,6 +54,8 @@ const Roles = [
     label: 'Driver',
   },
 ] as const
+
+const isDisabled = computed(() => !props.canEdit && !props.hauling.isOpen)
 </script>
 
 <template>
@@ -69,10 +72,7 @@ const Roles = [
         as-child
         :disabled="isDisabled"
       >
-        <Button
-          variant="outline"
-          class="bg-muted"
-        >
+        <Button variant="outline">
           <template v-if="hauling?.assignedPersonnel?.[role]">
             <Avatar class="h-7 w-7 shrink-0 rounded-full">
               <AvatarImage
@@ -93,7 +93,7 @@ const Roles = [
                 variant="ghost"
                 size="icon"
                 type="button"
-                class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
+                class="ml-1 h-5 w-5 text-muted-foreground hover:text-primary-foreground"
                 @click="$emit('removed', role, index)"
               >
                 <X />
@@ -101,7 +101,7 @@ const Roles = [
             </div>
           </template>
           <template v-else>
-            <span class="text-muted-foreground">
+            <span class="text-muted-foreground font-normal">
               {{ `Select a ${label}` }}
             </span>
           </template>

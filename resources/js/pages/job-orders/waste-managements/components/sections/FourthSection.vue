@@ -14,10 +14,12 @@ import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
+import InputError from '@/components/InputError.vue'
 
 interface FourthSectionProps {
   canEdit?: boolean
   status: JobOrderStatus
+  errors: any
   isSubmitBtnDisabled?: boolean
 }
 
@@ -55,7 +57,7 @@ const { isPreHauling } = useWasteManagementStages()
 <template>
   <FormAreaInfo
     :condition="isPreHauling(status)"
-    class="mb-2"
+    class="mb-4"
   >
     <span class="pr-1 font-semibold">Dispatcher</span>
     is required to complete this section to continue with personnel assignment.
@@ -68,79 +70,89 @@ const { isPreHauling } = useWasteManagementStages()
       </p>
     </div>
     <div class="col-span-2 grid grid-cols-2 gap-x-10">
-      <div class="flex items-center gap-x-4">
-        <Label class="w-44 shrink-0">Start Date</Label>
-        <Popover>
-          <PopoverTrigger
-            as-child
-            :disabled="!canEdit"
-          >
-            <Button
-              type="button"
-              variant="outline"
-              :class="[
-                'w-full ps-3 text-start font-normal',
-                { 'text-muted-foreground': !startingDate },
-              ]"
+      <div class="flex items-start gap-x-4">
+        <Label class="w-44 shrink-0 mt-3">Start Date</Label>
+        <div class="flex flex-col gap-1 w-full">
+          <Popover>
+            <PopoverTrigger
+              as-child
+              :disabled="!canEdit"
             >
-              <span>
-                {{
-                  startingDate
-                    ? formatToDateString(startingDate.toString())
-                    : 'Pick a date'
-                }}
-              </span>
-              <Calendar class="ms-auto h-4 w-4 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0">
-            <AppCalendar
-              :model-value="startingDate"
-              @update:model-value="
-                (value: any) => {
-                  startingDate = new Date(value).toISOString()
-                }
-              "
-            />
-          </PopoverContent>
-        </Popover>
+              <Button
+                type="button"
+                variant="outline"
+                :class="[
+                  'w-full ps-3 text-start font-normal',
+                  { 'text-muted-foreground': !startingDate,
+                    'border-destructive': errors.from
+                  },
+                ]"
+              >
+                <span>
+                  {{
+                    startingDate
+                      ? formatToDateString(startingDate.toString())
+                      : 'Pick a date'
+                  }}
+                </span>
+                <Calendar class="ms-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent class="w-auto p-0">
+              <AppCalendar
+                :model-value="startingDate"
+                @update:model-value="
+                  (value: any) => {
+                    startingDate = new Date(value).toISOString()
+                  }
+                "
+              />
+            </PopoverContent>
+          </Popover>
+          <InputError :message="errors.from" />
+        </div>
       </div>
-      <div class="flex items-center">
-        <Label class="w-36 shrink-0">Finish Date</Label>
-        <Popover>
-          <PopoverTrigger
-            as-child
-            :disabled="!canEdit"
-          >
-            <Button
-              type="button"
-              variant="outline"
-              :class="[
-                'w-full ps-3 text-start font-normal',
-                { 'text-muted-foreground': !endingDate },
-              ]"
+      <div class="flex items-start">
+        <Label class="w-36 shrink-0 mt-3">Finish Date</Label>
+        <div class="flex flex-col gap-1 w-full">
+          <Popover>
+            <PopoverTrigger
+              as-child
+              :disabled="!canEdit"
             >
-              <span>
-                {{
-                  endingDate
-                    ? formatToDateString(endingDate.toString())
-                    : 'Pick a date'
-                }}
-              </span>
-              <Calendar class="ms-auto h-4 w-4 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0">
-            <AppCalendar
-              :model-value="endingDate"
-              @update:model-value="
-                (value: any) => {
-                  endingDate = new Date(value).toISOString()
-                }
-              "
-            />
-          </PopoverContent>
-        </Popover>
+              <Button
+                type="button"
+                variant="outline"
+                :class="[
+                  'w-full ps-3 text-start font-normal',
+                  { 'text-muted-foreground': !endingDate,
+                    'border-destructive': errors.to
+                  },
+                ]"
+              >
+                <span>
+                  {{
+                    endingDate
+                      ? formatToDateString(endingDate.toString())
+                      : 'Pick a date'
+                  }}
+                </span>
+                <Calendar class="ms-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent class="w-auto p-0">
+              <AppCalendar
+                :model-value="endingDate"
+                @update:model-value="
+                  (value: any) => {
+                    endingDate = new Date(value).toISOString()
+                  }
+                "
+              />
+            </PopoverContent>
+          </Popover>
+          <InputError :message="errors.to" />
+        </div>
       </div>
     </div>
   </div>

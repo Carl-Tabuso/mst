@@ -51,6 +51,7 @@ export function useWasteManagementStages() {
       'successful',
       'failed',
       'dropped',
+      'pre-hauling',
       'hauling in-progress',
       'on-hold',
       'closed',

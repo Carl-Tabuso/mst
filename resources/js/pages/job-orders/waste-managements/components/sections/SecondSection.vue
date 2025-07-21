@@ -37,6 +37,7 @@ interface SecondSectionProps {
   status: JobOrderStatus
   errors: any
   employees?: Employee[]
+  dispatcher: Employee
   isSubmitBtnDisabled: boolean
 }
 
@@ -127,7 +128,7 @@ const { isForAppraisal } = useWasteManagementStages()
 <template>
   <FormAreaInfo
     :condition="isForAppraisal(status)"
-    class="mb-3"
+    class="mb-4"
   >
     <span class="px-1 font-semibold">Dispatcher </span>
     is required to complete this section during the
@@ -135,192 +136,176 @@ const { isForAppraisal } = useWasteManagementStages()
     step to continue to site viewing.
   </FormAreaInfo>
   <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
-    <div class="flex justify-between">
+    <div class="col-span-2 flex justify-between items-start w-full">
       <div>
         <div class="text-xl font-semibold leading-6">Ocular Inspection</div>
         <p class="text-sm text-muted-foreground">
           The assigned appraisers and appraisal date of site viewing.
         </p>
       </div>
-      <div class="">
-        <!-- timestamp -->
+      <div v-if="dispatcher" class="text-xs text-muted-foreground font-medium">
+        {{ `Completed by ${dispatcher?.fullName}` }}
       </div>
     </div>
-    <div class="col-span-2 grid grid-cols-2 gap-x-10 gap-y-3">
-      <div class="space-y-2">
-        <div class="flex items-center gap-x-4">
+    <div class="col-span-2 grid grid-cols-2 gap-x-24 gap-y-3">
+      <div class="col-span-2 grid grid-cols-2 gap-x-10">
+        <div class="flex items-start gap-x-4">
           <Label
             for="appraisers"
-            class="w-44 shrink-0"
+            class="w-44 shrink-0 mt-3"
           >
             Appraisers
           </Label>
-          <Popover @update:open="(value) => handleAppraisersPopover(value)">
-            <PopoverTrigger
-              class="w-[400px]"
-              as-child
-            >
-              <Button
-                variant="outline"
-                :class="[
-                  'bg-muted',
-                  { 'border-destructive': errors.appraisers },
-                ]"
-              >
-                <template v-if="appraisers?.length">
-                  <div
-                    :key="appraisers[0].id"
-                    class="flex items-center justify-between gap-2 rounded-md text-xs"
-                  >
-                    <div class="flex items-center gap-2 overflow-hidden">
-                      <Avatar class="h-7 w-7 shrink-0 rounded-full">
-                        <AvatarImage
-                          v-if="appraisers[0]?.account?.avatar"
-                          :src="appraisers[0].account.avatar"
-                          :alt="appraisers[0].fullName"
-                        />
-                        <AvatarFallback>
-                          {{ getInitials(appraisers[0].fullName) }}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span class="truncate">
-                        <template v-if="appraisers.length < 2">
-                          {{ appraisers[0].fullName }}
-                        </template>
-                        <template v-else>
-                          {{
-                            `${appraisers[0].fullName} and ${appraisers.length - 1} more`
-                          }}
-                        </template>
-                      </span>
-                    </div>
-                    <Button
-                      v-if="canEdit"
-                      variant="ghost"
-                      size="icon"
-                      type="button"
-                      class="ml-1 h-5 w-5 text-muted-foreground hover:text-foreground"
-                      @click="
-                        () =>
-                          appraisers?.length < 2
-                            ? handleEmployeeMultiselect(appraisers[0])
-                            : removeAllAppraisers()
-                      "
-                    >
-                      <X />
-                    </Button>
-                  </div>
-                </template>
-                <template v-else>
-                  <span class="font-normal text-muted-foreground">
-                    Select appraisers
-                  </span>
-                </template>
-                <ChevronsUpDown class="ml-auto h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent class="w-72 p-0">
-              <Command>
-                <CommandInput placeholder="Search for appraisers" />
-                <CommandList>
-                  <CommandEmpty> No employee found. </CommandEmpty>
+          <div class="flex flex-col gap-1 w-full">
+            <Popover @update:open="(value) => handleAppraisersPopover(value)">
+              <PopoverTrigger as-child>
+                <Button
+                  variant="outline"
+                  :class="[{ 'border-destructive': errors.appraisers }]"
+                >
                   <template v-if="appraisers?.length">
-                    <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
-                      <CommandGroup>
-                        <CommandItem
-                          v-for="appraiser in appraisers"
-                          :key="appraiser.id"
-                          :value="appraiser"
-                          @select="() => handleEmployeeMultiselect(appraiser)"
-                        >
-                          <EmployeePopoverSelection
-                            :employee="appraiser"
-                            is-selected
-                            is-disabled
+                    <div
+                      :key="appraisers[0].id"
+                      class="flex items-center justify-between gap-2 rounded-md text-xs"
+                    >
+                      <div class="flex items-center gap-2 overflow-hidden">
+                        <Avatar class="h-7 w-7 shrink-0 rounded-full">
+                          <AvatarImage
+                            v-if="appraisers[0]?.account?.avatar"
+                            :src="appraisers[0].account.avatar"
+                            :alt="appraisers[0].fullName"
                           />
-                        </CommandItem>
-                      </CommandGroup>
-                    </div>
-                    <CommandSeparator v-if="canEdit" />
-                  </template>
-                  <CommandGroup v-if="canEdit">
-                    <template v-if="!employees">
-                      <EmployeeCommandListPlaceholder />
-                    </template>
-                    <template v-else>
-                      <CommandItem
-                        v-for="employee in remainingEmployees"
-                        :key="employee.id"
-                        :value="employee"
-                        @select="() => handleEmployeeMultiselect(employee)"
+                          <AvatarFallback>
+                            {{ getInitials(appraisers[0].fullName) }}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span class="truncate">
+                          <template v-if="appraisers.length < 2">
+                            {{ appraisers[0].fullName }}
+                          </template>
+                          <template v-else>
+                            {{
+                              `${appraisers[0].fullName} and ${appraisers.length - 1} more`
+                            }}
+                          </template>
+                        </span>
+                      </div>
+                      <Button
+                        v-if="canEdit"
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        class="ml-1 h-5 w-5 text-muted-foreground hover:text-primary-foreground"
+                        @click="
+                          () =>
+                            appraisers?.length < 2
+                              ? handleEmployeeMultiselect(appraisers[0])
+                              : removeAllAppraisers()
+                        "
                       >
-                        <EmployeePopoverSelection :employee="employee" />
-                      </CommandItem>
+                        <X />
+                      </Button>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <span class="font-normal text-muted-foreground">
+                      Select appraisers
+                    </span>
+                  </template>
+                  <ChevronsUpDown class="ml-auto h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent class="w-72 p-0">
+                <Command>
+                  <CommandInput placeholder="Search for appraisers" />
+                  <CommandList>
+                    <CommandEmpty> No employee found. </CommandEmpty>
+                    <template v-if="appraisers?.length">
+                      <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
+                        <CommandGroup>
+                          <CommandItem
+                            v-for="appraiser in appraisers"
+                            :key="appraiser.id"
+                            :value="appraiser"
+                            @select="() => handleEmployeeMultiselect(appraiser)"
+                          >
+                            <EmployeePopoverSelection
+                              :employee="appraiser"
+                              is-selected
+                              is-disabled
+                            />
+                          </CommandItem>
+                        </CommandGroup>
+                      </div>
+                      <CommandSeparator v-if="canEdit" />
                     </template>
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+                    <CommandGroup v-if="canEdit">
+                      <template v-if="!employees">
+                        <EmployeeCommandListPlaceholder />
+                      </template>
+                      <template v-else>
+                        <CommandItem
+                          v-for="employee in remainingEmployees"
+                          :key="employee.id"
+                          :value="employee"
+                          @select="() => handleEmployeeMultiselect(employee)"
+                        >
+                          <EmployeePopoverSelection :employee="employee" />
+                        </CommandItem>
+                      </template>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <InputError :message="errors.appraisers" />
+          </div>
         </div>
-        <div
-          v-if="errors.appraisers"
-          class="flex items-center gap-x-4"
-        >
-          <div class="w-44"></div>
-          <InputError :message="errors.appraisers" />
-        </div>
-      </div>
-      <div class="space-y-2">
-        <div class="flex items-center">
-          <Label class="w-36 shrink-0"> Date Appraised </Label>
-          <Popover>
-            <PopoverTrigger
-              as-child
-              :disabled="!canEdit"
-            >
-              <Button
-                type="button"
-                variant="outline"
-                :class="[
-                  'w-full ps-3 text-start font-normal',
-                  {
-                    'text-muted-foreground': !appraisedDate,
-                    'border-destructive': errors.appraised_date,
-                  },
-                ]"
+        <div class="flex items-start">
+          <Label class="w-36 shrink-0 mt-3"> Date Appraised </Label>
+          <div class="flex flex-col gap-1 w-full">
+            <Popover>
+              <PopoverTrigger
+                as-child
+                :disabled="!canEdit"
               >
-                <span>
-                  {{
-                    appraisedDate
-                      ? formatToDateString(appraisedDate.toString())
-                      : 'Pick a date'
-                  }}
-                </span>
-                <Calendar class="ms-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent class="w-auto p-0">
-              <AppCalendar
-                :model-value="appraisedDate"
-                @update:model-value="handleAppraisedDateChange"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div
-          v-if="errors.appraised_date"
-          class="flex items-center"
-        >
-          <div class="w-36"></div>
-          <InputError :message="errors.appraised_date" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  :class="[
+                    'w-full ps-3 text-start font-normal',
+                    {
+                      'text-muted-foreground': !appraisedDate,
+                      'border-destructive': errors.appraised_date,
+                    },
+                  ]"
+                >
+                  <span>
+                    {{
+                      appraisedDate
+                        ? formatToDateString(appraisedDate.toString())
+                        : 'Pick a date'
+                    }}
+                  </span>
+                  <Calendar class="ms-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent class="w-auto p-0">
+                <AppCalendar
+                  :model-value="appraisedDate"
+                  @update:model-value="handleAppraisedDateChange"
+                />
+              </PopoverContent>
+            </Popover>
+            <InputError :message="errors.appraised_date" />
+          </div>
         </div>
       </div>
     </div>
   </div>
   <div
     v-if="canEdit"
-    class="mt-6 flex justify-end space-x-2"
+    class="mt-6 flex justify-end"
   >
     <SectionButton
       :is-submit-btn-disabled="isSubmitBtnDisabled"

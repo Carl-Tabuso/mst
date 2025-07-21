@@ -44,15 +44,20 @@ class JobOrderController extends Controller
             })
             ->when($search, function ($q) use ($search) {
                 return $q->where(function ($sq) use ($search) {
-                    $sq->whereLike('client', $search)
-                        ->orWhereLike('address', $search)
-                        ->orWhereLike('contact_no', $search)
-                        ->orWhereLike('contact_person', $search)
-                        ->orWhereHas('creator', function ($subQuery) use ($search) {
-                            return $subQuery->whereLike('first_name', $search)
-                                ->orWhereLike('middle_name', $search)
-                                ->orWhereLike('last_name', $search)
-                                ->orWhereLike('suffix', $search);
+                    $sq
+                        ->whereAny([
+                            'client',
+                            'address',
+                            'contact_no',
+                            'contact_person',
+                        ], 'like', $search)
+                        ->orWhereHas('creator', function ($ssq) use ($search) {
+                            return $ssq->whereAny([
+                                'first_name',
+                                'middle_name',
+                                'last_name',
+                                'suffix',
+                            ], 'like', $search);
                         });
                 });
             })

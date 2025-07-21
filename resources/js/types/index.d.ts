@@ -85,6 +85,7 @@ export interface Form4 {
   jobOrder: JobOrder
   appraisers: Employee[]
   form3: Form3
+  dispatcher: Employee
 }
 
 export interface Form3 {
@@ -110,6 +111,7 @@ export interface Form3Hauling {
   assignedPersonnel: Form3AssignedPersonnel
   haulers: Employee[]
   checklist: Form3HaulingChecklist
+  isOpen: boolean
 }
 
 export interface Form3HaulingChecklist {

@@ -198,6 +198,25 @@ class WasteManagementController extends Controller
             return redirect()->back()->withInput();
         }
 
+        if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::ForPersonnelAssignment) {
+            $hauls = $request->haulings;
+
+            $haulings = array_map(fn ($hauling) => [
+                'id' => $hauling['id'],
+                'team_leader' => $hauling['assignedPersonnel']['teamLeader']['id'] ?? null,
+                'team_driver' => $hauling['assignedPersonnel']['teamDriver']['id'] ?? null,
+                'safety_officer' => $hauling['assignedPersonnel']['safetyOfficer']['id'] ?? null,
+                'team_mechanic' => $hauling['assignedPersonnel']['teamMechanic']['id'] ?? null,
+                'haulers' => array_map(fn ($hauler) => [ 'id' => $hauler['id'] ], $hauling['haulers'])
+            ], $hauls);
+
+            dd($hauls, $haulings);
+
+            $form4->form3->haulings->assignedPersonnel()->updateOrCreate([
+                
+            ]);
+        }
+
         return redirect()->route('job_order.index'); // ->with() messages should be
     }
 }

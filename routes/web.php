@@ -80,7 +80,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('test', function () {
-    $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get();
+    $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get()->pluck('email');
     $dispatcherRole       = User::role(UserRole::Dispatcher)->get();
     dd(
         $dispatcherPermission,

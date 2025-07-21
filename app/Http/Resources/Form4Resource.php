@@ -21,6 +21,7 @@ class Form4Resource extends JsonResource
             'jobOrder'    => JobOrderResource::make($this->whenLoaded('jobOrder')),
             'appraisers'  => EmployeeResource::collection($this->whenLoaded('appraisers')),
             'form3'       => Form3Resource::make($this->whenLoaded('form3')),
+            'dispatcher'  => EmployeeResource::make($this->whenLoaded('dispatcher')),
         ];
     }
 }

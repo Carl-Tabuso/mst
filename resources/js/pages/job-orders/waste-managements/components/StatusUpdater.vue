@@ -8,13 +8,13 @@ interface StatusUpdaterProps {
   status: JobOrderStatus
 }
 
-interface StatusUpdateEmits {
+interface StatusUpdaterEmits {
   markAsUpdate: [next: JobOrderStatus]
 }
 
 const props = defineProps<StatusUpdaterProps>()
 
-defineEmits<StatusUpdateEmits>()
+defineEmits<StatusUpdaterEmits>()
 
 interface manualStatusUpdaterType {
   id: JobOrderStatus
