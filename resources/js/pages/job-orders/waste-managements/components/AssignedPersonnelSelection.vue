@@ -28,12 +28,14 @@ interface AssignedPersonnelSelectionProps {
   index: number
   label: string
   open: boolean
-  canEdit?: boolean
+  canEdit: boolean
 }
 
 const props = withDefaults(defineProps<AssignedPersonnelSelectionProps>(), {
   canEdit: false,
 })
+
+const firstPersonnel = computed(() => props.hauling?.assignedPersonnel?.[props.role])
 
 type RoleType = (typeof Roles)[number]['id']
 const Roles = [
@@ -54,8 +56,6 @@ const Roles = [
     label: 'Driver',
   },
 ] as const
-
-const isDisabled = computed(() => !props.canEdit && !props.hauling.isOpen)
 </script>
 
 <template>
@@ -70,15 +70,15 @@ const isDisabled = computed(() => !props.canEdit && !props.hauling.isOpen)
       <PopoverTrigger
         class="w-[400px]"
         as-child
-        :disabled="isDisabled"
+        :disabled="!canEdit"
       >
         <Button variant="outline">
           <template v-if="hauling?.assignedPersonnel?.[role]">
             <Avatar class="h-7 w-7 shrink-0 rounded-full">
               <AvatarImage
-                v-if="hauling?.assignedPersonnel[role]?.account?.avatar"
-                :src="hauling.assignedPersonnel[role].account.avatar"
-                :alt="hauling.assignedPersonnel[role].fullName"
+                v-if="firstPersonnel?.account?.avatar"
+                :src="firstPersonnel.account.avatar"
+                :alt="firstPersonnel.fullName"
               />
               <AvatarFallback>
                 {{ getInitials(hauling?.assignedPersonnel[role]?.fullName) }}
@@ -89,7 +89,7 @@ const isDisabled = computed(() => !props.canEdit && !props.hauling.isOpen)
             >
               {{ hauling?.assignedPersonnel[role]?.fullName }}
               <Button
-                v-if="!isDisabled"
+                v-if="canEdit"
                 variant="ghost"
                 size="icon"
                 type="button"

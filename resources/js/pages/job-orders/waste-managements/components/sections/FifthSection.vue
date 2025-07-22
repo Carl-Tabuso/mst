@@ -47,19 +47,17 @@ interface FifthSectionProps {
 interface FifthSectionEmits {
   (e: 'loadEmployees'): void
   (e: 'onCancelSubmit'): void
-  
 }
 
-const { can } = usePermissions()
-
-const canEdit = computed(() => can('assign:hauling_personnel'))
-
 const props = withDefaults(defineProps<FifthSectionProps>(), {
-  canEdit: false,
   isSubmitBtnDisabled: false
 })
 
 const emit = defineEmits<FifthSectionEmits>()
+
+const { can } = usePermissions()
+
+const isAuthorize = computed(() => can('assign:hauling_personnel'))
 
 const haulings = defineModel<Form3Hauling[]>('haulings', {
   default: () => [],
@@ -79,7 +77,7 @@ const removeHauler = (employee: Employee, index: number) => {
 }
 
 const handleHaulerMultiSelection = (employee: Employee, index: number) => {
-  if (!canEdit.value) return
+  if (!isAuthorize.value) return
 
   if (isExistingHauler(employee.id, index)) {
     removeHauler(employee, index)
@@ -191,25 +189,20 @@ const checklist = [
   },
 ] as const
 
-const {
-  isForPersonnelAssignment,
-  isForSafetyInspection,
-} = useWasteManagementStages()
+const { isForPersonnelAssignment } = useWasteManagementStages()
+
+const forPersonnelAssignment = computed(() => isForPersonnelAssignment(props.status))
 </script>
 
 <template>
   <FormAreaInfo
-    v-if="haulings.length"
-    :condition="isForPersonnelAssignment(status)"
+    :condition="forPersonnelAssignment"
     class="mb-4"
   >
     <span class="pr-1 font-semibold">Dispatcher</span>is required to assign the personnel and haulers
     daily during the duration of hauling period.
   </FormAreaInfo>
-  <div
-    v-if="haulings?.length"
-    class="grid grid-cols-[auto,1fr] gap-y-6"
-  >
+  <div class="grid grid-cols-[auto,1fr] gap-y-6">
     <div>
       <div class="text-xl font-semibold leading-6">Assigned Personnel</div>
       <p class="text-sm text-muted-foreground">
@@ -332,7 +325,7 @@ const {
         >
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
-              :can-edit="!canEdit"
+              :can-edit="isAuthorize && hauling.isOpen"
               :employees="employees"
               :hauling="hauling"
               :role="'teamLeader'"
@@ -344,7 +337,7 @@ const {
               @removed="removeAssignedPersonnel"
             />
             <AssignedPersonnelSelection
-              :can-edit="!canEdit"
+              :can-edit="isAuthorize && hauling.isOpen"
               :employees="employees"
               :hauling="hauling"
               role="safetyOfficer"
@@ -359,7 +352,7 @@ const {
 
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
-              :can-edit="!canEdit"
+              :can-edit="isAuthorize && hauling.isOpen"
               :employees="employees"
               :hauling="hauling"
               role="teamDriver"
@@ -371,7 +364,7 @@ const {
               @removed="removeAssignedPersonnel"
             />
             <AssignedPersonnelSelection
-              :can-edit="!canEdit"
+              :can-edit="isAuthorize && hauling.isOpen"
               :employees="employees"
               :hauling="hauling"
               role="teamMechanic"
@@ -386,13 +379,13 @@ const {
 
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <HaulersSelection
-              :is-disabled="!canEdit"
+              :is-authorize="isAuthorize"
+              :hauling="hauling"
               :employees="employees"
               :index="index"
-              :selected-haulers="hauling.haulers"
               @on-hauler-select="handleHaulerMultiSelection"
               @on-remove-existing-haulers="removeExistingHaulers"
-              @on-hauler-toggle="() => loadEmployeesIfMissing()"
+              @on-hauler-toggle="loadEmployeesIfMissing"
             />
             <div class="flex items-center gap-x-10">
               <Label
@@ -403,24 +396,21 @@ const {
               </Label>
               <Input
                 :id="'truckNo-' + hauling.id"
-                :disabled="!canEdit"
+                :disabled="!isAuthorize || !hauling.isOpen"
                 placeholder="Enter truck plate number"
                 v-model="hauling.truckNo"
                 class="w-full"
               />
             </div>
           </div>
-          <div
-            v-if="hauling.isOpen"
-            class="col-span-2 flex justify-end mt-2"
-          >
-            <SectionButton
-              :is-submit-btn-disabled="isSubmitBtnDisabled"
-              @on-cancel-submit="$emit('onCancelSubmit')"
-            />
-          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>
+  </div>
+  <div v-if="isAuthorize && forPersonnelAssignment" class="flex justify-end mt-6">
+    <SectionButton
+      :is-submit-btn-disabled="isSubmitBtnDisabled"
+      @on-cancel-submit="$emit('onCancelSubmit')"
+    />
   </div>
 </template>

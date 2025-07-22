@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Models\Form4;
-use Inertia\Response;
-use App\Models\Employee;
-use App\Models\JobOrder;
-use App\Models\Form3Hauling;
 use App\Enums\JobOrderStatus;
-use Illuminate\Support\Facades\DB;
-use App\Models\Form3HaulingChecklist;
-use App\Models\Form3AssignedPersonnel;
-use App\Http\Resources\JobOrderResource;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreWasteManagementRequest;
 use App\Http\Requests\UpdateWasteManagementRequest;
+use App\Http\Resources\JobOrderResource;
+use App\Models\Employee;
+use App\Models\Form3AssignedPersonnel;
+use App\Models\Form3Hauling;
+use App\Models\Form3HaulingChecklist;
+use App\Models\Form4;
+use App\Models\JobOrder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class WasteManagementController extends Controller
 {
@@ -73,7 +74,7 @@ class WasteManagementController extends Controller
         // [/] if status is for appraisal - appraisers and appraised date should be not null and set to for viewing and dispatcher to currently auth user.
         // [/] if status is successful - payment type, bid bond, or number, payment date, and date approved must be not null and set to pre-hauling.
         // [/] if pre-hauling - check also if hauling duration is not null and set to personnel assignemtn
-        // [] if status is for personnel assignment - today's personnel and haulers are not null or empty array
+        // [] if status is for personnel assignment - today and future date's personnel and haulers are not null or empty array
         // [] if status is for safety inspection - today's safety inspection checklist are complete
 
         if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::ForAppraisal) {
@@ -175,15 +176,15 @@ class WasteManagementController extends Controller
 
                 $haulingInserts = array_map(fn ($range) => [
                     'form3_id' => $form4->form3->id,
-                    'date' => $from->copy()->addDays($range),
+                    'date'     => $from->copy()->addDays($range),
                 ], range(0, $duration - 1));
-                
+
                 Form3Hauling::insert($haulingInserts);
 
                 $preHaulingInserts = $form4->form3->haulings->map(fn ($hauling) => [
                     'form3_hauling_id' => $hauling->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at'       => now(),
+                    'updated_at'       => now(),
                 ])->toArray();
 
                 Form3HaulingChecklist::insert($preHaulingInserts);
@@ -199,22 +200,39 @@ class WasteManagementController extends Controller
         }
 
         if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::ForPersonnelAssignment) {
-            $hauls = $request->haulings;
+            $filteredHaulings = array_filter($request->array('haulings'),
+                fn ($haul) => Carbon::parse($haul['date'])->gte(today())
+            );
 
-            $haulings = array_map(fn ($hauling) => [
-                'id' => $hauling['id'],
-                'team_leader' => $hauling['assignedPersonnel']['teamLeader']['id'] ?? null,
-                'team_driver' => $hauling['assignedPersonnel']['teamDriver']['id'] ?? null,
-                'safety_officer' => $hauling['assignedPersonnel']['safetyOfficer']['id'] ?? null,
-                'team_mechanic' => $hauling['assignedPersonnel']['teamMechanic']['id'] ?? null,
-                'haulers' => array_map(fn ($hauler) => [ 'id' => $hauler['id'] ], $hauling['haulers'])
-            ], $hauls);
+            $mappedHaulings = array_map(function ($hauling) {
+                $personnel = $hauling['assignedPersonnel'];
 
-            dd($hauls, $haulings);
+                return [
+                    'id' => $hauling['id'],
+                    'assignedPersonnel' => [
+                        'team_leader'    => $personnel['teamLeader']['id']    ?? null,
+                        'team_driver'    => $personnel['teamDriver']['id']    ?? null,
+                        'safety_officer' => $personnel['safetyOfficer']['id'] ?? null,
+                        'team_mechanic'  => $personnel['teamMechanic']['id']  ?? null,
+                    ],
+                    'haulers' => array_map(fn ($h) => $h['id'], $hauling['haulers'])
+                ];
+            }, $filteredHaulings);
 
-            $form4->form3->haulings->assignedPersonnel()->updateOrCreate([
-                
-            ]);
+            $form4->form3->haulings()
+                ->where('date', '>=', today())
+                ->get()
+                ->each(function ($hauling) use ($mappedHaulings) {
+                    $mapped = array_find($mappedHaulings, fn ($mh) => $hauling->id === $mh['id']);
+
+                    $hauling->assignedPersonnel()->update($mapped['assignedPersonnel']);
+
+                    empty($mapped['haulers'])
+                        ? $hauling->haulers()->detach()
+                        : $hauling->haulers()->sync($mapped['haulers']);
+                });
+
+            return redirect()->back()->withInput();
         }
 
         return redirect()->route('job_order.index'); // ->with() messages should be

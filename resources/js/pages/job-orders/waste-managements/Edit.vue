@@ -25,7 +25,7 @@ import {
   type JobOrderStatus,
 } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { Employee, Form3Hauling, JobOrder, type BreadcrumbItem } from '@/types'
+import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { router, useForm } from '@inertiajs/vue3'
 import { ChevronRight, Pencil, X } from 'lucide-vue-next'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
@@ -115,9 +115,6 @@ const handleStatusChange = async (value: JobOrderStatus) => {
   }
 }
 
-/**
- * haulings = []
- */
 const onSubmit = () => {
   form
     // .transform((data) => ({
@@ -134,17 +131,20 @@ const onSubmit = () => {
     )
 }
 
-const markAsUpdate = (nextStep: JobOrderStatus) => {
-  router.patch(
-    route('job_order.update', jobOrder.ticket),
-    {
-      status: nextStep,
-    },
-    {
-      preserveScroll: true,
-    },
-  )
+const statusUpdater = ref()
+
+const updateStatus = (status: JobOrderStatus) => {
+  router.patch(route('job_order.update', jobOrder.ticket), {
+    status: status,
+  }, {
+    preserveScroll: true,
+    onFinish: () => statusUpdater.value.isOpen = false
+  })
 }
+
+const markAsUpdate = (nextStep: JobOrderStatus) => updateStatus(nextStep)
+
+const markAsStop = (stopStep: JobOrderStatus) => updateStatus(stopStep)
 
 const loadEmployees = () => {
   router.reload({
@@ -199,7 +199,13 @@ const breadcrumbs: BreadcrumbItem[] = [
               {{ jobOrder.ticket }}
             </span>
           </h3>
-          <Popover
+          <Badge
+            :variant="jobOrderStatus?.badge"
+            class="overflow-hidden truncate text-ellipsis rounded-full"
+          >
+            {{ jobOrderStatus?.label }}
+          </Badge>
+          <!-- <Popover
             :open="isStatusPopoverOpen"
             @update:open="onStatusPopoverToggle"
           >
@@ -252,7 +258,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </CommandList>
               </Command>
             </PopoverContent>
-          </Popover>
+          </Popover> -->
         </div>
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <Avatar class="h-7 w-7 shrink-0 rounded-full">
@@ -289,8 +295,10 @@ const breadcrumbs: BreadcrumbItem[] = [
           class="ml-auto"
         >
           <StatusUpdater
+            ref="statusUpdater"
             :status="jobOrder.status"
             @mark-as-update="markAsUpdate"
+            @mark-as-stop="markAsStop"
           />
         </div>
         <Separator
@@ -346,7 +354,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 "
                 :status="jobOrder.status"
                 :errors="form.errors"
-                :dispatcher="form4.dispatcher"
+                :dispatcher="form4?.dispatcher"
                 :is-submit-btn-disabled="form.processing"
                 v-model:appraisers="form.appraisers"
                 v-model:appraised-date="form.appraised_date"
@@ -385,7 +393,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 @on-cancel-submit="form.cancel()"
               />
             </div>
-            <div class="mt-2">
+            <div v-if="form.haulings?.length" class="mt-2">
               <Separator class="mb-3 w-full" />
               <FifthSection
                 :status="jobOrder.status"
@@ -396,12 +404,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 @on-cancel-submit="form.cancel()"
               />
             </div>
-            <div
-              v-if="
-                getCancelledStatuses.map((cs) => cs.id).includes(jobOrder.status) ||
-                isEditing
-              "
-            >
+            <div v-if="isEditing">
               <Separator class="col-[1/-1] mb-3 w-full" />
               <SixthSection
                 ref="sixthSection"

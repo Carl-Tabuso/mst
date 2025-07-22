@@ -17,7 +17,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { getInitials } from '@/composables/useInitials'
-import { Employee } from '@/types'
+import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
 import EmployeePopoverSelection from './EmployeePopoverSelection.vue'
@@ -25,65 +25,79 @@ import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPl
 
 interface HaulersSelectionProps {
   employees?: Employee[]
-  selectedHaulers?: Employee[]
-  index?: number
-  isDisabled?: boolean
+  hauling: Form3Hauling
+  index: number
+  isAuthorize: boolean
+}
+
+interface HaulersSelectionEmits {
+  onHaulerToggle: void
+  onRemoveExistingHaulers: [index: number]
+  onHaulerSelect: [hauler: Employee, index: number]
 }
 
 const props = withDefaults(defineProps<HaulersSelectionProps>(), {
-  isDisabled: false,
+  isAuthorize: false,
 })
 
+defineEmits<HaulersSelectionEmits>()
+
+const haulers = computed(() => props.hauling.haulers)
+
 const isExistingHauler = (employeeId: number) => {
-  return props?.selectedHaulers?.map((h) => h.id).includes(employeeId)
+  return haulers.value.map((hauler) => hauler.id).includes(employeeId)
 }
 
 const remainingEmployees = computed(() => {
   const filtered = props.employees?.filter(
-    (e) => !props.selectedHaulers?.flatMap((sh) => sh.id).includes(e.id),
+    (employee) => !haulers.value.map((hauler) => hauler.id).includes(employee.id),
   )
-
   return new Set(filtered)
 })
+
+const firstHauler = computed(() => haulers.value?.[0])
+
+const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
 </script>
 
 <template>
   <div class="flex items-center gap-x-10">
     <Label class="w-28 shrink-0"> Haulers </Label>
-    <Popover @update:open="(value) => $emit('onHaulerToggle', value)">
+    <Popover @update:open="$emit('onHaulerToggle')">
       <PopoverTrigger
         class="w-[400px]"
         as-child
+        :disabled="!hauling.isOpen && haulers.length <= 1"
       >
         <Button variant="outline">
           <div
-            v-if="selectedHaulers?.length"
+            v-if="haulers?.length"
             class="flex items-center justify-between gap-2 rounded-md text-xs"
           >
             <div class="flex items-center gap-2 overflow-hidden">
               <Avatar class="h-7 w-7 shrink-0 rounded-full">
                 <AvatarImage
-                  v-if="selectedHaulers[0]?.account?.avatar"
-                  :src="selectedHaulers[0].account.avatar"
-                  :alt="selectedHaulers[0].fullName"
+                  v-if="firstHauler?.account?.avatar"
+                  :src="firstHauler.account.avatar"
+                  :alt="firstHauler.fullName"
                 />
                 <AvatarFallback>
-                  {{ getInitials(selectedHaulers[0].fullName) }}
+                  {{ getInitials(firstHauler.fullName) }}
                 </AvatarFallback>
               </Avatar>
               <span class="truncate">
-                <template v-if="selectedHaulers.length < 2">
-                  {{ selectedHaulers[0].fullName }}
+                <template v-if="haulers.length < 2">
+                  {{ firstHauler.fullName }}
                 </template>
                 <template v-else>
                   {{
-                    `${selectedHaulers[0].fullName} and ${selectedHaulers.length - 1} more`
+                    `${firstHauler.fullName} and ${haulers.length - 1} more`
                   }}
                 </template>
               </span>
             </div>
             <Button
-              v-if="!isDisabled"
+              v-if="canEdit"
               variant="ghost"
               size="icon"
               type="button"
@@ -104,11 +118,11 @@ const remainingEmployees = computed(() => {
           <CommandInput placeholder="Search for haulers" />
           <CommandList>
             <CommandEmpty> No results found. </CommandEmpty>
-            <template v-if="selectedHaulers?.length">
-              <div :class="['overflow-y-auto', { 'max-h-40': !isDisabled }]">
+            <template v-if="haulers?.length">
+              <div :class="['overflow-y-auto', { 'max-h-40': isAuthorize }]">
                 <CommandGroup>
                   <CommandItem
-                    v-for="hauler in selectedHaulers"
+                    v-for="hauler in haulers"
                     :key="hauler.id"
                     :value="hauler"
                     @select="$emit('onHaulerSelect', hauler, index)"
@@ -120,9 +134,9 @@ const remainingEmployees = computed(() => {
                   </CommandItem>
                 </CommandGroup>
               </div>
-              <CommandSeparator v-if="!isDisabled" />
+              <CommandSeparator v-if="canEdit" />
             </template>
-            <CommandGroup v-if="!isDisabled">
+            <CommandGroup v-if="canEdit">
               <template v-if="!employees">
                 <EmployeeCommandListPlaceholder :count="7" />
               </template>

@@ -15,12 +15,17 @@ class Form4Seeder extends Seeder
      */
     public function run(): void
     {
-        JobOrder::factory()
+        $jobOrder = JobOrder::factory()
             ->for(Form4::factory(), 'serviceable')
             ->status(JobOrderStatus::ForViewing)
-            ->create()
-            ->serviceable->appraisers()->attach(
-                Employee::inRandomOrder()->take(rand(2, 4))->get()
-            );
+            ->create();
+
+        $jobOrder->serviceable->form3()->create([
+            'appraised_date' => now(),
+        ]);
+
+        $jobOrder->serviceable->appraisers()->attach(
+            Employee::inRandomOrder()->take(rand(2, 4))->get()
+        );
     }
 }

@@ -87,6 +87,7 @@ class JobOrderController extends Controller
 
     public function update(UpdateJobOrderRequest $request, JobOrder $jobOrder)
     {
+        // check if cancelled statuses to store to Correction model
         $jobOrder->update([
             'status' => $request->enum('status', JobOrderStatus::class),
         ]);

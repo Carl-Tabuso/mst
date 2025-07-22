@@ -5,13 +5,10 @@ namespace Database\Seeders;
 use App\Enums\JobOrderStatus;
 use App\Models\Employee;
 use App\Models\Form3;
-use App\Models\Form3Hauling;
 use App\Models\Form4;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
 
 class JobOrderCorrectionSeeder extends Seeder
 {
