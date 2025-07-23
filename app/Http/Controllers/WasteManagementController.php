@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\HaulingStatus;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreWasteManagementRequest;
 use App\Http\Requests\UpdateWasteManagementRequest;
@@ -71,12 +72,6 @@ class WasteManagementController extends Controller
 
     public function update(UpdateWasteManagementRequest $request, Form4 $form4)
     {
-        // [/] if status is for appraisal - appraisers and appraised date should be not null and set to for viewing and dispatcher to currently auth user.
-        // [/] if status is successful - payment type, bid bond, or number, payment date, and date approved must be not null and set to pre-hauling.
-        // [/] if pre-hauling - check also if hauling duration is not null and set to personnel assignemtn
-        // [] if status is for personnel assignment - today and future date's personnel and haulers are not null or empty array
-        // [] if status is for safety inspection - today's safety inspection checklist are complete
-
         if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::ForAppraisal) {
             $validator = Validator::make($request->all(), [
                 'appraisers'     => ['required', 'array'],
@@ -192,14 +187,14 @@ class WasteManagementController extends Controller
                 Form3AssignedPersonnel::insert($preHaulingInserts);
 
                 $form4->jobOrder()->update([
-                    'status' => JobOrderStatus::ForPersonnelAssignment,
+                    'status' => JobOrderStatus::HaulingInProgress,
                 ]);
             });
 
             return redirect()->back()->withInput();
         }
 
-        if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::ForPersonnelAssignment) {
+        if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::HaulingInProgress) {
             $filteredHaulings = array_filter($request->array('haulings'),
                 fn ($haul) => Carbon::parse($haul['date'])->gte(today())
             );
@@ -208,14 +203,15 @@ class WasteManagementController extends Controller
                 $personnel = $hauling['assignedPersonnel'];
 
                 return [
-                    'id' => $hauling['id'],
+                    'id'                => $hauling['id'],
                     'assignedPersonnel' => [
                         'team_leader'    => $personnel['teamLeader']['id']    ?? null,
                         'team_driver'    => $personnel['teamDriver']['id']    ?? null,
                         'safety_officer' => $personnel['safetyOfficer']['id'] ?? null,
                         'team_mechanic'  => $personnel['teamMechanic']['id']  ?? null,
                     ],
-                    'haulers' => array_map(fn ($h) => $h['id'], $hauling['haulers'])
+                    'haulers'  => array_map(fn ($h) => $h['id'], $hauling['haulers']),
+                    'truck_no' => $hauling['truckNo'] ?? null,
                 ];
             }, $filteredHaulings);
 
@@ -225,14 +221,31 @@ class WasteManagementController extends Controller
                 ->each(function ($hauling) use ($mappedHaulings) {
                     $mapped = array_find($mappedHaulings, fn ($mh) => $hauling->id === $mh['id']);
 
-                    $hauling->assignedPersonnel()->update($mapped['assignedPersonnel']);
+                    $personnel                      = $mapped['assignedPersonnel'];
+                    $isForSafetyInspectionChecklist =
+                        $mapped['truck_no']          &&
+                        $personnel['team_leader']    &&
+                        $personnel['team_driver']    &&
+                        $personnel['safety_officer'] &&
+                        ! empty($mapped['haulers']);
 
-                    empty($mapped['haulers'])
-                        ? $hauling->haulers()->detach()
-                        : $hauling->haulers()->sync($mapped['haulers']);
+                    DB::transaction(function () use ($hauling, $mapped, $isForSafetyInspectionChecklist) {
+                        $hauling->assignedPersonnel()->update($mapped['assignedPersonnel']);
+
+                        empty($mapped['haulers'])
+                            ? $hauling->haulers()->detach()
+                            : $hauling->haulers()->sync($mapped['haulers']);
+
+                        $hauling->update([
+                            'truck_no' => $mapped['truck_no'],
+                            'status'   => $isForSafetyInspectionChecklist
+                                            ? HaulingStatus::ForSafetyInspection
+                                            : HaulingStatus::ForPersonnelAssignment,
+                        ]);
+                    });
                 });
 
-            return redirect()->back()->withInput();
+            return back()->withInput();
         }
 
         return redirect()->route('job_order.index'); // ->with() messages should be

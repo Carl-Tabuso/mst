@@ -2,22 +2,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
-import { useJobOrderStatus } from '@/composables/useJobOrderStatus'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import {
@@ -27,8 +13,8 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { router, useForm } from '@inertiajs/vue3'
-import { ChevronRight, Pencil, X } from 'lucide-vue-next'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { Pencil, X } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
 import FifthSection from './components/sections/FifthSection.vue'
 import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
@@ -52,15 +38,12 @@ const timeRange = new Date(serviceDate).toLocaleTimeString(undefined, {
   hour12: false,
 })
 
-const { can, cannot } = usePermissions()
+const { can } = usePermissions()
 const {
   isForAppraisal,
   canUpdateProposalInformation,
   canUpdateHaulingDuration,
 } = useWasteManagementStages()
-const { getCancelledStatuses } = useJobOrderStatus()
-
-const sixthSectionRef = useTemplateRef('sixthSection')
 
 const { serviceable: form4 } = jobOrder
 const { form3 } = form4
@@ -80,85 +63,65 @@ const form = useForm({
   remarks: '',
 })
 
-watch(() => jobOrder, (newValue) => {
-  const { serviceable: service } = newValue
-  const form3 = service.form3
+watch(
+  () => jobOrder,
+  (newValue) => {
+    const { serviceable: service } = newValue
+    const form3 = service.form3
 
-  form.payment_date = service.paymentDate
-  form.payment_type = form3.paymentType
-  form.bid_bond = service.bidBond
-  form.or_number = service.orNumber
-  form.status = newValue.status
-  form.appraised_date = form3.appraisedDate
-  form.approved_date = form3.approvedDate
-  form.appraisers = service.appraisers
-  form.haulings = form3.haulings
-  form.from = form3.from
-  form.to = form3.to
-})
+    form.payment_date = service.paymentDate
+    form.payment_type = form3.paymentType
+    form.bid_bond = service.bidBond
+    form.or_number = service.orNumber
+    form.status = newValue.status
+    form.appraised_date = form3.appraisedDate
+    form.approved_date = form3.approvedDate
+    form.appraisers = service.appraisers
+    form.haulings = form3.haulings
+    form.from = form3.from
+    form.to = form3.to
+  },
+)
 
 const jobOrderStatus = computed(() =>
   JobOrderStatuses.find((s) => jobOrder.status === s.id),
 )
 
-const handleStatusChange = async (value: JobOrderStatus) => {
-  isStatusPopoverOpen.value = false
-
-  const isCancelled = getCancelledStatuses.value
-    .map((cs) => cs.id)
-    .includes(value)
-
-  if (isCancelled) {
-    await nextTick()
-    sixthSectionRef.value?.$el.scrollIntoView({ behavior: 'smooth' })
-    setTimeout(() => sixthSectionRef.value?.remarksInput?.$el.focus(), 600) // hack :))
-  }
-}
-
 const onSubmit = () => {
-  form
-    // .transform((data) => ({
-    //   ...data,
-    //   haulings: data.haulings.map((hauling: Form3Hauling) => {
-    //     return {
-    //       assigned
-    //     }
-    //   })
-    // }))
-    .patch(route('job_order.waste_management.update', jobOrder.serviceable.id), {
-        preserveScroll: true,
-      },
-    )
+  form.patch(
+    route('job_order.waste_management.update', jobOrder.serviceable.id),
+    {
+      preserveScroll: true,
+    },
+  )
 }
 
 const statusUpdater = ref()
+const statusForm = useForm({})
 
-const updateStatus = (status: JobOrderStatus) => {
-  router.patch(route('job_order.update', jobOrder.ticket), {
-    status: status,
-  }, {
-    preserveScroll: true,
-    onFinish: () => statusUpdater.value.isOpen = false
-  })
+const markAsUpdate = (nextStep: JobOrderStatus) => {
+  statusForm
+    .transform(() => ({ status: nextStep }))
+    .patch(route('job_order.update', jobOrder.ticket), {
+      preserveScroll: true,
+      onSuccess: () => (statusUpdater.value.isOpen = false),
+    })
 }
 
-const markAsUpdate = (nextStep: JobOrderStatus) => updateStatus(nextStep)
-
-const markAsStop = (stopStep: JobOrderStatus) => updateStatus(stopStep)
-
-const loadEmployees = () => {
-  router.reload({
-    only: ['employees'],
-  })
+const markAsStop = (stopStep: JobOrderStatus, reason: string) => {
+  statusForm
+    .transform(() => ({
+      status: stopStep,
+      reason: reason,
+    }))
+    .post(route('job_order.cancel.create', jobOrder.ticket), {
+      preserveScroll: true,
+      onError: () => statusUpdater.value.reasonInput.$el.focus(),
+      onSuccess: () => (statusUpdater.value.isOpen = false),
+    })
 }
 
-const isStatusPopoverOpen = ref<boolean>(false)
-
-const onStatusPopoverToggle = () => {
-  cannot('update:job_order')
-    ? (isStatusPopoverOpen.value = false)
-    : (isStatusPopoverOpen.value = !isStatusPopoverOpen.value)
-}
+const loadEmployees = () => router.reload({ only: ['employees'] })
 
 const isEditing = ref<boolean>(false)
 
@@ -193,7 +156,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     >
       <div class="flex flex-col gap-1">
         <div class="flex items-center gap-4">
-          <h3 class="scroll-m-20 text-3xl text-primary font-semibold">
+          <h3 class="scroll-m-20 text-3xl font-semibold text-primary">
             Ticket:
             <span class="tracking-tighter text-muted-foreground">
               {{ jobOrder.ticket }}
@@ -205,60 +168,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           >
             {{ jobOrderStatus?.label }}
           </Badge>
-          <!-- <Popover
-            :open="isStatusPopoverOpen"
-            @update:open="onStatusPopoverToggle"
-          >
-            <PopoverTrigger
-              as-child
-              class="flex items-center gap-1"
-            >
-              <Button
-                variant="ghost"
-                :class="[
-                  'h-auto w-auto rounded-full p-1',
-                  { 'hover:bg-0 cursor-default': cannot('update:job_order') },
-                ]"
-              >
-                <Badge
-                  :variant="jobOrderStatus?.badge"
-                  class="overflow-hidden truncate text-ellipsis rounded-full"
-                >
-                  {{ jobOrderStatus?.label }}
-                </Badge>
-                <ChevronRight
-                  v-if="can('update:job_order')"
-                  class="h-4 w-4"
-                />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              class="overflow-auto p-0"
-              align="start"
-              side="right"
-            >
-              <Command>
-                <CommandInput placeholder="Filter status badges" />
-                <CommandList>
-                  <CommandEmpty> No results found. </CommandEmpty>
-                  <CommandGroup>
-                    <div v-for="jOStatus in JobOrderStatuses">
-                      <CommandItem
-                        v-if="jOStatus.id !== jobOrderStatus?.id"
-                        :key="jOStatus.id"
-                        :value="jOStatus"
-                        @select="handleStatusChange(jOStatus.id)"
-                      >
-                        <Badge :variant="jOStatus.badge">
-                          {{ jOStatus.label }}
-                        </Badge>
-                      </CommandItem>
-                    </div>
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover> -->
         </div>
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <Avatar class="h-7 w-7 shrink-0 rounded-full">
@@ -297,6 +206,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           <StatusUpdater
             ref="statusUpdater"
             :status="jobOrder.status"
+            :form="statusForm"
             @mark-as-update="markAsUpdate"
             @mark-as-stop="markAsStop"
           />
@@ -393,7 +303,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                 @on-cancel-submit="form.cancel()"
               />
             </div>
-            <div v-if="form.haulings?.length" class="mt-2">
+            <div
+              v-if="form.haulings?.length"
+              class="mt-2"
+            >
               <Separator class="mb-3 w-full" />
               <FifthSection
                 :status="jobOrder.status"

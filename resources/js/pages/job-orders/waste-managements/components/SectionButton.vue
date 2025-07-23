@@ -35,6 +35,6 @@ defineEmits<SectionButtonEmits>()
         class="animate-spin"
       />
       Save Changes
-    </Button>    
+    </Button>
   </div>
 </template>

@@ -23,7 +23,7 @@ export function useWasteManagementStages() {
     return isForStage(jobOrderStatus, 'for safety inspection')
   }
 
-  const isForHaulingInProgress = (jobOrderStatus: JobOrderStatus) => {
+  const isHaulingInProgress = (jobOrderStatus: JobOrderStatus) => {
     return isForStage(jobOrderStatus, 'hauling in-progress')
   }
 
@@ -72,7 +72,7 @@ export function useWasteManagementStages() {
     isForProposal,
     isForPersonnelAssignment,
     isForSafetyInspection,
-    isForHaulingInProgress,
+    isHaulingInProgress,
     isSuccessfulProposal,
     isPreHauling,
     isForStage,

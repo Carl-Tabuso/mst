@@ -18,8 +18,8 @@ import {
 import { getInitials } from '@/composables/useInitials'
 import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
-import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 import { computed } from 'vue'
+import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
 interface AssignedPersonnelSelectionProps {
   employees?: Employee[]
@@ -35,7 +35,9 @@ const props = withDefaults(defineProps<AssignedPersonnelSelectionProps>(), {
   canEdit: false,
 })
 
-const firstPersonnel = computed(() => props.hauling?.assignedPersonnel?.[props.role])
+const firstPersonnel = computed(
+  () => props.hauling?.assignedPersonnel?.[props.role],
+)
 
 type RoleType = (typeof Roles)[number]['id']
 const Roles = [
@@ -101,7 +103,7 @@ const Roles = [
             </div>
           </template>
           <template v-else>
-            <span class="text-muted-foreground font-normal">
+            <span class="font-normal text-muted-foreground">
               {{ `Select a ${label}` }}
             </span>
           </template>
@@ -122,6 +124,7 @@ const Roles = [
                   v-for="employee in employees"
                   :key="employee.id"
                   :value="employee"
+                  class="cursor-pointer"
                   @select="$emit('clicked', role, employee, index)"
                 >
                   <Avatar class="h-7 w-7 overflow-hidden rounded-full">
@@ -134,7 +137,7 @@ const Roles = [
                       {{ getInitials(employee.fullName) }}
                     </AvatarFallback>
                   </Avatar>
-                  <div class="grid flex-1 text-left text-sm leading-tight">
+                  <div class="grid flex-1 text-left text-[13px] leading-tight">
                     <span class="truncate">
                       {{ employee.fullName }}
                     </span>

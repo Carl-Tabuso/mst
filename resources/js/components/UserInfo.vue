@@ -42,7 +42,7 @@ const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '')
       :src="user.avatar"
       :alt="user.employee.full_name"
     />
-    <AvatarFallback class=" text-black dark:text-white">
+    <AvatarFallback class="text-black dark:text-white">
       {{ getInitials(user.employee.full_name) }}
     </AvatarFallback>
   </Avatar>

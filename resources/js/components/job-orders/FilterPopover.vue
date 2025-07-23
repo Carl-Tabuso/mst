@@ -116,7 +116,7 @@ const clearFilters = () => {
         variant="ghost"
         class="ml-1"
       >
-        <Filter class="mr-2"/>
+        <Filter class="mr-2" />
         Filter
         <template v-if="selectedStatuses.size > 0">
           <div class="hidden lg:flex">

@@ -136,14 +136,17 @@ const { isForAppraisal } = useWasteManagementStages()
     step to continue to site viewing.
   </FormAreaInfo>
   <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
-    <div class="col-span-2 flex justify-between items-start w-full">
+    <div class="col-span-2 flex w-full items-start justify-between">
       <div>
         <div class="text-xl font-semibold leading-6">Ocular Inspection</div>
         <p class="text-sm text-muted-foreground">
           The assigned appraisers and appraisal date of site viewing.
         </p>
       </div>
-      <div v-if="dispatcher" class="text-xs text-muted-foreground font-medium">
+      <div
+        v-if="dispatcher"
+        class="text-xs font-medium text-muted-foreground"
+      >
         {{ `Completed by ${dispatcher?.fullName}` }}
       </div>
     </div>
@@ -152,11 +155,11 @@ const { isForAppraisal } = useWasteManagementStages()
         <div class="flex items-start gap-x-4">
           <Label
             for="appraisers"
-            class="w-44 shrink-0 mt-3"
+            class="mt-3 w-44 shrink-0"
           >
             Appraisers
           </Label>
-          <div class="flex flex-col gap-1 w-full">
+          <div class="flex w-full flex-col gap-1">
             <Popover @update:open="(value) => handleAppraisersPopover(value)">
               <PopoverTrigger as-child>
                 <Button
@@ -221,7 +224,9 @@ const { isForAppraisal } = useWasteManagementStages()
                   <CommandList>
                     <CommandEmpty> No employee found. </CommandEmpty>
                     <template v-if="appraisers?.length">
-                      <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
+                      <div
+                        :class="['overflow-y-auto', { 'max-h-40': canEdit }]"
+                      >
                         <CommandGroup>
                           <CommandItem
                             v-for="appraiser in appraisers"
@@ -248,6 +253,7 @@ const { isForAppraisal } = useWasteManagementStages()
                           v-for="employee in remainingEmployees"
                           :key="employee.id"
                           :value="employee"
+                          class="cursor-pointer"
                           @select="() => handleEmployeeMultiselect(employee)"
                         >
                           <EmployeePopoverSelection :employee="employee" />
@@ -262,8 +268,8 @@ const { isForAppraisal } = useWasteManagementStages()
           </div>
         </div>
         <div class="flex items-start">
-          <Label class="w-36 shrink-0 mt-3"> Date Appraised </Label>
-          <div class="flex flex-col gap-1 w-full">
+          <Label class="mt-3 w-36 shrink-0"> Date Appraised </Label>
+          <div class="flex w-full flex-col gap-1">
             <Popover>
               <PopoverTrigger
                 as-child

@@ -12,13 +12,13 @@ html {
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 200.84 97% 22%;
+    --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 222 44% 15%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 44% 15%;
-    --primary: 200.84 97% 22%; 
-    --primary-foreground: 0 0% 98%; 
+    --primary: 200.84 97% 22%;
+    --primary-foreground: 0 0% 98%;
     --secondary: 200 50% 94.5%;
     --secondary-foreground: 200 25% 30%;
     --muted: 200 50% 95%;

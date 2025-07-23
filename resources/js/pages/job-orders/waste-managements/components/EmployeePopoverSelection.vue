@@ -36,7 +36,7 @@ withDefaults(defineProps<EmployeePopoverSelectionProps>(), {
         {{ getInitials(employee.fullName) }}
       </AvatarFallback>
     </Avatar>
-    <div class="grid flex-1 text-left text-sm leading-tight">
+    <div class="grid flex-1 text-left text-[13px] leading-tight">
       <span class="truncate">
         {{ employee.fullName }}
       </span>

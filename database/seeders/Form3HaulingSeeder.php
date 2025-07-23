@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\HaulingStatus;
 use App\Enums\JobOrderStatus;
 use App\Models\Employee;
 use App\Models\Form3;
@@ -38,6 +39,7 @@ class Form3HaulingSeeder extends Seeder
         $haulings = Form3Hauling::factory()
             ->count((int) $from->diffInDays($to) + 1)
             ->sequence(fn (Sequence $sequence) => ['date' => $from->copy()->addDays($sequence->index)])
+            ->status(HaulingStatus::Done)
             ->create(['form3_id' => $form3->id]);
 
         $position = Position::firstWhere(['name' => 'Hauler']);

@@ -5,30 +5,33 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { formatToDateString } from '@/composables/useDateFormatter'
-import { getInitials } from '@/composables/useInitials'
+import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
+import { haulingStatuses } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee, Form3Hauling } from '@/types'
+import { isToday } from 'date-fns'
 import { ClipboardCheck, FilePenLine } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
@@ -36,7 +39,6 @@ import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 import SectionButton from '../SectionButton.vue'
-import { usePermissions } from '@/composables/usePermissions'
 
 interface FifthSectionProps {
   status: JobOrderStatus
@@ -50,7 +52,7 @@ interface FifthSectionEmits {
 }
 
 const props = withDefaults(defineProps<FifthSectionProps>(), {
-  isSubmitBtnDisabled: false
+  isSubmitBtnDisabled: false,
 })
 
 const emit = defineEmits<FifthSectionEmits>()
@@ -77,24 +79,26 @@ const removeHauler = (employee: Employee, index: number) => {
 }
 
 const handleHaulerMultiSelection = (employee: Employee, index: number) => {
-  if (!isAuthorize.value) return
+  const hauling = haulings.value[index]
+
+  if (!isAuthorize.value || !hauling.isOpen) return
 
   if (isExistingHauler(employee.id, index)) {
     removeHauler(employee, index)
 
     toast(`Removed ${employee.fullName} from haulers`, {
       position: 'top-right',
-      description: `on ${formatToDateString(haulings.value[index].date)} hauling`,
+      description: `on ${formatToDateString(hauling.date)} hauling`,
       action: {
         label: 'Undo',
-        onClick: () => haulings.value[index].haulers.push(employee),
+        onClick: () => hauling.haulers.push(employee),
       },
     })
   } else {
-    haulings.value[index].haulers.push(employee)
+    hauling.haulers.push(employee)
     toast(`Added ${employee.fullName} as hauler`, {
       position: 'top-right',
-      description: `on ${formatToDateString(haulings.value[index].date)} hauling`,
+      description: `on ${formatToDateString(hauling.date)} hauling`,
       action: {
         label: 'Undo',
         onClick: () => removeHauler(employee, index),
@@ -187,20 +191,31 @@ const checklist = [
     id: 'isToolsEquipmentFilled',
     description: 'Tools and Equipment Request Form',
   },
+  {
+    id: 'isCertified',
+    description:
+      'I hereby certify on my honor to the accuracy of the foregoing information of Safety Inspection Checklist',
+  },
 ] as const
 
-const { isForPersonnelAssignment } = useWasteManagementStages()
+const { isHaulingInProgress } = useWasteManagementStages()
 
-const forPersonnelAssignment = computed(() => isForPersonnelAssignment(props.status))
+const isHauling = computed(() => isHaulingInProgress(props.status))
+
+// i need smth like
+// [{ hauling = { id: 1, isCertify: 1, } }]
+const checks = ref()
+
+// onMounted(() => checks.value)
 </script>
 
 <template>
   <FormAreaInfo
-    :condition="forPersonnelAssignment"
+    :condition="isHauling"
     class="mb-4"
   >
-    <span class="pr-1 font-semibold">Dispatcher</span>is required to assign the personnel and haulers
-    daily during the duration of hauling period.
+    <span class="pr-1 font-semibold">Dispatcher</span>is required to assign the
+    personnel and haulers daily during the duration of hauling period.
   </FormAreaInfo>
   <div class="grid grid-cols-[auto,1fr] gap-y-6">
     <div>
@@ -211,7 +226,7 @@ const forPersonnelAssignment = computed(() => isForPersonnelAssignment(props.sta
     </div>
     <Accordion
       type="multiple"
-      class="col-[1/-1] w-full"
+      class="col-[1/-1] w-full rounded-sm border"
       collapsible
     >
       <AccordionItem
@@ -219,7 +234,12 @@ const forPersonnelAssignment = computed(() => isForPersonnelAssignment(props.sta
         :key="hauling.id"
         :value="String(hauling.id)"
       >
-        <div class="flex items-center rounded-sm bg-muted">
+        <div
+          :class="[
+            'rounded- flex items-center',
+            { 'bg-muted': isToday(new Date(hauling.date)) },
+          ]"
+        >
           <div class="flex-none pl-2">
             <Tooltip>
               <TooltipTrigger as-child>
@@ -252,69 +272,101 @@ const forPersonnelAssignment = computed(() => isForPersonnelAssignment(props.sta
                 </TooltipTrigger>
                 <TooltipContent> Safety Inspection Checklist </TooltipContent>
               </Tooltip>
-              <DialogContent class="w-[450px]">
+              <DialogContent class="max-w-[790px]">
                 <DialogHeader>
-                  <DialogTitle> Safety Inspection </DialogTitle>
-                  <DialogDescription class="mb-2">
-                    Checklist filled-out by the Team Leader
+                  <DialogTitle> Safety Inspection Checklist </DialogTitle>
+                  <DialogDescription class="text-sm">
+                    Review all items and ensure that all necessary forms have
+                    been completed. Attach your signature to proceed with
+                    hauling.
                   </DialogDescription>
                 </DialogHeader>
-                <div class="flex flex-col gap-2">
+                <div class="mt-3 flex flex-col gap-4">
                   <div
-                    v-for="list in checklist"
+                    v-for="(list, index) in checklist"
                     :key="`${hauling.id}-${list.id}`"
-                    class="flex items-center gap-x-3"
+                    :class="[
+                      'flex items-center gap-x-3',
+                      { 'mt-7': index === checklist.length - 1 },
+                    ]"
                   >
                     <Checkbox
                       :id="`${hauling.id}-${list.id}`"
-                      :checked="Boolean(hauling.checklist[list.id])"
-                      disabled
+                      @update:checked="() => console.log('hello')"
+                      :disabled="!hauling.isOpen"
                     />
                     <Label
                       :for="`${hauling.id}-${list.id}`"
-                      class="text-sm font-normal"
+                      class="text-sm"
                     >
                       {{ list.description }}
                     </Label>
                   </div>
                 </div>
-                <Separator class="-mx-6 mt-3 w-[450px]" />
-                <div
-                  class="flex items-center justify-between text-xs text-muted-foreground"
-                >
-                  <div class="flex items-center gap-x-2">
-                    <Avatar class="h-6 w-6 rounded-full">
-                      <AvatarImage
-                        v-if="
-                          hauling?.assignedPersonnel?.teamLeader?.account
-                            ?.avatar
-                        "
-                        :src="
-                          hauling.assignedPersonnel.teamLeader.account.avatar
-                        "
-                        :alt="hauling.assignedPersonnel.teamLeader.fullName"
-                      />
-                      <AvatarFallback>
-                        {{
-                          getInitials(
-                            hauling?.assignedPersonnel?.teamLeader?.fullName,
-                          )
-                        }}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span class="truncate text-muted-foreground">
-                      {{ hauling.assignedPersonnel?.teamLeader?.fullName }}
-                    </span>
+
+                <DialogFooter class="mt-5">
+                  <div
+                    v-if="hauling.isOpen"
+                    class="flex items-center gap-3"
+                  >
+                    <DialogClose>
+                      <Button variant="outline"> Cancel </Button>
+                    </DialogClose>
+                    <Button type="button"> Save & Submit </Button>
                   </div>
-                  <div>{{ '3 days ago' }}</div>
-                </div>
+                  <!-- <Separator class="-mx-6 mt-3 w-[450px]" /> -->
+                  <!-- <div
+                    class="flex items-center justify-between text-xs text-muted-foreground"
+                  >
+                    <div class="flex items-center gap-x-2">
+                      <Avatar class="h-6 w-6 rounded-full">
+                        <AvatarImage
+                          v-if="
+                            hauling?.assignedPersonnel?.teamLeader?.account
+                              ?.avatar
+                          "
+                          :src="
+                            hauling.assignedPersonnel.teamLeader.account.avatar
+                          "
+                          :alt="hauling.assignedPersonnel.teamLeader.fullName"
+                        />
+                        <AvatarFallback>
+                          {{
+                            getInitials(
+                              hauling?.assignedPersonnel?.teamLeader?.fullName,
+                            )
+                          }}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span class="truncate text-muted-foreground">
+                        {{ hauling.assignedPersonnel?.teamLeader?.fullName }}
+                      </span>
+                    </div>
+                    <div>{{ '3 days ago' }}</div>
+                  </div> -->
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           </div>
           <div class="flex-1 pl-3 pr-5">
             <AccordionTrigger>
-              <div class="text-sm">
-                {{ formatToDateString(hauling.date) }}
+              <div class="flex items-center gap-3">
+                <div class="text-sm">
+                  {{ formatToDateString(hauling.date) }}
+                </div>
+                <span class="no-underline hover:no-underline">
+                  <Badge
+                    :variant="
+                      haulingStatuses.find((hs) => hs.id === hauling.status)
+                        ?.badge
+                    "
+                  >
+                    {{
+                      haulingStatuses.find((hs) => hs.id === hauling.status)
+                        ?.label
+                    }}
+                  </Badge>
+                </span>
               </div>
             </AccordionTrigger>
           </div>
@@ -323,6 +375,7 @@ const forPersonnelAssignment = computed(() => isForPersonnelAssignment(props.sta
         <AccordionContent
           class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-3 px-4 py-5"
         >
+          <!-- This could be a for loop? -->
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <AssignedPersonnelSelection
               :can-edit="isAuthorize && hauling.isOpen"
@@ -407,7 +460,10 @@ const forPersonnelAssignment = computed(() => isForPersonnelAssignment(props.sta
       </AccordionItem>
     </Accordion>
   </div>
-  <div v-if="isAuthorize && forPersonnelAssignment" class="flex justify-end mt-6">
+  <div
+    v-if="isAuthorize && isHauling"
+    class="mt-6 flex justify-end"
+  >
     <SectionButton
       :is-submit-btn-disabled="isSubmitBtnDisabled"
       @on-cancel-submit="$emit('onCancelSubmit')"

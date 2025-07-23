@@ -48,7 +48,9 @@ const breadcrumbs: BreadcrumbItem[] = [
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div class="mb-3 flex items-center">
           <div class="flex flex-col gap-y-1">
-            <h3 class="scroll-m-20 text-3xl text-primary font-bold leading-7">Job Order List</h3>
+            <h3 class="scroll-m-20 text-3xl font-bold leading-7 text-primary">
+              Job Order List
+            </h3>
             <p class="text-muted-foreground">
               You can manage the list of recent active job orders here!
             </p>

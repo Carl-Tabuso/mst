@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppCalendar from '@/components/AppCalendar.vue'
+import InputError from '@/components/InputError.vue'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
@@ -14,7 +15,6 @@ import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
-import InputError from '@/components/InputError.vue'
 
 interface FourthSectionProps {
   canEdit?: boolean
@@ -71,8 +71,8 @@ const { isPreHauling } = useWasteManagementStages()
     </div>
     <div class="col-span-2 grid grid-cols-2 gap-x-10">
       <div class="flex items-start gap-x-4">
-        <Label class="w-44 shrink-0 mt-3">Start Date</Label>
-        <div class="flex flex-col gap-1 w-full">
+        <Label class="mt-3 w-44 shrink-0">Start Date</Label>
+        <div class="flex w-full flex-col gap-1">
           <Popover>
             <PopoverTrigger
               as-child
@@ -83,8 +83,9 @@ const { isPreHauling } = useWasteManagementStages()
                 variant="outline"
                 :class="[
                   'w-full ps-3 text-start font-normal',
-                  { 'text-muted-foreground': !startingDate,
-                    'border-destructive': errors.from
+                  {
+                    'text-muted-foreground': !startingDate,
+                    'border-destructive': errors.from,
                   },
                 ]"
               >
@@ -113,8 +114,8 @@ const { isPreHauling } = useWasteManagementStages()
         </div>
       </div>
       <div class="flex items-start">
-        <Label class="w-36 shrink-0 mt-3">Finish Date</Label>
-        <div class="flex flex-col gap-1 w-full">
+        <Label class="mt-3 w-36 shrink-0">Finish Date</Label>
+        <div class="flex w-full flex-col gap-1">
           <Popover>
             <PopoverTrigger
               as-child
@@ -125,8 +126,9 @@ const { isPreHauling } = useWasteManagementStages()
                 variant="outline"
                 :class="[
                   'w-full ps-3 text-start font-normal',
-                  { 'text-muted-foreground': !endingDate,
-                    'border-destructive': errors.to
+                  {
+                    'text-muted-foreground': !endingDate,
+                    'border-destructive': errors.to,
                   },
                 ]"
               >

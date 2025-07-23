@@ -14,8 +14,8 @@ class Form3Hauling extends Model
 
     public $timestamps = false;
 
-    protected $fillable = [
-        'form3_id',
+    protected $guarded = [
+        'id',
     ];
 
     protected $casts = [

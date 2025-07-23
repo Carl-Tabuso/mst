@@ -2,6 +2,7 @@
 
 use App\Enums\UserPermission;
 use App\Enums\UserRole;
+use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
@@ -36,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
 
         Route::prefix('others')->name('other.')->group(function () {
             Route::get('/', fn () => dd('os'))->name('index');
+        });
+
+        Route::prefix('cancels')->name('cancel.')->group(function () {
+            Route::post('{jobOrder}', [CancelledJobOrderController::class, 'create'])->name('create');
         });
     });
 

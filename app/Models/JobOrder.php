@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\JobOrderStatus;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -73,6 +74,7 @@ class JobOrder extends Model
         return $query->whereIn('status', $values);
     }
 
+    #[Scope]
     public function cancelled(Builder $query): Builder
     {
         return $query->whereIn('status', JobOrderStatus::getCancelledStatuses());
@@ -101,5 +103,10 @@ class JobOrder extends Model
     public function corrections(): HasMany
     {
         return $this->hasMany(JobOrderCorrection::class);
+    }
+
+    public function cancel(): HasOne
+    {
+        return $this->hasOne(CancelledJobOrder::class);
     }
 }

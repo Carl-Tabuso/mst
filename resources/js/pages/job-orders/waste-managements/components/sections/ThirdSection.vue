@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppCalendar from '@/components/AppCalendar.vue'
+import InputError from '@/components/InputError.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,6 +10,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { formatToDateString } from '@/composables/useDateFormatter'
+import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
@@ -17,8 +19,6 @@ import { Calendar } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
-import { usePermissions } from '@/composables/usePermissions'
-import InputError from '@/components/InputError.vue'
 
 interface ThirdSectionProps {
   isEditing?: boolean
@@ -97,17 +97,23 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
         <div class="flex items-start gap-x-4">
           <Label
             for="paymentType"
-            class="w-44 shrink-0 mt-3"
+            class="mt-3 w-44 shrink-0"
           >
             Type of Payment
           </Label>
-          <div class="flex flex-col gap-1 w-full">
+          <div class="flex w-full flex-col gap-1">
             <Input
               id="paymentType"
               :disabled="isDisabled"
               placeholder="Enter client's payment type"
               v-model="paymentType"
-              :class="['w-full', { 'border-destructive focus-visible:ring-0 focus-visible:ring-destructive focus': errors.payment_type }]"
+              :class="[
+                'w-full',
+                {
+                  'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+                    errors.payment_type,
+                },
+              ]"
             />
             <InputError :message="errors.payment_type" />
           </div>
@@ -115,18 +121,24 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
         <div class="flex items-start">
           <Label
             for="bidBond"
-            class="w-36 shrink-0 mt-3"
+            class="mt-3 w-36 shrink-0"
           >
             Bid Bond
           </Label>
-          <div class="flex flex-col gap-1 w-full">
+          <div class="flex w-full flex-col gap-1">
             <Input
               id="bidBond"
               :disabled="isDisabled"
               placeholder="Enter job order's bid bond"
               v-model="bidBond"
-              :class="['w-full', { 'border-destructive focus-visible:ring-0 focus-visible:ring-destructive focus': errors.bid_bond }]"
-            />     
+              :class="[
+                'w-full',
+                {
+                  'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+                    errors.bid_bond,
+                },
+              ]"
+            />
             <InputError :message="errors.bid_bond" />
           </div>
         </div>
@@ -136,17 +148,23 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
         <div class="flex items-start gap-x-4">
           <Label
             for="orNumber"
-            class="w-44 shrink-0 mt-3"
+            class="mt-3 w-44 shrink-0"
           >
             OR Number
           </Label>
-          <div class="flex flex-col gap-1 w-full">
+          <div class="flex w-full flex-col gap-1">
             <Input
               id="orNumber"
               :disabled="isDisabled"
               placeholder="Enter OR Number"
               v-model="orNumber"
-              :class="['w-full', { 'border-destructive focus-visible:ring-0 focus-visible:ring-destructive focus': errors.or_number }]"
+              :class="[
+                'w-full',
+                {
+                  'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+                    errors.or_number,
+                },
+              ]"
             />
             <InputError :message="errors.or_number" />
           </div>
@@ -154,11 +172,11 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
         <div class="flex items-start">
           <Label
             for="paymentDate"
-            class="w-36 shrink-0 mt-3"
+            class="mt-3 w-36 shrink-0"
           >
             Date of Payment
           </Label>
-          <div class="flex flex-col gap-1 w-full">
+          <div class="flex w-full flex-col gap-1">
             <Popover>
               <PopoverTrigger
                 as-child
@@ -169,7 +187,8 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   variant="outline"
                   :class="[
                     'w-full ps-3 text-start font-normal',
-                    { 'text-muted-foreground': !paymentDate,
+                    {
+                      'text-muted-foreground': !paymentDate,
                       'border-destructive': errors.payment_date,
                     },
                   ]"
@@ -191,7 +210,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                 />
               </PopoverContent>
             </Popover>
-            <InputError :message="errors.payment_date" />            
+            <InputError :message="errors.payment_date" />
           </div>
         </div>
       </div>
@@ -200,11 +219,11 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
         <div class="flex items-start gap-x-4">
           <Label
             for="approvedDate"
-            class="w-44 shrink-0 mt-3"
+            class="mt-3 w-44 shrink-0"
           >
             Date Approved
           </Label>
-          <div class="flex flex-col gap-1 w-full">
+          <div class="flex w-full flex-col gap-1">
             <Popover>
               <PopoverTrigger
                 as-child
@@ -215,7 +234,8 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   variant="outline"
                   :class="[
                     'w-full ps-3 text-start font-normal',
-                    { 'text-muted-foreground': !approvedDate,
+                    {
+                      'text-muted-foreground': !approvedDate,
                       'border-destructive': errors.approved_date,
                     },
                   ]"

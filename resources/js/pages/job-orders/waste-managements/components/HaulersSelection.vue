@@ -50,7 +50,8 @@ const isExistingHauler = (employeeId: number) => {
 
 const remainingEmployees = computed(() => {
   const filtered = props.employees?.filter(
-    (employee) => !haulers.value.map((hauler) => hauler.id).includes(employee.id),
+    (employee) =>
+      !haulers.value.map((hauler) => hauler.id).includes(employee.id),
   )
   return new Set(filtered)
 })
@@ -90,9 +91,7 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
                   {{ firstHauler.fullName }}
                 </template>
                 <template v-else>
-                  {{
-                    `${firstHauler.fullName} and ${haulers.length - 1} more`
-                  }}
+                  {{ `${firstHauler.fullName} and ${haulers.length - 1} more` }}
                 </template>
               </span>
             </div>
@@ -108,7 +107,9 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
             </Button>
           </div>
           <template v-else>
-            <span class="text-muted-foreground font-normal"> Select haulers </span>
+            <span class="font-normal text-muted-foreground">
+              Select haulers
+            </span>
           </template>
           <ChevronsUpDown class="ml-auto h-4 w-4" />
         </Button>
@@ -119,12 +120,13 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
           <CommandList>
             <CommandEmpty> No results found. </CommandEmpty>
             <template v-if="haulers?.length">
-              <div :class="['overflow-y-auto', { 'max-h-40': isAuthorize }]">
+              <div :class="['overflow-y-auto', { 'max-h-40': hauling.isOpen }]">
                 <CommandGroup>
                   <CommandItem
                     v-for="hauler in haulers"
                     :key="hauler.id"
                     :value="hauler"
+                    class="cursor-pointer"
                     @select="$emit('onHaulerSelect', hauler, index)"
                   >
                     <EmployeePopoverSelection
@@ -145,6 +147,7 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
                   v-for="employee in remainingEmployees"
                   :key="employee.id"
                   :value="employee"
+                  class="cursor-pointer"
                   @select="$emit('onHaulerSelect', employee, index)"
                 >
                   <div
@@ -163,7 +166,7 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
                       {{ getInitials(employee.fullName) }}
                     </AvatarFallback>
                   </Avatar>
-                  <div class="grid flex-1 text-left text-sm leading-tight">
+                  <div class="grid flex-1 text-left text-[13px] leading-tight">
                     <span class="truncate">
                       {{ employee.fullName }}
                     </span>

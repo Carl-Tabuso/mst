@@ -81,4 +81,59 @@ export const JobOrderStatuses = [
   },
 ] as const
 
+type manualStatusUpdaterType = {
+  id: JobOrderStatus
+  next: {
+    tag: JobOrderStatus
+    label: string
+  }
+  stop: {
+    tag: JobOrderStatus
+    label: string
+  }
+  description?: string
+}
+
+export const manualUpdateStatuses: manualStatusUpdaterType[] = [
+  {
+    id: 'for viewing',
+    next: {
+      tag: 'for proposal',
+      label: 'Mark as viewed',
+    },
+    stop: {
+      tag: 'dropped',
+      label: 'Mark as dropped',
+    },
+    description:
+      'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad reprehenderit aperiam ullam mollitia repellendus dolor dolores vero, laudantium explicabo voluptatibus velit eaque ut odit nihil qui est reiciendis alias ipsam?',
+  },
+  {
+    id: 'for proposal',
+    next: {
+      tag: 'successful',
+      label: 'Mark as successful',
+    },
+    stop: {
+      tag: 'failed',
+      label: 'Mark as failed',
+    },
+    description:
+      'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad reprehenderit aperiam ullam mollitia repellendus dolor dolores vero, laudantium explicabo voluptatibus velit eaque ut odit nihil qui est reiciendis alias ipsam?',
+  },
+  {
+    id: 'hauling in-progress',
+    next: {
+      tag: 'completed',
+      label: 'Mark as completed',
+    },
+    stop: {
+      tag: 'closed',
+      label: 'Mark as closed',
+    },
+    description:
+      'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad reprehenderit aperiam ullam mollitia repellendus dolor dolores vero, laudantium explicabo voluptatibus velit eaque ut odit nihil qui est reiciendis alias ipsam?',
+  },
+]
+
 export type JobOrderStatus = (typeof JobOrderStatuses)[number]['id']

@@ -14,8 +14,6 @@ enum JobOrderStatus: string
     case OnHold                 = 'on-hold';
     case Closed                 = 'closed';
     case Completed              = 'completed';
-    case ForPersonnelAssignment = 'for personnel assignment';
-    case ForSafetyInspection    = 'for safety inspection';
     case ForVerification        = 'for verification';
     case Verified               = 'verified';
     case ForAppraisal           = 'for appraisal';
@@ -44,8 +42,9 @@ enum JobOrderStatus: string
     public static function getManualStagesUpdate(): array
     {
         return [
-            self::ForViewing->value,
-            self::ForProposal->value,
+            self::ForViewing,
+            self::ForProposal,
+            self::Successful,
         ];
     }
 }
