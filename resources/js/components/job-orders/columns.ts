@@ -39,14 +39,12 @@ export const columns: ColumnDef<JobOrder>[] = [
         'onUpdate:checked': (value: boolean) =>
           table.toggleAllPageRowsSelected(!!value),
         ariaLabel: 'Select all',
-        class: 'border-gray-400 dark:border-white',
       }),
     cell: ({ row }) =>
       h(Checkbox, {
         checked: row.getIsSelected(),
         'onUpdate:checked': (value: boolean) => row.toggleSelected(!!value),
         ariaLabel: 'Select row',
-        class: 'border-gray-400 dark:border-white',
       }),
     enableSorting: false,
     enableHiding: false,

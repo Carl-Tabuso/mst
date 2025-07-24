@@ -7,6 +7,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\JobOrderController;
+use App\Http\Controllers\SafetyInspectionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
 use App\Models\User;
@@ -28,6 +29,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])->name('edit');
             Route::post('/', [WasteManagementController::class, 'store'])->name('store');
             Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
+
+            Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
+                ->name('safety_inspection.update');
         });
 
         Route::prefix('it-services')->name('it_service.')->group(function () {
@@ -86,10 +90,10 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('test', function () {
     $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get()->pluck('email');
-    $dispatcherRole       = User::role(UserRole::Dispatcher)->get();
+    $teamLeaders       = User::role(UserRole::TeamLeader)->get()->pluck('email');
     dd(
         $dispatcherPermission,
-        $dispatcherRole,
+        $teamLeaders,
     );
 });
 

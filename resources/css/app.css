@@ -12,13 +12,13 @@ html {
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 200.84 97% 22%;
     --card: 0 0% 100%;
     --card-foreground: 222 44% 15%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 44% 15%;
     --primary: 200.84 97% 22%;
-    --primary-foreground: 0 0% 98%;
+    --primary-foreground: 200.84 97% 98%;
     --secondary: 200 50% 94.5%;
     --secondary-foreground: 200 25% 30%;
     --muted: 200 50% 95%;
@@ -27,6 +27,8 @@ html {
     --accent-foreground: 222 28% 20%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
+    --warning: 43 100% 65%;
+    --warning-foreground: 43 100% 10%;
     --border: 200 15% 88%;
     --input: 200 20% 90%;
     --ring: 200.84 97% 22%;
@@ -63,6 +65,8 @@ html {
     --accent-foreground: 220 12% 96%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
+    --warning: 43 100% 40%;
+    --warning-foreground: 43 100% 90%;
     --border: 220 15% 26%;
     --input: 220 15% 22%;
     --ring: 220 25% 60%;

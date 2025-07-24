@@ -21,7 +21,7 @@ class Form3AssignedPersonnel extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function hauling(): BelongsTo
+    public function form3Hauling(): BelongsTo
     {
         return $this->belongsTo(Form3Hauling::class);
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\JobOrderServiceType;
+use App\Enums\UserPermission;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -10,7 +11,7 @@ class StoreWasteManagementRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->hasPermissionTo(UserPermission::CreateJobOrder);
     }
 
     public function rules(): array

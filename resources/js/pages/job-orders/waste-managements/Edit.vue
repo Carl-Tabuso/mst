@@ -156,7 +156,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     >
       <div class="flex flex-col gap-1">
         <div class="flex items-center gap-4">
-          <h3 class="scroll-m-20 text-3xl font-semibold text-primary">
+          <h3 class="scroll-m-20 text-3xl font-bold text-primary">
             Ticket:
             <span class="tracking-tighter text-muted-foreground">
               {{ jobOrder.ticket }}
@@ -169,7 +169,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             {{ jobOrderStatus?.label }}
           </Badge>
         </div>
-        <div class="flex items-center gap-2 text-sm text-muted-foreground">
+        <div class="flex items-center gap-2">
           <Avatar class="h-7 w-7 shrink-0 rounded-full">
             <AvatarImage
               v-if="jobOrder.creator?.account?.avatar"
@@ -180,7 +180,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               {{ getInitials(jobOrder.creator?.fullName) }}
             </AvatarFallback>
           </Avatar>
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 text-sm text-muted-foreground">
             <span>{{ `${jobOrder.creator?.fullName}` }}</span>
             <span class="mx-1">•</span>
             <span>{{

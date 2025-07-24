@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\HaulingStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +21,7 @@ class Form3Hauling extends Model
 
     protected $casts = [
         'date' => 'datetime',
+        'status' => HaulingStatus::class
     ];
 
     public function isOpen(): bool

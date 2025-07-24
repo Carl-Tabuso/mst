@@ -7,17 +7,6 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -28,16 +17,21 @@ import {
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
-import { haulingStatuses } from '@/constants/hauling-statuses'
+import { haulingRoles, HaulingRoleType } from '@/constants/hauling-role'
+import {
+  haulingStatuses,
+  HaulingStatusType,
+} from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee, Form3Hauling } from '@/types'
 import { isToday } from 'date-fns'
-import { ClipboardCheck, FilePenLine } from 'lucide-vue-next'
+import { FilePenLine } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
+import SafetyInspectionChecklist from '../SafetyInspectionChecklist.vue'
 import SectionButton from '../SectionButton.vue'
 
 interface FifthSectionProps {
@@ -122,27 +116,6 @@ const removeExistingHaulers = (index: number) => {
   })
 }
 
-const HaulingRoles = [
-  {
-    id: 'teamLeader',
-    label: 'Team Leader',
-  },
-  {
-    id: 'teamMechanic',
-    label: 'Mechanic',
-  },
-  {
-    id: 'safetyOfficer',
-    label: 'Safety Officer',
-  },
-  {
-    id: 'teamDriver',
-    label: 'Driver',
-  },
-] as const
-
-type HaulingRoleType = (typeof HaulingRoles)[number]['id']
-
 const handleAssignedPersonnelChanges = (
   role: HaulingRoleType,
   employee: Employee,
@@ -178,35 +151,9 @@ const onPopoverToggle = (
   loadEmployeesIfMissing()
 }
 
-const checklist = [
-  {
-    id: 'isVehicleInspectionFilled',
-    description: 'Vehicle Inspection Form',
-  },
-  {
-    id: 'isUniformPpeFilled',
-    description: 'Uniform and PPE Request Form',
-  },
-  {
-    id: 'isToolsEquipmentFilled',
-    description: 'Tools and Equipment Request Form',
-  },
-  {
-    id: 'isCertified',
-    description:
-      'I hereby certify on my honor to the accuracy of the foregoing information of Safety Inspection Checklist',
-  },
-] as const
-
 const { isHaulingInProgress } = useWasteManagementStages()
 
 const isHauling = computed(() => isHaulingInProgress(props.status))
-
-// i need smth like
-// [{ hauling = { id: 1, isCertify: 1, } }]
-const checks = ref()
-
-// onMounted(() => checks.value)
 </script>
 
 <template>
@@ -256,97 +203,7 @@ const checks = ref()
             </Tooltip>
           </div>
           <div class="flex-none">
-            <Dialog>
-              <Tooltip>
-                <TooltipTrigger as-child>
-                  <DialogTrigger as-child>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      class="rounded-full"
-                    >
-                      <ClipboardCheck />
-                    </Button>
-                  </DialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent> Safety Inspection Checklist </TooltipContent>
-              </Tooltip>
-              <DialogContent class="max-w-[790px]">
-                <DialogHeader>
-                  <DialogTitle> Safety Inspection Checklist </DialogTitle>
-                  <DialogDescription class="text-sm">
-                    Review all items and ensure that all necessary forms have
-                    been completed. Attach your signature to proceed with
-                    hauling.
-                  </DialogDescription>
-                </DialogHeader>
-                <div class="mt-3 flex flex-col gap-4">
-                  <div
-                    v-for="(list, index) in checklist"
-                    :key="`${hauling.id}-${list.id}`"
-                    :class="[
-                      'flex items-center gap-x-3',
-                      { 'mt-7': index === checklist.length - 1 },
-                    ]"
-                  >
-                    <Checkbox
-                      :id="`${hauling.id}-${list.id}`"
-                      @update:checked="() => console.log('hello')"
-                      :disabled="!hauling.isOpen"
-                    />
-                    <Label
-                      :for="`${hauling.id}-${list.id}`"
-                      class="text-sm"
-                    >
-                      {{ list.description }}
-                    </Label>
-                  </div>
-                </div>
-
-                <DialogFooter class="mt-5">
-                  <div
-                    v-if="hauling.isOpen"
-                    class="flex items-center gap-3"
-                  >
-                    <DialogClose>
-                      <Button variant="outline"> Cancel </Button>
-                    </DialogClose>
-                    <Button type="button"> Save & Submit </Button>
-                  </div>
-                  <!-- <Separator class="-mx-6 mt-3 w-[450px]" /> -->
-                  <!-- <div
-                    class="flex items-center justify-between text-xs text-muted-foreground"
-                  >
-                    <div class="flex items-center gap-x-2">
-                      <Avatar class="h-6 w-6 rounded-full">
-                        <AvatarImage
-                          v-if="
-                            hauling?.assignedPersonnel?.teamLeader?.account
-                              ?.avatar
-                          "
-                          :src="
-                            hauling.assignedPersonnel.teamLeader.account.avatar
-                          "
-                          :alt="hauling.assignedPersonnel.teamLeader.fullName"
-                        />
-                        <AvatarFallback>
-                          {{
-                            getInitials(
-                              hauling?.assignedPersonnel?.teamLeader?.fullName,
-                            )
-                          }}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span class="truncate text-muted-foreground">
-                        {{ hauling.assignedPersonnel?.teamLeader?.fullName }}
-                      </span>
-                    </div>
-                    <div>{{ '3 days ago' }}</div>
-                  </div> -->
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <SafetyInspectionChecklist :hauling="hauling" />
           </div>
           <div class="flex-1 pl-3 pr-5">
             <AccordionTrigger>
@@ -375,64 +232,27 @@ const checks = ref()
         <AccordionContent
           class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-3 px-4 py-5"
         >
-          <!-- This could be a for loop? -->
-          <div class="col-span-2 grid grid-cols-2 gap-x-24">
+          <div class="col-span-2 grid grid-cols-2 gap-3 gap-x-24">
             <AssignedPersonnelSelection
-              :can-edit="isAuthorize && hauling.isOpen"
+              v-for="haulingRole in haulingRoles"
+              :key="`${hauling.id}-${haulingRole.id}`"
+              :can-edit="
+                isAuthorize && hauling.isOpen && hauling.status !== 'in progress'
+              "
               :employees="employees"
               :hauling="hauling"
-              :role="'teamLeader'"
+              :role="haulingRole.id"
               :index="index"
-              :label="'Team Leader'"
-              :open="isPopoverOpen.teamLeader === index"
-              @toggled="onPopoverToggle"
-              @clicked="handleAssignedPersonnelChanges"
-              @removed="removeAssignedPersonnel"
-            />
-            <AssignedPersonnelSelection
-              :can-edit="isAuthorize && hauling.isOpen"
-              :employees="employees"
-              :hauling="hauling"
-              role="safetyOfficer"
-              :index="index"
-              label="Safety Officer"
-              :open="isPopoverOpen.safetyOfficer === index"
+              :label="haulingRole.label"
+              :open="isPopoverOpen[haulingRole.id] === index"
               @toggled="onPopoverToggle"
               @clicked="handleAssignedPersonnelChanges"
               @removed="removeAssignedPersonnel"
             />
           </div>
-
-          <div class="col-span-2 grid grid-cols-2 gap-x-24">
-            <AssignedPersonnelSelection
-              :can-edit="isAuthorize && hauling.isOpen"
-              :employees="employees"
-              :hauling="hauling"
-              role="teamDriver"
-              :index="index"
-              label="Driver"
-              :open="isPopoverOpen.teamDriver === index"
-              @toggled="onPopoverToggle"
-              @clicked="handleAssignedPersonnelChanges"
-              @removed="removeAssignedPersonnel"
-            />
-            <AssignedPersonnelSelection
-              :can-edit="isAuthorize && hauling.isOpen"
-              :employees="employees"
-              :hauling="hauling"
-              role="teamMechanic"
-              :index="index"
-              label="Mechanic"
-              :open="isPopoverOpen.teamMechanic === index"
-              @toggled="onPopoverToggle"
-              @clicked="handleAssignedPersonnelChanges"
-              @removed="removeAssignedPersonnel"
-            />
-          </div>
-
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <HaulersSelection
-              :is-authorize="isAuthorize"
+              :is-authorize="isAuthorize && hauling.status !== 'in progress'"
               :hauling="hauling"
               :employees="employees"
               :index="index"
@@ -449,7 +269,11 @@ const checks = ref()
               </Label>
               <Input
                 :id="'truckNo-' + hauling.id"
-                :disabled="!isAuthorize || !hauling.isOpen"
+                :disabled="
+                  !isAuthorize ||
+                  !hauling.isOpen ||
+                  hauling.status === 'in progress'
+                "
                 placeholder="Enter truck plate number"
                 v-model="hauling.truckNo"
                 class="w-full"

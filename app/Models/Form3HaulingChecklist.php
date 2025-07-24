@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\HaulingStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,7 +27,14 @@ class Form3HaulingChecklist extends Model
         ]);
     }
 
-    public function hauling(): BelongsTo
+    public function setHaulingToInProgress(): void
+    {
+        $this->form3Hauling()->update([
+            'status' => HaulingStatus::InProgress
+        ]);
+    }
+
+    public function form3Hauling(): BelongsTo
     {
         return $this->belongsTo(Form3Hauling::class);
     }

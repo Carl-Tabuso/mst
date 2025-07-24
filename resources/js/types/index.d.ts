@@ -1,3 +1,4 @@
+import { HaulingStatusType } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
@@ -111,7 +112,7 @@ export interface Form3Hauling {
   assignedPersonnel: Form3AssignedPersonnel
   haulers: Employee[]
   checklist: Form3HaulingChecklist
-  status: JobOrderStatus
+  status: HaulingStatusType
   isOpen: boolean
 }
 
