@@ -25,36 +25,53 @@ import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
 import { Calendar, ChevronsUpDown, X } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import EmployeePopoverSelection from '../EmployeePopoverSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import EmployeeCommandListPlaceholder from '../placeholders/EmployeeCommandListPlaceholder.vue'
 import SectionButton from '../SectionButton.vue'
+import { useForm } from '@inertiajs/vue3'
+import { usePermissions } from '@/composables/usePermissions'
 
 interface SecondSectionProps {
-  canEdit?: boolean
   status: JobOrderStatus
-  errors: any
   employees?: Employee[]
-  dispatcher: Employee
-  isSubmitBtnDisabled: boolean
+  dispatcher: Employee | null
+  appraisers: Employee[]
+  appraisedDate: any
+  serviceableId: number
 }
 
-const props = withDefaults(defineProps<SecondSectionProps>(), {
-  canEdit: false,
-  isSubmitBtnDisabled: false,
+const props = defineProps<SecondSectionProps>()
+
+const appraisers = ref<Employee[]>(props.appraisers)
+const appraisedDate = ref<any>(props.appraisedDate)
+
+const form = useForm({
+  status: props.status,
+  appraisers: appraisers.value,
+  appraised_date: appraisedDate.value
 })
 
-const appraisers = defineModel<Employee[]>('appraisers', {
-  default: () => [],
+const appraisedDateModel = computed(() => {
+  return appraisedDate.value
+          ? parseDate(appraisedDate.value.split('T')[0])
+          : undefined
 })
-const appraisedDate = defineModel<any>('appraisedDate', {
-  get(value) {
-    if (value) return parseDate(value.split('T')[0])
-  },
-  default: '',
+
+watch([appraisers, appraisedDate],
+  ([newAppraisers, newAppraisedDate]) => {
+  console.log(newAppraisers, newAppraisedDate)
+  form.appraisers = newAppraisers
+  form.appraised_date = newAppraisedDate
 })
+
+const { can } = usePermissions()
+const { isForAppraisal } = useWasteManagementStages()
+
+const forAppraisal = computed(() => isForAppraisal(props.status))
+const canEdit = computed(() => can('assign:appraisers') && forAppraisal.value)
 
 const removeAppraiser = (employee: Employee) => {
   const index = appraisers.value.findIndex((a) => a.id === employee.id)
@@ -62,41 +79,15 @@ const removeAppraiser = (employee: Employee) => {
 }
 
 const handleEmployeeMultiselect = (employee: Employee) => {
-  if (!props.canEdit) return
+  if (!canEdit.value) return
 
   const isExistingAppraiser = appraisers.value
     ?.map((a) => a.id)
     .includes(employee.id)
 
-  if (isExistingAppraiser) {
-    removeAppraiser(employee)
-    toast.info(`Removed ${employee.fullName} as appraiser`, {
-      position: 'top-right',
-      action: {
-        label: 'Undo',
-        onClick: () => appraisers.value.push(employee),
-      },
-    })
-  } else {
-    appraisers.value.push(employee)
-    toast.success(`Added ${employee.fullName} as appraiser`, {
-      position: 'top-right',
-    })
-  }
-}
-
-const removeAllAppraisers = () => {
-  const temp = appraisers.value
-
-  appraisers.value = []
-
-  toast.warning(`Removed all ${temp.length} appraisers`, {
-    position: 'top-right',
-    action: {
-      label: 'Undo',
-      onClick: () => (appraisers.value = temp),
-    },
-  })
+  isExistingAppraiser
+    ? removeAppraiser(employee)
+    : appraisers.value.push(employee)
 }
 
 const handleAppraisedDateChange = (value: any) => {
@@ -122,12 +113,24 @@ const remainingEmployees = computed(() => {
   return new Set(filtered)
 })
 
-const { isForAppraisal } = useWasteManagementStages()
+const onSubmit = () => {
+  form.patch(
+    route('job_order.waste_management.update', props.serviceableId),
+    {
+      preserveScroll: true,
+      onSuccess: (page: any) => {
+        toast.success(page.props.flash.message, {
+          position: 'top-right',
+        })
+      }
+    },
+  )
+}
 </script>
 
 <template>
   <FormAreaInfo
-    :condition="isForAppraisal(status)"
+    :condition="forAppraisal"
     class="mb-4"
   >
     <span class="px-1 font-semibold">Dispatcher </span>
@@ -144,7 +147,7 @@ const { isForAppraisal } = useWasteManagementStages()
         </p>
       </div>
       <div
-        v-if="dispatcher"
+        v-show="dispatcher"
         class="text-xs font-medium text-muted-foreground"
       >
         {{ `Completed by ${dispatcher?.fullName}` }}
@@ -164,7 +167,7 @@ const { isForAppraisal } = useWasteManagementStages()
               <PopoverTrigger as-child>
                 <Button
                   variant="outline"
-                  :class="[{ 'border-destructive': errors.appraisers }]"
+                  :class="[{ 'border-destructive': form.errors.appraisers }]"
                 >
                   <template v-if="appraisers?.length">
                     <div
@@ -199,12 +202,7 @@ const { isForAppraisal } = useWasteManagementStages()
                         size="icon"
                         type="button"
                         class="ml-1 h-5 w-5 text-muted-foreground hover:text-primary-foreground"
-                        @click="
-                          () =>
-                            appraisers?.length < 2
-                              ? handleEmployeeMultiselect(appraisers[0])
-                              : removeAllAppraisers()
-                        "
+                        @click="() => (appraisers = [])"
                       >
                         <X />
                       </Button>
@@ -264,7 +262,7 @@ const { isForAppraisal } = useWasteManagementStages()
                 </Command>
               </PopoverContent>
             </Popover>
-            <InputError :message="errors.appraisers" />
+            <InputError :message="form.errors.appraisers" />
           </div>
         </div>
         <div class="flex items-start">
@@ -282,7 +280,7 @@ const { isForAppraisal } = useWasteManagementStages()
                     'w-full ps-3 text-start font-normal',
                     {
                       'text-muted-foreground': !appraisedDate,
-                      'border-destructive': errors.appraised_date,
+                      'border-destructive': form.errors.appraised_date,
                     },
                   ]"
                 >
@@ -298,12 +296,12 @@ const { isForAppraisal } = useWasteManagementStages()
               </PopoverTrigger>
               <PopoverContent class="w-auto p-0">
                 <AppCalendar
-                  :model-value="appraisedDate"
+                  :model-value="appraisedDateModel"
                   @update:model-value="handleAppraisedDateChange"
                 />
               </PopoverContent>
             </Popover>
-            <InputError :message="errors.appraised_date" />
+            <InputError :message="form.errors.appraised_date" />
           </div>
         </div>
       </div>
@@ -314,8 +312,9 @@ const { isForAppraisal } = useWasteManagementStages()
     class="mt-6 flex justify-end"
   >
     <SectionButton
-      :is-submit-btn-disabled="isSubmitBtnDisabled"
-      @on-cancel-submit="$emit('onCancelSubmit')"
+      :is-submit-btn-disabled="form.processing"
+      @on-submit="onSubmit"
+      @on-cancel-submit="form.cancel()"
     />
   </div>
 </template>

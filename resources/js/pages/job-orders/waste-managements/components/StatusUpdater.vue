@@ -16,26 +16,21 @@ import {
   JobOrderStatus,
   manualUpdateStatuses,
 } from '@/constants/job-order-statuses'
+import { useForm } from '@inertiajs/vue3'
 import { CircleArrowRight, LoaderCircle } from 'lucide-vue-next'
 import { computed, ref, useTemplateRef } from 'vue'
+import { toast } from 'vue-sonner'
 
 interface StatusUpdaterProps {
   status: JobOrderStatus
-  form: any
+  ticket: string
 }
 
-interface StatusUpdaterEmits {
-  markAsUpdate: [next: JobOrderStatus]
-  markAsStop: [stop: JobOrderStatus, reason: string]
-}
+const { status, ticket } = defineProps<StatusUpdaterProps>()
 
-const props = defineProps<StatusUpdaterProps>()
-
-defineEmits<StatusUpdaterEmits>()
-
-const currentStatus = computed(() =>
-  manualUpdateStatuses.find((msu) => msu.id === props.status),
-)
+const currentStatus = computed(() => {
+  return manualUpdateStatuses.find((msu) => msu.id === status)
+})
 
 const reasonInput = useTemplateRef('reasonInput')
 
@@ -43,7 +38,39 @@ const reason = ref<string>('')
 
 const isOpen = ref<boolean>(false)
 
-defineExpose({ reasonInput, isOpen })
+const form = useForm<Record<string, string>>({})
+
+const onMarkAsUpdate = () => {
+  form
+    .transform(() => ({
+      status: currentStatus.value?.next.tag
+    }))
+    .patch(route('job_order.update', ticket), {
+      preserveScroll: true,
+      showProgress: false,
+      onSuccess: (page: any) => {
+        isOpen.value = false
+        toast.success(page.props.flash.message, {
+          position: 'top-right',
+          // closeButton: true,
+        })
+      },
+    })
+}
+
+const onMarkAsStop = () => {
+  form
+    .transform(() => ({
+      status: currentStatus.value?.stop.tag,
+      reason: reason.value
+    }))
+    .post(route('job_order.cancel.create', ticket), {
+      preserveScroll: true,
+      showProgress: false,
+      onError: () => reasonInput.value?.$el.focus(),
+      onSuccess: () => (isOpen.value = false),
+    })
+}
 </script>
 
 <template>
@@ -57,6 +84,9 @@ defineExpose({ reasonInput, isOpen })
     <DialogContent>
       <DialogHeader>
         <DialogTitle> Read Carefully! </DialogTitle>
+        <DialogDescription>
+          <!---->
+        </DialogDescription>
       </DialogHeader>
       <div class="text-sm text-muted-foreground">
         {{ currentStatus?.description }}
@@ -114,8 +144,12 @@ defineExpose({ reasonInput, isOpen })
                   variant="destructive"
                   type="button"
                   :disabled="form.processing"
-                  @click="$emit('markAsStop', currentStatus!.stop.tag, reason)"
+                  @click="onMarkAsStop"
                 >
+                  <LoaderCircle
+                    v-show="form.processing"
+                    class="animate-spin"
+                  />
                   {{ currentStatus?.stop.label }}
                 </Button>
               </DialogFooter>
@@ -124,7 +158,7 @@ defineExpose({ reasonInput, isOpen })
           <Button
             type="button"
             :disabled="form.processing"
-            @click="$emit('markAsUpdate', currentStatus!.next.tag)"
+            @click="onMarkAsUpdate"
           >
             <LoaderCircle
               v-show="form.processing"

@@ -29,6 +29,7 @@ interface ThirdSectionProps {
 }
 
 interface ThirdSectionEmits {
+  onSubmit: void
   onCancelSubmit: void
 }
 
@@ -269,6 +270,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
   >
     <SectionButton
       :is-submit-btn-disabled="isSubmitBtnDisabled"
+      @on-submit="$emit('onSubmit')"
       @on-cancel-submit="$emit('onCancelSubmit')"
     />
   </div>

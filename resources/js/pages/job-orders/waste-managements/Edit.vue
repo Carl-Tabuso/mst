@@ -22,15 +22,16 @@ import SecondSection from './components/sections/SecondSection.vue'
 import SixthSection from './components/sections/SixthSection.vue'
 import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
+import { toast } from 'vue-sonner'
 
 interface WasteManagementEditProps {
   jobOrder: JobOrder
   employees?: Employee[]
 }
 
-const { jobOrder, employees } = defineProps<WasteManagementEditProps>()
+const props = defineProps<WasteManagementEditProps>()
 
-const serviceDate = new Date(jobOrder.dateTime).toISOString()
+const serviceDate = new Date(props.jobOrder.dateTime).toISOString()
 
 const timeRange = new Date(serviceDate).toLocaleTimeString(undefined, {
   hour: '2-digit',
@@ -39,96 +40,63 @@ const timeRange = new Date(serviceDate).toLocaleTimeString(undefined, {
 })
 
 const { can } = usePermissions()
-const {
-  isForAppraisal,
-  canUpdateProposalInformation,
-  canUpdateHaulingDuration,
-} = useWasteManagementStages()
-
-const { serviceable: form4 } = jobOrder
-const { form3 } = form4
+const { canUpdateProposalInformation } = useWasteManagementStages()
 
 const form = useForm({
-  payment_date: form4?.paymentDate,
-  payment_type: form3?.paymentType,
-  bid_bond: form4.bidBond,
-  or_number: form4.orNumber,
-  status: jobOrder.status,
-  appraised_date: form3?.appraisedDate,
-  approved_date: form3?.approvedDate,
-  appraisers: form4?.appraisers,
-  haulings: form3?.haulings,
-  from: form3?.from,
-  to: form3?.to,
+  payment_date: props.jobOrder.serviceable?.paymentDate,
+  payment_type: props.jobOrder.serviceable?.form3?.paymentType,
+  bid_bond: props.jobOrder.serviceable?.bidBond,
+  or_number: props.jobOrder.serviceable?.orNumber,
+  status: props.jobOrder.status,
+  approved_date: props.jobOrder.serviceable?.form3?.approvedDate,
   remarks: '',
 })
 
 watch(
-  () => jobOrder,
+  () => props.jobOrder,
   (newValue) => {
     const { serviceable: service } = newValue
-    const form3 = service.form3
+    const form3 = service?.form3
 
-    form.payment_date = service.paymentDate
-    form.payment_type = form3.paymentType
+    form.payment_date = service?.paymentDate
+    form.payment_type = form3?.paymentType
     form.bid_bond = service.bidBond
     form.or_number = service.orNumber
     form.status = newValue.status
-    form.appraised_date = form3.appraisedDate
-    form.approved_date = form3.approvedDate
-    form.appraisers = service.appraisers
-    form.haulings = form3.haulings
-    form.from = form3.from
-    form.to = form3.to
+    form.approved_date = form3?.approvedDate
   },
 )
 
 const jobOrderStatus = computed(() =>
-  JobOrderStatuses.find((s) => jobOrder.status === s.id),
+  JobOrderStatuses.find((s) => props.jobOrder.status === s.id),
 )
 
 const onSubmit = () => {
   form.patch(
-    route('job_order.waste_management.update', jobOrder.serviceable.id),
+    route('job_order.waste_management.update', props.jobOrder.serviceable.id),
     {
       preserveScroll: true,
+      onSuccess: (page: any) => {
+        toast.success(page.props.flash.message, {
+          position: 'top-right'
+        })
+      }
     },
   )
-}
-
-const statusUpdater = ref()
-const statusForm = useForm({})
-
-const markAsUpdate = (nextStep: JobOrderStatus) => {
-  statusForm
-    .transform(() => ({ status: nextStep }))
-    .patch(route('job_order.update', jobOrder.ticket), {
-      preserveScroll: true,
-      onSuccess: () => (statusUpdater.value.isOpen = false),
-    })
-}
-
-const markAsStop = (stopStep: JobOrderStatus, reason: string) => {
-  statusForm
-    .transform(() => ({
-      status: stopStep,
-      reason: reason,
-    }))
-    .post(route('job_order.cancel.create', jobOrder.ticket), {
-      preserveScroll: true,
-      onError: () => statusUpdater.value.reasonInput.$el.focus(),
-      onSuccess: () => (statusUpdater.value.isOpen = false),
-    })
 }
 
 const loadEmployees = () => router.reload({ only: ['employees'] })
 
 const isEditing = ref<boolean>(false)
 
-const manualStatuses: Array<JobOrderStatus> = ['for viewing', 'for proposal']
+const manualStatuses: Array<JobOrderStatus> = [
+  'for viewing',
+  'for proposal',
+  'hauling in-progress'
+]
 
 const canManuallyUpdate = computed(() =>
-  manualStatuses.includes(jobOrder.status),
+  manualStatuses.includes(props.jobOrder.status),
 )
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -141,7 +109,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/job-orders',
   },
   {
-    title: jobOrder.ticket,
+    title: props.jobOrder.ticket,
     href: '#',
   },
 ]
@@ -204,11 +172,8 @@ const breadcrumbs: BreadcrumbItem[] = [
           class="ml-auto"
         >
           <StatusUpdater
-            ref="statusUpdater"
             :status="jobOrder.status"
-            :form="statusForm"
-            @mark-as-update="markAsUpdate"
-            @mark-as-stop="markAsStop"
+            :ticket="jobOrder.ticket"
           />
         </div>
         <Separator
@@ -259,18 +224,13 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div class="mt-2">
               <Separator class="mb-3 w-full" />
               <SecondSection
-                :can-edit="
-                  can('assign:appraisers') && isForAppraisal(jobOrder.status)
-                "
                 :status="jobOrder.status"
-                :errors="form.errors"
-                :dispatcher="form4?.dispatcher"
-                :is-submit-btn-disabled="form.processing"
-                v-model:appraisers="form.appraisers"
-                v-model:appraised-date="form.appraised_date"
+                :dispatcher="jobOrder.serviceable?.dispatcher"
+                :appraisers="jobOrder.serviceable.appraisers"
+                :appraised-date="jobOrder.serviceable?.form3?.appraisedDate"
+                :serviceable-id="jobOrder.serviceable.id"
                 :employees="employees"
                 @load-employees="loadEmployees"
-                @on-cancel-submit="form.cancel()"
               />
             </div>
             <div class="mt-2">
@@ -288,33 +248,30 @@ const breadcrumbs: BreadcrumbItem[] = [
                 v-model:payment-date="form.payment_date"
                 v-model:approved-date="form.approved_date"
                 :employees="employees"
+                @on-submit="onSubmit"
                 @on-cancel-submit="form.cancel()"
               />
             </div>
             <div class="mt-2">
               <Separator class="mb-3 w-full" />
               <FourthSection
-                :can-edit="canUpdateHaulingDuration(jobOrder.status)"
                 :status="jobOrder.status"
-                :is-submit-btn-disabled="form.processing"
-                :errors="form.errors"
-                v-model:starting-date="form.from"
-                v-model:ending-date="form.to"
-                @on-cancel-submit="form.cancel()"
+                :starting-date="jobOrder.serviceable?.form3?.from"
+                :ending-date="jobOrder.serviceable?.form3?.to"
+                :serviceable-id="jobOrder.serviceable.id"
               />
             </div>
             <div
-              v-if="form.haulings?.length"
+              v-if="jobOrder.serviceable.form3?.haulings?.length"
               class="mt-2"
             >
               <Separator class="mb-3 w-full" />
               <FifthSection
                 :status="jobOrder.status"
-                :is-submit-btn-disabled="form.processing"
-                v-model:haulings="form.haulings"
+                :haulings="jobOrder.serviceable.form3?.haulings"
                 :employees="employees"
+                :serviceable-id="jobOrder.serviceable.id"
                 @load-employees="loadEmployees"
-                @on-cancel-submit="form.cancel()"
               />
             </div>
             <div v-if="isEditing">

@@ -18,26 +18,25 @@ import { formatToDateString } from '@/composables/useDateFormatter'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { haulingRoles, HaulingRoleType } from '@/constants/hauling-role'
-import {
-  haulingStatuses,
-  HaulingStatusType,
-} from '@/constants/hauling-statuses'
+import { haulingStatuses } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee, Form3Hauling } from '@/types'
 import { isToday } from 'date-fns'
 import { FilePenLine } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 import SafetyInspectionChecklist from '../SafetyInspectionChecklist.vue'
 import SectionButton from '../SectionButton.vue'
+import { useForm } from '@inertiajs/vue3'
 
 interface FifthSectionProps {
   status: JobOrderStatus
   employees?: Employee[]
-  isSubmitBtnDisabled: boolean
+  haulings: Form3Hauling[]
+  serviceableId: number
 }
 
 interface FifthSectionEmits {
@@ -45,9 +44,7 @@ interface FifthSectionEmits {
   (e: 'onCancelSubmit'): void
 }
 
-const props = withDefaults(defineProps<FifthSectionProps>(), {
-  isSubmitBtnDisabled: false,
-})
+const props = defineProps<FifthSectionProps>()
 
 const emit = defineEmits<FifthSectionEmits>()
 
@@ -55,25 +52,25 @@ const { can } = usePermissions()
 
 const isAuthorize = computed(() => can('assign:hauling_personnel'))
 
-const haulings = defineModel<Form3Hauling[]>('haulings', {
-  default: () => [],
+const trackedHaulings = ref<Form3Hauling[]>(props.haulings)
+
+watch(() => props.haulings, (newValue) => {
+  trackedHaulings.value = newValue
 })
 
 const isExistingHauler = (employeeId: number, index: number) => {
-  if (haulings.value) {
-    return haulings.value[index].haulers.map((h) => h.id).includes(employeeId)
-  }
+  return trackedHaulings.value[index].haulers.map((h) => h.id).includes(employeeId)
 }
 
 const removeHauler = (employee: Employee, index: number) => {
-  const objIndex = haulings.value[index].haulers.findIndex(
+  const objIndex = trackedHaulings.value[index].haulers.findIndex(
     (h) => h.id === employee.id,
   )
-  haulings.value[index].haulers.splice(objIndex, 1)
+  trackedHaulings.value[index].haulers.splice(objIndex, 1)
 }
 
 const handleHaulerMultiSelection = (employee: Employee, index: number) => {
-  const hauling = haulings.value[index]
+  const hauling = trackedHaulings.value[index]
 
   if (!isAuthorize.value || !hauling.isOpen) return
 
@@ -102,16 +99,16 @@ const handleHaulerMultiSelection = (employee: Employee, index: number) => {
 }
 
 const removeExistingHaulers = (index: number) => {
-  const temp = haulings.value[index].haulers
+  const temp = trackedHaulings.value[index].haulers
 
-  haulings.value[index].haulers = []
+  trackedHaulings.value[index].haulers = []
 
   toast(`Removed all ${temp.length} haulers`, {
     position: 'top-right',
-    description: `for ${formatToDateString(haulings.value[index].date)} hauling`,
+    description: `for ${formatToDateString(trackedHaulings.value[index].date)} hauling`,
     action: {
       label: 'Undo',
-      onClick: () => (haulings.value[index].haulers = temp),
+      onClick: () => (trackedHaulings.value[index].haulers = temp),
     },
   })
 }
@@ -121,12 +118,12 @@ const handleAssignedPersonnelChanges = (
   employee: Employee,
   index: number,
 ) => {
-  haulings.value[index].assignedPersonnel[role] = employee
+  trackedHaulings.value[index].assignedPersonnel[role] = employee
   isPopoverOpen.value[role] = null
 }
 
 const removeAssignedPersonnel = (role: HaulingRoleType, index: number) => {
-  haulings.value[index].assignedPersonnel[role] = null as any
+  trackedHaulings.value[index].assignedPersonnel[role] = null as any
 }
 
 const isPopoverOpen = ref<Record<string, number | null>>({
@@ -154,6 +151,27 @@ const onPopoverToggle = (
 const { isHaulingInProgress } = useWasteManagementStages()
 
 const isHauling = computed(() => isHaulingInProgress(props.status))
+
+const form = useForm({
+  status: props.status
+})
+
+const onSubmit = () => {
+  form
+    .transform((data) => ({
+      ...data,
+      haulings: trackedHaulings.value
+    }))
+    .patch(
+      route('job_order.waste_management.update', props.serviceableId),
+      {
+        preserveScroll: true,
+        onSuccess: (page: any) => {
+          toast.success(page.props.flash.message)
+        }
+      },
+    )
+}
 </script>
 
 <template>
@@ -177,7 +195,7 @@ const isHauling = computed(() => isHaulingInProgress(props.status))
       collapsible
     >
       <AccordionItem
-        v-for="(hauling, index) in haulings"
+        v-for="(hauling, index) in trackedHaulings"
         :key="hauling.id"
         :value="String(hauling.id)"
       >
@@ -289,8 +307,9 @@ const isHauling = computed(() => isHaulingInProgress(props.status))
     class="mt-6 flex justify-end"
   >
     <SectionButton
-      :is-submit-btn-disabled="isSubmitBtnDisabled"
-      @on-cancel-submit="$emit('onCancelSubmit')"
+      :is-submit-btn-disabled="form.processing"
+      @on-submit="onSubmit"
+      @on-cancel-submit="form.cancel()"
     />
   </div>
 </template>

@@ -1,5 +1,8 @@
 <?php
 
 return [
-    'appraisal' => '',
+    'status_update' => [
+        'ticket' => 'Successfully set status to :status.',
+        'hauling' => ''
+    ]
 ];

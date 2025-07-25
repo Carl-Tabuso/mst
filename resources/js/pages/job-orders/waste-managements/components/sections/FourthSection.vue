@@ -15,41 +15,60 @@ import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
+import { computed, ref } from 'vue'
+import { useForm } from '@inertiajs/vue3'
+import { toast } from 'vue-sonner'
 
 interface FourthSectionProps {
-  canEdit?: boolean
   status: JobOrderStatus
-  errors: any
-  isSubmitBtnDisabled?: boolean
+  startingDate: any
+  endingDate: any
+  serviceableId: number
 }
 
-interface FourthSectionEmits {
-  onCancelSubmit: void
+const props = defineProps<FourthSectionProps>()
+
+const { canUpdateHaulingDuration } = useWasteManagementStages()
+const canEdit = computed(() => canUpdateHaulingDuration(props.status))
+
+const startingDate = ref<any>(props.startingDate)
+const endingDate = ref<any>(props.endingDate)
+
+const startingDateModel = computed(() => {
+  return startingDate.value
+          ? parseDate(startingDate.value.split('T')[0])
+          : undefined
+})
+
+const endingDateModel = computed(() => {
+  return endingDate.value
+          ? parseDate(endingDate.value.split('T')[0])
+          : undefined
+})
+
+const form = useForm<Record<string, string>>({
+  status: props.status
+})
+
+const onSubmit = () => {
+  form
+    .transform((data) => ({
+      ...data,
+      from: startingDate.value,
+      to: endingDate.value
+    }))
+    .patch(
+      route('job_order.waste_management.update', props.serviceableId),
+      {
+        preserveScroll: true,
+        onSuccess: (page: any) => {
+          toast.success(page.props.flash.message, {
+            position: 'top-right',
+          })
+        }
+      },
+    )
 }
-
-withDefaults(defineProps<FourthSectionProps>(), {
-  canEdit: false,
-  isSubmitBtnDisabled: false,
-})
-
-defineEmits<FourthSectionEmits>()
-
-const startingDate = defineModel<any>('startingDate', {
-  get(value) {
-    if (value) {
-      return parseDate(value.split('T')[0])
-    }
-  },
-  default: '',
-})
-const endingDate = defineModel<any>('endingDate', {
-  get(value) {
-    if (value) {
-      return parseDate(value.split('T')[0])
-    }
-  },
-  default: '',
-})
 
 const { isPreHauling } = useWasteManagementStages()
 </script>
@@ -85,7 +104,7 @@ const { isPreHauling } = useWasteManagementStages()
                   'w-full ps-3 text-start font-normal',
                   {
                     'text-muted-foreground': !startingDate,
-                    'border-destructive': errors.from,
+                    'border-destructive': form.errors.from,
                   },
                 ]"
               >
@@ -101,7 +120,7 @@ const { isPreHauling } = useWasteManagementStages()
             </PopoverTrigger>
             <PopoverContent class="w-auto p-0">
               <AppCalendar
-                :model-value="startingDate"
+                :model-value="startingDateModel"
                 @update:model-value="
                   (value: any) => {
                     startingDate = new Date(value).toISOString()
@@ -110,7 +129,7 @@ const { isPreHauling } = useWasteManagementStages()
               />
             </PopoverContent>
           </Popover>
-          <InputError :message="errors.from" />
+          <InputError :message="form.errors.from" />
         </div>
       </div>
       <div class="flex items-start">
@@ -128,7 +147,7 @@ const { isPreHauling } = useWasteManagementStages()
                   'w-full ps-3 text-start font-normal',
                   {
                     'text-muted-foreground': !endingDate,
-                    'border-destructive': errors.to,
+                    'border-destructive': form.errors.to,
                   },
                 ]"
               >
@@ -144,7 +163,7 @@ const { isPreHauling } = useWasteManagementStages()
             </PopoverTrigger>
             <PopoverContent class="w-auto p-0">
               <AppCalendar
-                :model-value="endingDate"
+                :model-value="endingDateModel"
                 @update:model-value="
                   (value: any) => {
                     endingDate = new Date(value).toISOString()
@@ -153,7 +172,7 @@ const { isPreHauling } = useWasteManagementStages()
               />
             </PopoverContent>
           </Popover>
-          <InputError :message="errors.to" />
+          <InputError :message="form.errors.to" />
         </div>
       </div>
     </div>
@@ -163,8 +182,9 @@ const { isPreHauling } = useWasteManagementStages()
     class="mt-6 flex justify-end space-x-2"
   >
     <SectionButton
-      :is-submit-btn-disabled="isSubmitBtnDisabled"
-      @on-cancel-submit="$emit('onCancelSubmit')"
+      :is-submit-btn-disabled="form.processing"
+      @on-submit="onSubmit"
+      @on-cancel-submit="form.cancel()"
     />
   </div>
 </template>

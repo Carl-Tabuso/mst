@@ -42,9 +42,12 @@ enum JobOrderStatus: string
     public static function getManualStagesUpdate(): array
     {
         return [
-            self::ForViewing,
+            self::Dropped,
             self::ForProposal,
             self::Successful,
+            self::Failed,
+            self::Completed,
+            self::Closed
         ];
     }
 }

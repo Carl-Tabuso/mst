@@ -22,7 +22,10 @@ const handleSidebarChange = (open: boolean) => {
 </script>
 
 <template>
-  <Toaster />
+  <Toaster
+    position="bottom-left"
+    rich-colors
+  />
   <div
     v-if="variant === 'header'"
     class="flex min-h-screen w-full flex-col"

@@ -25,7 +25,7 @@ class UpdateSafetyInspectionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'is_certify' => __('You need to accept the certification to move forward.')
+            'is_certify' => __('You need to checked the certification to move forward.')
         ];
     }
 

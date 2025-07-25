@@ -27,6 +27,7 @@ import { Form3Hauling } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { ClipboardCheck, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
+import { toast } from 'vue-sonner'
 
 interface SafetyInspectionChecklistProps {
   hauling: Form3Hauling
@@ -63,10 +64,12 @@ const onFormSubmit = (hauling: Form3Hauling) => {
       ),
       {
         preserveScroll: true,
+        showProgress: false,
         onStart: () => form.clearErrors(),
         onSuccess: () => {
           form.reset()
           isDialogOpen.value = false
+          // toast.success()
         },
       },
     )
@@ -79,7 +82,7 @@ const { can } = usePermissions()
 const canEdit = computed(() => {
   return (
     can('fill:safety_inspection_checklist') &&
-    hauling.status !== 'in progress' &&
+    hauling.status === 'for safety inspection' &&
     hauling.isOpen
   )
 })
@@ -180,7 +183,7 @@ const teamLeader = computed(() => hauling?.assignedPersonnel?.teamLeader)
             v-if="!canEdit"
             class="mt-2 flex items-center text-[13px] font-medium text-muted-foreground"
           >
-            Team Leader: {{ `${teamLeader?.fullName}` }}
+            Team Leader: {{ teamLeader ? teamLeader.fullName : 'Unknown' }}
           </div>
         </div>
       </div>

@@ -29,6 +29,8 @@ class SafetyInspectionController extends Controller
             'is_certify'                   => $validated->boolean('is_certify'),
         ]);
 
-        return back();
+        return back()->with([
+            //
+        ]);
     }
 }

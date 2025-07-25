@@ -7,6 +7,7 @@ interface SectionButtonProps {
 }
 
 interface SectionButtonEmits {
+  onSubmit: void
   onCancelSubmit: void
 }
 
@@ -27,8 +28,9 @@ defineEmits<SectionButtonEmits>()
     </Button>
     <Button
       variant="default"
-      type="submit"
+      type="button"
       :disabled="isSubmitBtnDisabled"
+      @click="$emit('onSubmit')"
     >
       <LoaderCircle
         v-if="isSubmitBtnDisabled"

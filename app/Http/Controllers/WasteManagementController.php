@@ -85,26 +85,20 @@ class WasteManagementController extends Controller
             $validated = (object) $validator->safe();
 
             DB::transaction(function () use ($request, $form4, $validated) {
-                $form4->update([
-                    'form_dispatcher' => $request->user()->id,
-                ]);
+                $form4->update(['form_dispatcher' => $request->user()->id]);
 
-                $form4->form3()->create([
-                    'appraised_date' => $validated->date('appraised_date'),
-                ]);
+                $form4->form3()->create(['appraised_date' => $validated->date('appraised_date')]);
 
-                $form4->jobOrder()->update([
-                    'status' => JobOrderStatus::ForViewing,
-                ]);
+                $form4->jobOrder()->update(['status' => JobOrderStatus::ForViewing]);
 
-                $appraisers = array_map(
-                    fn ($appraiser) => $appraiser['id'], $validated->array('appraisers')
-                );
+                $appraisers = array_map(fn ($appraiser) => $appraiser['id'], $validated->array('appraisers'));
                 $form4->appraisers()->sync($appraisers);
             });
 
-            return redirect()->back()->withInput([
-                'success' => 'Nays',
+            return back()->with([
+                'message' => __('responses.status_update.ticket', [
+                    'status' => JobOrderStatus::ForViewing->value
+                ])
             ]);
         }
 
@@ -140,7 +134,11 @@ class WasteManagementController extends Controller
                 ]);
             });
 
-            return redirect()->back()->withInput();
+            return back()->with([
+                'message' => __('responses.status_update.ticket', [
+                    'status' => JobOrderStatus::PreHauling->value
+                ])
+            ]);
         }
 
         if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::PreHauling) {
@@ -191,7 +189,11 @@ class WasteManagementController extends Controller
                 ]);
             });
 
-            return redirect()->back()->withInput();
+            return back()->with([
+                'message' => __('responses.status_update.ticket', [
+                    'status' => JobOrderStatus::HaulingInProgress->value
+                ])
+            ]);
         }
 
         if ($request->enum('status', JobOrderStatus::class) === JobOrderStatus::HaulingInProgress) {
@@ -245,7 +247,9 @@ class WasteManagementController extends Controller
                     });
                 });
 
-            return back()->withInput();
+            return back()->with([
+                'message' => 'Successfully saved changes.'
+            ]);
         }
 
         return redirect()->route('job_order.index'); // ->with() messages should be
