@@ -30,7 +30,7 @@ class Form3HaulingChecklist extends Model
     public function setHaulingToInProgress(): void
     {
         $this->form3Hauling()->update([
-            'status' => HaulingStatus::InProgress
+            'status' => HaulingStatus::InProgress,
         ]);
     }
 

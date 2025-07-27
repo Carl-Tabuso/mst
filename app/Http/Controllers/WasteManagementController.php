@@ -45,6 +45,7 @@ class WasteManagementController extends Controller
     {
         $loads = $ticket->load([
             'creator'     => ['account:avatar'],
+            'cancel',
             'serviceable' => [
                 'dispatcher' => ['account:avatar'],
                 'appraisers' => ['account:avatar'],
@@ -96,9 +97,9 @@ class WasteManagementController extends Controller
             });
 
             return back()->with([
-                'message' => __('responses.status_update.ticket', [
-                    'status' => JobOrderStatus::ForViewing->value
-                ])
+                'message' => __('responses.status_update', [
+                    'status' => JobOrderStatus::ForViewing->value,
+                ]),
             ]);
         }
 
@@ -135,9 +136,9 @@ class WasteManagementController extends Controller
             });
 
             return back()->with([
-                'message' => __('responses.status_update.ticket', [
-                    'status' => JobOrderStatus::PreHauling->value
-                ])
+                'message' => __('responses.status_update', [
+                    'status' => JobOrderStatus::PreHauling->value,
+                ]),
             ]);
         }
 
@@ -190,9 +191,9 @@ class WasteManagementController extends Controller
             });
 
             return back()->with([
-                'message' => __('responses.status_update.ticket', [
-                    'status' => JobOrderStatus::HaulingInProgress->value
-                ])
+                'message' => __('responses.status_update', [
+                    'status' => JobOrderStatus::HaulingInProgress->value,
+                ]),
             ]);
         }
 
@@ -247,9 +248,7 @@ class WasteManagementController extends Controller
                     });
                 });
 
-            return back()->with([
-                'message' => 'Successfully saved changes.'
-            ]);
+            return back()->with(['message' => __('responses.change')]);
         }
 
         return redirect()->route('job_order.index'); // ->with() messages should be

@@ -1,8 +1,9 @@
 <?php
 
 return [
-    'status_update' => [
-        'ticket' => 'Successfully set status to :status.',
-        'hauling' => ''
-    ]
+    'status_update' => 'Successfully set status to :status.',
+    'checklist'     => 'Checklist changes has been saved.|:date',
+    'change'        => 'Changes has been saved.',
+    'archive'       => 'Succesfully archived ticket :ticket.',
+    'correction'    => 'Successfully requested for correction.'
 ];

@@ -20,9 +20,11 @@ import {
 } from '@/components/ui/popover'
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { getInitials } from '@/composables/useInitials'
+import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
+import { useForm } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
 import { Calendar, ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
@@ -31,8 +33,6 @@ import EmployeePopoverSelection from '../EmployeePopoverSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import EmployeeCommandListPlaceholder from '../placeholders/EmployeeCommandListPlaceholder.vue'
 import SectionButton from '../SectionButton.vue'
-import { useForm } from '@inertiajs/vue3'
-import { usePermissions } from '@/composables/usePermissions'
 
 interface SecondSectionProps {
   status: JobOrderStatus
@@ -51,17 +51,16 @@ const appraisedDate = ref<any>(props.appraisedDate)
 const form = useForm({
   status: props.status,
   appraisers: appraisers.value,
-  appraised_date: appraisedDate.value
+  appraised_date: appraisedDate.value,
 })
 
 const appraisedDateModel = computed(() => {
   return appraisedDate.value
-          ? parseDate(appraisedDate.value.split('T')[0])
-          : undefined
+    ? parseDate(appraisedDate.value.split('T')[0])
+    : undefined
 })
 
-watch([appraisers, appraisedDate],
-  ([newAppraisers, newAppraisedDate]) => {
+watch([appraisers, appraisedDate], ([newAppraisers, newAppraisedDate]) => {
   console.log(newAppraisers, newAppraisedDate)
   form.appraisers = newAppraisers
   form.appraised_date = newAppraisedDate
@@ -114,17 +113,14 @@ const remainingEmployees = computed(() => {
 })
 
 const onSubmit = () => {
-  form.patch(
-    route('job_order.waste_management.update', props.serviceableId),
-    {
-      preserveScroll: true,
-      onSuccess: (page: any) => {
-        toast.success(page.props.flash.message, {
-          position: 'top-right',
-        })
-      }
+  form.patch(route('job_order.waste_management.update', props.serviceableId), {
+    preserveScroll: true,
+    onSuccess: (page: any) => {
+      toast.success(page.props.flash.message, {
+        position: 'top-right',
+      })
     },
-  )
+  })
 }
 </script>
 

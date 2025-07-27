@@ -7,6 +7,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\JobOrderController;
+use App\Http\Controllers\JobOrderCorrectionController;
 use App\Http\Controllers\SafetyInspectionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
@@ -41,10 +42,15 @@ Route::middleware(['auth'])->group(function () {
 
         Route::prefix('others')->name('other.')->group(function () {
             Route::get('/', fn () => dd('os'))->name('index');
+            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
         });
 
         Route::prefix('cancels')->name('cancel.')->group(function () {
             Route::post('{jobOrder}', [CancelledJobOrderController::class, 'create'])->name('create');
+        });
+
+        Route::prefix('corrections')->name('correction.')->group(function () {
+            Route::post('/', [JobOrderCorrectionController::class, 'store'])->name('store');
         });
     });
 
@@ -90,7 +96,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('test', function () {
     $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get()->pluck('email');
-    $teamLeaders       = User::role(UserRole::TeamLeader)->get()->pluck('email');
+    $teamLeaders          = User::role(UserRole::TeamLeader)->get()->pluck('email');
     dd(
         $dispatcherPermission,
         $teamLeaders,

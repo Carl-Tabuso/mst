@@ -1,13 +1,15 @@
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
+import { jobOrderRouteNames } from '@/constants/job-order-route'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import { JobOrder } from '@/types'
+import { Link } from '@inertiajs/vue3'
 import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
 import { h } from 'vue'
+import ArchiveColumn from './ArchiveColumn.vue'
 import CreatorAndTimestamp from './CreatorAndTimestamp.vue'
-import DropdownAction from './DataTableDropdown.vue'
 import DataTableHeader from './DataTableHeader.vue'
 
 declare module '@tanstack/vue-table' {
@@ -53,12 +55,23 @@ export const columns: ColumnDef<JobOrder>[] = [
     accessorKey: 'ticket',
     meta: { label: 'Ticket' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) =>
-      h(
-        'div',
-        { class: 'text-[13px] font-medium truncate tracking-tighter' },
-        row.getValue('ticket'),
-      ),
+    cell: ({ row }) => {
+      const subPath = jobOrderRouteNames.find(
+        (jor) => jor.id === row.getValue('serviceableType'),
+      )
+      return h(
+        Link,
+        {
+          href: route(
+            `job_order.${subPath?.route}.edit`,
+            row.getValue('ticket'),
+          ),
+          class:
+            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+        },
+        () => row.getValue('ticket'),
+      )
+    },
     enableHiding: false,
   },
   {
@@ -157,18 +170,8 @@ export const columns: ColumnDef<JobOrder>[] = [
     },
   },
   {
-    id: 'actions',
-    cell: ({ row }) => {
-      const jobOrder = row.original
-
-      return h(
-        'div',
-        { class: 'relative' },
-        h(DropdownAction, {
-          jobOrder,
-        }),
-      )
-    },
+    id: 'archive',
+    cell: ({ row }) => h(ArchiveColumn, { jobOrder: row.original }),
     enableHiding: false,
   },
 ]

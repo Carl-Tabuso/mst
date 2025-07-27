@@ -20,24 +20,9 @@ export const JobOrderStatuses = [
     badge: 'continuous',
   },
   {
-    id: 'for personnel assignment',
-    label: 'For Personnel Assignment',
-    badge: 'continuous',
-  },
-  {
-    id: 'for safety inspection',
-    label: 'For Safety Inspection',
-    badge: 'continuous',
-  },
-  {
     id: 'for verification',
     label: 'For Verification',
     badge: 'continuous',
-  },
-  {
-    id: 'verified',
-    label: 'Verified',
-    badge: 'success',
   },
   {
     id: 'successful',
@@ -124,8 +109,8 @@ export const manualUpdateStatuses: manualStatusUpdaterType[] = [
   {
     id: 'hauling in-progress',
     next: {
-      tag: 'completed',
-      label: 'Mark as completed',
+      tag: 'for verification',
+      label: 'Mark as for verification',
     },
     stop: {
       tag: 'closed',

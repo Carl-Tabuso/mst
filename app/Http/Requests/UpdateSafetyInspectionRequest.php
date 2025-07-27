@@ -25,14 +25,14 @@ class UpdateSafetyInspectionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'is_certify' => __('You need to checked the certification to move forward.')
+            'is_certify' => __('You need to checked the certification to move forward.'),
         ];
     }
 
     protected function passedValidation(): void
     {
         $this->merge([
-            'isFullyAccomplished' => array_all($this->safe()->all(), fn ($isFilled) => $isFilled)
+            'isFullyAccomplished' => array_all($this->safe()->all(), fn ($isFilled) => $isFilled),
         ]);
     }
 }

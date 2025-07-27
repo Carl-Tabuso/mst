@@ -68,7 +68,10 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
       <PopoverTrigger
         class="w-[400px]"
         as-child
-        :disabled="(!hauling.isOpen || hauling.status === 'in progress') && haulers.length < 2"
+        :disabled="
+          (!hauling.isOpen || hauling.status === 'in progress') &&
+          haulers.length < 2
+        "
       >
         <Button variant="outline">
           <div

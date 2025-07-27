@@ -21,7 +21,8 @@ import { haulingRoles, HaulingRoleType } from '@/constants/hauling-role'
 import { haulingStatuses } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee, Form3Hauling } from '@/types'
-import { isToday } from 'date-fns'
+import { useForm } from '@inertiajs/vue3'
+import { format, isToday } from 'date-fns'
 import { FilePenLine } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
@@ -30,7 +31,6 @@ import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 import SafetyInspectionChecklist from '../SafetyInspectionChecklist.vue'
 import SectionButton from '../SectionButton.vue'
-import { useForm } from '@inertiajs/vue3'
 
 interface FifthSectionProps {
   status: JobOrderStatus
@@ -54,12 +54,17 @@ const isAuthorize = computed(() => can('assign:hauling_personnel'))
 
 const trackedHaulings = ref<Form3Hauling[]>(props.haulings)
 
-watch(() => props.haulings, (newValue) => {
-  trackedHaulings.value = newValue
-})
+watch(
+  () => props.haulings,
+  (newValue) => {
+    trackedHaulings.value = newValue
+  },
+)
 
 const isExistingHauler = (employeeId: number, index: number) => {
-  return trackedHaulings.value[index].haulers.map((h) => h.id).includes(employeeId)
+  return trackedHaulings.value[index].haulers
+    .map((h) => h.id)
+    .includes(employeeId)
 }
 
 const removeHauler = (employee: Employee, index: number) => {
@@ -153,24 +158,21 @@ const { isHaulingInProgress } = useWasteManagementStages()
 const isHauling = computed(() => isHaulingInProgress(props.status))
 
 const form = useForm({
-  status: props.status
+  status: props.status,
 })
 
 const onSubmit = () => {
   form
     .transform((data) => ({
       ...data,
-      haulings: trackedHaulings.value
+      haulings: trackedHaulings.value,
     }))
-    .patch(
-      route('job_order.waste_management.update', props.serviceableId),
-      {
-        preserveScroll: true,
-        onSuccess: (page: any) => {
-          toast.success(page.props.flash.message)
-        }
+    .patch(route('job_order.waste_management.update', props.serviceableId), {
+      preserveScroll: true,
+      onSuccess: (page: any) => {
+        toast.success(page.props.flash.message)
       },
-    )
+    })
 }
 </script>
 
@@ -227,7 +229,7 @@ const onSubmit = () => {
             <AccordionTrigger>
               <div class="flex items-center gap-3">
                 <div class="text-sm">
-                  {{ formatToDateString(hauling.date) }}
+                  {{ format(hauling.date, 'EEEE, MMMM d, yyyy') }}
                 </div>
                 <span class="no-underline hover:no-underline">
                   <Badge
@@ -255,7 +257,9 @@ const onSubmit = () => {
               v-for="haulingRole in haulingRoles"
               :key="`${hauling.id}-${haulingRole.id}`"
               :can-edit="
-                isAuthorize && hauling.isOpen && hauling.status !== 'in progress'
+                isAuthorize &&
+                hauling.isOpen &&
+                hauling.status !== 'in progress'
               "
               :employees="employees"
               :hauling="hauling"
@@ -294,7 +298,7 @@ const onSubmit = () => {
                 "
                 placeholder="Enter truck plate number"
                 v-model="hauling.truckNo"
-                class="w-full"
+                class="w-[400px]"
               />
             </div>
           </div>

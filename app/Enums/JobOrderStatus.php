@@ -46,8 +46,8 @@ enum JobOrderStatus: string
             self::ForProposal,
             self::Successful,
             self::Failed,
-            self::Completed,
-            self::Closed
+            self::ForVerification,
+            self::Closed,
         ];
     }
 }

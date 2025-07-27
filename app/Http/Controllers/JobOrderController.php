@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\JobOrderStatus;
+use App\Http\Requests\UpdateJobOrderRequest;
+use App\Models\JobOrder;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Models\JobOrder;
-use Illuminate\Http\Request;
-use App\Enums\JobOrderStatus;
-use Illuminate\Support\Carbon;
-use Illuminate\Http\RedirectResponse;
-use App\Http\Requests\UpdateJobOrderRequest;
 
 class JobOrderController extends Controller
 {
@@ -93,18 +93,20 @@ class JobOrderController extends Controller
         $jobOrder->update(['status' => $status]);
 
         return back()->with([
-            'message' => __('responses.status_update.ticket', ['status' => $status->value])
+            'message' => __('responses.status_update', ['status' => $status->value]),
         ]);
     }
 
     public function destroy(Request $request, ?JobOrder $jobOrder = null)
     {
-        $message = '';
-
         if ($jobOrder) {
             $jobOrder->delete();
 
-            // return a msg
+            return back()->with([
+                'message' => __('responses.archive', [
+                    'ticket' => $jobOrder->ticket,
+                ]),
+            ]);
         }
 
         $jobOrderIds = $request->array('jobOrderIds');

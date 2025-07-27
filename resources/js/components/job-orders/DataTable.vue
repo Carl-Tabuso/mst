@@ -26,12 +26,15 @@ import {
 import { ref } from 'vue'
 import DataTablePagination from './DataTablePagination.vue'
 import DataTableToolbar from './DataTableToolbar.vue'
+import { usePermissions } from '@/composables/usePermissions'
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   meta: EloquentCollection
 }>()
+
+const { can } = usePermissions()
 
 const sorting = ref<SortingState>([])
 const columnVisibility = ref<VisibilityState>({
@@ -42,6 +45,7 @@ const columnVisibility = ref<VisibilityState>({
   status: true,
   creator: true,
   dateTime: false,
+  archive: can('update:job_order'),
 })
 const rowSelection = ref({})
 const pagination = ref<PaginationState>({

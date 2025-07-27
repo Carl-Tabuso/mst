@@ -117,24 +117,20 @@ const handlePageSizeArchival = () => {
       Export
     </Button>
 
-    <div class="ml-auto">
+    <div
+      v-show="hasRowSelection"
+      class="ml-auto"
+    >
       <Button
-        :disabled="!hasRowSelection"
-        :variant="hasRowSelection ? 'destructive' : 'secondary'"
+        variant="warning"
         class="mx-3"
         @click="handlePageSizeArchival"
       >
         <Archive class="mr-2" />
         Archive
-        <template v-if="hasRowSelection">
-          <div class="hidden lg:flex">
-            <Badge
-              variant="destructive"
-              class="rounded-full font-normal"
-              >{{ table.getSelectedRowModel().rows.length }}
-            </Badge>
-          </div>
-        </template>
+        <div class="hidden pl-3 lg:flex">
+          {{ table.getSelectedRowModel().rows.length }}
+        </div>
       </Button>
     </div>
   </div>

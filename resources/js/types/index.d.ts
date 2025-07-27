@@ -58,6 +58,7 @@ export interface Employee {
 }
 
 export interface JobOrder {
+  id: number
   ticket: string
   serviceableId: number
   serviceableType: string
@@ -75,6 +76,7 @@ export interface JobOrder {
   updatedAt: string
   creator?: Employee
   serviceable?: any // add it services and others here
+  cancel: CancelledJobOrder
 }
 
 export interface Form4 {
@@ -138,6 +140,14 @@ export interface Form3AssignedPersonnel {
   teamDriver: Employee | null
   safetyOfficer: Employee | null
   teamMechanic: Employee | null
+}
+
+export interface CancelledJobOrder {
+  id: number
+  jobOrderId: number
+  reason: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface EloquentCollection {

@@ -20,8 +20,8 @@ class Form3Hauling extends Model
     ];
 
     protected $casts = [
-        'date' => 'datetime',
-        'status' => HaulingStatus::class
+        'date'   => 'datetime',
+        'status' => HaulingStatus::class,
     ];
 
     public function isOpen(): bool

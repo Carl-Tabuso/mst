@@ -11,13 +11,13 @@ import {
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { useForm } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
+import { toast } from 'vue-sonner'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
-import { computed, ref } from 'vue'
-import { useForm } from '@inertiajs/vue3'
-import { toast } from 'vue-sonner'
 
 interface FourthSectionProps {
   status: JobOrderStatus
@@ -36,18 +36,18 @@ const endingDate = ref<any>(props.endingDate)
 
 const startingDateModel = computed(() => {
   return startingDate.value
-          ? parseDate(startingDate.value.split('T')[0])
-          : undefined
+    ? parseDate(startingDate.value.split('T')[0])
+    : undefined
 })
 
 const endingDateModel = computed(() => {
   return endingDate.value
-          ? parseDate(endingDate.value.split('T')[0])
-          : undefined
+    ? parseDate(endingDate.value.split('T')[0])
+    : undefined
 })
 
 const form = useForm<Record<string, string>>({
-  status: props.status
+  status: props.status,
 })
 
 const onSubmit = () => {
@@ -55,19 +55,16 @@ const onSubmit = () => {
     .transform((data) => ({
       ...data,
       from: startingDate.value,
-      to: endingDate.value
+      to: endingDate.value,
     }))
-    .patch(
-      route('job_order.waste_management.update', props.serviceableId),
-      {
-        preserveScroll: true,
-        onSuccess: (page: any) => {
-          toast.success(page.props.flash.message, {
-            position: 'top-right',
-          })
-        }
+    .patch(route('job_order.waste_management.update', props.serviceableId), {
+      preserveScroll: true,
+      onSuccess: (page: any) => {
+        toast.success(page.props.flash.message, {
+          position: 'top-right',
+        })
       },
-    )
+    })
 }
 
 const { isPreHauling } = useWasteManagementStages()

@@ -43,7 +43,7 @@ const form = useForm<Record<string, string>>({})
 const onMarkAsUpdate = () => {
   form
     .transform(() => ({
-      status: currentStatus.value?.next.tag
+      status: currentStatus.value?.next.tag,
     }))
     .patch(route('job_order.update', ticket), {
       preserveScroll: true,
@@ -62,7 +62,7 @@ const onMarkAsStop = () => {
   form
     .transform(() => ({
       status: currentStatus.value?.stop.tag,
-      reason: reason.value
+      reason: reason.value,
     }))
     .post(route('job_order.cancel.create', ticket), {
       preserveScroll: true,

@@ -1,0 +1,98 @@
+<script setup lang="ts">
+import { JobOrder } from '@/types'
+import { router } from '@inertiajs/vue3'
+import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { toast } from 'vue-sonner'
+import { Button } from '../ui/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog'
+import { VisuallyHidden } from 'radix-vue'
+
+interface ArchiveColumnProps {
+  jobOrder: JobOrder
+}
+
+const props = defineProps<ArchiveColumnProps>()
+
+const isArchiveModalOpen = ref<boolean>(false)
+const isLoading = ref<boolean>(false)
+
+const handleRowArchival = () => {
+  router.delete(route('job_order.destroy', props.jobOrder.ticket), {
+    replace: true,
+    showProgress: false,
+    onStart: () => isLoading.value = true,
+    onSuccess: (page: any) => {
+      isArchiveModalOpen.value = false
+      isLoading.value = false
+      toast.success(page.props.flash.message, {
+        position: 'top-center',
+      })
+    },
+  })
+}
+</script>
+
+<template>
+  <Dialog v-model:open="isArchiveModalOpen">
+    <DialogTrigger>
+      <Button
+        variant="warning"
+        type="icon"
+        class="p-2"
+      >
+        <Archive />
+      </Button>
+    </DialogTrigger>
+    <DialogContent class="w-fit">
+      <VisuallyHidden as-child>
+        <DialogTitle>
+          Archiving Job Order
+        </DialogTitle>
+          <DialogDescription>
+          <!---->
+        </DialogDescription>
+      </VisuallyHidden>
+      <div class="flex flex-col items-center justify-center gap-2">
+        <TriangleAlert class="h-32 h- w-32 fill-amber-500 dark:fill-amber-700 stroke-white" />
+        <div class="text-3xl font-bold text-amber-500 dark:text-white">
+          Archiving Job Order
+        </div>
+        <div class="text-sm text-muted-foreground">
+          Are you sure you want to archive
+          <span class="font-bold">{{ jobOrder.ticket }}</span>
+          ?
+        </div>
+        <div class="mt-6 flex items-center gap-4">
+          <DialogClose>
+            <Button
+              variant="outline"
+              class="px-10"
+            >
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button
+            variant="warning"
+            :disabled="isLoading"
+            class="px-10"
+            @click="handleRowArchival"
+          >
+            <LoaderCircle
+              v-show="isLoading"
+              class="animate-spin mr-2"
+            />
+            Archive
+          </Button>
+        </div>
+      </div>
+    </DialogContent>
+  </Dialog>
+</template>

@@ -18,7 +18,7 @@ class StoreWasteManagementRequest extends FormRequest
     {
         return [
             'service_type'     => ['required', 'string', Rule::in(JobOrderServiceType::cases())],
-            'date_time'        => ['required', 'date', 'date_format:Y-m-d H:i:s'],
+            'date_time'        => ['required', 'date'],
             'client'           => ['required', 'string'],
             'address'          => ['required', 'string'],
             'department'       => ['required', 'string'],

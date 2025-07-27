@@ -2,6 +2,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
@@ -13,8 +22,10 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { router, useForm } from '@inertiajs/vue3'
-import { Pencil, X } from 'lucide-vue-next'
+import { compareDesc, format } from 'date-fns'
+import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
+import { toast } from 'vue-sonner'
 import FifthSection from './components/sections/FifthSection.vue'
 import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
@@ -22,7 +33,6 @@ import SecondSection from './components/sections/SecondSection.vue'
 import SixthSection from './components/sections/SixthSection.vue'
 import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
-import { toast } from 'vue-sonner'
 
 interface WasteManagementEditProps {
   jobOrder: JobOrder
@@ -49,7 +59,7 @@ const form = useForm({
   or_number: props.jobOrder.serviceable?.orNumber,
   status: props.jobOrder.status,
   approved_date: props.jobOrder.serviceable?.form3?.approvedDate,
-  remarks: '',
+  reason: '',
 })
 
 watch(
@@ -78,11 +88,27 @@ const onSubmit = () => {
       preserveScroll: true,
       onSuccess: (page: any) => {
         toast.success(page.props.flash.message, {
-          position: 'top-right'
+          position: 'top-right',
         })
-      }
+      },
     },
   )
+}
+
+const onSubmitCorrection = () => {
+  form
+    .transform((data) => ({
+      ...data,
+      job_order_id: props.jobOrder.id
+    }))
+    .post(route('job_order.correction.store'), {
+    preserveScroll: true,
+    onSuccess: (page: any) => {
+      toast.success(page.props.flash.message, {
+        position: 'top-right',
+      })
+    },
+  })
 }
 
 const loadEmployees = () => router.reload({ only: ['employees'] })
@@ -92,7 +118,7 @@ const isEditing = ref<boolean>(false)
 const manualStatuses: Array<JobOrderStatus> = [
   'for viewing',
   'for proposal',
-  'hauling in-progress'
+  'hauling in-progress',
 ]
 
 const canManuallyUpdate = computed(() =>
@@ -113,6 +139,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '#',
   },
 ]
+
+const createdAt = computed(() => new Date(props.jobOrder.createdAt))
+const updatedAt = computed(() => new Date(props.jobOrder.updatedAt))
+
+const isJobOrderUpdated = computed(() => {
+  return compareDesc(createdAt.value, updatedAt.value)
+})
 </script>
 
 <template>
@@ -130,12 +163,49 @@ const breadcrumbs: BreadcrumbItem[] = [
               {{ jobOrder.ticket }}
             </span>
           </h3>
-          <Badge
-            :variant="jobOrderStatus?.badge"
-            class="overflow-hidden truncate text-ellipsis rounded-full"
-          >
-            {{ jobOrderStatus?.label }}
-          </Badge>
+          <Dialog v-if="jobOrder.cancel">
+            <DialogTrigger>
+              <Button
+                variant="ghost"
+                class="rounded-full p-1"
+              >
+                <Badge
+                  :variant="jobOrderStatus?.badge"
+                  class="overflow-hidden truncate text-ellipsis"
+                >
+                  {{ jobOrderStatus?.label }}
+                </Badge>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  <span class="font-bold text-destructive">
+                    {{ jobOrderStatus?.label }}
+                  </span>
+                </DialogTitle>
+                <DialogDescription>
+                  <!---->
+                </DialogDescription>
+              </DialogHeader>
+              <div>
+                <Label> Reason: </Label>
+                <div class="rounded-md border py-3">
+                  <div class="mx-4 text-sm leading-4 text-muted-foreground">
+                    {{ jobOrder.cancel.reason }}
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <template v-else>
+            <Badge
+              :variant="jobOrderStatus?.badge"
+              class="overflow-hidden truncate text-ellipsis"
+            >
+              {{ jobOrderStatus?.label }}
+            </Badge>
+          </template>
         </div>
         <div class="flex items-center gap-2">
           <Avatar class="h-7 w-7 shrink-0 rounded-full">
@@ -152,13 +222,8 @@ const breadcrumbs: BreadcrumbItem[] = [
             <span>{{ `${jobOrder.creator?.fullName}` }}</span>
             <span class="mx-1">•</span>
             <span>{{
-              new Date(jobOrder.createdAt).toLocaleString('en-ph', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+              `${format(updatedAt, "EEEE, MMMM d, yyyy 'at' h:mm a")}
+              ${isJobOrderUpdated ? '(Edited)' : ''}`
             }}</span>
           </div>
         </div>
@@ -203,7 +268,7 @@ const breadcrumbs: BreadcrumbItem[] = [
       <div class="mb-3 flex items-center">
         <div class="flex w-full flex-col">
           <form
-            @submit.prevent="onSubmit"
+            @submit.prevent="onSubmitCorrection"
             class="mx-7 grid gap-y-6"
           >
             <div>
@@ -279,7 +344,8 @@ const breadcrumbs: BreadcrumbItem[] = [
               <SixthSection
                 ref="sixthSection"
                 :status="jobOrder.status"
-                v-model:remarks="form.remarks"
+                :error="form.errors?.reason"
+                v-model:reason="form.reason"
               />
             </div>
             <div
@@ -288,6 +354,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             >
               <div class="ml-auto space-x-3">
                 <Button
+                  v-show="form.processing"
                   type="button"
                   variant="outline"
                 >
@@ -298,6 +365,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                   variant="default"
                   :disabled="form.processing"
                 >
+                  <LoaderCircle
+                    v-show="form.processing"
+                    class="animate-spin"
+                  />
                   Submit Corrections
                 </Button>
               </div>

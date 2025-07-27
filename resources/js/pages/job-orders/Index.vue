@@ -8,23 +8,8 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
 import { Link } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
 
-const props = defineProps<{
-  jobOrders: { data: JobOrder[]; meta: EloquentCollection }
-}>()
-
-const data = ref<JobOrder[]>(props.jobOrders.data)
-
-const meta = ref(props.jobOrders.meta)
-
-watch(
-  () => props.jobOrders,
-  (update) => {
-    data.value = update.data
-    meta.value = update.meta
-  },
-)
+defineProps<{ jobOrders: { data: JobOrder[]; meta: EloquentCollection }}>()
 
 const { can } = usePermissions()
 
@@ -111,8 +96,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         </Tabs>
         <JobOrderDataTable
           :columns="columns"
-          :data="data"
-          :meta="meta"
+          :data="jobOrders.data"
+          :meta="jobOrders.meta"
         />
       </div>
     </div>

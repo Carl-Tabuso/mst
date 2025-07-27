@@ -25,6 +25,7 @@ import {
 } from '@/constants/safety-inspection-checklist'
 import { Form3Hauling } from '@/types'
 import { useForm } from '@inertiajs/vue3'
+import { format } from 'date-fns'
 import { ClipboardCheck, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
@@ -66,10 +67,14 @@ const onFormSubmit = (hauling: Form3Hauling) => {
         preserveScroll: true,
         showProgress: false,
         onStart: () => form.clearErrors(),
-        onSuccess: () => {
+        onSuccess: (page: any) => {
           form.reset()
           isDialogOpen.value = false
-          // toast.success()
+
+          const { title, description } = page.props.flash.message
+          toast.success(title, {
+            description: `${format(description, 'PPPP')}`,
+          })
         },
       },
     )
@@ -88,6 +93,8 @@ const canEdit = computed(() => {
 })
 
 const teamLeader = computed(() => hauling?.assignedPersonnel?.teamLeader)
+const day = format(hauling.date, 'ccc')
+const date = format(hauling.date, 'MMM d')
 </script>
 
 <template>
@@ -109,8 +116,10 @@ const teamLeader = computed(() => hauling?.assignedPersonnel?.teamLeader)
     </Tooltip>
     <DialogContent class="max-w-[700px]">
       <DialogHeader class="flex">
-        <DialogTitle class="text-2xl font-bold dark:font-semibold">
-          Safety Inspection Checklist
+        <DialogTitle class="flex items-center gap-3 text-2xl font-bold">
+          <div>Safety Inspection Checklist</div>
+          <span>•</span>
+          <div>{{ `${day}, ${date}` }}</div>
         </DialogTitle>
         <DialogDescription class="text-sm leading-4">
           Review all items and ensure that all necessary forms have been
