@@ -32,13 +32,21 @@ class WasteManagementController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        DB::transaction(function () use ($validated) {
+        $jobOrder = null;
+
+        DB::transaction(function () use ($validated, &$jobOrder) {
             $wasteManagement = Form4::create();
 
-            $wasteManagement->jobOrder()->create($validated->toArray());
+            $jobOrder = $wasteManagement->jobOrder()->create($validated->toArray());
         });
 
-        return redirect()->route('job_order.index');
+        [$title, $description] = explode('|', __('responses.job_order.create', [
+            'ticket' => $jobOrder->ticket,
+        ]));
+
+        return redirect()->route('job_order.waste_management.edit', [
+            'ticket' => $jobOrder->ticket,
+        ])->with(['message' => compact('title', 'description')]);
     }
 
     public function edit(JobOrder $ticket): Response
@@ -46,6 +54,7 @@ class WasteManagementController extends Controller
         $loads = $ticket->load([
             'creator'     => ['account:avatar'],
             'cancel',
+            'corrections',
             'serviceable' => [
                 'dispatcher' => ['account:avatar'],
                 'appraisers' => ['account:avatar'],

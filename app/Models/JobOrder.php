@@ -24,6 +24,7 @@ class JobOrder extends Model
     ];
 
     protected $casts = [
+        'date_time'  => 'datetime:Y-m-d H:i:s',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'status'     => JobOrderStatus::class,

@@ -77,6 +77,7 @@ export interface JobOrder {
   creator?: Employee
   serviceable?: any // add it services and others here
   cancel: CancelledJobOrder
+  corrections: JobOrderCorrection[]
 }
 
 export interface Form4 {
@@ -146,6 +147,15 @@ export interface CancelledJobOrder {
   id: number
   jobOrderId: number
   reason: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface JobOrderCorrection {
+  id: number
+  jobOrderId: number
+  properties: { before: {}, after: {} }
+  isApproved: boolean
   createdAt: string
   updatedAt: string
 }

@@ -50,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::prefix('corrections')->name('correction.')->group(function () {
-            Route::post('/', [JobOrderCorrectionController::class, 'store'])->name('store');
+            Route::post('{ticket}/', [JobOrderCorrectionController::class, 'store'])->name('store');
         });
     });
 

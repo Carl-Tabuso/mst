@@ -19,6 +19,26 @@ enum JobOrderStatus: string
     case ForAppraisal           = 'for appraisal';
     case PreHauling             = 'pre-hauling';
 
+    public function getLabel(): string
+    {
+        return match ($this) {
+            self::ForViewing        => 'For Viewing',
+            self::ForProposal       => 'For Proposal',
+            self::ForApproval       => 'For Approval',
+            self::Successful        => 'Successful',
+            self::Failed            => 'Failed',
+            self::Dropped           => 'Dropped',
+            self::HaulingInProgress => 'Hauling In-Progress',
+            self::OnHold            => 'On-Hold',
+            self::Closed            => 'Closed',
+            self::Completed         => 'Completed',
+            self::ForVerification   => 'For Verification',
+            self::Verified          => 'Verified',
+            self::ForAppraisal      => 'For Appraisal',
+            self::PreHauling        => 'Pre-Hauling',
+        };
+    }
+
     public static function getCancelledStatuses(): array
     {
         return [
@@ -48,6 +68,18 @@ enum JobOrderStatus: string
             self::Failed,
             self::ForVerification,
             self::Closed,
+        ];
+    }
+
+    public static function getCanRequestCorrectionStages(): array
+    {
+        return [
+            self::ForVerification,
+            self::PreHauling,
+            self::HaulingInProgress,
+            self::OnHold,
+            self::Closed,
+            self::Completed,
         ];
     }
 }

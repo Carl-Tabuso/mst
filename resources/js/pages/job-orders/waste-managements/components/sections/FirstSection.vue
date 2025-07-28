@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppCalendar from '@/components/AppCalendar.vue'
+import InputError from '@/components/InputError.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,11 +14,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { parseDate } from '@internationalized/date'
 import { Calendar } from 'lucide-vue-next'
-import { ref } from 'vue'
 
 interface FirstSectionProps {
-  isEditing?: boolean
+  isEditing: boolean
   isServiceTypeDisabled?: boolean
+  errors?: any
 }
 
 withDefaults(defineProps<FirstSectionProps>(), {
@@ -27,9 +28,7 @@ withDefaults(defineProps<FirstSectionProps>(), {
 
 const serviceType = defineModel<string>('serviceType')
 const serviceDate = defineModel<any>('serviceDate', {
-  get(value) {
-    return parseDate(value.split('T')[0])
-  },
+  get(value) { return parseDate(value.split('T')[0]) },
 })
 const serviceTime = defineModel<string>('serviceTime')
 const client = defineModel<string>('client')
@@ -39,11 +38,8 @@ const contactPosition = defineModel<string>('contactPosition')
 const contactNumber = defineModel<string>('contactNumber')
 const contactPerson = defineModel<string>('contactPerson')
 
-const isDateOfServicePopoverOpen = ref<boolean>(false)
-
 const handleDateOfServiceChange = (value: any) => {
   serviceDate.value = new Date(value).toISOString()
-  isDateOfServicePopoverOpen.value = false
 }
 </script>
 
@@ -86,7 +82,7 @@ const handleDateOfServiceChange = (value: any) => {
     </RadioGroup>
     <Label class="self-center"> Date and Time of Service </Label>
     <div class="flex items-center gap-x-4">
-      <Popover v-model:open="isDateOfServicePopoverOpen">
+      <Popover>
         <PopoverTrigger
           as-child
           :disabled="!isEditing"
@@ -94,7 +90,9 @@ const handleDateOfServiceChange = (value: any) => {
           <Button
             type="button"
             variant="outline"
-            class="w-[400px] ps-3 text-start font-normal"
+            :class="['w-[400px] ps-3 text-start font-normal',
+              { 'border-destructive': errors?.date_time }
+            ]"
           >
             <span>
               {{ formatToDateString(serviceDate.toString()) }}
@@ -115,7 +113,9 @@ const handleDateOfServiceChange = (value: any) => {
         v-model="serviceTime"
         required
         :disabled="!isEditing"
-        class="w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"
+        :class="['w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden',
+          { 'border-destructive': errors?.date_time }
+        ]"
         placeholder="Select a time"
       />
     </div>
@@ -125,15 +125,20 @@ const handleDateOfServiceChange = (value: any) => {
     >
       Client
     </Label>
-    <Input
-      id="client"
-      type="text"
-      required
-      :disabled="!isEditing"
-      placeholder="Enter client/company name"
-      v-model="client"
-      class="w-[515px]"
-    />
+    <div class="flex flex-col">
+      <Input
+        id="client"
+        type="text"
+        required
+        :disabled="!isEditing"
+        placeholder="Enter client/company name"
+        v-model="client"
+        :class="['w-[515px]', {
+          'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive': errors?.client
+        }]"
+      />
+      <InputError :message="errors?.client" />
+    </div>
     <Label
       for="address"
       class="self-start pt-1"

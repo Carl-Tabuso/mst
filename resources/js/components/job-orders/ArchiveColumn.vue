@@ -46,7 +46,7 @@ const handleRowArchival = () => {
       <Button
         variant="warning"
         type="icon"
-        class="p-2"
+        class="p-2 rounded-full"
       >
         <Archive />
       </Button>
@@ -61,7 +61,7 @@ const handleRowArchival = () => {
         </DialogDescription>
       </VisuallyHidden>
       <div class="flex flex-col items-center justify-center gap-2">
-        <TriangleAlert class="h-32 h- w-32 fill-amber-500 dark:fill-amber-700 stroke-white" />
+        <TriangleAlert class="h-32 h- w-32 fill-amber-500 dark:fill-amber-700 stroke-amber-200" />
         <div class="text-3xl font-bold text-amber-500 dark:text-white">
           Archiving Job Order
         </div>

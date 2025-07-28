@@ -26,7 +26,7 @@ import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
-import { Calendar, ChevronsUpDown, X } from 'lucide-vue-next'
+import { Calendar, ChevronsUpDown, UserRound, X } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import EmployeePopoverSelection from '../EmployeePopoverSelection.vue'
@@ -61,7 +61,6 @@ const appraisedDateModel = computed(() => {
 })
 
 watch([appraisers, appraisedDate], ([newAppraisers, newAppraisedDate]) => {
-  console.log(newAppraisers, newAppraisedDate)
   form.appraisers = newAppraisers
   form.appraised_date = newAppraisedDate
 })
@@ -144,9 +143,12 @@ const onSubmit = () => {
       </div>
       <div
         v-show="dispatcher"
-        class="text-xs font-medium text-muted-foreground"
+        class="flex items-center font-medium text-muted-foreground"
       >
-        {{ `Completed by ${dispatcher?.fullName}` }}
+        <UserRound :size="16" class="mr-2" />
+        <div class="text-xs">
+          {{ `Completed by ${dispatcher?.fullName}` }}
+        </div>        
       </div>
     </div>
     <div class="col-span-2 grid grid-cols-2 gap-x-24 gap-y-3">
@@ -212,7 +214,7 @@ const onSubmit = () => {
                   <ChevronsUpDown class="ml-auto h-4 w-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-72 p-0">
+              <PopoverContent class="w-72 p-0" align="start">
                 <Command>
                   <CommandInput placeholder="Search for appraisers" />
                   <CommandList>
@@ -290,7 +292,7 @@ const onSubmit = () => {
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-auto p-0">
+              <PopoverContent class="w-auto p-0" align="start">
                 <AppCalendar
                   :model-value="appraisedDateModel"
                   @update:model-value="handleAppraisedDateChange"

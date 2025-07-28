@@ -110,7 +110,7 @@ const Roles = [
           <ChevronsUpDown class="ml-auto h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent class="w-72 p-0">
+      <PopoverContent class="w-72 p-0" align="start">
         <Command>
           <CommandInput :placeholder="`Search for a ${label.toLowerCase()}`" />
           <CommandList>

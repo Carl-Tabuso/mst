@@ -106,6 +106,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
             <Input
               id="paymentType"
               :disabled="isDisabled"
+              required
               placeholder="Enter client's payment type"
               v-model="paymentType"
               :class="[
@@ -130,6 +131,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
             <Input
               id="bidBond"
               :disabled="isDisabled"
+              required
               placeholder="Enter job order's bid bond"
               v-model="bidBond"
               :class="[
@@ -157,6 +159,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
             <Input
               id="orNumber"
               :disabled="isDisabled"
+              required
               placeholder="Enter OR Number"
               v-model="orNumber"
               :class="[
@@ -204,7 +207,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-auto p-0">
+              <PopoverContent class="w-auto p-0" align="start">
                 <AppCalendar
                   :model-value="paymentDate"
                   @update:model-value="handlePaymentDateChange"
@@ -251,7 +254,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-auto p-0">
+              <PopoverContent class="w-auto p-0" align="start">
                 <AppCalendar
                   :model-value="approvedDate"
                   @update:model-value="handleApprovedDateChange"

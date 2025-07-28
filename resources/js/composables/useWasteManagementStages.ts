@@ -15,13 +15,6 @@ export function useWasteManagementStages() {
     return isForStage(jobOrderStatus, 'for proposal')
   }
 
-  const isForPersonnelAssignment = (jobOrderStatus: JobOrderStatus) => {
-    return isForStage(jobOrderStatus, 'for personnel assignment')
-  }
-
-  const isForSafetyInspection = (jobOrderStatus: JobOrderStatus) => {
-    return isForStage(jobOrderStatus, 'for safety inspection')
-  }
 
   const isHaulingInProgress = (jobOrderStatus: JobOrderStatus) => {
     return isForStage(jobOrderStatus, 'hauling in-progress')
@@ -44,13 +37,9 @@ export function useWasteManagementStages() {
 
   const canUpdateProposalInformation = (jobOrderStatus: JobOrderStatus) => {
     const validStatuses: Array<JobOrderStatus> = [
-      'for personnel assignment',
-      'for safety inspection',
       'for verification',
-      'verified',
       'successful',
       'failed',
-      'dropped',
       'pre-hauling',
       'hauling in-progress',
       'on-hold',
@@ -70,8 +59,6 @@ export function useWasteManagementStages() {
   return {
     isForAppraisal,
     isForProposal,
-    isForPersonnelAssignment,
-    isForSafetyInspection,
     isHaulingInProgress,
     isSuccessfulProposal,
     isPreHauling,

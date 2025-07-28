@@ -24,7 +24,7 @@ onMounted(() => {
 
   if (props.table) {
     console.log('Table state:')
-    console.log('Row model:', props.table.getRowModel())
+    ('Row model:', props.table.getRowModel())
     console.log('First row data:', props.table.getRowModel().rows[0]?.original)
   }
 })
