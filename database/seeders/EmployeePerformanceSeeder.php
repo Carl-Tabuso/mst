@@ -11,6 +11,7 @@ use App\Models\Form4;
 use App\Models\JobOrder;
 use App\Models\PerformanceCategory;
 use App\Models\PerformanceRating;
+use App\Models\PerformanceSummary;
 use App\Models\Position;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -43,12 +44,19 @@ class EmployeePerformanceSeeder extends Seeder
             $form3->team_mechanic,
         ]);
 
+        PerformanceSummary::factory()->create(['job_order_id' => $jobOrder->id]);
+
+        $summary = PerformanceSummary::where('job_order_id', $jobOrder->id)->first();
+
         $assignedEmployees = [];
         foreach ($employeeIds as $employeeId) {
             $assignedEmployees[] = [
-                'job_order_id' => $jobOrder->id,
-                'evaluator_id' => $employeeId,
-                'evaluatee_id' => $form3->team_leader,
+                'job_order_id'           => $jobOrder->id,
+                'evaluator_id'           => $employeeId,
+                'evaluatee_id'           => $form3->team_leader,
+                'performance_summary_id' => $summary?->id, // nullable fallback
+                'created_at'             => now(),
+                'updated_at'             => now(),
             ];
         }
 
@@ -61,6 +69,8 @@ class EmployeePerformanceSeeder extends Seeder
                     'employee_performance_id' => $performance->id,
                     'performance_category_id' => $category->id,
                     'performance_rating_id'   => PerformanceRating::inRandomOrder()->first()->id,
+                    'created_at'              => now(),
+                    'updated_at'              => now(),
                 ];
             }
         }

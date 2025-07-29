@@ -30,6 +30,7 @@ export interface SharedData extends PageProps {
 }
 
 export interface User {
+  employee_id: any
   id: number
   email: string
   avatar?: string

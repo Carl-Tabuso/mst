@@ -24,7 +24,7 @@ const form = useForm({
 // Initial form validation enabling
 const isValid = computed(() => {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
-  return emailValid && form.password.length >= 8
+  return emailValid && form.password.length >= 8 //enable button to passwords with 8 chars or more
 })
 
 const submit = () => {
