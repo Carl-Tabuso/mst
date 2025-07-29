@@ -9,7 +9,15 @@ import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
 import { Link } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
 
-defineProps<{ jobOrders: { data: JobOrder[]; meta: EloquentCollection }}>()
+interface IndexProps {
+  jobOrders: {
+    data: JobOrder[]
+    meta: EloquentCollection
+  }
+  emptySearchImg: string
+}
+
+defineProps<IndexProps>()
 
 const { can } = usePermissions()
 
@@ -98,6 +106,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           :columns="columns"
           :data="jobOrders.data"
           :meta="jobOrders.meta"
+          :emptyImgUri="emptySearchImg"
         />
       </div>
     </div>

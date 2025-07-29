@@ -8,5 +8,6 @@ return [
     'checklist'     => 'Checklist changes has been saved.|:date',
     'change'        => 'Changes has been saved.',
     'archive'       => 'Succesfully archived ticket :ticket.',
+    'batch_archive' => 'Successfullly archived ticket(s).',
     'correction'    => 'Successfully requested for correction.',
 ];

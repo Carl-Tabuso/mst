@@ -15,7 +15,6 @@ export function useWasteManagementStages() {
     return isForStage(jobOrderStatus, 'for proposal')
   }
 
-
   const isHaulingInProgress = (jobOrderStatus: JobOrderStatus) => {
     return isForStage(jobOrderStatus, 'hauling in-progress')
   }

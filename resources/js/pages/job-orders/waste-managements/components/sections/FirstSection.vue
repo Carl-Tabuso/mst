@@ -28,7 +28,9 @@ withDefaults(defineProps<FirstSectionProps>(), {
 
 const serviceType = defineModel<string>('serviceType')
 const serviceDate = defineModel<any>('serviceDate', {
-  get(value) { return parseDate(value.split('T')[0]) },
+  get(value) {
+    return parseDate(value.split('T')[0])
+  },
 })
 const serviceTime = defineModel<string>('serviceTime')
 const client = defineModel<string>('client')
@@ -90,8 +92,9 @@ const handleDateOfServiceChange = (value: any) => {
           <Button
             type="button"
             variant="outline"
-            :class="['w-[400px] ps-3 text-start font-normal',
-              { 'border-destructive': errors?.date_time }
+            :class="[
+              'w-[400px] ps-3 text-start font-normal',
+              { 'border-destructive': errors?.date_time },
             ]"
           >
             <span>
@@ -113,8 +116,9 @@ const handleDateOfServiceChange = (value: any) => {
         v-model="serviceTime"
         required
         :disabled="!isEditing"
-        :class="['w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden',
-          { 'border-destructive': errors?.date_time }
+        :class="[
+          'w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden',
+          { 'border-destructive': errors?.date_time },
         ]"
         placeholder="Select a time"
       />
@@ -133,9 +137,13 @@ const handleDateOfServiceChange = (value: any) => {
         :disabled="!isEditing"
         placeholder="Enter client/company name"
         v-model="client"
-        :class="['w-[515px]', {
-          'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive': errors?.client
-        }]"
+        :class="[
+          'w-[515px]',
+          {
+            'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+              errors?.client,
+          },
+        ]"
       />
       <InputError :message="errors?.client" />
     </div>

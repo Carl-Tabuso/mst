@@ -155,7 +155,7 @@ export interface CancelledJobOrder {
 export interface JobOrderCorrection {
   id: number
   jobOrderId: number
-  properties: { before: {}, after: {} }
+  properties: { before: {}; after: {} }
   isApproved: boolean
   createdAt: string
   updatedAt: string

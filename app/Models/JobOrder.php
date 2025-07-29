@@ -24,7 +24,7 @@ class JobOrder extends Model
     ];
 
     protected $casts = [
-        'date_time'  => 'datetime:Y-m-d H:i:s',
+        'date_time'  => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'status'     => JobOrderStatus::class,
@@ -94,11 +94,6 @@ class JobOrder extends Model
     public function teamLeaderPerformance(): HasOne
     {
         return $this->hasOne(TeamLeaderPerformance::class);
-    }
-
-    public function employeePerformance(): HasOne
-    {
-        return $this->hasOne(EmployeePerformance::class);
     }
 
     public function corrections(): HasMany

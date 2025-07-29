@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ArchiveColumn from '@/components/job-orders/ArchiveColumn.vue'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { useCorrections } from '@/composables/useCorrections'
 import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
@@ -33,9 +36,6 @@ import SecondSection from './components/sections/SecondSection.vue'
 import SixthSection from './components/sections/SixthSection.vue'
 import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
-import ArchiveColumn from '@/components/job-orders/ArchiveColumn.vue'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useCorrections } from '@/composables/useCorrections'
 
 interface WasteManagementEditProps {
   jobOrder: JobOrder
@@ -119,23 +119,26 @@ const reason = ref<string>('')
 
 const onSubmitCorrection = () => {
   const { canCorrectProposalInformation } = useCorrections()
+  const [hours, min] = form.time.split(':')
+  const epoch = new Date(form.date_time).setHours(Number(hours), Number(min))
   form
     .transform((data) => ({
-        date_time: `${new Date(data.date_time).toLocaleDateString()} ${data.time}`,
-        client: data.client,
-        address: data.address,
-        department: data.department,
-        contact_position: data.contact_position,
-        contact_person: data.contact_person,
-        contact_no: data.contact_no,
-        reason: reason.value,
-        ...(canCorrectProposalInformation(props.jobOrder.status), {
-          payment_date: new Date(data.payment_date).toLocaleString(),
-          or_number: data.or_number,
-          bid_bond: data.bid_bond,
-          payment_type: data.payment_type,
-          approved_date: new Date(data.approved_date).toLocaleString(),
-        })
+      date_time: new Date(epoch).toLocaleString(),
+      client: data.client,
+      address: data.address,
+      department: data.department,
+      contact_position: data.contact_position,
+      contact_person: data.contact_person,
+      contact_no: data.contact_no,
+      reason: reason.value,
+      ...(canCorrectProposalInformation(props.jobOrder.status),
+      {
+        payment_date: new Date(data.payment_date).toLocaleString(),
+        or_number: data.or_number,
+        bid_bond: data.bid_bond,
+        payment_type: data.payment_type,
+        approved_date: new Date(data.approved_date).toLocaleString(),
+      }),
     }))
     .post(route('job_order.correction.store', props.jobOrder.ticket), {
       onSuccess: (page: any) => {
@@ -145,8 +148,7 @@ const onSubmitCorrection = () => {
           position: 'top-right',
         })
       },
-    }
-  )
+    })
 }
 
 const loadEmployees = () => router.reload({ only: ['employees'] })
@@ -193,13 +195,15 @@ onMounted(() => {
   if (message) {
     toast.success(message.title, {
       description: message.description,
-      position: 'top-center'
+      position: 'top-center',
     })
   }
 })
 
 const unapprovedCorrections = computed(() => {
-  return props.jobOrder.corrections?.find((correction) => ! correction.isApproved)
+  return props.jobOrder.corrections?.find(
+    (correction) => !correction.isApproved,
+  )
 })
 </script>
 
@@ -210,20 +214,25 @@ const unapprovedCorrections = computed(() => {
     <div
       class="sticky top-0 z-10 border-b border-border bg-background shadow-sm"
     >
-    <div class="mx-6 mt-3 -mb-3 flex justify-center">
-      <Alert
-        v-if="unapprovedCorrections"
-        variant="warning"
-        class="w-full py-1"
-      >
-        <AlertDescription class="flex items-center justify-center">
-          <span class="font-normal">
-            This ticket has a pending correction request submitted on
-            {{ format(unapprovedCorrections.createdAt, "MMMM d, yyyy 'at' h:mm a") }}.
-          </span>
-        </AlertDescription>
-      </Alert>
-    </div>
+      <div class="mx-6 -mb-3 mt-3 flex justify-center">
+        <Alert
+          v-if="unapprovedCorrections"
+          variant="warning"
+          class="w-full py-1"
+        >
+          <AlertDescription class="flex items-center justify-center">
+            <span class="font-normal">
+              This ticket has a pending correction request submitted on
+              {{
+                format(
+                  unapprovedCorrections.createdAt,
+                  "MMMM d, yyyy 'at' h:mm a",
+                )
+              }}.
+            </span>
+          </AlertDescription>
+        </Alert>
+      </div>
       <div class="flex items-center justify-between p-6">
         <div class="flex flex-col gap-1">
           <div class="flex items-center gap-4">
@@ -292,11 +301,14 @@ const unapprovedCorrections = computed(() => {
               <span>{{ `${jobOrder.creator?.fullName}` }}</span>
               <span>•</span>
               <div class="flex items-center gap-1">
-                <Calendar :size="16" class="mr-1" />
+                <Calendar
+                  :size="16"
+                  class="mr-1"
+                />
                 <span>{{
                   `${format(updatedAt, "EEEE, MMMM d, yyyy 'at' h:mm a")}
                   ${isJobOrderUpdated ? '(Edited)' : ''}`
-                }}</span>              
+                }}</span>
               </div>
             </div>
           </div>
@@ -319,7 +331,10 @@ const unapprovedCorrections = computed(() => {
             orientation="vertical"
           />
           <div class="flex gap-5">
-            <div v-if="!unapprovedCorrections" class="flex gap-5">
+            <div
+              v-if="!unapprovedCorrections"
+              class="flex gap-5"
+            >
               <Button
                 v-show="!isEditing"
                 variant="outline"
@@ -397,6 +412,7 @@ const unapprovedCorrections = computed(() => {
                 :starting-date="jobOrder.serviceable?.form3?.from"
                 :ending-date="jobOrder.serviceable?.form3?.to"
                 :serviceable-id="jobOrder.serviceable.id"
+                :dispatcher="jobOrder.serviceable?.dispatcher"
               />
             </div>
             <div

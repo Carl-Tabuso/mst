@@ -207,7 +207,10 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-auto p-0" align="start">
+              <PopoverContent
+                class="w-auto p-0"
+                align="start"
+              >
                 <AppCalendar
                   :model-value="paymentDate"
                   @update:model-value="handlePaymentDateChange"
@@ -254,7 +257,10 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-auto p-0" align="start">
+              <PopoverContent
+                class="w-auto p-0"
+                align="start"
+              >
                 <AppCalendar
                   :model-value="approvedDate"
                   @update:model-value="handleApprovedDateChange"

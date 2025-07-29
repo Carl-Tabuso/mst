@@ -20,8 +20,8 @@ class Form3 extends Model
     ];
 
     protected $casts = [
-        'appraised_date' => 'date',
-        'approved_date'  => 'date',
+        'appraised_date' => 'datetime:Y-m-d',
+        'approved_date'  => 'datetime:Y-m-d',
         'created_at'     => 'datetime',
         'updated_at'     => 'datetime',
     ];

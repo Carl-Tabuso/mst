@@ -2,8 +2,8 @@
 
 use App\Enums\UserPermission;
 use App\Enums\UserRole;
-use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeRatingController;
@@ -33,7 +33,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('create', [JobOrderController::class, 'create'])->name('create');
         Route::post('/', [JobOrderController::class, 'store'])->name('store');
         Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
-        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
+        Route::delete('/', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::prefix('it-services')->name('it_service.')->group(function () {
-            Route::get('/', [ITServicesController::class, 'index'])->name('it_service');
+            Route::get('/', [ITServicesController::class, 'index'])->name('index');
             Route::get('/create', [ITServicesController::class, 'create'])->name('create');
             Route::post('/', [ITServicesController::class, 'store'])->name('store');
 

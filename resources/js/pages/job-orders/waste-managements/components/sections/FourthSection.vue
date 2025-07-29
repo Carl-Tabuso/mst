@@ -11,9 +11,11 @@ import {
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { Employee } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
-import { Calendar } from 'lucide-vue-next'
+import { addDays, format, formatDistanceStrict, subDays } from 'date-fns'
+import { Calendar, CalendarClock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import FormAreaInfo from '../FormAreaInfo.vue'
@@ -24,6 +26,7 @@ interface FourthSectionProps {
   startingDate: any
   endingDate: any
   serviceableId: number
+  dispatcher: Employee | null
 }
 
 const props = defineProps<FourthSectionProps>()
@@ -37,7 +40,7 @@ const endingDate = ref<any>(props.endingDate)
 const startingDateModel = computed(() => {
   return startingDate.value
     ? parseDate(startingDate.value.split('T')[0])
-    : undefined
+    : parseDate(format(new Date(), 'yyyy-MM-dd'))
 })
 
 const endingDateModel = computed(() => {
@@ -45,6 +48,9 @@ const endingDateModel = computed(() => {
     ? parseDate(endingDate.value.split('T')[0])
     : undefined
 })
+
+const nextDay = computed(() => addDays(new Date(startingDateModel.value.toString()), 1))
+const endingMinDate = computed(() => parseDate(format(nextDay.value, 'yyyy-MM-dd')))
 
 const form = useForm<Record<string, string>>({
   status: props.status,
@@ -79,11 +85,39 @@ const { isPreHauling } = useWasteManagementStages()
     is required to complete this section to continue with personnel assignment.
   </FormAreaInfo>
   <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
-    <div>
-      <div class="text-xl font-semibold leading-6">Hauling Duration</div>
-      <p class="text-sm text-muted-foreground">
-        Estimated starting and ending date of hauling operations.
-      </p>
+    <div class="col-span-2 grid w-full grid-cols-3 items-start">
+      <div>
+        <div class="text-xl font-semibold leading-6">Hauling Duration</div>
+        <p class="text-sm text-muted-foreground">
+          Estimated starting and ending date of hauling operations.
+        </p>
+      </div>
+      <div
+        v-if="startingDate && endingDate"
+        class="flex justify-center"
+      >
+        <div
+          class="flex items-center gap-2 text-sm font-semibold text-muted-foreground"
+        >
+          <CalendarClock class="size-4" />
+          {{
+            formatDistanceStrict(
+              subDays(new Date(startingDate), 1),
+              new Date(endingDate),
+            )
+          }}
+          of total duration
+        </div>
+      </div>
+      <!-- <div
+        v-show="dispatcher"
+        class="flex items-center justify-end font-medium text-muted-foreground"
+      >
+        <UserRound class="mr-2 size-4" />
+        <div class="text-xs">
+          {{ `Completed by ${dispatcher?.fullName}` }}
+        </div>
+      </div> -->
     </div>
     <div class="col-span-2 grid grid-cols-2 gap-x-10">
       <div class="flex items-start gap-x-4">
@@ -107,8 +141,8 @@ const { isPreHauling } = useWasteManagementStages()
               >
                 <span>
                   {{
-                    startingDate
-                      ? formatToDateString(startingDate.toString())
+                    startingDateModel
+                      ? formatToDateString(startingDateModel.toString())
                       : 'Pick a date'
                   }}
                 </span>
@@ -117,6 +151,7 @@ const { isPreHauling } = useWasteManagementStages()
             </PopoverTrigger>
             <PopoverContent class="w-auto p-0">
               <AppCalendar
+                :min-value="startingDateModel"
                 :model-value="startingDateModel"
                 @update:model-value="
                   (value: any) => {
@@ -150,8 +185,8 @@ const { isPreHauling } = useWasteManagementStages()
               >
                 <span>
                   {{
-                    endingDate
-                      ? formatToDateString(endingDate.toString())
+                    endingDateModel
+                      ? formatToDateString(endingDateModel?.toString())
                       : 'Pick a date'
                   }}
                 </span>
@@ -160,6 +195,7 @@ const { isPreHauling } = useWasteManagementStages()
             </PopoverTrigger>
             <PopoverContent class="w-auto p-0">
               <AppCalendar
+                :min-value="endingMinDate"
                 :model-value="endingDateModel"
                 @update:model-value="
                   (value: any) => {

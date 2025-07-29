@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
+import InputError from '@/components/InputError.vue'
 import { Textarea } from '@/components/ui/textarea'
 
 interface SixthSectionProps {
@@ -26,8 +26,12 @@ const reason = defineModel<string>('reason')
         required
         placeholder="Type here..."
         v-model="reason"
-        :class="['w-full', 
-          { 'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive': error }
+        :class="[
+          'w-full',
+          {
+            'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+              error,
+          },
         ]"
       />
       <InputError :message="error" />

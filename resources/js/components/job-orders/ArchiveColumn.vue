@@ -2,6 +2,7 @@
 import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
+import { VisuallyHidden } from 'radix-vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { Button } from '../ui/button'
@@ -13,7 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog'
-import { VisuallyHidden } from 'radix-vue'
 
 interface ArchiveColumnProps {
   jobOrder: JobOrder
@@ -28,7 +28,7 @@ const handleRowArchival = () => {
   router.delete(route('job_order.destroy', props.jobOrder.ticket), {
     replace: true,
     showProgress: false,
-    onStart: () => isLoading.value = true,
+    onStart: () => (isLoading.value = true),
     onSuccess: (page: any) => {
       isArchiveModalOpen.value = false
       isLoading.value = false
@@ -46,22 +46,22 @@ const handleRowArchival = () => {
       <Button
         variant="warning"
         type="icon"
-        class="p-2 rounded-full"
+        class="rounded-full p-2"
       >
         <Archive />
       </Button>
     </DialogTrigger>
     <DialogContent class="w-fit">
       <VisuallyHidden as-child>
-        <DialogTitle>
-          Archiving Job Order
-        </DialogTitle>
-          <DialogDescription>
+        <DialogTitle> Archiving Job Order </DialogTitle>
+        <DialogDescription>
           <!---->
         </DialogDescription>
       </VisuallyHidden>
       <div class="flex flex-col items-center justify-center gap-2">
-        <TriangleAlert class="h-32 h- w-32 fill-amber-500 dark:fill-amber-700 stroke-amber-200" />
+        <TriangleAlert
+          class="h- h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
+        />
         <div class="text-3xl font-bold text-amber-500 dark:text-white">
           Archiving Job Order
         </div>
@@ -87,7 +87,7 @@ const handleRowArchival = () => {
           >
             <LoaderCircle
               v-show="isLoading"
-              class="animate-spin mr-2"
+              class="mr-2 animate-spin"
             />
             Archive
           </Button>

@@ -38,7 +38,8 @@ enum JobOrderStatus: string
             self::Verified          => 'Verified',
             self::ForAppraisal      => 'For Appraisal',
             self::PreHauling        => 'Pre-Hauling',
-            self::InProgress  => 'In-progress', // IT Service
+            self::ForCheckUP        => 'For Check Up',
+            self::InProgress        => 'In-progress',
         };
     }
 

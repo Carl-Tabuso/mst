@@ -26,7 +26,12 @@ import {
 import { Form3Hauling } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { format } from 'date-fns'
-import { ClipboardCheck, LoaderCircle, TriangleAlert, UserRound } from 'lucide-vue-next'
+import {
+  ClipboardCheck,
+  LoaderCircle,
+  TriangleAlert,
+  UserRound,
+} from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 
@@ -192,7 +197,10 @@ const date = format(hauling.date, 'MMM d')
             v-if="!canEdit"
             class="mt-2 flex items-center text-[13px] font-medium text-muted-foreground"
           >
-            <UserRound :size="16" class="mr-2" />
+            <UserRound
+              :size="16"
+              class="mr-2"
+            />
             Team Leader: {{ teamLeader ? teamLeader.fullName : 'Not Assigned' }}
           </div>
         </div>

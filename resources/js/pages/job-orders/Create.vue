@@ -4,9 +4,9 @@ import { jobOrderRouteNames } from '@/constants/job-order-route'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem } from '@/types'
 import { useForm } from '@inertiajs/vue3'
+import { LoaderCircle } from 'lucide-vue-next'
 import { ref } from 'vue'
 import FirstSection from './waste-managements/components/sections/FirstSection.vue'
-import { LoaderCircle } from 'lucide-vue-next'
 
 const form = useForm({
   service_type: 'form4',
@@ -61,7 +61,9 @@ const breadcrumbs: BreadcrumbItem[] = [
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div class="mb-3 flex items-center">
           <div class="flex flex-col">
-            <h3 class="mb-8 scroll-m-20 text-3xl font-semibold tracking-tight">Add Job Order</h3>
+            <h3 class="mb-8 scroll-m-20 text-3xl font-semibold tracking-tight">
+              Add Job Order
+            </h3>
             <form
               @submit.prevent="onSubmit"
               class="grid grid-cols-[auto,1fr] gap-y-6"

@@ -68,7 +68,11 @@ class JobOrderController extends Controller
             ->withQueryString()
             ->toResourceCollection();
 
-        return Inertia::render('job-orders/Index', compact('jobOrders'));
+        return Inertia::render('job-orders/Index', [
+            'jobOrders'      => $jobOrders,
+            'emptySearchImg' => asset('state/search-empty.svg'),
+            'emptyJobOrders' => asset('state/task-empty.svg'),
+        ]);
     }
 
     public function create(): Response
@@ -97,23 +101,11 @@ class JobOrderController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, ?JobOrder $jobOrder = null)
+    public function destroy(Request $request): RedirectResponse
     {
-        if ($jobOrder) {
-            $jobOrder->delete();
+        JobOrder::destroy($request->array('jobOrderIds'));
 
-            return redirect()->route('job_order.index')->with([
-                'message' => __('responses.archive', [
-                    'ticket' => $jobOrder->ticket,
-                ]),
-            ]);
-        }
-
-        $jobOrderIds = $request->array('jobOrderIds');
-
-        JobOrder::destroy($jobOrderIds);
-
-        // return a msg?
+        return back()->with(['message' => __('responses.batch_archive')]);
     }
 
     public function dropdownOptions()

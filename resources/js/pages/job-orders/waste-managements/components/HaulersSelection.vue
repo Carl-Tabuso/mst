@@ -117,7 +117,10 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
           <ChevronsUpDown class="ml-auto h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent class="w-72 p-0" align="start">
+      <PopoverContent
+        class="w-72 p-0"
+        align="start"
+      >
         <Command>
           <CommandInput placeholder="Search for haulers" />
           <CommandList>

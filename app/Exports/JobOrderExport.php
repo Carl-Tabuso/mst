@@ -10,6 +10,8 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class JobOrderExport implements FromCollection, WithHeadings
 {
+    public function __construct(protected array $jobOrderIds) {}
+
     public function headings(): array
     {
         return [
@@ -29,7 +31,9 @@ class JobOrderExport implements FromCollection, WithHeadings
     public function collection(): Collection
     {
         return
-            JobOrder::with('creator')
+            JobOrder::query()
+                ->whereIn('id', $this->jobOrderIds)
+                ->with('creator')
                 ->get()
                 ->map(fn ($jO) => [
                     $jO->ticket,

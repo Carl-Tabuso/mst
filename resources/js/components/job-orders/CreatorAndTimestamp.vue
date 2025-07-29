@@ -23,7 +23,7 @@ const formattedDateTime = computed(() => {
 <template>
   <div>
     <div class="flex items-center gap-2">
-      <Avatar class="h-8 w-8 shrink-0 rounded-full">
+      <Avatar class="h-9 w-9 shrink-0 rounded-full">
         <AvatarImage
           v-if="row.original.creator.account?.avatar"
           :src="row.original.creator.account.avatar"

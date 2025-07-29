@@ -7,7 +7,6 @@ use App\Http\Requests\StoreJobOrderCorrectionRequest;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class JobOrderCorrectionController extends Controller
 {
@@ -16,7 +15,7 @@ class JobOrderCorrectionController extends Controller
         $validated = (object) $request->validated();
 
         $ticket->fill([
-            'date_time'        => $request->safe()->date('date_time')->toDateTimeString(),
+            'date_time'        => $request->safe()->date('date_time'),
             'client'           => $validated->client,
             'address'          => $validated->address,
             'department'       => $validated->department,
@@ -31,14 +30,14 @@ class JobOrderCorrectionController extends Controller
 
         if ($canUpdateProposal) {
             $ticket->serviceable->fill([
-                'payment_date' => $request->safe()->date('payment_date')->toDateString(),
+                'payment_date' => $request->safe()->date('payment_date'),
                 'or_number'    => $validated->or_number,
                 'bid_bond'     => $validated->bid_bond,
             ]);
 
             $ticket->serviceable->form3->fill([
                 'payment_type'  => $validated->payment_type,
-                'approved_date' => $request->safe()->date('approved_date')->toDateString(),
+                'approved_date' => $request->safe()->date('approved_date'),
             ]);
 
             array_push($updateableModels, $ticket->serviceable, $ticket->serviceable->form3);
@@ -47,9 +46,9 @@ class JobOrderCorrectionController extends Controller
         $data = [];
 
         foreach ($updateableModels as $model) {
-            foreach($model->getDirty() as $key => $value) {
+            foreach ($model->getDirty() as $key => $value) {
                 $data['properties']['before'][$key] = $model->getOriginal($key);
-                $data['properties']['after'][$key] = $value;
+                $data['properties']['after'][$key]  = $value;
             }
         }
 

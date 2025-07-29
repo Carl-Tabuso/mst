@@ -145,10 +145,13 @@ const onSubmit = () => {
         v-show="dispatcher"
         class="flex items-center font-medium text-muted-foreground"
       >
-        <UserRound :size="16" class="mr-2" />
+        <UserRound
+          :size="16"
+          class="mr-2"
+        />
         <div class="text-xs">
           {{ `Completed by ${dispatcher?.fullName}` }}
-        </div>        
+        </div>
       </div>
     </div>
     <div class="col-span-2 grid grid-cols-2 gap-x-24 gap-y-3">
@@ -214,7 +217,10 @@ const onSubmit = () => {
                   <ChevronsUpDown class="ml-auto h-4 w-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-72 p-0" align="start">
+              <PopoverContent
+                class="w-72 p-0"
+                align="start"
+              >
                 <Command>
                   <CommandInput placeholder="Search for appraisers" />
                   <CommandList>
@@ -292,7 +298,10 @@ const onSubmit = () => {
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-auto p-0" align="start">
+              <PopoverContent
+                class="w-auto p-0"
+                align="start"
+              >
                 <AppCalendar
                   :model-value="appraisedDateModel"
                   @update:model-value="handleAppraisedDateChange"
