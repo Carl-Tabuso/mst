@@ -10,10 +10,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { router } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
 import { Archive, Download, Search, Settings2 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { route } from 'ziggy-js'
 import FilterPopover from './FilterPopover.vue'
 
 interface DataTableToolbarProps {
@@ -23,11 +25,11 @@ interface DataTableToolbarProps {
 }
 
 const props = defineProps<DataTableToolbarProps>()
-const router = useRouter()
+const vueRouter = useRouter()
 
 const handleOnSearch = (value: string | number) => {
   props.table.setGlobalFilter(value)
-  router.replace({
+  vueRouter.replace({
     name: props.routeName,
     query: { search: value },
   })
@@ -43,6 +45,27 @@ const visibleColumnCount = computed(
       .getAllColumns()
       .filter((column) => column.getCanHide() && column.getIsVisible()).length,
 )
+
+const handleArchive = () => {
+  const selectedIds = props.table
+    .getSelectedRowModel()
+    .rows.map((row) => row.original.id)
+  if (!selectedIds.length) return
+
+  let archiveRoute = props.routeName.endsWith('.index')
+    ? props.routeName.replace('.index', '.archive')
+    : props.routeName + '.archive'
+
+  router.post(
+    route(archiveRoute),
+    { ids: selectedIds },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+    },
+  )
+}
 </script>
 
 <template>

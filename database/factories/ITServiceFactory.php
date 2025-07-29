@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Enums\MachineStatus;
+use App\Models\Employee;
+use App\Models\ITService;
+use App\Models\MachineInfo;
+use App\Models\Position;
 use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,15 +24,22 @@ class ITServiceFactory extends Factory
     public function definition(): array
     {
         return [
-            'machine_type'      => fake()->randomElement(['Laptop', 'Desktop', 'Printer', 'Scanner', 'Server']),
-            'model'             => fake()->bothify('Model-####'),
-            'serial_no'         => fake()->unique()->bothify('SN-########'),
-            'tag_no'            => fake()->unique()->bothify('TAG-######'),
-            'marchine_problem'  => fake()->optional()->sentence(10),
-            'service_performed' => fake()->optional()->paragraph(2),
-            'recommendation'    => fake()->optional()->paragraph(1),
-            'machine_status'    => fake()->randomElement(MachineStatus::cases()),
-            'cse'               => $this->getByPosition('Technician'),
         ];
+    }
+
+    public function configure()
+    {
+        return $this->afterCreating(function (ITService $itService) {
+            $technicianPositionId = Position::where('name', 'Technician')->value('id');
+            $technicianIds        = Employee::where('position_id', $technicianPositionId)
+                ->inRandomOrder()
+                ->limit(rand(1, 3))
+                ->pluck('id');
+            $itService->technicians()->attach($technicianIds);
+
+            MachineInfo::factory(rand(1, 3))->create([
+                'it_service_id' => $itService->id,
+            ]);
+        });
     }
 }

@@ -73,24 +73,29 @@ class Employee extends Model
         return $this->hasMany(Form5::class, 'assigned_person');
     }
 
-    public function form3sHaulee(): BelongsToMany
+    public function form3sHauler(): BelongsToMany
     {
         return $this->belongsToMany(
             Form3Hauling::class,
             'form3_haulers',
             'hauler',
-            'form3_hauling_id'
+            'form3_id'
+        );
+    }
+
+    public function itServicesAsTechnician(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ITService::class,
+            'it_services_technicians',
+            'technicians',
+            'i_t_service_id'
         );
     }
 
     public function createdJobOrders(): HasMany
     {
         return $this->hasMany(JobOrder::class, 'created_by');
-    }
-
-    public function diagnosticITServices(): HasMany
-    {
-        return $this->hasMany(ITService::class, 'cse');
     }
 
     public function form3sAsTeamLeader(): HasMany

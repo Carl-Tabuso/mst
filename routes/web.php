@@ -3,9 +3,13 @@
 use App\Enums\UserPermission;
 use App\Enums\UserRole;
 use App\Http\Controllers\CancelledJobOrderController;
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\EmployeeRatingController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\JobOrderCorrectionController;
 use App\Http\Controllers\SafetyInspectionController;
@@ -15,8 +19,15 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
+
+    // Home (Default route with Inertia)
     Route::inertia('/', 'Home')->name('home');
 
+    /*
+    |--------------------------------------------------------------------------
+    | Job Orders
+    |--------------------------------------------------------------------------
+    */
     Route::prefix('job-orders')->name('job_order.')->group(function () {
         Route::get('/', [JobOrderController::class, 'index'])->name('index');
         Route::get('create', [JobOrderController::class, 'create'])->name('create');
@@ -36,8 +47,13 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::prefix('it-services')->name('it_service.')->group(function () {
-            Route::get('/', fn () => dd('it'))->name('index');
+            Route::get('/', [ITServicesController::class, 'index'])->name('it_service');
+            Route::get('/create', [ITServicesController::class, 'create'])->name('create');
+            Route::post('/', [ITServicesController::class, 'store'])->name('store');
+
             Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
+            Route::post('/archive', [ITServicesController::class, 'archive'])->name('archive');
+
         });
 
         Route::prefix('others')->name('other.')->group(function () {
@@ -53,6 +69,52 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{ticket}/', [JobOrderCorrectionController::class, 'store'])->name('store');
         });
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Employee Profiles
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('profile')->name('employees.profile.')->group(function () {
+        Route::get('/{id}', [EmployeeProfileController::class, 'show'])->name('show');
+        Route::patch('/{id}', [EmployeeProfileController::class, 'update'])->name('update');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Employee Ratings
+    |--------------------------------------------------------------------------
+    */
+    // Employee Routes
+    Route::prefix('ratings')->name('employee.ratings.')->group(function () {
+        Route::get('/', [EmployeeRatingController::class, 'index'])->name('index');
+        Route::get('/create', [EmployeeRatingController::class, 'create'])->name('create');
+        Route::post('/store', [EmployeeRatingController::class, 'store'])->name('store');
+        Route::get('/view', [EmployeeRatingController::class, 'view'])->name('view');
+        Route::post('/archive', [EmployeeRatingController::class, 'archive'])->name('archive');
+    });
+
+    // Consultant & Admin Routes also
+    Route::get('ratings/table', [EmployeeRatingController::class, 'ratingsTable'])->name('table');
+    Route::get('/employee-ratings/{employee}/history', [EmployeeRatingController::class, 'ratingHistory'])->name('employee_ratings.history');
+    Route::get('/employee-ratings/{employee}/history-page', [EmployeeRatingController::class, 'historyPage'])->name('employee.ratings.history.page');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Archive
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/archives', [ArchiveController::class, 'index'])->name('archives.index');
+    Route::post('/archives/restore', [ArchiveController::class, 'restore'])->name('archives.restore');
+    Route::post('/archives/force-delete', [ArchiveController::class, 'forceDelete'])->name('archives.force-delete');
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Management
+    |--------------------------------------------------------------------------
+    */
 
     Route::prefix('users')->group(function () {
 

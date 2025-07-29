@@ -31,6 +31,8 @@ class DatabaseSeeder extends Seeder
             EmployeePerformanceSeeder::class,
             JobOrderCorrectionSeeder::class,
             UserSeeder::class,
+            PerformanceSummarySeeder::class,
+            EmployeeRatingSeeder::class,
         ]);
     }
 }
