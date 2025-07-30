@@ -161,6 +161,18 @@ export interface JobOrderCorrection {
   updatedAt: string
 }
 
+export interface ActivityLog {
+  id: number
+  logName: string
+  description: string
+  event: string
+  batchUuid: string
+  createdAt: string
+  updatedAt: string
+  causer: Employee | string
+  subject: Employee | string
+}
+
 export interface EloquentCollection {
   current_page: number
   last_page: number

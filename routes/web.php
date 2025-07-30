@@ -2,6 +2,7 @@
 
 use App\Enums\UserPermission;
 use App\Enums\UserRole;
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
@@ -33,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('create', [JobOrderController::class, 'create'])->name('create');
         Route::post('/', [JobOrderController::class, 'store'])->name('store');
         Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
-        Route::delete('/', [JobOrderController::class, 'destroy'])->name('destroy');
+        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
@@ -69,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{ticket}/', [JobOrderCorrectionController::class, 'store'])->name('store');
         });
     });
+
+    Route::get('activities', [ActivityLogController::class, 'index'])->name('activity');
 
     /*
     |--------------------------------------------------------------------------

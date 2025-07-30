@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
             'form4'      => 'App\Models\Form4',
             'form5'      => 'App\Models\Form5',
             'it_service' => 'App\Models\ITService',
+            'job_order'  => 'App\Models\JobOrder',
         ]);
 
         JsonResource::withoutWrapping();
