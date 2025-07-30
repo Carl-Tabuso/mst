@@ -52,7 +52,7 @@ const handleArchive = () => {
     .rows.map((row) => row.original.id)
   if (!selectedIds.length) return
 
-  let archiveRoute = props.routeName.endsWith('.index')
+  const archiveRoute = props.routeName.endsWith('.index')
     ? props.routeName.replace('.index', '.archive')
     : props.routeName + '.archive'
 
