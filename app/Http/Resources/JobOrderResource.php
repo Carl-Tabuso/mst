@@ -10,7 +10,8 @@ class JobOrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                    => 'JO-'.str_pad($this->id, 7, 0, STR_PAD_LEFT),
+            'id'                    => $this->id,
+            'ticket'                => $this->ticket,
             'serviceableType'       => $this->serviceable_type,
             'serviceableId'         => $this->serviceable_id,
             'dateTime'              => $this->date_time,
@@ -30,6 +31,7 @@ class JobOrderResource extends JsonResource
             'teamLeaderPerformance' => TeamLeaderPerformanceResource::make($this->whenLoaded('teamLeaderPerformance')),
             'employeePerformance'   => EmployeePerformanceResource::make($this->whenLoaded('employeePerformance')),
             'corrections'           => JobOrderCorrectionResource::collection($this->whenLoaded('corrections')),
+            'cancel'                => CancelledJobOrderResource::make($this->whenLoaded('cancel')),
         ];
     }
 }

@@ -1,3 +1,4 @@
+import 'vue-sonner/style.css'
 import '../css/app.css'
 
 import { createInertiaApp, Head } from '@inertiajs/vue3'
@@ -42,7 +43,6 @@ createInertiaApp({
   progress: {
     delay: 250,
     color: getProgressBarColor(),
-    showSpinner: true,
   },
 })
 

@@ -9,10 +9,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, LogsActivity, Notifiable;
+    use HasFactory, HasRoles, LogsActivity, Notifiable;
 
     protected $fillable = [
         'employee_id',
@@ -29,6 +30,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
     ];
+
+    protected $guard_name = 'web';
 
     public function employee(): BelongsTo
     {

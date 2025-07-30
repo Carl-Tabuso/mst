@@ -3,27 +3,23 @@ import { columns } from '@/components/job-orders/columns'
 import JobOrderDataTable from '@/components/job-orders/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { usePermissions } from '@/composables/usePermissions'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
 import { Link } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
 
-const props = defineProps<{
-  jobOrders: { data: JobOrder[]; meta: EloquentCollection }
-}>()
+interface IndexProps {
+  jobOrders: {
+    data: JobOrder[]
+    meta: EloquentCollection
+  }
+  emptySearchImg: string
+}
 
-const data = ref<JobOrder[]>(props.jobOrders.data)
+defineProps<IndexProps>()
 
-const meta = ref(props.jobOrders.meta)
-
-watch(
-  () => props.jobOrders,
-  (update) => {
-    data.value = update.data
-    meta.value = update.meta
-  },
-)
+const { can } = usePermissions()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -45,12 +41,17 @@ const breadcrumbs: BreadcrumbItem[] = [
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div class="mb-3 flex items-center">
           <div class="flex flex-col gap-y-1">
-            <h3 class="scroll-m-20 text-3xl font-bold">Job Order List</h3>
+            <h3 class="scroll-m-20 text-3xl font-bold leading-7 text-primary">
+              Job Order List
+            </h3>
             <p class="text-muted-foreground">
               You can manage the list of recent active job orders here!
             </p>
           </div>
-          <div class="ml-auto">
+          <div
+            v-if="can('create:job_order')"
+            class="ml-auto"
+          >
             <Link
               :href="route('job_order.create')"
               preserve-state
@@ -103,8 +104,9 @@ const breadcrumbs: BreadcrumbItem[] = [
         </Tabs>
         <JobOrderDataTable
           :columns="columns"
-          :data="data"
-          :meta="meta"
+          :data="jobOrders.data"
+          :meta="jobOrders.meta"
+          :emptyImgUri="emptySearchImg"
         />
       </div>
     </div>

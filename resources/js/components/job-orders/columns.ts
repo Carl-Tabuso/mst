@@ -1,12 +1,15 @@
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
+import { jobOrderRouteNames } from '@/constants/job-order-route'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import { JobOrder } from '@/types'
+import { Link } from '@inertiajs/vue3'
 import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
 import { h } from 'vue'
-import DropdownAction from './DataTableDropdown.vue'
+import ArchiveColumn from './ArchiveColumn.vue'
+import CreatorAndTimestamp from './CreatorAndTimestamp.vue'
 import DataTableHeader from './DataTableHeader.vue'
 
 declare module '@tanstack/vue-table' {
@@ -38,28 +41,37 @@ export const columns: ColumnDef<JobOrder>[] = [
         'onUpdate:checked': (value: boolean) =>
           table.toggleAllPageRowsSelected(!!value),
         ariaLabel: 'Select all',
-        class: 'border-gray-400 dark:border-white',
       }),
     cell: ({ row }) =>
       h(Checkbox, {
         checked: row.getIsSelected(),
         'onUpdate:checked': (value: boolean) => row.toggleSelected(!!value),
         ariaLabel: 'Select row',
-        class: 'border-gray-400 dark:border-white',
       }),
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: 'id',
+    accessorKey: 'ticket',
     meta: { label: 'Ticket' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) =>
-      h(
-        'div',
-        { class: 'text-[13px] font-medium truncate' },
-        row.getValue('id'),
-      ),
+    cell: ({ row }) => {
+      const subPath = jobOrderRouteNames.find(
+        (jor) => jor.id === row.getValue('serviceableType'),
+      )
+      return h(
+        Link,
+        {
+          href: route(
+            `job_order.${subPath?.route}.edit`,
+            row.getValue('ticket'),
+          ),
+          class:
+            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+        },
+        () => row.getValue('ticket'),
+      )
+    },
     enableHiding: false,
   },
   {
@@ -133,29 +145,7 @@ export const columns: ColumnDef<JobOrder>[] = [
     accessorKey: 'creator',
     meta: { label: 'Frontliner' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) => {
-      const dateTime = new Date(row.original.createdAt)
-      const formattedDateTime = dateTime.toLocaleString('en-ph', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-
-      return h('div', [
-        h(
-          'div',
-          { class: 'text-xs font-semibold' },
-          row.original.creator?.fullName,
-        ),
-        h(
-          'div',
-          { class: 'text-[11px] text-muted-foreground' },
-          `on ${formattedDateTime}`,
-        ),
-      ])
-    },
+    cell: ({ row }) => h(CreatorAndTimestamp, { row: row }),
   },
   {
     accessorKey: 'dateTime',
@@ -180,18 +170,8 @@ export const columns: ColumnDef<JobOrder>[] = [
     },
   },
   {
-    id: 'actions',
-    cell: ({ row }) => {
-      const jobOrder = row.original
-
-      return h(
-        'div',
-        { class: 'relative' },
-        h(DropdownAction, {
-          jobOrder,
-        }),
-      )
-    },
+    id: 'archive',
+    cell: ({ row }) => h(ArchiveColumn, { jobOrder: row.original }),
     enableHiding: false,
   },
 ]

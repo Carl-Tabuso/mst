@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\JobOrderStatus;
+use App\Http\Requests\UpdateJobOrderRequest;
 use App\Models\JobOrder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -42,15 +45,20 @@ class JobOrderController extends Controller
             })
             ->when($search, function ($q) use ($search) {
                 return $q->where(function ($sq) use ($search) {
-                    $sq->whereLike('client', $search)
-                        ->orWhereLike('address', $search)
-                        ->orWhereLike('contact_no', $search)
-                        ->orWhereLike('contact_person', $search)
-                        ->orWhereHas('creator', function ($subQuery) use ($search) {
-                            return $subQuery->whereLike('first_name', $search)
-                                ->orWhereLike('middle_name', $search)
-                                ->orWhereLike('last_name', $search)
-                                ->orWhereLike('suffix', $search);
+                    $sq
+                        ->whereAny([
+                            'client',
+                            'address',
+                            'contact_no',
+                            'contact_person',
+                        ], 'like', $search)
+                        ->orWhereHas('creator', function ($ssq) use ($search) {
+                            return $ssq->whereAny([
+                                'first_name',
+                                'middle_name',
+                                'last_name',
+                                'suffix',
+                            ], 'like', $search);
                         });
                 });
             })
@@ -60,7 +68,11 @@ class JobOrderController extends Controller
             ->withQueryString()
             ->toResourceCollection();
 
-        return Inertia::render('job-orders/Index', compact('jobOrders'));
+        return Inertia::render('job-orders/Index', [
+            'jobOrders'      => $jobOrders,
+            'emptySearchImg' => asset('state/search-empty.svg'),
+            'emptyJobOrders' => asset('state/task-empty.svg'),
+        ]);
     }
 
     public function create(): Response
@@ -78,26 +90,22 @@ class JobOrderController extends Controller
         //
     }
 
-    public function update(Request $request, JobOrder $jobOrder)
+    public function update(UpdateJobOrderRequest $request, JobOrder $jobOrder): RedirectResponse
     {
-        //
+        $status = $request->safe()->enum('status', JobOrderStatus::class);
+
+        $jobOrder->update(['status' => $status]);
+
+        return back()->with([
+            'message' => __('responses.status_update', ['status' => $status->value]),
+        ]);
     }
 
-    public function destroy(Request $request, ?JobOrder $jobOrder = null)
+    public function destroy(Request $request): RedirectResponse
     {
-        $message = '';
+        JobOrder::destroy($request->array('jobOrderIds'));
 
-        if ($jobOrder) {
-            $jobOrder->delete();
-
-            // return a msg
-        }
-
-        $jobOrderIds = $request->array('jobOrderIds');
-
-        JobOrder::destroy($jobOrderIds);
-
-        // return a msg?
+        return back()->with(['message' => __('responses.batch_archive')]);
     }
 
     public function dropdownOptions()

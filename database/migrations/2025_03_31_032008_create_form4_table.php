@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Employee;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +17,11 @@ return new class extends Migration
             $table->date('payment_date')->nullable();
             $table->double('bid_bond')->nullable();
             $table->string('or_number')->nullable();
+            $table->foreignIdFor(Employee::class, 'form_dispatcher')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->timestamps();
         });
     }

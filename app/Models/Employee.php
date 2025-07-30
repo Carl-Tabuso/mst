@@ -76,7 +76,7 @@ class Employee extends Model
     public function form3sHauler(): BelongsToMany
     {
         return $this->belongsToMany(
-            Form3::class,
+            Form3Hauling::class,
             'form3_haulers',
             'hauler',
             'form3_id'

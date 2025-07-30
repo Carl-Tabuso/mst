@@ -23,8 +23,7 @@ onMounted(() => {
   console.log('Is loading:', props.isLoading)
 
   if (props.table) {
-    console.log('Table state:')
-    console.log('Row model:', props.table.getRowModel())
+    console.log('Table state:')('Row model:', props.table.getRowModel())
     console.log('First row data:', props.table.getRowModel().rows[0]?.original)
   }
 })

@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\UserPermission;
+use App\Enums\UserRole;
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeRatingController;
@@ -8,8 +11,11 @@ use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
+use App\Http\Controllers\JobOrderCorrectionController;
+use App\Http\Controllers\SafetyInspectionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -26,9 +32,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [JobOrderController::class, 'index'])->name('index');
         Route::get('create', [JobOrderController::class, 'create'])->name('create');
         Route::post('/', [JobOrderController::class, 'store'])->name('store');
-
-        // Serviceable Types
-        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
+        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
+        Route::delete('/', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
@@ -36,10 +41,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])->name('edit');
             Route::post('/', [WasteManagementController::class, 'store'])->name('store');
             Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
+
+            Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
+                ->name('safety_inspection.update');
         });
 
         Route::prefix('it-services')->name('it_service.')->group(function () {
-            Route::get('/', [ITServicesController::class, 'index'])->name('it_service');
+            Route::get('/', [ITServicesController::class, 'index'])->name('index');
             Route::get('/create', [ITServicesController::class, 'create'])->name('create');
             Route::post('/', [ITServicesController::class, 'store'])->name('store');
 
@@ -50,6 +58,15 @@ Route::middleware(['auth'])->group(function () {
 
         Route::prefix('others')->name('other.')->group(function () {
             Route::get('/', fn () => dd('os'))->name('index');
+            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
+        });
+
+        Route::prefix('cancels')->name('cancel.')->group(function () {
+            Route::post('{jobOrder}', [CancelledJobOrderController::class, 'create'])->name('create');
+        });
+
+        Route::prefix('corrections')->name('correction.')->group(function () {
+            Route::post('{ticket}/', [JobOrderCorrectionController::class, 'store'])->name('store');
         });
     });
 
@@ -137,6 +154,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/positions', [\App\Http\Controllers\PositionController::class, 'index']);
 
     });
+});
+
+Route::get('test', function () {
+    $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get()->pluck('email');
+    $teamLeaders          = User::role(UserRole::TeamLeader)->get()->pluck('email');
+    dd(
+        $dispatcherPermission,
+        $teamLeaders,
+    );
 });
 
 require __DIR__.'/settings.php';

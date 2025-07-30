@@ -1,9 +1,12 @@
+import { HaulingStatusType } from '@/constants/hauling-statuses'
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
 import type { Config } from 'ziggy-js'
 
 export interface Auth {
   user: User
+  permissions: string[]
 }
 
 export interface BreadcrumbItem {
@@ -27,6 +30,7 @@ export interface SharedData extends PageProps {
   quote: { message: string; author: string }
   auth: Auth
   ziggy: Config & { location: string }
+  flash: { message: string }
 }
 
 export interface User {
@@ -56,6 +60,7 @@ export interface Employee {
 
 export interface JobOrder {
   id: number
+  ticket: string
   serviceableId: number
   serviceableType: string
   dateTime: string
@@ -66,12 +71,14 @@ export interface JobOrder {
   contactPerson: string
   contactPosition: string
   createdBy: number
-  status: string
+  status: JobOrderStatus
   errorCount: number
   createdAt: string
   updatedAt: string
   creator?: Employee
   serviceable?: any // add it services and others here
+  cancel: CancelledJobOrder
+  corrections: JobOrderCorrection[]
 }
 
 export interface Form4 {
@@ -84,28 +91,74 @@ export interface Form4 {
   jobOrder: JobOrder
   appraisers: Employee[]
   form3: Form3
+  dispatcher: Employee | null
 }
 
 export interface Form3 {
   id: number
   form4Id: number
-  truckNo: string
   paymentType: string
   appraisedDate: string
   approvedDate: string
   from: string
   to: string
-  teamLeaderId: number
-  teamDriverId: number
-  safetyOfficerId: number
-  teamMechanicId: number
   createdAt: string
   updatedAt: string
-  teamLeader: Employee
-  teamDriver: Employee
-  safetyOfficer: Employee
-  teamMechanic: Employee
+  form4: Form4
+  haulings: Form3Hauling[]
+}
+
+export interface Form3Hauling {
+  id: number
+  form3Id: number
+  truckNo: string
+  date: string
+  form3: Form3
+  assignedPersonnel: Form3AssignedPersonnel
   haulers: Employee[]
+  checklist: Form3HaulingChecklist
+  status: HaulingStatusType
+  isOpen: boolean
+}
+
+export interface Form3HaulingChecklist {
+  id: number
+  form3HaulingId: number
+  isVehicleInspectionFilled: boolean
+  isUniformPpeFilled: boolean
+  isToolsEquipmentFilled: boolean
+  isCertified: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Form3AssignedPersonnel {
+  id: number
+  form3HaulingId: number
+  createdAt: string
+  updatedAt: string
+  hauling: Form3Hauling
+  teamLeader: Employee | null
+  teamDriver: Employee | null
+  safetyOfficer: Employee | null
+  teamMechanic: Employee | null
+}
+
+export interface CancelledJobOrder {
+  id: number
+  jobOrderId: number
+  reason: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface JobOrderCorrection {
+  id: number
+  jobOrderId: number
+  properties: { before: {}; after: {} }
+  isApproved: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export interface EloquentCollection {

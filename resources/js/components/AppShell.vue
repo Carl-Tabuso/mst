@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { onMounted, ref } from 'vue'
+import { Toaster } from './ui/sonner'
 
 interface Props {
   variant?: 'header' | 'sidebar'
@@ -21,6 +22,10 @@ const handleSidebarChange = (open: boolean) => {
 </script>
 
 <template>
+  <Toaster
+    position="bottom-left"
+    rich-colors
+  />
   <div
     v-if="variant === 'header'"
     class="flex min-h-screen w-full flex-col"

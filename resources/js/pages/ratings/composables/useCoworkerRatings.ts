@@ -1,4 +1,3 @@
-<script lang="ts">
 import { reactive } from 'vue'
 
 export function useCoworkerRatings() {
@@ -51,4 +50,3 @@ export function useCoworkerRatings() {
     setDescription,
   }
 }
-</script>

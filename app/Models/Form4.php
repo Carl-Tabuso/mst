@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -21,6 +22,7 @@ class Form4 extends Model
     ];
 
     protected $casts = [
+        'bid_bond'     => 'double',
         'payment_date' => 'date',
         'created_at'   => 'datetime',
         'updated_at'   => 'datetime',
@@ -39,5 +41,10 @@ class Form4 extends Model
     public function appraisers(): BelongsToMany
     {
         return $this->belongsToMany(Employee::class, 'form4_appraisers');
+    }
+
+    public function dispatcher(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'form_dispatcher');
     }
 }

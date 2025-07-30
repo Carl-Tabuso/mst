@@ -15,27 +15,31 @@ enum JobOrderStatus: string
     case OnHold                 = 'on-hold';
     case Closed                 = 'closed';
     case Completed              = 'completed';
-    case ForPersonnelAssignment = 'for personnel assignment';
-    case ForSafetyInspection    = 'for safety inspection';
     case ForVerification        = 'for verification';
     case Verified               = 'verified';
     case ForAppraisal           = 'for appraisal';
+    case PreHauling             = 'pre-hauling';
     case InProgress             = 'in-progress';
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::ForViewing  => 'For Viewing',
-            self::ForCheckUP  => 'For Check Up',
-            self::ForProposal => 'For Proposal',
-            self::ForApproval => 'For Approval',
-            self::Successful  => 'Successful',
-            self::Failed      => 'Failed',
-            self::Dropped     => 'Dropped',
-            self::InProgress  => 'In-progress',
-            self::OnHold      => 'On-hold',
-            self::Closed      => 'Closed',
-            self::Completed   => 'Completed',
+            self::ForViewing        => 'For Viewing',
+            self::ForProposal       => 'For Proposal',
+            self::ForApproval       => 'For Approval',
+            self::Successful        => 'Successful',
+            self::Failed            => 'Failed',
+            self::Dropped           => 'Dropped',
+            self::HaulingInProgress => 'Hauling In-Progress',
+            self::OnHold            => 'On-Hold',
+            self::Closed            => 'Closed',
+            self::Completed         => 'Completed',
+            self::ForVerification   => 'For Verification',
+            self::Verified          => 'Verified',
+            self::ForAppraisal      => 'For Appraisal',
+            self::PreHauling        => 'Pre-Hauling',
+            self::ForCheckUP        => 'For Check Up',
+            self::InProgress        => 'In-progress',
         };
     }
 
@@ -56,6 +60,30 @@ enum JobOrderStatus: string
             self::ForProposal,
             self::Failed,
             self::Successful,
+        ];
+    }
+
+    public static function getManualStagesUpdate(): array
+    {
+        return [
+            self::Dropped,
+            self::ForProposal,
+            self::Successful,
+            self::Failed,
+            self::ForVerification,
+            self::Closed,
+        ];
+    }
+
+    public static function getCanRequestCorrectionStages(): array
+    {
+        return [
+            self::ForVerification,
+            self::PreHauling,
+            self::HaulingInProgress,
+            self::OnHold,
+            self::Closed,
+            self::Completed,
         ];
     }
 }

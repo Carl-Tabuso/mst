@@ -17,9 +17,11 @@
         "maatwebsite/excel": "^3.1",
         "phpoffice/phpspreadsheet": "^1.29",
         "spatie/laravel-activitylog": "^4.10",
+        "spatie/laravel-permission": "^6.20",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.15",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",

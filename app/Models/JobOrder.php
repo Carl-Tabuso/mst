@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\JobOrderStatus;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ class JobOrder extends Model
     ];
 
     protected $casts = [
+        'date_time'  => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'status'     => JobOrderStatus::class,
@@ -32,14 +34,28 @@ class JobOrder extends Model
         'status' => JobOrderStatus::ForAppraisal,
     ];
 
+    private $ticketPrefix;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->ticketPrefix = 'JO-'.now()->format('y');
+    }
+
     public function getDeletedAtColumn(): string
     {
         return 'archived_at';
     }
 
+    public function getTicketAttribute(): string
+    {
+        return $this->ticketPrefix.str_pad($this->id, 7, 0, STR_PAD_LEFT);
+    }
+
     public function resolveRouteBinding($value, $field = null): Model
     {
-        $modelId = (int) str_replace('JO-', '', $value);
+        $modelId = (int) str_replace($this->ticketPrefix, '', $value);
 
         return parent::resolveRouteBinding($modelId, $field);
     }
@@ -59,6 +75,7 @@ class JobOrder extends Model
         return $query->whereIn('status', $values);
     }
 
+    #[Scope]
     public function cancelled(Builder $query): Builder
     {
         return $query->whereIn('status', JobOrderStatus::getCancelledStatuses());
@@ -79,14 +96,14 @@ class JobOrder extends Model
         return $this->hasOne(TeamLeaderPerformance::class);
     }
 
-    public function employeePerformance(): HasOne
-    {
-        return $this->hasOne(EmployeePerformance::class);
-    }
-
     public function corrections(): HasMany
     {
         return $this->hasMany(JobOrderCorrection::class);
+    }
+
+    public function cancel(): HasOne
+    {
+        return $this->hasOne(CancelledJobOrder::class);
     }
 
     public function employeePerformances()
