@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import ConfirmRatingModal from '@/pages/ratings/components/ConfirmRatingModal.vue'
 import CoworkerRatingForm from '@/pages/ratings/components/CoworkerRatingForm.vue'
-import { useCoworkerRatings } from '@/pages/ratings/composables/useCoworkerRatings.vue'
+import { useCoworkerRatings } from '@/pages/ratings/composables/useCoworkerRatings'
 import type { Coworker } from '@/pages/ratings/types/rating'
 import { router } from '@inertiajs/vue3'
 import { ref } from 'vue'

@@ -260,7 +260,7 @@ function goToPage(page: number) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   @click="
-                    sort = 'date_desc'
+                    sort = 'date_desc';
                     applyFilterSort()
                   "
                 >
@@ -268,7 +268,7 @@ function goToPage(page: number) {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   @click="
-                    sort = 'date_asc'
+                    sort = 'date_asc';
                     applyFilterSort()
                   "
                 >
@@ -276,7 +276,7 @@ function goToPage(page: number) {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   @click="
-                    sort = 'scale_desc'
+                    sort = 'scale_desc';
                     applyFilterSort()
                   "
                 >
@@ -284,7 +284,7 @@ function goToPage(page: number) {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   @click="
-                    sort = 'scale_asc'
+                    sort = 'scale_asc';
                     applyFilterSort()
                   "
                 >
