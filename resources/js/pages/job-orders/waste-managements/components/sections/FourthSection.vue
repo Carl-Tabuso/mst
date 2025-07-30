@@ -49,8 +49,13 @@ const endingDateModel = computed(() => {
     : undefined
 })
 
-const nextDay = computed(() => addDays(new Date(startingDateModel.value.toString()), 1))
-const endingMinDate = computed(() => parseDate(format(nextDay.value, 'yyyy-MM-dd')))
+const nextDay = computed(() => {
+  return addDays(new Date(startingDateModel.value.toString()), 1)
+})
+
+const endingMinDate = computed(() => {
+  return parseDate(format(nextDay.value, 'yyyy-MM-dd'))
+})
 
 const form = useForm<Record<string, string>>({
   status: props.status,

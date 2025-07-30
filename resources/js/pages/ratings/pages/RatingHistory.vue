@@ -260,32 +260,40 @@ function goToPage(page: number) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   @click="
-                    sort = 'date_desc';
-                    applyFilterSort()
+                    () => {
+                      sort = 'date_desc'
+                      applyFilterSort()
+                    }
                   "
                 >
                   Date (Newest)
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   @click="
-                    sort = 'date_asc';
-                    applyFilterSort()
+                    () => {
+                      sort = 'date_asc'
+                      applyFilterSort()
+                    }
                   "
                 >
                   Date (Oldest)
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   @click="
-                    sort = 'scale_desc';
-                    applyFilterSort()
+                    () => {
+                      sort = 'scale_desc'
+                      applyFilterSort()
+                    }
                   "
                 >
                   Highest Rating
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   @click="
-                    sort = 'scale_asc';
-                    applyFilterSort()
+                    () => {
+                      sort = 'scale_asc'
+                      applyFilterSort()
+                    }
                   "
                 >
                   Lowest Rating
