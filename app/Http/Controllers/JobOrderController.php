@@ -106,9 +106,11 @@ class JobOrderController extends Controller
         if ($jobOrder) {
             $jobOrder->delete();
 
-            return back()->with(['message' => __('responses.archive', [
-                'ticket' => $jobOrder->ticket,
-            ])]);
+            return redirect()->route('job_order.index')
+                ->with(['message' => __('responses.archive', [
+                    'ticket' => $jobOrder->ticket,
+                ])]
+                );
         }
 
         JobOrder::destroy($request->array('jobOrderIds'));

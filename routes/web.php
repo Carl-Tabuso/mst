@@ -8,6 +8,7 @@ use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeRatingController;
+use App\Http\Controllers\ExportActivityLogController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
@@ -71,7 +72,10 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    Route::get('activities', [ActivityLogController::class, 'index'])->name('activity');
+    Route::prefix('activities')->name('activity.')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+        Route::get('export', ExportActivityLogController::class)->name('export');
+    });
 
     /*
     |--------------------------------------------------------------------------

@@ -121,19 +121,10 @@ class JobOrder extends Model
         return $this->hasOne(PerformanceSummary::class);
     }
 
-    public function tapActivity(Activity $activity, string $event): void
+    public function tapActivity(Activity $activity): void
     {
-        $title = match ($event) {
-            'created' => 'Job Order Ticket Created',
-            'updated' => 'Job Order Ticket Updated',
-            'deleted' => $this->archived_at
-                            ? 'Job Order Ticket Archived'
-                            : 'Job Order Ticket Deleted'
-        };
-
         $activity->log_name   = JobOrderServiceType::from($this->serviceable->getMorphClass())->getLabel();
         $activity->properties = $activity->properties->merge([
-            'title'      => $title,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
@@ -145,14 +136,14 @@ class JobOrder extends Model
             ->logUnguarded()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(function (string $event) {
-                $causer = Auth::user()->employee->full_name;
+                $causer = Auth::user()->employee->full_name ?? 'System';
 
                 return match ($event) {
-                    'created' => $causer.' created a new job order.',
-                    'updated' => $causer.' updated job order information',
+                    'created' => "{$causer} created a new job order of ticket: {$this->ticket}.",
+                    'updated' => "{$causer} updated the job order information for ticket: {$this->ticket}.",
                     'deleted' => $this->archived_at
-                        ? $causer.' archived job order.'
-                        : $causer.' permanently deleted job order.'
+                        ? "{$causer} archived the job order of ticket {$this->ticket}."
+                        : "{$causer} permanently deleted the job order of ticket {$this->ticket}."
                 };
             });
     }
