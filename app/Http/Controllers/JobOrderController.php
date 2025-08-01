@@ -101,8 +101,18 @@ class JobOrderController extends Controller
         ]);
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, ?JobOrder $jobOrder = null): RedirectResponse
     {
+        if ($jobOrder) {
+            $jobOrder->delete();
+
+            return redirect()->route('job_order.index')
+                ->with(['message' => __('responses.archive', [
+                    'ticket' => $jobOrder->ticket,
+                ])]
+                );
+        }
+
         JobOrder::destroy($request->array('jobOrderIds'));
 
         return back()->with(['message' => __('responses.batch_archive')]);

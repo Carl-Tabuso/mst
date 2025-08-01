@@ -43,6 +43,7 @@ export interface User {
   updatedAt: string
   deletedAt?: string
   employee: Employee
+  roles: { id: number; name: string }[]
 }
 
 export interface Employee {
@@ -159,6 +160,20 @@ export interface JobOrderCorrection {
   isApproved: boolean
   createdAt: string
   updatedAt: string
+}
+
+export interface ActivityLog {
+  date: string
+  items: {
+    id: number
+    time: string
+    log: string
+    description: string
+    ipAddress: string
+    browser: string
+    platform: string
+    causer?: User
+  }[]
 }
 
 export interface EloquentCollection {

@@ -43,6 +43,7 @@ class User extends Authenticatable
         return LogOptions::defaults()
             ->logExcept(['password', 'remember_token'])
             ->logFillable()
-            ->logOnlyDirty();
+            ->logOnlyDirty()
+            ->dontLogIfAttributesChangedOnly(['remember_token']);
     }
 }

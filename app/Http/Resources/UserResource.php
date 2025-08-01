@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'updatedAt'       => $this->updated_at,
             'deletedAt'       => $this->whenNotNull($this->deleted_at),
             'employee'        => EmployeeResource::make($this->whenLoaded('employee')),
+            'roles'           => RoleResource::collection($this->roles),
         ];
     }
 }

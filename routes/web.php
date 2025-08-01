@@ -2,11 +2,13 @@
 
 use App\Enums\UserPermission;
 use App\Enums\UserRole;
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeRatingController;
+use App\Http\Controllers\ExportActivityLogController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
@@ -33,7 +35,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('create', [JobOrderController::class, 'create'])->name('create');
         Route::post('/', [JobOrderController::class, 'store'])->name('store');
         Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
-        Route::delete('/', [JobOrderController::class, 'destroy'])->name('destroy');
+        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
@@ -68,6 +70,11 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('corrections')->name('correction.')->group(function () {
             Route::post('{ticket}/', [JobOrderCorrectionController::class, 'store'])->name('store');
         });
+    });
+
+    Route::prefix('activities')->name('activity.')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+        Route::get('export', ExportActivityLogController::class)->name('export');
     });
 
     /*

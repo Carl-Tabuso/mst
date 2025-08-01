@@ -14,6 +14,7 @@ enum UserPermission: string
     case AssignHaulingPersonnel           = 'assign:hauling_personnel';
     case AssignAppraisers                 = 'assign:appraisers';
     case SetHaulingDuration               = 'set:hauling_duration';
+    case ViewActivityLogs                 = 'view:activiy_logs';
 
     public function getLabel(): string
     {
@@ -26,6 +27,7 @@ enum UserPermission: string
             self::AssignHaulingPersonnel           => 'Assign Hauling Personnel',
             self::AssignAppraisers                 => 'Assign Hauling Appraisers',
             self::SetHaulingDuration               => 'Set Hauling Duration',
+            self::ViewActivityLogs                 => 'View Activity Logs',
         };
     }
 
@@ -58,6 +60,13 @@ enum UserPermission: string
     {
         return [
             self::ApproveJobOrderCorrection,
+        ];
+    }
+
+    public static function getITAdminPermissions(): array
+    {
+        return [
+            self::ViewActivityLogs,
         ];
     }
 
