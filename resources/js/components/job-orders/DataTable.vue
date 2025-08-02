@@ -24,6 +24,7 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
+import { useDebounceFn } from '@vueuse/core'
 import { ref } from 'vue'
 import DataTablePagination from './DataTablePagination.vue'
 import DataTableToolbar from './DataTableToolbar.vue'
@@ -76,32 +77,17 @@ const table = useVueTable({
   onRowSelectionChange: (updater) => valueUpdater(updater, rowSelection),
   onGlobalFilterChange: (updater) => {
     valueUpdater(updater, globalFilter)
-
     table.setPageIndex(0)
-    // add debounce
-    router.get(
-      route('job_order.index'),
-      {
-        search: globalFilter.value,
-      },
-      {
-        preserveState: true,
-        preserveScroll: true,
-        replace: true,
-      },
-    )
+    debounceGlobalFilter()
   },
   onPaginationChange: (updater) => {
     valueUpdater(updater, pagination)
-
     const { pageIndex, pageSize } = pagination.value
-
     const data = {
       page: pageIndex + 1,
       per_page: pageSize,
       ...(globalFilter.value ? { search: globalFilter.value } : {}),
     }
-
     router.get(route('job_order.index'), data, {
       preserveState: true,
       preserveScroll: true,
@@ -126,6 +112,20 @@ const table = useVueTable({
     },
   },
 })
+
+const debounceGlobalFilter = useDebounceFn(() => {
+  router.get(
+    route('job_order.index'),
+    {
+      search: globalFilter.value,
+    },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+    },
+  )
+}, 500)
 </script>
 
 <template>
