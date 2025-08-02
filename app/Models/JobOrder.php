@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\JobOrderServiceType;
+use App\Enums\ActivityLogName;
 use App\Enums\JobOrderStatus;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -123,7 +123,7 @@ class JobOrder extends Model
 
     public function tapActivity(Activity $activity): void
     {
-        $activity->log_name   = JobOrderServiceType::from($this->serviceable->getMorphClass())->getLabel();
+        $activity->log_name   = ActivityLogName::from($this->serviceable->getMorphClass())->value;
         $activity->properties = $activity->properties->merge([
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
@@ -136,14 +136,18 @@ class JobOrder extends Model
             ->logUnguarded()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(function (string $event) {
-                $causer = Auth::user()->employee->full_name ?? 'System';
+                $causer            = Auth::user()->employee->full_name ?? 'System';
+                $placeholderValues = [
+                    'causer' => $causer,
+                    'ticket' => $this->ticket,
+                ];
 
                 return match ($event) {
-                    'created' => "{$causer} created a new job order of ticket: {$this->ticket}.",
-                    'updated' => "{$causer} updated the job order information for ticket: {$this->ticket}.",
+                    'created' => __('activity.job_order.created', $placeholderValues),
+                    'updated' => __('activity.job_order.updated', $placeholderValues),
                     'deleted' => $this->archived_at
-                        ? "{$causer} archived the job order of ticket {$this->ticket}."
-                        : "{$causer} permanently deleted the job order of ticket {$this->ticket}."
+                        ? __('activity.job_order.archived.single', $placeholderValues)
+                        : __('activity.job_order.deleted.single', $placeholderValues)
                 };
             });
     }

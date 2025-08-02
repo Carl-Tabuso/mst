@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\ActivityLogName;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -35,6 +36,16 @@ class AuthenticatedSessionController extends Controller
 
         Inertia::clearHistory();
 
+        activity()
+            ->useLog(ActivityLogName::Auth->value)
+            ->causedBy($request->user())
+            ->event('login')
+            ->withProperties([
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ])
+            ->log("{$request->user()->employee->full_name} has logged in to session.");
+
         return redirect()->intended(route('home', absolute: false));
     }
 
@@ -43,6 +54,16 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        activity()
+            ->useLog(ActivityLogName::Auth->value)
+            ->causedBy($request->user())
+            ->event('logout')
+            ->withProperties([
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ])
+            ->log("{$request->user()->employee->full_name} has logged out of session.");
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

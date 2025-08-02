@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ActivityLogName;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Jenssegers\Agent\Facades\Agent;
@@ -13,7 +14,7 @@ class ActivityLogResource extends JsonResource
         return [
             'id'          => $this->id,
             'time'        => $this->created_at->format('g:i A'),
-            'log'         => $this->log_name,
+            'log'         => ActivityLogName::from($this->log_name)->getLabel(),
             'description' => $this->description,
             'ipAddress'   => $this->properties['ip_address'],
             'browser'     => Agent::browser($this->properties['user_agent']),

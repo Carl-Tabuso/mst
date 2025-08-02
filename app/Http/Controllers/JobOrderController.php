@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ActivityLogName;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\UpdateJobOrderRequest;
 use App\Models\JobOrder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -80,16 +82,6 @@ class JobOrderController extends Controller
         return Inertia::render('job-orders/Create');
     }
 
-    public function show(JobOrder $jobOrder)
-    {
-        //
-    }
-
-    public function edit(JobOrder $jobOrder)
-    {
-        //
-    }
-
     public function update(UpdateJobOrderRequest $request, JobOrder $jobOrder): RedirectResponse
     {
         $status = $request->safe()->enum('status', JobOrderStatus::class);
@@ -109,11 +101,27 @@ class JobOrderController extends Controller
             return redirect()->route('job_order.index')
                 ->with(['message' => __('responses.archive', [
                     'ticket' => $jobOrder->ticket,
-                ])]
-                );
+                ])]);
         }
 
-        JobOrder::destroy($request->array('jobOrderIds'));
+        $jobOrderIds = $request->array('jobOrderIds');
+
+        activity()->withoutLogs(fn () => DB::transaction(fn () => JobOrder::destroy($jobOrderIds)));
+
+        $user = $request->user();
+
+        activity()
+            ->useLog(ActivityLogName::TicketBatchArchive->value)
+            ->causedBy($user)
+            ->event('deleted')
+            ->withProperties([
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ])
+            ->log(__('activity.job_order.archived.batch', [
+                'causer' => $user->employee->full_name,
+                'ticket_count' => count($jobOrderIds)
+            ]));
 
         return back()->with(['message' => __('responses.batch_archive')]);
     }

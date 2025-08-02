@@ -2,7 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useInitials } from '@/composables/useInitials'
 import { computed } from 'vue'
-import { Badge } from './ui/badge'
+import UserRoleBadge from './UserRoleBadge.vue'
 
 interface User {
   avatar: string
@@ -58,15 +58,7 @@ const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '')
       v-if="showRole"
       class="text truncate text-muted-foreground"
     >
-      <Badge
-        variant="outline"
-        class="inline-flex w-fit items-center gap-x-1 bg-sky-100 px-2 py-0.5"
-      >
-        <span class="mr-1 h-[10px] w-[10px] rounded-full bg-sky-700"></span>
-        <span class="text-xs font-semibold text-sky-700">{{
-          `${user.roles[0].name.charAt(0).toUpperCase()}${user.roles[0].name.slice(1)}`
-        }}</span>
-      </Badge>
+      <UserRoleBadge use-auth-user />
     </div>
   </div>
 </template>

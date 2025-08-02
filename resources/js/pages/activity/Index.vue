@@ -2,6 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import UserRoleBadge from '@/components/UserRoleBadge.vue'
 import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { ActivityLog, BreadcrumbItem } from '@/types'
@@ -153,14 +154,19 @@ const breadcrumbs: BreadcrumbItem[] = [
                           <div class="flex flex-col leading-tight">
                             <p class="text-sm font-medium">
                               {{ item.causer.employee.fullName }}
-                              <Badge
+                              <!-- <Badge
                                 variant="progress"
                                 class="ml-2 truncate py-0 text-xs"
                               >
                                 {{
                                   `${item.causer.roles[0].name.charAt(0).toUpperCase()}${item.causer.roles[0].name.slice(1)}`
                                 }}
-                              </Badge>
+                              </Badge> -->
+                              <UserRoleBadge
+                                :role-name="item.causer.roles[0].name"
+                                small
+                                class="ml-2"
+                              />
                             </p>
                             <p>
                               {{ item.causer.email }}
