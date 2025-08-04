@@ -27,7 +27,7 @@ class Form3HaulingSeeder extends Seeder
             ->create();
 
         $jobOrder->serviceable->appraisers()->attach(
-            Employee::inRandomOrder()->take(rand(2, 4))->get()
+            Employee::inRandomOrder()->take(mt_rand(2, 4))->get()
         );
 
         $form3 = Form3::factory()->create([
@@ -43,7 +43,11 @@ class Form3HaulingSeeder extends Seeder
             ->create(['form3_id' => $form3->id]);
 
         $position = Position::firstWhere(['name' => 'Hauler']);
-        $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
+        $haulers  = Employee::query()
+                            ->where('position_id', $position->id)
+                            ->inRandomOrder()
+                            ->take(mt_rand(10, 12))
+                            ->get();
 
         $haulings->each(fn ($hauling) => $hauling->haulers()->attach($haulers));
     }

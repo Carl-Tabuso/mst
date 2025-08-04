@@ -65,7 +65,7 @@ const onExportClick = () => window.open(route('activity.export'), '__blank')
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Activity Logs',
-    href: '/activities',
+    href: route('activity.index'),
   },
 ]
 </script>
@@ -77,7 +77,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <div class="m-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="scroll-m-20 text-3xl font-bold leading-7 text-primary">
+          <h1 class="scroll-m-20 text-3xl font-bold text-primary">
             Activity Logs
           </h1>
           <p class="text-muted-foreground">
@@ -154,14 +154,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                           <div class="flex flex-col leading-tight">
                             <p class="text-sm font-medium">
                               {{ item.causer.employee.fullName }}
-                              <!-- <Badge
-                                variant="progress"
-                                class="ml-2 truncate py-0 text-xs"
-                              >
-                                {{
-                                  `${item.causer.roles[0].name.charAt(0).toUpperCase()}${item.causer.roles[0].name.slice(1)}`
-                                }}
-                              </Badge> -->
                               <UserRoleBadge
                                 :role-name="item.causer.roles[0].name"
                                 small

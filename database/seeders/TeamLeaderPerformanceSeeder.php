@@ -61,7 +61,11 @@ class TeamLeaderPerformanceSeeder extends Seeder
             ]);
 
             $position = Position::firstWhere(['name' => 'Hauler']);
-            $haulers  = Employee::factory(rand(10, 12))->create(['position_id' => $position->id]);
+            $haulers  = Employee::query()
+                                ->where('position_id', $position->id)
+                                ->inRandomOrder()
+                                ->take(mt_rand(10, 12))
+                                ->get();
             $hauling->haulers()->attach($haulers);
             $hauling->checklist()->create()->checkAllFields();
 
