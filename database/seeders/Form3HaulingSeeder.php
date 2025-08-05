@@ -44,10 +44,10 @@ class Form3HaulingSeeder extends Seeder
 
         $position = Position::firstWhere(['name' => 'Hauler']);
         $haulers  = Employee::query()
-                            ->where('position_id', $position->id)
-                            ->inRandomOrder()
-                            ->take(mt_rand(10, 12))
-                            ->get();
+            ->where('position_id', $position->id)
+            ->inRandomOrder()
+            ->take(mt_rand(10, 12))
+            ->get();
 
         $haulings->each(fn ($hauling) => $hauling->haulers()->attach($haulers));
     }

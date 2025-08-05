@@ -45,10 +45,10 @@ class ClosedJobOrderSeeder extends Seeder
 
         $position = Position::firstWhere(['name' => 'Hauler']);
         $haulers  = Employee::query()
-                            ->where('position_id', $position->id)
-                            ->inRandomOrder()
-                            ->take(mt_rand(10, 12))
-                            ->get();
+            ->where('position_id', $position->id)
+            ->inRandomOrder()
+            ->take(mt_rand(10, 12))
+            ->get();
 
         $haulings->each(function ($hauling) use ($haulers) {
             $hauling->checklist()->create()->checkAllFields();

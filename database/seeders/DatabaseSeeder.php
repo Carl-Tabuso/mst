@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PerformanceSummarySeeder::class,
             EmployeeRatingSeeder::class,
-            AnnualReportSeeder::class,
+            // AnnualReportSeeder::class,
         ]);
     }
 }

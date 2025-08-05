@@ -38,6 +38,7 @@ class JobOrderFactory extends Factory
             'contact_position' => fake()->jobTitle(),
             'created_by'       => $this->getByPosition('Frontliner'),
             'status'           => fake()->randomElement($validStatuses),
+            'error_count'      => mt_rand(0, 4),
         ];
     }
 

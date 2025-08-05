@@ -2,20 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Models\Form3;
-use App\Models\Form4;
-use App\Models\Employee;
-use App\Models\JobOrder;
-use App\Models\Position;
 use App\Enums\HaulingStatus;
-use App\Models\Form3Hauling;
 use App\Enums\JobOrderStatus;
-use App\Traits\RandomEmployee;
-use Illuminate\Support\Carbon;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Employee;
+use App\Models\Form3;
+use App\Models\Form3Hauling;
+use App\Models\Form4;
+use App\Models\JobOrder;
 use App\Models\PerformanceCategory;
+use App\Models\Position;
+use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AnnualReportSeeder extends Seeder
 {
@@ -63,15 +63,38 @@ class AnnualReportSeeder extends Seeder
 
     private function seedTableFor(int $year): void
     {
-        for($month = 1; $month <= 12; $month++) {
-            $jobOrderCount = mt_rand(3, 7);
-            
+        for ($month = 1; $month <= 12; $month++) {
+            $jobOrderCount = mt_rand(3, 11);
+
             for ($j = $jobOrderCount; $j > 0; $j--) {
                 $date = Carbon::create($year, $month, $j);
-                
+
                 $timestamps = [
                     'created_at' => $date,
                     'updated_at' => $date,
+                ];
+
+                $fakeCompanies = [
+                    'Horizon Tech Solutions',
+                    'Apex Global Enterprises',
+                    'Silverline Logistics Co.',
+                    'NovaWave Systems',
+                    'Summit Edge Industries',
+                    'Quantum Core Technologies',
+                    'StellarWorks Manufacturing',
+                    'BrightPath Consulting Group',
+                    'BluePeak Innovations',
+                    'IronGate Security Solutions',
+                    'Evergreen Energy Corp.',
+                    'MetroLink Communications',
+                    'PrimePoint Financial Services',
+                    'SkyBridge Engineering Ltd.',
+                    'UrbanVista Developers',
+                    'RedOak Healthcare Partners',
+                    'OceanReach Shipping Lines',
+                    'SwiftStone Construction Inc.',
+                    'GoldenLeaf Foods Ltd.',
+                    'NextEra Digital Media Group',
                 ];
 
                 $jobOrder =
@@ -81,11 +104,16 @@ class AnnualReportSeeder extends Seeder
                                 ->state($timestamps)
                                 ->paymentDate($date->copy()->subWeek()),
                             'serviceable')
-                        ->status(JobOrderStatus::Completed)
-                        ->create($timestamps);
+                        ->status(fake()->randomElement([
+                            JobOrderStatus::Completed,
+                            JobOrderStatus::Closed,
+                        ]))
+                        ->create(array_merge($timestamps, [
+                            'client' => fake()->randomElement($fakeCompanies),
+                        ]));
 
                 $this->processJobOrder($jobOrder, $timestamps);
-                
+
                 // to make sure the entire operation doesn't blow up
                 unset($jobOrder);
             }
@@ -97,7 +125,7 @@ class AnnualReportSeeder extends Seeder
         $jobOrder->serviceable->appraisers()->attach(Employee::inRandomOrder()->take(rand(2, 4))->get());
 
         $dateCreated = $timestamps['created_at'];
-        
+
         $form3 = Form3::factory()->create(array_merge([
             'form4_id' => $jobOrder->serviceable->id,
             'from'     => $from = $dateCreated,
@@ -122,37 +150,37 @@ class AnnualReportSeeder extends Seeder
 
             $position = Position::firstWhere(['name' => 'Hauler']);
             $haulers  = Employee::query()
-                                ->where('position_id', $position->id)
-                                ->inRandomOrder()
-                                ->take(mt_rand(10, 12))
-                                ->get();
+                ->where('position_id', $position->id)
+                ->inRandomOrder()
+                ->take(mt_rand(10, 12))
+                ->get();
             $hauling->haulers()->attach($haulers);
             $hauling->checklist()->create($timestamps)->checkAllFields();
 
-        //     $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
-        //         $personnel->team_driver,
-        //         $personnel->safety_officer,
-        //         $personnel->team_mechanic,
-        //     ]);
+            //     $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
+            //         $personnel->team_driver,
+            //         $personnel->safety_officer,
+            //         $personnel->team_mechanic,
+            //     ]);
 
-        //     $summary = PerformanceSummary::factory()->create(['job_order_id' => $jobOrder->id]);
+            //     $summary = PerformanceSummary::factory()->create(['job_order_id' => $jobOrder->id]);
 
-        //     foreach ($employeeIds as $employeeId) {
-        //         $assignedEmployees[] = [
-        //             'job_order_id'           => $jobOrder->id,
-        //             'evaluator_id'           => $employeeId,
-        //             'evaluatee_id'           => $personnel->team_leader,
-        //             'performance_summary_id' => $summary?->id,
-        //             'created_at'             => now(),
-        //             'updated_at'             => now(),
-        //         ];
-        //     }
+            //     foreach ($employeeIds as $employeeId) {
+            //         $assignedEmployees[] = [
+            //             'job_order_id'           => $jobOrder->id,
+            //             'evaluator_id'           => $employeeId,
+            //             'evaluatee_id'           => $personnel->team_leader,
+            //             'performance_summary_id' => $summary?->id,
+            //             'created_at'             => now(),
+            //             'updated_at'             => now(),
+            //         ];
+            //     }
         }
-        
+
         // EmployeePerformance::insert($assignedEmployees);
 
         // $performances = EmployeePerformance::all();
-        
+
         // $employeeRatings = [];
 
         // foreach ($performances as $performance) {

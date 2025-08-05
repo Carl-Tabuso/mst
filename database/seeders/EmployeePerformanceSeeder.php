@@ -63,10 +63,10 @@ class EmployeePerformanceSeeder extends Seeder
 
             $position = Position::firstWhere(['name' => 'Hauler']);
             $haulers  = Employee::query()
-                                ->where('position_id', $position->id)
-                                ->inRandomOrder()
-                                ->take(mt_rand(10, 12))
-                                ->get();
+                ->where('position_id', $position->id)
+                ->inRandomOrder()
+                ->take(mt_rand(10, 12))
+                ->get();
             $hauling->haulers()->attach($haulers);
             $hauling->checklist()->create()->checkAllFields();
 
