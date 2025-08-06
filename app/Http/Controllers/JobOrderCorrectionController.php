@@ -53,7 +53,7 @@ class JobOrderCorrectionController extends Controller
         }
 
         $data['reason'] = $validated->reason;
-        dd($data);
+        // dd($data);
 
         $ticket->corrections()->create($data);
 

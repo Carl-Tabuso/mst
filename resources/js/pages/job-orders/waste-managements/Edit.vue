@@ -214,9 +214,11 @@ const unapprovedCorrections = computed(() => {
     <div
       class="sticky top-0 z-10 border-b border-border bg-background shadow-sm"
     >
-      <div class="mx-6 -mb-3 mt-3 flex justify-center">
+      <div
+        v-if="unapprovedCorrections"
+        class="mx-6 mt-3 flex justify-center"
+      >
         <Alert
-          v-if="unapprovedCorrections"
           variant="warning"
           class="w-full py-1"
         >
@@ -233,7 +235,7 @@ const unapprovedCorrections = computed(() => {
           </AlertDescription>
         </Alert>
       </div>
-      <div class="flex items-center justify-between p-6">
+      <div class="mx-6 my-3 flex items-center justify-between">
         <div class="flex flex-col gap-1">
           <div class="flex items-center gap-4">
             <h3 class="scroll-m-20 text-3xl font-bold text-primary">
