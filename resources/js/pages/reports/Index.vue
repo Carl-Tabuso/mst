@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, Employee } from '@/types'
+import { router } from '@inertiajs/vue3'
+import { useUrlSearchParams } from '@vueuse/core'
+import { Download } from 'lucide-vue-next'
+import { ref } from 'vue'
 import FrontlinerRankings from './components/FrontlinerRankings.vue'
 import JobOrderStatsGrid from './components/JobOrderStatsGrid.vue'
 import MonthlyJobOrderTrends from './components/MonthlyJobOrderTrends.vue'
@@ -30,22 +38,42 @@ interface IndexProps {
       createdJobOrdersCount: number
       rank: number
     }[]
-    total: number,
-    services: {
-      trends: {
-        name: string,
-        total: number,        
-      }[]
-      completion: {
-        name: string,
-        Completed: number,
-        Cancelled: number,
-      }[]
-    }
+    totalJobOrders: number
+    trends: {
+      name: string
+      total: number
+    }[]
+    completion: {
+      name: string
+      Completed: number
+      Cancelled: number
+    }[]
+    year: number
   }
+  availableYears: number[]
 }
 
-defineProps<IndexProps>()
+const urlParam = useUrlSearchParams('history')
+
+const props = defineProps<IndexProps>()
+
+const selectedYear = ref<number>(
+  Number(urlParam.year) || props.availableYears[0],
+)
+
+const onYearSelect = (year: number) => {
+  router.get(
+    route('report.index'),
+    {
+      year: year,
+    },
+    {
+      preserveState: true,
+      replace: true,
+      onSuccess: () => (selectedYear.value = year),
+    },
+  )
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -68,19 +96,39 @@ const breadcrumbs: BreadcrumbItem[] = [
             Track annual performance, trends, and key metrics across the system.
           </p>
         </div>
-        <div>
-          <!--Export and year filter-->
-          <DropdownMenu>
-            <DropdownMenuTrigger as-child>
-              <Button variant="outline"> Select Year </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent> Hello </DropdownMenuContent>
-          </DropdownMenu>
+        <div class="flex items-center gap-1 sm:flex-col lg:flex-row">
+          <Select
+            :model-value="selectedYear"
+            @update:model-value="(value: any) => onYearSelect(value)"
+          >
+            <SelectTrigger class="ml-auto h-9 w-28">
+              <SelectValue :placeholder="String(selectedYear)" />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectLabel> Filter by year </SelectLabel>
+              <SelectSeparator />
+              <SelectItem
+                v-for="(year, index) in availableYears"
+                :key="index"
+                :value="year"
+              >
+                {{ year }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="ghost"
+            type="icon"
+            class="rounded-md"
+          >
+            <Download />
+            <!-- Export -->
+          </Button>
         </div>
       </div>
       <div class="mt-6 flex flex-col gap-4">
         <JobOrderStatsGrid
-          :total="data.total"
+          :total="data.totalJobOrders"
           :top="data.top"
         />
         <div class="flex flex-col gap-4 lg:flex-row">
@@ -91,10 +139,10 @@ const breadcrumbs: BreadcrumbItem[] = [
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <ServiceTypeTrends :data="data.services.trends" />
+            <ServiceTypeTrends :data="data.trends" />
           </div>
           <div>
-            <ServiceTypeCompletion />
+            <ServiceTypeCompletion :data="data.completion" />
           </div>
         </div>
       </div>

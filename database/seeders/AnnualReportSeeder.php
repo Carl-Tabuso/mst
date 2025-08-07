@@ -63,7 +63,6 @@ class AnnualReportSeeder extends Seeder
         activity()->disableLogging();
 
         DB::transaction(function () {
-            $this->seed2022();
             $this->seed2023();
             $this->seed2024();
         });
@@ -71,15 +70,9 @@ class AnnualReportSeeder extends Seeder
         DB::enableQueryLog();
     }
 
-    private function seed2022(): void
-    {
-        $this->seedTableFor(2022);
-    }
-
     private function seed2023(): void
     {
         $this->seedTableFor(2023);
-
     }
 
     private function seed2024(): void
@@ -90,10 +83,10 @@ class AnnualReportSeeder extends Seeder
     private function seedTableFor(int $year): void
     {
         for ($month = 1; $month <= 12; $month++) {
-            $jobOrderCount = mt_rand(3, 11);
+            $jobOrderCount = mt_rand(83, 125);
 
             for ($j = $jobOrderCount; $j > 0; $j--) {
-                $date = Carbon::create($year, $month, $j);
+                $date = Carbon::create($year, $month, mt_rand(1, 20));
 
                 $timestamps = [
                     'created_at' => $date,
@@ -101,19 +94,19 @@ class AnnualReportSeeder extends Seeder
                 ];
 
                 $jobOrder = JobOrder::factory()
-                                    ->for($this->getRandomService($timestamps), 'serviceable')
-                                    ->status(fake()->randomElement([
-                                        JobOrderStatus::Completed,
-                                        JobOrderStatus::Closed,
-                                    ]))
-                                    ->create(array_merge($timestamps, [
-                                        'client' => fake()->randomElement(self::FAKE_COMPANIES),
-                                    ]));
+                    ->for($this->getRandomService($timestamps), 'serviceable')
+                    ->status(fake()->randomElement([
+                        JobOrderStatus::Completed,
+                        JobOrderStatus::Closed,
+                    ]))
+                    ->create(array_merge($timestamps, [
+                        'client' => fake()->randomElement(self::FAKE_COMPANIES),
+                    ]));
 
                 match ($jobOrder->serviceable_type) {
-                    JobOrderServiceType::Form4->value => $this->processWasteManagement($jobOrder, $timestamps),
-                    JobOrderServiceType::ITService->value => $this->processItService($jobOrder, $timestamps),
-                    JobOrderServiceType::Form5->value => $this->processOtherService($jobOrder, $timestamps),
+                    JobOrderServiceType::Form4     => $this->processWasteManagement($jobOrder, $timestamps),
+                    JobOrderServiceType::ITService => $this->processItService($jobOrder, $timestamps),
+                    JobOrderServiceType::Form5     => $this->processOtherService($jobOrder, $timestamps),
                 };
 
                 // to make sure the entire operation doesn't blow up

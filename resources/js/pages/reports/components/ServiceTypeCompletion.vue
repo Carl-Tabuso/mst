@@ -2,11 +2,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart } from '@/components/ui/chart-bar'
 
-const data = [
-  { name: 'Waste Management', Completed: 17, Cancelled: 8 },
-  { name: 'IT Services', Completed: 10, Cancelled: 4 },
-  { name: 'Other Services', Completed: 8, Cancelled: 15 },
-]
+interface ServiceTypeCompletionProps {
+  data: {
+    name: string
+    Completed: number
+    Cancelled: number
+  }[]
+}
+
+defineProps<ServiceTypeCompletionProps>()
 </script>
 
 <template>

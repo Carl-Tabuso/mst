@@ -40,6 +40,22 @@ defineProps<JobOrderStatsGridProps>()
         class="item-center flex flex-row justify-between space-y-0 pb-2"
       >
         <CardTitle class="text-sm font-medium text-muted-foreground">
+          Peak Month
+        </CardTitle>
+        <CalendarHeart class="h-4 w-4 stroke-1 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div class="text-2xl font-bold text-primary">
+          {{ top.month }}
+        </div>
+        <p class="text-xs text-muted-foreground">Peak job order month</p>
+      </CardContent>
+    </Card>
+    <Card class="shadow">
+      <CardHeader
+        class="item-center flex flex-row justify-between space-y-0 pb-2"
+      >
+        <CardTitle class="text-sm font-medium text-muted-foreground">
           Top Business Client
         </CardTitle>
         <BriefcaseBusiness class="h-4 w-4 stroke-1 text-muted-foreground" />
@@ -58,22 +74,6 @@ defineProps<JobOrderStatsGridProps>()
         <p class="text-xs text-muted-foreground">
           Leading for availing most services
         </p>
-      </CardContent>
-    </Card>
-    <Card class="shadow">
-      <CardHeader
-        class="item-center flex flex-row justify-between space-y-0 pb-2"
-      >
-        <CardTitle class="text-sm font-medium text-muted-foreground">
-          Peak Month
-        </CardTitle>
-        <CalendarHeart class="h-4 w-4 stroke-1 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div class="text-2xl font-bold text-primary">
-          {{ top.month }}
-        </div>
-        <p class="text-xs text-muted-foreground">Peak job order month</p>
       </CardContent>
     </Card>
     <Card class="shadow">

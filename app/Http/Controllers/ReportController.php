@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AnnualReportService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\Request;
-use App\Services\AnnualReportService;
 
 class ReportController extends Controller
 {
@@ -13,10 +13,12 @@ class ReportController extends Controller
 
     public function index(Request $request): Response
     {
-        $year = $request->integer('year', 2024);
+        $year = $request->integer('year', now()->year);
 
         $data = $this->service->processAnnualReport($year);
 
-        return Inertia::render('reports/Index', compact('data'));
+        $availableYears = $this->service->getAvailableYears();
+
+        return Inertia::render('reports/Index', compact('data', 'availableYears'));
     }
 }
