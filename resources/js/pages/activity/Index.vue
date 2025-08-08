@@ -126,7 +126,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                   class="absolute -left-px top-4 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-primary bg-background"
                 />
 
-                <div class="w-full rounded-md border p-4 shadow-md">
+                <div class="w-full bg-card rounded-md border p-4 shadow-md">
                   <div class="flex items-start justify-between">
                     <div class="flex flex-col gap-3">
                       <p
