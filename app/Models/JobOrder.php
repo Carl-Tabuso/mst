@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ActivityLogName;
+use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,10 +30,11 @@ class JobOrder extends Model
     ];
 
     protected $casts = [
-        'date_time'  => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'status'     => JobOrderStatus::class,
+        'date_time'        => 'datetime',
+        'created_at'       => 'datetime',
+        'updated_at'       => 'datetime',
+        'status'           => JobOrderStatus::class,
+        'serviceable_type' => JobOrderServiceType::class,
     ];
 
     protected $attributes = [

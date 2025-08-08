@@ -37,11 +37,11 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Job Orders" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="px-3 py-3">
-      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-        <div class="mb-3 flex items-center">
-          <div class="flex flex-col gap-y-1">
-            <h3 class="scroll-m-20 text-3xl font-bold leading-7 text-primary">
+    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
+        <div class="mb-1 flex items-start">
+          <div class="flex flex-col">
+            <h3 class="scroll-m-20 text-3xl font-bold text-primary">
               Job Order List
             </h3>
             <p class="text-muted-foreground">

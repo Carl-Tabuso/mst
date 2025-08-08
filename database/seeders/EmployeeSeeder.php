@@ -20,6 +20,7 @@ class EmployeeSeeder extends Seeder
         $this->seedDispatchers();
         $this->seedTeamLeaders();
         $this->seedHeadFrontliners();
+        $this->seedHaulers();
     }
 
     private function seedFrontliners()
@@ -47,6 +48,13 @@ class EmployeeSeeder extends Seeder
     {
         Employee::factory(5)->create([
             'position_id' => $this->getPositionId('Head Frontliner'),
+        ]);
+    }
+
+    private function seedHaulers()
+    {
+        Employee::factory(30)->create([
+            'position_id' => $this->getPositionId('Hauler'),
         ]);
     }
 

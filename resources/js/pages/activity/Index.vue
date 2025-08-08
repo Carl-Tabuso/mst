@@ -65,7 +65,7 @@ const onExportClick = () => window.open(route('activity.export'), '__blank')
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Activity Logs',
-    href: '/activities',
+    href: route('activity.index'),
   },
 ]
 </script>
@@ -74,10 +74,10 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Activity Logs" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="m-6">
-      <div class="flex items-center justify-between">
+    <div class="mx-6 mb-6 mt-3">
+      <div class="flex items-start justify-between">
         <div>
-          <h1 class="scroll-m-20 text-3xl font-bold leading-7 text-primary">
+          <h1 class="scroll-m-20 text-3xl font-bold text-primary">
             Activity Logs
           </h1>
           <p class="text-muted-foreground">
@@ -93,7 +93,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           Export All
         </Button>
       </div>
-      <div class="max-w-full-sm pt-12">
+      <div class="max-w-full-sm mt-6">
         <div
           v-for="(group, groupIndex) in changeLogs"
           :key="groupIndex"
@@ -126,7 +126,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                   class="absolute -left-px top-4 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-primary bg-background"
                 />
 
-                <div class="w-full rounded-md border p-4 shadow-md">
+                <div class="w-full rounded-md border bg-card p-4 shadow-md">
                   <div class="flex items-start justify-between">
                     <div class="flex flex-col gap-3">
                       <p
@@ -154,14 +154,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                           <div class="flex flex-col leading-tight">
                             <p class="text-sm font-medium">
                               {{ item.causer.employee.fullName }}
-                              <!-- <Badge
-                                variant="progress"
-                                class="ml-2 truncate py-0 text-xs"
-                              >
-                                {{
-                                  `${item.causer.roles[0].name.charAt(0).toUpperCase()}${item.causer.roles[0].name.slice(1)}`
-                                }}
-                              </Badge> -->
                               <UserRoleBadge
                                 :role-name="item.causer.roles[0].name"
                                 small

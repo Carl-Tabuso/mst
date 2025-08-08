@@ -119,8 +119,8 @@ class JobOrderController extends Controller
                 'user_agent' => $request->userAgent(),
             ])
             ->log(__('activity.job_order.archived.batch', [
-                'causer' => $user->employee->full_name,
-                'ticket_count' => count($jobOrderIds)
+                'causer'       => $user->employee->full_name,
+                'ticket_count' => count($jobOrderIds),
             ]));
 
         return back()->with(['message' => __('responses.batch_archive')]);

@@ -14,6 +14,7 @@ use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\JobOrderCorrectionController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SafetyInspectionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
@@ -76,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('export', ExportActivityLogController::class)->name('export');
     });
+
+    Route::get('reports', [ReportController::class, 'index'])->name('report.index');
 
     /*
     |--------------------------------------------------------------------------

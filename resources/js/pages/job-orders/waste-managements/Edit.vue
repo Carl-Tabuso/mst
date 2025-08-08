@@ -90,8 +90,8 @@ watch(
     form.contact_no = newValue.contactNo
     form.payment_date = service?.paymentDate
     form.payment_type = form3?.paymentType
-    form.bid_bond = service.bidBond
-    form.or_number = service.orNumber
+    form.bid_bond = service?.bidBond
+    form.or_number = service?.orNumber
     form.status = newValue.status
     form.approved_date = form3?.approvedDate
   },
@@ -131,14 +131,15 @@ const onSubmitCorrection = () => {
       contact_person: data.contact_person,
       contact_no: data.contact_no,
       reason: reason.value,
-      ...(canCorrectProposalInformation(props.jobOrder.status),
-      {
-        payment_date: new Date(data.payment_date).toLocaleString(),
-        or_number: data.or_number,
-        bid_bond: data.bid_bond,
-        payment_type: data.payment_type,
-        approved_date: new Date(data.approved_date).toLocaleString(),
-      }),
+      ...(canCorrectProposalInformation(props.jobOrder.status)
+        ? {
+            payment_date: new Date(data.payment_date).toLocaleString(),
+            or_number: data.or_number,
+            bid_bond: data.bid_bond,
+            payment_type: data.payment_type,
+            approved_date: new Date(data.approved_date).toLocaleString(),
+          }
+        : {}),
     }))
     .post(route('job_order.correction.store', props.jobOrder.ticket), {
       onSuccess: (page: any) => {
@@ -211,260 +212,266 @@ const unapprovedCorrections = computed(() => {
   <Head :title="jobOrder.ticket" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div
-      class="sticky top-0 z-10 border-b border-border bg-background shadow-sm"
-    >
-      <div class="mx-6 -mb-3 mt-3 flex justify-center">
-        <Alert
+    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+      <div
+        class="sticky top-0 z-10 border-b border-border bg-background shadow-sm"
+      >
+        <div
           v-if="unapprovedCorrections"
-          variant="warning"
-          class="w-full py-1"
+          class="mt-3 flex justify-center"
         >
-          <AlertDescription class="flex items-center justify-center">
-            <span class="font-normal">
-              This ticket has a pending correction request submitted on
-              {{
-                format(
-                  unapprovedCorrections.createdAt,
-                  "MMMM d, yyyy 'at' h:mm a",
-                )
-              }}.
-            </span>
-          </AlertDescription>
-        </Alert>
-      </div>
-      <div class="flex items-center justify-between p-6">
-        <div class="flex flex-col gap-1">
-          <div class="flex items-center gap-4">
-            <h3 class="scroll-m-20 text-3xl font-bold text-primary">
-              Ticket:
-              <span class="tracking-tighter text-muted-foreground">
-                {{ jobOrder.ticket }}
+          <Alert
+            variant="warning"
+            class="w-full py-1"
+          >
+            <AlertDescription class="flex items-center justify-center">
+              <span class="font-normal">
+                This ticket has a pending correction request submitted on
+                {{
+                  format(
+                    unapprovedCorrections.createdAt,
+                    "MMMM d, yyyy 'at' h:mm a",
+                  )
+                }}.
               </span>
-            </h3>
-            <Dialog v-if="jobOrder.cancel">
-              <DialogTrigger>
-                <Button
-                  variant="ghost"
-                  class="rounded-full p-1"
-                >
-                  <Badge
-                    :variant="jobOrderStatus?.badge"
-                    class="overflow-hidden truncate text-ellipsis"
+            </AlertDescription>
+          </Alert>
+        </div>
+        <div class="my-3 flex items-center justify-between">
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-4">
+              <h3 class="scroll-m-20 text-3xl font-bold text-primary">
+                Ticket:
+                <span class="tracking-tighter text-muted-foreground">
+                  {{ jobOrder.ticket }}
+                </span>
+              </h3>
+              <Dialog v-if="jobOrder.cancel">
+                <DialogTrigger>
+                  <Button
+                    variant="ghost"
+                    class="rounded-full p-1"
                   >
-                    {{ jobOrderStatus?.label }}
-                  </Badge>
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    <span class="font-bold text-destructive">
+                    <Badge
+                      :variant="jobOrderStatus?.badge"
+                      class="overflow-hidden truncate text-ellipsis"
+                    >
                       {{ jobOrderStatus?.label }}
-                    </span>
-                  </DialogTitle>
-                  <DialogDescription>
-                    <!---->
-                  </DialogDescription>
-                </DialogHeader>
-                <div>
-                  <Label> Reason: </Label>
-                  <div class="rounded-md border py-3">
-                    <div class="mx-4 text-sm leading-4 text-muted-foreground">
-                      {{ jobOrder.cancel.reason }}
+                    </Badge>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>
+                      <span class="font-bold text-destructive">
+                        {{ jobOrderStatus?.label }}
+                      </span>
+                    </DialogTitle>
+                    <DialogDescription>
+                      <!---->
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div>
+                    <Label> Reason: </Label>
+                    <div class="rounded-md border py-3">
+                      <div class="mx-4 text-sm leading-4 text-muted-foreground">
+                        {{ jobOrder.cancel.reason }}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <template v-else>
-              <Badge
-                :variant="jobOrderStatus?.badge"
-                class="overflow-hidden truncate text-ellipsis"
-              >
-                {{ jobOrderStatus?.label }}
-              </Badge>
-            </template>
-          </div>
-          <div class="flex items-center gap-2">
-            <Avatar class="h-7 w-7 shrink-0 rounded-full">
-              <AvatarImage
-                v-if="jobOrder.creator?.account?.avatar"
-                :src="jobOrder.creator.account.avatar"
-                :alt="jobOrder.creator.fullName"
-              />
-              <AvatarFallback>
-                {{ getInitials(jobOrder.creator?.fullName) }}
-              </AvatarFallback>
-            </Avatar>
-            <div class="flex items-center gap-3 text-sm text-muted-foreground">
-              <span>{{ `${jobOrder.creator?.fullName}` }}</span>
-              <span>•</span>
-              <div class="flex items-center gap-1">
-                <Calendar
-                  :size="16"
-                  class="mr-1"
+                </DialogContent>
+              </Dialog>
+              <template v-else>
+                <Badge
+                  :variant="jobOrderStatus?.badge"
+                  class="overflow-hidden truncate text-ellipsis"
+                >
+                  {{ jobOrderStatus?.label }}
+                </Badge>
+              </template>
+            </div>
+            <div class="flex items-center gap-2">
+              <Avatar class="h-7 w-7 shrink-0 rounded-full">
+                <AvatarImage
+                  v-if="jobOrder.creator?.account?.avatar"
+                  :src="jobOrder.creator.account.avatar"
+                  :alt="jobOrder.creator.fullName"
                 />
-                <span>{{
-                  `${format(updatedAt, "EEEE, MMMM d, yyyy 'at' h:mm a")}
-                  ${isJobOrderUpdated ? '(Edited)' : ''}`
-                }}</span>
+                <AvatarFallback>
+                  {{ getInitials(jobOrder.creator?.fullName) }}
+                </AvatarFallback>
+              </Avatar>
+              <div
+                class="flex items-center gap-3 text-sm text-muted-foreground"
+              >
+                <span>{{ `${jobOrder.creator?.fullName}` }}</span>
+                <span>•</span>
+                <div class="flex items-center gap-1">
+                  <Calendar
+                    :size="16"
+                    class="mr-1"
+                  />
+                  <span>{{
+                    `${format(updatedAt, "EEEE, MMMM d, yyyy 'at' h:mm a")}
+                    ${isJobOrderUpdated ? '(Edited)' : ''}`
+                  }}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-          v-if="can('submit:job_order_correction')"
-          class="flex h-8 items-center gap-2"
-        >
           <div
-            v-if="canManuallyUpdate"
-            class="ml-auto"
+            v-if="can('submit:job_order_correction')"
+            class="flex h-8 items-center gap-2"
           >
-            <StatusUpdater
-              :status="jobOrder.status"
-              :ticket="jobOrder.ticket"
-            />
-          </div>
-          <Separator
-            v-if="canManuallyUpdate"
-            orientation="vertical"
-          />
-          <div class="flex gap-5">
             <div
-              v-if="!unapprovedCorrections"
-              class="flex gap-5"
+              v-if="canManuallyUpdate"
+              class="ml-auto"
             >
-              <Button
-                v-show="!isEditing"
-                variant="outline"
-                @click="() => (isEditing = !isEditing)"
-              >
-                <Pencil class="mr-2" />
-                Request Correction
-              </Button>
-              <Button
-                v-show="isEditing"
-                variant="outline"
-                @click="() => (isEditing = !isEditing)"
-              >
-                <X class="mr-2" />
-                Cancel Correction
-              </Button>
+              <StatusUpdater
+                :status="jobOrder.status"
+                :ticket="jobOrder.ticket"
+              />
             </div>
-            <ArchiveColumn :jobOrder="jobOrder" />
+            <Separator
+              v-if="canManuallyUpdate"
+              orientation="vertical"
+            />
+            <div class="flex gap-5">
+              <div
+                v-if="!unapprovedCorrections"
+                class="flex gap-5"
+              >
+                <Button
+                  v-show="!isEditing"
+                  variant="outline"
+                  @click="() => (isEditing = !isEditing)"
+                >
+                  <Pencil class="mr-2" />
+                  Request Correction
+                </Button>
+                <Button
+                  v-show="isEditing"
+                  variant="outline"
+                  @click="() => (isEditing = !isEditing)"
+                >
+                  <X class="mr-2" />
+                  Cancel Correction
+                </Button>
+              </div>
+              <ArchiveColumn :jobOrder="jobOrder" />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="my-4 flex h-full flex-1 flex-col gap-4 rounded-xl">
-      <div class="mb-3 flex items-center">
-        <div class="flex w-full flex-col">
-          <form class="mx-7 grid gap-y-6">
-            <div>
-              <FirstSection
-                :is-editing="isEditing && can('update:job_order')"
-                :is-service-type-disabled="true"
-                v-model:service-type="jobOrder.serviceableType"
-                v-model:service-date="form.date_time"
-                v-model:service-time="form.time"
-                v-model:client="form.client"
-                v-model:address="form.address"
-                v-model:department="form.department"
-                v-model:contact-position="form.contact_position"
-                v-model:contact-person="form.contact_person"
-                v-model:contact-number="form.contact_no"
-              />
-            </div>
-            <div class="mt-2">
-              <Separator class="mb-3 w-full" />
-              <SecondSection
-                :status="jobOrder.status"
-                :dispatcher="jobOrder.serviceable?.dispatcher"
-                :appraisers="jobOrder.serviceable.appraisers"
-                :appraised-date="jobOrder.serviceable?.form3?.appraisedDate"
-                :serviceable-id="jobOrder.serviceable.id"
-                :employees="employees"
-                @load-employees="loadEmployees"
-              />
-            </div>
-            <div class="mt-2">
-              <Separator class="mb-3 w-full" />
-              <ThirdSection
-                :is-editing="isEditing && canUpdateProposal"
-                :is-submit-btn-disabled="form.processing"
-                :status="jobOrder.status"
-                :errors="form.errors"
-                v-model:payment-type="form.payment_type"
-                v-model:bid-bond="form.bid_bond"
-                v-model:or-number="form.or_number"
-                v-model:payment-date="form.payment_date"
-                v-model:approved-date="form.approved_date"
-                :employees="employees"
-                @on-submit="onSubmit"
-                @on-cancel-submit="form.cancel()"
-              />
-            </div>
-            <div class="mt-2">
-              <Separator class="mb-3 w-full" />
-              <FourthSection
-                :status="jobOrder.status"
-                :starting-date="jobOrder.serviceable?.form3?.from"
-                :ending-date="jobOrder.serviceable?.form3?.to"
-                :serviceable-id="jobOrder.serviceable.id"
-                :dispatcher="jobOrder.serviceable?.dispatcher"
-              />
-            </div>
-            <div
-              v-if="jobOrder.serviceable.form3?.haulings?.length"
-              class="mt-2"
-            >
-              <Separator class="mb-3 w-full" />
-              <FifthSection
-                :status="jobOrder.status"
-                :haulings="jobOrder.serviceable.form3?.haulings"
-                :employees="employees"
-                :serviceable-id="jobOrder.serviceable.id"
-                @load-employees="loadEmployees"
-              />
-            </div>
-            <div v-if="isEditing">
-              <Separator class="col-[1/-1] mb-3 w-full" />
-              <SixthSection
-                ref="sixthSection"
-                :status="jobOrder.status"
-                :error="form.errors?.reason"
-                v-model:reason="reason"
-              />
-            </div>
-            <div
-              v-if="can('update:job_order') && isEditing"
-              class="col-[1/-1] mt-4 flex w-full items-center"
-            >
-              <div class="ml-auto space-x-3">
-                <Button
-                  v-show="form.processing"
-                  type="button"
-                  variant="outline"
-                  @click="form.cancel()"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="default"
-                  :disabled="form.processing || !form.isDirty"
-                  @click="onSubmitCorrection"
-                >
-                  <LoaderCircle
-                    v-show="form.processing"
-                    class="animate-spin"
-                  />
-                  Submit Corrections
-                </Button>
+      <div class="my-4 flex h-full flex-1 flex-col gap-4 rounded-xl">
+        <div class="mb-3 flex items-center">
+          <div class="flex w-full flex-col">
+            <form class="grid gap-y-6">
+              <div>
+                <FirstSection
+                  :is-editing="isEditing && can('update:job_order')"
+                  :is-service-type-disabled="true"
+                  v-model:service-type="jobOrder.serviceableType"
+                  v-model:service-date="form.date_time"
+                  v-model:service-time="form.time"
+                  v-model:client="form.client"
+                  v-model:address="form.address"
+                  v-model:department="form.department"
+                  v-model:contact-position="form.contact_position"
+                  v-model:contact-person="form.contact_person"
+                  v-model:contact-number="form.contact_no"
+                />
               </div>
-            </div>
-          </form>
+              <div class="mt-2">
+                <Separator class="mb-3 w-full" />
+                <SecondSection
+                  :status="jobOrder.status"
+                  :dispatcher="jobOrder.serviceable?.dispatcher"
+                  :appraisers="jobOrder.serviceable.appraisers"
+                  :appraised-date="jobOrder.serviceable?.form3?.appraisedDate"
+                  :serviceable-id="jobOrder.serviceable.id"
+                  :employees="employees"
+                  @load-employees="loadEmployees"
+                />
+              </div>
+              <div class="mt-2">
+                <Separator class="mb-3 w-full" />
+                <ThirdSection
+                  :is-editing="isEditing && canUpdateProposal"
+                  :is-submit-btn-disabled="form.processing"
+                  :status="jobOrder.status"
+                  :errors="form.errors"
+                  v-model:payment-type="form.payment_type"
+                  v-model:bid-bond="form.bid_bond"
+                  v-model:or-number="form.or_number"
+                  v-model:payment-date="form.payment_date"
+                  v-model:approved-date="form.approved_date"
+                  :employees="employees"
+                  @on-submit="onSubmit"
+                  @on-cancel-submit="form.cancel()"
+                />
+              </div>
+              <div class="mt-2">
+                <Separator class="mb-3 w-full" />
+                <FourthSection
+                  :status="jobOrder.status"
+                  :starting-date="jobOrder.serviceable?.form3?.from"
+                  :ending-date="jobOrder.serviceable?.form3?.to"
+                  :serviceable-id="jobOrder.serviceable.id"
+                  :dispatcher="jobOrder.serviceable?.dispatcher"
+                />
+              </div>
+              <div
+                v-if="jobOrder.serviceable.form3?.haulings?.length"
+                class="mt-2"
+              >
+                <Separator class="mb-3 w-full" />
+                <FifthSection
+                  :status="jobOrder.status"
+                  :haulings="jobOrder.serviceable.form3?.haulings"
+                  :employees="employees"
+                  :serviceable-id="jobOrder.serviceable.id"
+                  @load-employees="loadEmployees"
+                />
+              </div>
+              <div v-if="isEditing">
+                <Separator class="col-[1/-1] mb-3 w-full" />
+                <SixthSection
+                  ref="sixthSection"
+                  :status="jobOrder.status"
+                  :error="form.errors?.reason"
+                  v-model:reason="reason"
+                />
+              </div>
+              <div
+                v-if="can('update:job_order') && isEditing"
+                class="col-[1/-1] mt-4 flex w-full items-center"
+              >
+                <div class="ml-auto space-x-3">
+                  <Button
+                    v-show="form.processing"
+                    type="button"
+                    variant="outline"
+                    @click="form.cancel()"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="default"
+                    :disabled="form.processing || !form.isDirty"
+                    @click="onSubmitCorrection"
+                  >
+                    <LoaderCircle
+                      v-show="form.processing"
+                      class="animate-spin"
+                    />
+                    Submit Corrections
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
