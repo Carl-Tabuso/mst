@@ -40,7 +40,7 @@ defineProps<JobOrderStatsGridProps>()
         class="item-center flex flex-row justify-between space-y-0 pb-2"
       >
         <CardTitle class="text-sm font-medium text-muted-foreground">
-          Peak Month
+          Top Month
         </CardTitle>
         <CalendarHeart class="h-4 w-4 stroke-1 text-muted-foreground" />
       </CardHeader>
@@ -48,7 +48,9 @@ defineProps<JobOrderStatsGridProps>()
         <div class="text-2xl font-bold text-primary">
           {{ top.month }}
         </div>
-        <p class="text-xs text-muted-foreground">Peak job order month</p>
+        <p class="text-xs text-muted-foreground">
+          Month with peak job order activity
+        </p>
       </CardContent>
     </Card>
     <Card class="shadow">

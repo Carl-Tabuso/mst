@@ -77,7 +77,7 @@ const top3Arrangement = computed(() => temp.toSpliced(1, 0, top3.value[0]))
             >
               {{ frontliner.rank }}
             </div>
-            <div class="max-w-[150px] truncate text-xs">
+            <div class="max-w-[150px] font-medium text-muted-foreground truncate text-xs">
               {{ frontliner.employee.fullName }}
             </div>
           </div>

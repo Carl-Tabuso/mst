@@ -86,7 +86,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
   <Head title="Reports and Analytics" />
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-6 mb-6 mt-3">
+    <div class="w-full max-w-screen-xl mx-auto px-6 mb-6 mt-3">
       <div class="flex items-start justify-between">
         <div class="flex flex-col">
           <h1 class="scroll-m-20 text-3xl font-bold text-primary">
@@ -116,14 +116,13 @@ const breadcrumbs: BreadcrumbItem[] = [
               </SelectItem>
             </SelectContent>
           </Select>
-          <Button
+          <!-- <Button
             variant="ghost"
             type="icon"
             class="rounded-md"
           >
             <Download />
-            <!-- Export -->
-          </Button>
+          </Button> -->
         </div>
       </div>
       <div class="mt-6 flex flex-col gap-4">
@@ -131,19 +130,19 @@ const breadcrumbs: BreadcrumbItem[] = [
           :total="data.totalJobOrders"
           :top="data.top"
         />
-        <div class="flex flex-col gap-4 lg:flex-row">
-          <FrontlinerRankings :frontliners="data.frontliners" />
-          <div class="flex-1">
-            <MonthlyJobOrderTrends :metrics="data.metrics" />
-          </div>
+        <div class="grid lg:grid-cols-3 md:grid-cols-2 sm-grid-cols-1 gap-4">
+          <FrontlinerRankings
+            :frontliners="data.frontliners"
+            class="col-span-1"
+          />
+          <MonthlyJobOrderTrends
+            :metrics="data.metrics"
+            class="lg:col-span-2 md:col-span-1"
+          />
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <ServiceTypeTrends :data="data.trends" />
-          </div>
-          <div>
-            <ServiceTypeCompletion :data="data.completion" />
-          </div>
+        <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-4">
+          <ServiceTypeTrends :data="data.trends" />
+          <ServiceTypeCompletion :data="data.completion" />
         </div>
       </div>
     </div>

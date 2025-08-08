@@ -59,25 +59,35 @@ class AnnualReportService
         $clients       = collect();
         $frontlinerIds = collect();
         $serviceTypes  = collect();
+        $monthlyItems  = collect();
 
-        $baseQuery->chunkById(100, function (Collection $jobOrders) use ($clients, $frontlinerIds, $serviceTypes) {
-            $groupedByMonths = $jobOrders->groupBy(fn ($jobOrder) => $jobOrder->created_at->monthName);
+        $baseQuery->chunkById(100, function (Collection $jobOrders)
+            use ($clients, $frontlinerIds, $serviceTypes, $monthlyItems) {
+                $groupedMonths = $jobOrders->groupBy(
+                    fn ($jobOrder) => $jobOrder->created_at->monthName
+                );
 
-            $groupedByMonths->each(function ($grouped, $month) {
-                $this->setMetrics($grouped, $month);
-                $this->calculateJobOrderServiceBreakdown($grouped);
-            });
+                $groupedMonths->each(function ($grouped, $month) {
+                    $this->setMetrics($grouped, $month);
+                    $this->calculateJobOrderServiceBreakdown($grouped);
+                });
 
-            $this->top['month'] = $groupedByMonths->search($groupedByMonths->max());
-            $clients->push($jobOrders->pluck('client'));
-            $frontlinerIds->push($jobOrders->pluck('created_by'));
-            $serviceTypes->push([
-                $jobOrders->pluck('serviceable_type')
-                    ->transform(fn ($type) => $type->value),
-            ]);
-        });
+                $clients->push($jobOrders->pluck('client'));
+
+                $frontlinerIds->push($jobOrders->pluck('created_by'));
+
+                $serviceTypes->push([
+                    $jobOrders->pluck('serviceable_type')
+                        ->transform(fn ($type) => $type->value),
+                ]);
+
+                $monthlyItems->push($groupedMonths);
+            }
+        );
 
         $this->findTopClient($clients);
+
+        $this->findTopMonth($monthlyItems);
 
         $this->setFrontlinerRankings($frontlinerIds);
 
@@ -93,11 +103,11 @@ class AnnualReportService
     public function getAvailableYears(): Collection
     {
         return JobOrder::query()
-            ->withTrashed()
-            ->selectRaw('YEAR(created_at) as year')
-            ->distinct()
-            ->orderByDesc('year')
-            ->pluck('year');
+                    ->withTrashed()
+                    ->selectRaw('YEAR(created_at) as year')
+                    ->distinct()
+                    ->orderByDesc('year')
+                    ->pluck('year');
     }
 
     private function setMetrics($grouped, $month): void
@@ -129,7 +139,9 @@ class AnnualReportService
             $serviceType = $jobOrder->serviceable_type;
             $status      = $jobOrder->status;
 
-            $serviceIndex = $this->completion->search(fn ($item) => $item['name'] === $serviceType->getLabel());
+            $serviceIndex = $this->completion->search(
+                fn ($item) => $item['name'] === $serviceType->getLabel()
+            );
 
             $completion = $this->completion->get($serviceIndex);
 
@@ -147,6 +159,21 @@ class AnnualReportService
         $topClient = $counts->search($maxValue);
 
         $this->top['client'] = $topClient;
+    }
+
+    private function findTopMonth(Collection $monthlyItems): void
+    {
+        $index = $monthlyItems->reduce(function (Collection $carry, Collection $items) {
+            $items->each(function (Collection $subItems, string $month) use ($carry) {
+                $carry[$month] = ($carry[$month] ?? 0) + $subItems->count();
+            });
+
+            return $carry;
+        }, collect());
+
+        $topMonth = $index->sortDesc()->keys()->first();
+
+        $this->top['month'] = $topMonth;
     }
 
     private function findTopJobOrderService(Collection $jobOrderServiceTypes): void
@@ -170,7 +197,6 @@ class AnnualReportService
 
     private function setFrontlinerRankings(Collection $frontlinerIds): void
     {
-        // dd($frontlinerIds);
         $frontliners = $frontlinerIds->flatten()->countBy()->sortDesc();
         $wrapped     = $frontliners->map(fn ($value, $id) => (object) [
             'id'      => $id,
