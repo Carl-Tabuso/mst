@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\JobOrderStatus;
 use App\Models\Form4;
 use App\Models\JobOrder;
 use App\Models\PerformanceSummary;
@@ -14,7 +15,7 @@ class PerformanceSummaryFactory extends Factory
     public function definition(): array
     {
         return [
-            'job_order_id'    => JobOrder::factory()->for(Form4::factory(), 'serviceable'),
+            'job_order_id'    => JobOrder::factory()->status(JobOrderStatus::Completed)->for(Form4::factory(), 'serviceable'),
             'overall_remarks' => $this->faker->optional()->sentence(12),
         ];
     }

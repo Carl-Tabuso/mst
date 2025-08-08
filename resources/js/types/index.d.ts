@@ -1,5 +1,6 @@
 import { HaulingStatusType } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { UserRoleType } from '@/constants/user-role'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
 import type { Config } from 'ziggy-js'
@@ -43,7 +44,7 @@ export interface User {
   updatedAt: string
   deletedAt?: string
   employee: Employee
-  roles: { id: number; name: string }[]
+  roles: { id: number; name: UserRoleType }[]
 }
 
 export interface Employee {

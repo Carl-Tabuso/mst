@@ -53,11 +53,15 @@ const canGoNextPage = computed(() => currentPage.value < props.lastPage)
               :placeholder="table.getState().pagination.pageSize.toString()"
             />
           </SelectTrigger>
-          <SelectContent side="top">
+          <SelectContent
+            side="top"
+            class="min-w-fit"
+          >
             <SelectItem
               v-for="pageSize in pageSizes"
               :key="pageSize"
               :value="pageSize"
+              class="pr-10"
             >
               {{ pageSize }}
             </SelectItem>

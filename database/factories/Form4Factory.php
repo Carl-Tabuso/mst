@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -28,7 +29,7 @@ class Form4Factory extends Factory
         ];
     }
 
-    public function paymentDate(string $date): static
+    public function paymentDate(Carbon $date): static
     {
         return $this->state(fn (array $attributes) => [
             'payment_date' => $date,

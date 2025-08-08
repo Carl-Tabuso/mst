@@ -75,7 +75,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Reports and Analytics',
-    href: '#',
+    href: '/reports',
     icon: ChartPie,
   },
   {

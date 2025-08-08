@@ -13,7 +13,7 @@ enum JobOrderServiceType: string
         return match ($this) {
             self::Form4     => 'Waste Management',
             self::Form5     => 'Other Services',
-            self::ITService => 'IT Services'
+            self::ITService => 'IT Service'
         };
     }
 }
