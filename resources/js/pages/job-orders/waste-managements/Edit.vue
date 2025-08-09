@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ArchiveColumn from '@/components/job-orders/ArchiveColumn.vue'
+import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -212,7 +212,7 @@ const unapprovedCorrections = computed(() => {
   <Head :title="jobOrder.ticket" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="w-full max-w-screen-xl mx-auto px-6 mb-6 mt-3">
+    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div
         class="sticky top-0 z-10 border-b border-border bg-background shadow-sm"
       >
@@ -301,7 +301,9 @@ const unapprovedCorrections = computed(() => {
                   {{ getInitials(jobOrder.creator?.fullName) }}
                 </AvatarFallback>
               </Avatar>
-              <div class="flex items-center gap-3 text-sm text-muted-foreground">
+              <div
+                class="flex items-center gap-3 text-sm text-muted-foreground"
+              >
                 <span>{{ `${jobOrder.creator?.fullName}` }}</span>
                 <span>•</span>
                 <div class="flex items-center gap-1">
@@ -471,7 +473,7 @@ const unapprovedCorrections = computed(() => {
             </form>
           </div>
         </div>
-      </div>      
+      </div>
     </div>
   </AppLayout>
 </template>
