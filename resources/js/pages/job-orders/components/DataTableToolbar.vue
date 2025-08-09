@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { router } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
+import { useDebounceFn } from '@vueuse/core'
 import {
   Archive,
   Download,
@@ -30,7 +31,7 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog'
+} from '../../../components/ui/dialog'
 import FilterPopover from './FilterPopover.vue'
 
 interface DataTableToolbarProps {
@@ -41,8 +42,12 @@ interface DataTableToolbarProps {
 const props = defineProps<DataTableToolbarProps>()
 
 const handleOnSearch = (value: string | number) => {
-  props.table.setGlobalFilter(value)
+  debounceGlobalFilter(value)
 }
+
+const debounceGlobalFilter = useDebounceFn((value) => {
+  props.table.setGlobalFilter(value)
+}, 500)
 
 const hasRowSelection = computed(
   () => props.table.getSelectedRowModel().rows.length > 0,
