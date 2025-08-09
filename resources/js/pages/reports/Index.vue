@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -15,6 +14,7 @@ import { router } from '@inertiajs/vue3'
 import { useUrlSearchParams } from '@vueuse/core'
 import { Download } from 'lucide-vue-next'
 import { ref } from 'vue'
+import { Button } from '@/components/ui/button'
 import FrontlinerRankings from './components/FrontlinerRankings.vue'
 import JobOrderStatsGrid from './components/JobOrderStatsGrid.vue'
 import MonthlyJobOrderTrends from './components/MonthlyJobOrderTrends.vue'
@@ -86,7 +86,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
   <Head title="Reports and Analytics" />
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="w-full max-w-screen-xl mx-auto px-6 mb-6 mt-3">
+    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div class="flex items-start justify-between">
         <div class="flex flex-col">
           <h1 class="scroll-m-20 text-3xl font-bold text-primary">
@@ -116,13 +116,13 @@ const breadcrumbs: BreadcrumbItem[] = [
               </SelectItem>
             </SelectContent>
           </Select>
-          <!-- <Button
+          <Button
             variant="ghost"
             type="icon"
             class="rounded-md"
           >
             <Download />
-          </Button> -->
+          </Button>
         </div>
       </div>
       <div class="mt-6 flex flex-col gap-4">
@@ -130,17 +130,17 @@ const breadcrumbs: BreadcrumbItem[] = [
           :total="data.totalJobOrders"
           :top="data.top"
         />
-        <div class="grid lg:grid-cols-3 md:grid-cols-2 sm-grid-cols-1 gap-4">
+        <div class="sm-grid-cols-1 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <FrontlinerRankings
             :frontliners="data.frontliners"
             class="col-span-1"
           />
           <MonthlyJobOrderTrends
             :metrics="data.metrics"
-            class="lg:col-span-2 md:col-span-1"
+            class="md:col-span-1 lg:col-span-2"
           />
         </div>
-        <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-4">
+        <div class="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
           <ServiceTypeTrends :data="data.trends" />
           <ServiceTypeCompletion :data="data.completion" />
         </div>
