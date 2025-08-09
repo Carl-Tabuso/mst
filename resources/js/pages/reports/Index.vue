@@ -13,6 +13,7 @@ import { BreadcrumbItem, Employee } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { useUrlSearchParams } from '@vueuse/core'
 import { ref } from 'vue'
+import { Button } from '@/components/ui/button'
 import FrontlinerRankings from './components/FrontlinerRankings.vue'
 import JobOrderStatsGrid from './components/JobOrderStatsGrid.vue'
 import MonthlyJobOrderTrends from './components/MonthlyJobOrderTrends.vue'
@@ -114,13 +115,13 @@ const breadcrumbs: BreadcrumbItem[] = [
               </SelectItem>
             </SelectContent>
           </Select>
-          <!-- <Button
+          <Button
             variant="ghost"
             type="icon"
             class="rounded-md"
           >
             <Download />
-          </Button> -->
+          </Button>
         </div>
       </div>
       <div class="mt-6 flex flex-col gap-4">
