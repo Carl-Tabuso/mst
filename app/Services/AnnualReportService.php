@@ -61,28 +61,27 @@ class AnnualReportService
         $serviceTypes  = collect();
         $monthlyItems  = collect();
 
-        $baseQuery->chunkById(100, function (Collection $jobOrders)
-            use ($clients, $frontlinerIds, $serviceTypes, $monthlyItems) {
-                $groupedMonths = $jobOrders->groupBy(
-                    fn ($jobOrder) => $jobOrder->created_at->monthName
-                );
+        $baseQuery->chunkById(100, function (Collection $jobOrders) use ($clients, $frontlinerIds, $serviceTypes, $monthlyItems) {
+            $groupedMonths = $jobOrders->groupBy(
+                fn ($jobOrder) => $jobOrder->created_at->monthName
+            );
 
-                $groupedMonths->each(function ($grouped, $month) {
-                    $this->setMetrics($grouped, $month);
-                    $this->calculateJobOrderServiceBreakdown($grouped);
-                });
+            $groupedMonths->each(function ($grouped, $month) {
+                $this->setMetrics($grouped, $month);
+                $this->calculateJobOrderServiceBreakdown($grouped);
+            });
 
-                $clients->push($jobOrders->pluck('client'));
+            $clients->push($jobOrders->pluck('client'));
 
-                $frontlinerIds->push($jobOrders->pluck('created_by'));
+            $frontlinerIds->push($jobOrders->pluck('created_by'));
 
-                $serviceTypes->push([
-                    $jobOrders->pluck('serviceable_type')
-                        ->transform(fn ($type) => $type->value),
-                ]);
+            $serviceTypes->push([
+                $jobOrders->pluck('serviceable_type')
+                    ->transform(fn ($type) => $type->value),
+            ]);
 
-                $monthlyItems->push($groupedMonths);
-            }
+            $monthlyItems->push($groupedMonths);
+        }
         );
 
         $this->findTopClient($clients);
@@ -103,11 +102,11 @@ class AnnualReportService
     public function getAvailableYears(): Collection
     {
         return JobOrder::query()
-                    ->withTrashed()
-                    ->selectRaw('YEAR(created_at) as year')
-                    ->distinct()
-                    ->orderByDesc('year')
-                    ->pluck('year');
+            ->withTrashed()
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
     }
 
     private function setMetrics($grouped, $month): void
