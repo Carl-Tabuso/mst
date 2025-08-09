@@ -15,6 +15,7 @@ enum UserPermission: string
     case AssignAppraisers                 = 'assign:appraisers';
     case SetHaulingDuration               = 'set:hauling_duration';
     case ViewActivityLogs                 = 'view:activiy_logs';
+    case ViewAnyJobOrder                  = 'view:any_job_order';
 
     public function getLabel(): string
     {
@@ -28,6 +29,7 @@ enum UserPermission: string
             self::AssignAppraisers                 => 'Assign Hauling Appraisers',
             self::SetHaulingDuration               => 'Set Hauling Duration',
             self::ViewActivityLogs                 => 'View Activity Logs',
+            self::ViewAnyJobOrder                  => 'View Any Job Order',
         };
     }
 
@@ -46,6 +48,7 @@ enum UserPermission: string
             self::AssignAppraisers,
             self::AssignHaulingPersonnel,
             self::SetHaulingDuration,
+            self::ViewAnyJobOrder,
         ];
     }
 
@@ -53,6 +56,7 @@ enum UserPermission: string
     {
         return [
             self::FillOutSafetyInspectionChecklist,
+            self::ViewAnyJobOrder,
         ];
     }
 
@@ -60,6 +64,7 @@ enum UserPermission: string
     {
         return [
             self::ApproveJobOrderCorrection,
+            self::ViewAnyJobOrder,
         ];
     }
 
