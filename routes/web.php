@@ -32,16 +32,25 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('job-orders')->name('job_order.')->group(function () {
-        Route::get('/', [JobOrderController::class, 'index'])->name('index');
-        Route::get('create', [JobOrderController::class, 'create'])->name('create');
-        Route::post('/', [JobOrderController::class, 'store'])->name('store');
+        Route::get('/', [JobOrderController::class, 'index'])
+            ->name('index')
+            ->middleware([
+                'role_or_permission:'.
+                    UserRole::Frontliner->value.'|'.
+                    UserPermission::ViewAnyJobOrder->value,
+            ]);
+        Route::get('create', [JobOrderController::class, 'create'])
+            ->name('create')
+            ->can('create', 'App\\Models\JobOrder');
         Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
         Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])->name('index');
-            Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])->name('edit');
+            Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])
+                ->name('edit')
+                ->can('view', 'ticket');
             Route::post('/', [WasteManagementController::class, 'store'])->name('store');
             Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
 
