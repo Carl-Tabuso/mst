@@ -13,6 +13,8 @@ use App\Models\Form3Hauling;
 use App\Models\Form3HaulingChecklist;
 use App\Models\Form4;
 use App\Models\JobOrder;
+use App\Services\WasteManagementService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -21,9 +23,25 @@ use Inertia\Response;
 
 class WasteManagementController extends Controller
 {
-    public function index()
+    private const PER_PAGE = 10;
+
+    public function __construct(private WasteManagementService $service) {}
+
+    public function index(Request $request): Response
     {
-        //
+        $perPage = $request->input('per_page', self::PER_PAGE);
+
+        $search = $request->input('search', '');
+
+        $filters = $request->input('filters', []);
+
+        $data = $this->service->getAllWasteManagementJobOrders($perPage, $search, $filters);
+
+        return Inertia::render('job-orders/waste-managements/Index', [
+            'data'           => $data,
+            'emptySearchImg' => asset('state/search-empty.svg'),
+            'emptyJobOrders' => asset('state/task-empty.svg'),
+        ]);
     }
 
     public function store(StoreWasteManagementRequest $request)
