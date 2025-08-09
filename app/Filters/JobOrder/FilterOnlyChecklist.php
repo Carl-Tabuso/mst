@@ -25,7 +25,7 @@ class FilterOnlyChecklist
                 $subQuery->where('team_leader', $this->user->employee->id);
             });
         });
-        
+
         return $next($builder);
     }
 }

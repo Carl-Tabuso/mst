@@ -3,14 +3,14 @@
 namespace App\Services;
 
 use App\Enums\JobOrderServiceType;
-use App\Filters\JobOrder\FilterServiceType;
-use App\Models\JobOrder;
-use App\Filters\JobOrder\SearchDetails;
-use App\Filters\JobOrder\FilterStatuses;
-use Illuminate\Support\Facades\Pipeline;
-use Illuminate\Database\Eloquent\Builder;
-use App\Filters\JobOrder\FilterOnlyCreated;
 use App\Filters\JobOrder\ApplyDateOfServiceRange;
+use App\Filters\JobOrder\FilterOnlyCreated;
+use App\Filters\JobOrder\FilterServiceType;
+use App\Filters\JobOrder\FilterStatuses;
+use App\Filters\JobOrder\SearchDetails;
+use App\Models\JobOrder;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Pipeline;
 
 class WasteManagementService
 {
