@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ArchiveColumn from '@/components/job-orders/ArchiveColumn.vue'
+import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
