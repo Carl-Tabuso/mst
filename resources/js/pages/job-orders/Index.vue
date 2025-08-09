@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { columns } from '@/components/job-orders/columns'
-import JobOrderDataTable from '@/components/job-orders/DataTable.vue'
-import Button from '@/components/ui/button/Button.vue'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { usePermissions } from '@/composables/usePermissions'
+import { columns } from './components/columns'
+import JobOrderDataTable from './components/DataTable.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
-import { Link } from '@inertiajs/vue3'
-import { Plus } from 'lucide-vue-next'
+import JobOrderServiceTypeTabs from './components/JobOrderServiceTypeTabs.vue'
+import PageHeader from './components/PageHeader.vue'
 
 interface IndexProps {
-  jobOrders: {
+  data: {
     data: JobOrder[]
     meta: EloquentCollection
   }
@@ -18,8 +15,6 @@ interface IndexProps {
 }
 
 defineProps<IndexProps>()
-
-const { can } = usePermissions()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -39,73 +34,15 @@ const breadcrumbs: BreadcrumbItem[] = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="mb-1 flex items-start">
-          <div class="flex flex-col">
-            <h3 class="scroll-m-20 text-3xl font-bold text-primary">
-              Job Order List
-            </h3>
-            <p class="text-muted-foreground">
-              You can manage the list of recent active job orders here!
-            </p>
-          </div>
-          <div
-            v-if="can('create:job_order')"
-            class="ml-auto"
-          >
-            <Link
-              :href="route('job_order.create')"
-              preserve-state
-            >
-              <Button variant="default">
-                <Plus class="mr-2" />
-                Create Job Order
-              </Button>
-            </Link>
-          </div>
-        </div>
-        <Tabs
-          :model-value="route().current()"
-          class="w-full"
-        >
-          <TabsList class="flex justify-start">
-            <Link :href="route('job_order.index')">
-              <TabsTrigger
-                value="job_order.index"
-                class="px-7"
-              >
-                All
-              </TabsTrigger>
-            </Link>
-            <Link :href="route('job_order.waste_management.index')">
-              <TabsTrigger
-                value="waste_management"
-                class="px-7"
-              >
-                Waste Management
-              </TabsTrigger>
-            </Link>
-            <Link :href="route('job_order.it_service.index')">
-              <TabsTrigger
-                value="job_order.it_service"
-                class="px-7"
-              >
-                IT Services
-              </TabsTrigger>
-            </Link>
-            <Link :href="route('job_order.other.index')">
-              <TabsTrigger
-                value="job_order.others"
-                class="px-7"
-              >
-                Other Services
-              </TabsTrigger>
-            </Link>
-          </TabsList>
-        </Tabs>
+        <PageHeader
+          title="Job Order List"
+          sub-title="You can manage the list of any service types of active job orders here!"
+        />
+        <JobOrderServiceTypeTabs />
         <JobOrderDataTable
           :columns="columns"
-          :data="jobOrders.data"
-          :meta="jobOrders.meta"
+          :data="data.data"
+          :meta="data.meta"
           :emptyImgUri="emptySearchImg"
         />
       </div>
