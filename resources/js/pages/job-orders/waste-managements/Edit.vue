@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +22,7 @@ import {
   type JobOrderStatus,
 } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
+import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import { compareDesc, format } from 'date-fns'
