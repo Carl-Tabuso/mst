@@ -114,13 +114,13 @@ const breadcrumbs: BreadcrumbItem[] = [
               </SelectItem>
             </SelectContent>
           </Select>
-          <!-- <Button
+          <Button
             variant="ghost"
             type="icon"
             class="rounded-md"
           >
             <Download />
-          </Button> -->
+          </Button>
         </div>
       </div>
       <div class="mt-6 flex flex-col gap-4">

@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\ActivityLogName;
 use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
+use App\Policies\JobOrderPolicy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +21,7 @@ use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+#[UsePolicy(JobOrderPolicy::class)]
 class JobOrder extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
@@ -67,7 +70,8 @@ class JobOrder extends Model
         return parent::resolveRouteBinding($modelId, $field);
     }
 
-    public function scopeOfStatuses(Builder $query, JobOrderStatus|array $statuses): Builder
+    #[Scope]
+    public function ofStatuses(Builder $query, JobOrderStatus|array $statuses): Builder
     {
         if ($statuses instanceof JobOrderStatus) {
             return $query->where('status', $statuses->value);
@@ -80,6 +84,12 @@ class JobOrder extends Model
         }
 
         return $query->whereIn('status', $values);
+    }
+
+    #[Scope]
+    public function ofServiceType(Builder $query, JobOrderServiceType $type): Builder
+    {
+        return $query->where('serviceable_type', $type->value);
     }
 
     #[Scope]

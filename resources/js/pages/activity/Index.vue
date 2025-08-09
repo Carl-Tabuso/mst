@@ -74,7 +74,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Activity Logs" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-6 mb-6 mt-3">
+    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div class="flex items-start justify-between">
         <div>
           <h1 class="scroll-m-20 text-3xl font-bold text-primary">
