@@ -26,7 +26,15 @@ class Form3Hauling extends Model
 
     public function isOpen(): bool
     {
-        return today()->lte($this->date);
+        return today()->lte($this->date) && ! in_array($this->status, [
+            HaulingStatus::Done,
+            HaulingStatus::InProgress,
+        ]);
+    }
+
+    public function markAsDone(): void
+    {
+        $this->update(['status' => HaulingStatus::Done]);
     }
 
     public function form3(): BelongsTo
@@ -53,4 +61,6 @@ class Form3Hauling extends Model
     {
         return $this->hasOne(Form3HaulingChecklist::class);
     }
+
+    // add listener for activity logging
 }
