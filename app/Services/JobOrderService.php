@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Pipeline;
 
 class JobOrderService
 {
-    public function getAllJobOrders(?int $perPage = 10, ?string $search = '', ?array $filters = [])
+    public function getAllJobOrders(?int $perPage = 10, ?string $search = '', ?array $filters = []): mixed
     {
         $user = request()->user();
 
