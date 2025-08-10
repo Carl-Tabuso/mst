@@ -15,9 +15,9 @@ class ReportController extends Controller
     {
         $year = $request->integer('year', now()->year);
 
-        $data = $this->service->processAnnualReport($year);
+        $data = Inertia::optional(fn () => $this->service->processAnnualReport($year));
 
-        $availableYears = $this->service->getAvailableYears();
+        $availableYears = Inertia::optional(fn () => $this->service->getAvailableYears());
 
         return Inertia::render('reports/Index', compact('data', 'availableYears'));
     }
