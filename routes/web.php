@@ -176,11 +176,15 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('test', function () {
-    $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get()->pluck('email');
-    $teamLeaders          = User::role(UserRole::TeamLeader)->get()->pluck('email');
+    $dispatchers = User::role(UserRole::Dispatcher)->get()->pluck('email');
+    $teamLeaders = User::role(UserRole::TeamLeader)->get()->pluck('email');
+    $head        = User::role(UserRole::HeadFrontliner)->get()->pluck('email');
     dd(
-        $dispatcherPermission,
-        $teamLeaders,
+        [
+            'dispatchers'  => $dispatchers,
+            'team leaders' => $teamLeaders,
+            'head'         => $head,
+        ],
     );
 });
 

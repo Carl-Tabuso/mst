@@ -22,14 +22,14 @@ const handleSidebarChange = (open: boolean) => {
 </script>
 
 <template>
-  <Toaster
-    position="bottom-left"
-    rich-colors
-  />
   <div
     v-if="variant === 'header'"
     class="flex min-h-screen w-full flex-col"
   >
+    <Toaster
+      position="bottom-left"
+      rich-colors
+    />
     <slot />
   </div>
   <SidebarProvider
@@ -38,6 +38,10 @@ const handleSidebarChange = (open: boolean) => {
     :open="isOpen"
     @update:open="handleSidebarChange"
   >
+    <Toaster
+      position="bottom-left"
+      rich-colors
+    />
     <slot />
   </SidebarProvider>
 </template>

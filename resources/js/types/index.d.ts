@@ -13,6 +13,7 @@ export interface Auth {
 export interface BreadcrumbItem {
   title: string
   href: string
+  can?: boolean
 }
 
 export interface NavItem {

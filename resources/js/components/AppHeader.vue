@@ -31,9 +31,9 @@ import {
 } from '@/components/ui/tooltip'
 import UserMenuContent from '@/components/UserMenuContent.vue'
 import { getInitials } from '@/composables/useInitials'
-import type { BreadcrumbItem, NavItem } from '@/types'
+import { SharedData, type BreadcrumbItem, type NavItem } from '@/types'
 import { Link, usePage } from '@inertiajs/vue3'
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next'
+import { History, Home, Menu, UserRoundCog } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 interface Props {
@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<Props>(), {
   breadcrumbs: () => [],
 })
 
-const page = usePage()
+const page = usePage<SharedData>()
 const auth = computed(() => page.props.auth)
 
 const isCurrentRoute = computed(() => (url: string) => page.url === url)
@@ -60,26 +60,76 @@ const mainNavItems: NavItem[] = [
   {
     title: 'Home',
     href: '/',
-    icon: LayoutGrid,
+    icon: Home,
   },
+  // {
+  //   title: 'Job Order',
+  //   href: '#',
+  //   icon: ClipboardList,
+  //   items: [
+  //     {
+  //       title: 'Lists',
+  //       href: '/job-orders',
+  //     },
+  //     {
+  //       title: 'Corrections',
+  //       href: '/job-orders/corrections',
+  //     },
+  //   ],
+  // },
+  {
+    title: 'User Management',
+    href: '/users',
+    icon: UserRoundCog,
+  },
+  // {
+  //   title: 'Employee Management',
+  //   href: '#',
+  //   icon: UsersRound,
+  // },
+  {
+    title: 'Activity Logs',
+    href: '/activities',
+    icon: History,
+  },
+  // {
+  //   title: 'Incident Report',
+  //   href: '/incidents/report',
+  //   icon: FilePenLine,
+  // },
+  // {
+  //   title: 'Performance Monitoring',
+  //   href: '/performances',
+  //   icon: Award,
+  // },
+  // {
+  //   title: 'Reports and Analytics',
+  //   href: '/reports',
+  //   icon: ChartPie,
+  // },
+  // {
+  //   title: 'Archives',
+  //   href: '#',
+  //   icon: Archive,
+  // },
 ]
 
 const rightNavItems: NavItem[] = [
-  {
-    title: 'Repository',
-    href: 'https://github.com/laravel/vue-starter-kit',
-    icon: Folder,
-  },
-  {
-    title: 'Documentation',
-    href: 'https://laravel.com/docs/starter-kits',
-    icon: BookOpen,
-  },
+  // {
+  //   title: 'Repository',
+  //   href: 'https://github.com/laravel/vue-starter-kit',
+  //   icon: Folder,
+  // },
+  // {
+  //   title: 'Documentation',
+  //   href: 'https://laravel.com/docs/starter-kits',
+  //   icon: BookOpen,
+  // },
 ]
 </script>
 
 <template>
-  <div>
+  <div class="sticky top-0 z-10 bg-background">
     <div class="border-b border-sidebar-border/80">
       <div class="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
         <!-- Mobile Menu -->
@@ -172,9 +222,9 @@ const rightNavItems: NavItem[] = [
                     <component
                       v-if="item.icon"
                       :is="item.icon"
-                      class="mr-2 h-4 w-4"
+                      class="h-4 w-4"
                     />
-                    {{ item.title }}
+                    <!-- {{ item.title }} -->
                   </NavigationMenuLink>
                 </Link>
                 <div
@@ -193,7 +243,7 @@ const rightNavItems: NavItem[] = [
               size="icon"
               class="group h-9 w-9 cursor-pointer"
             >
-              <Search class="size-5 opacity-80 group-hover:opacity-100" />
+              <!-- <Search class="size-5 opacity-80 group-hover:opacity-100" /> -->
             </Button>
 
             <div class="hidden space-x-1 lg:flex">
@@ -243,12 +293,12 @@ const rightNavItems: NavItem[] = [
                   <AvatarImage
                     v-if="auth.user.avatar"
                     :src="auth.user.avatar"
-                    :alt="auth.user.name"
+                    :alt="auth.user.employee.full_name"
                   />
                   <AvatarFallback
                     class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white"
                   >
-                    {{ getInitials(auth.user?.name) }}
+                    {{ getInitials(auth.user.employee.full_name) }}
                   </AvatarFallback>
                 </Avatar>
               </Button>
