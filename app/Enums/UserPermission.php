@@ -16,6 +16,7 @@ enum UserPermission: string
     case SetHaulingDuration               = 'set:hauling_duration';
     case ViewActivityLogs                 = 'view:activiy_logs';
     case ViewAnyJobOrder                  = 'view:any_job_order';
+    case ManageEmployeeAccount            = 'manage:employee_account';
 
     public function getLabel(): string
     {
@@ -30,6 +31,7 @@ enum UserPermission: string
             self::SetHaulingDuration               => 'Set Hauling Duration',
             self::ViewActivityLogs                 => 'View Activity Logs',
             self::ViewAnyJobOrder                  => 'View Any Job Order',
+            self::ManageEmployeeAccount            => 'Manage Employee Account',
         };
     }
 
@@ -72,6 +74,7 @@ enum UserPermission: string
     {
         return [
             self::ViewActivityLogs,
+            self::ManageEmployeeAccount,
         ];
     }
 
