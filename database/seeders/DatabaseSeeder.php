@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             ClosedJobOrderSeeder::class,
             PerformanceCategorySeeder::class,
             PerformanceRatingSeeder::class,
-            TeamLeaderPerformanceSeeder::class,
+            // TeamLeaderPerformanceSeeder::class,
             EmployeePerformanceSeeder::class,
             JobOrderCorrectionSeeder::class,
             UserSeeder::class,

@@ -24,6 +24,7 @@ class PositionSeeder extends Seeder
         'Hauler',
         'Technician',
         'Head Frontliner',
+        'IT Admin',
     ];
 
     /**

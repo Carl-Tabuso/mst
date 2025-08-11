@@ -38,11 +38,19 @@ class RolesAndPermissionsSeeder extends Seeder
             Role::firstOrCreate(['name' => UserRole::HeadFrontliner])
                 ->givePermissionTo($this->useValue(UserPermission::getHeadFrontlinerPermissions()));
 
-            Role::firstOrCreate(['name' => UserRole::SafetyOfficer]);
-            Role::firstOrCreate(['name' => UserRole::HumanResource]);
-            Role::firstOrCreate(['name' => UserRole::Consultant]);
+            Role::firstOrCreate(['name' => UserRole::ITAdmin])
+                ->givePermissionTo($this->useValue(UserPermission::getITAdminPermissions()));
+
+            Role::firstOrCreate(['name' => UserRole::SafetyOfficer])
+                ->givePermissionTo($this->useValue(UserPermission::getSafetyOfficerPermissions()));
+
+            Role::firstOrCreate(['name' => UserRole::HumanResource])
+                ->givePermissionTo($this->useValue(UserPermission::getHumanResourcePermissions()));
+
+            Role::firstOrCreate(['name' => UserRole::Consultant])
+                ->givePermissionTo($this->useValue(UserPermission::getConsultantPermissions()));
+
             Role::firstOrCreate(['name' => UserRole::Regular]);
-            Role::firstOrCreate(['name' => USerRole::ITAdmin]);
         });
     }
 

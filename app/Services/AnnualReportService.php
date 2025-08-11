@@ -88,7 +88,7 @@ class AnnualReportService
 
         $this->findTopMonth($monthlyItems);
 
-        $this->setFrontlinerRankings($frontlinerIds);
+        $this->frontliners = $this->getFrontlinerRankings($frontlinerIds);
 
         $this->totalJobOrders = $baseQuery->count();
 
@@ -194,7 +194,7 @@ class AnnualReportService
         ])->values();
     }
 
-    private function setFrontlinerRankings(Collection $frontlinerIds): void
+    public function getFrontlinerRankings(Collection $frontlinerIds): Collection
     {
         $frontliners = $frontlinerIds->flatten()->countBy()->sortDesc();
         $wrapped     = $frontliners->map(fn ($value, $id) => (object) [
@@ -204,11 +204,13 @@ class AnnualReportService
 
         $frontlinerModels = Employee::with('account:avatar')->findMany($frontliners->keys());
 
-        $this->frontliners = $wrapped->map(fn ($item, $index) => [
+        $rankings = $wrapped->map(fn ($item, $index) => [
             'employee'              => EmployeeResource::make($frontlinerModels->firstWhere('id', $item->id)),
             'createdJobOrdersCount' => $item->created,
             'rank'                  => $index + 1,
         ])->values();
+
+        return $rankings;
     }
 
     private function getCompletedStatusCount(Collection $collection): int
