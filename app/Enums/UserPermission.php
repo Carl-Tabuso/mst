@@ -14,9 +14,13 @@ enum UserPermission: string
     case AssignHaulingPersonnel           = 'assign:hauling_personnel';
     case AssignAppraisers                 = 'assign:appraisers';
     case SetHaulingDuration               = 'set:hauling_duration';
-    case ViewActivityLogs                 = 'view:activiy_logs';
+    case ViewActivityLogs                 = 'view:activity_logs';
     case ViewAnyJobOrder                  = 'view:any_job_order';
-    case ManageEmployeeAccount            = 'manage:employee_account';
+    case ManageUsers                      = 'manage:users';
+    case ManageIncidentReports            = 'manage:incident_reports';
+    case ManageEmployees                  = 'manage:employees';
+    case ViewReportsAnalytics             = 'view:reports_analytics';
+    case ViewPerformances                 = 'view:performances';
 
     public function getLabel(): string
     {
@@ -31,7 +35,10 @@ enum UserPermission: string
             self::SetHaulingDuration               => 'Set Hauling Duration',
             self::ViewActivityLogs                 => 'View Activity Logs',
             self::ViewAnyJobOrder                  => 'View Any Job Order',
-            self::ManageEmployeeAccount            => 'Manage Employee Account',
+            self::ManageUsers                      => 'Manage Employee Account',
+            self::ManageIncidentReports            => 'Manage Incident Reports',
+            self::ManageEmployees                  => 'Manage Employees',
+            self::ViewReportsAnalytics             => 'View Reports And Analytics'
         };
     }
 
@@ -67,6 +74,9 @@ enum UserPermission: string
         return [
             self::ApproveJobOrderCorrection,
             self::ViewAnyJobOrder,
+            self::ViewActivityLogs,
+            self::ViewReportsAnalytics,
+            self::ViewPerformances,
         ];
     }
 
@@ -74,7 +84,30 @@ enum UserPermission: string
     {
         return [
             self::ViewActivityLogs,
-            self::ManageEmployeeAccount,
+            self::ManageUsers,
+        ];
+    }
+
+    public static function getConsultantPermissions(): array
+    {
+        return [
+            self::ManageIncidentReports,
+            self::ViewReportsAnalytics,
+            self::ViewPerformances,
+        ];
+    }
+
+    public static function getHumanResourcePermissions(): array
+    {
+        return [
+            self::ManageEmployees,
+        ];
+    }
+
+    public static function getSafetyOfficerPermissions(): array
+    {
+        return [
+            self::ManageIncidentReports,
         ];
     }
 
