@@ -13,7 +13,6 @@ export interface Auth {
 export interface BreadcrumbItem {
   title: string
   href: string
-  can?: boolean
 }
 
 export interface NavItem {
@@ -25,6 +24,7 @@ export interface NavItem {
     title: string
     href: string
   }[]
+  can?: boolean
 }
 
 export interface SharedData extends PageProps {
