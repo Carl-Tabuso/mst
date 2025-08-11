@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getInitials } from '@/composables/useInitials'
 import { Employee } from '@/types'
+import { Download } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 interface FrontlinerRankingsProps {
@@ -19,18 +21,37 @@ const props = defineProps<FrontlinerRankingsProps>()
 const top3 = computed(() => props.frontliners.slice(0, 3))
 const temp = top3.value.toSpliced(0, 1)
 const top3Arrangement = computed(() => temp.toSpliced(1, 0, top3.value[0]))
+
+const onFrontlinerExport = () => {
+  window.open(
+    route('job_order.export.frontliner_rankings', {
+      // jobOrderIds: jobOrderIds.value,
+    }),
+    '_blank',
+  )
+}
 </script>
 
 <template>
   <Card class="shadow">
-    <CardHeader class="item-center mb-3 flex flex-col justify-between">
-      <CardTitle class="text-lg font-semibold leading-[11px]">
-        Frontliner Rankings
-      </CardTitle>
-      <p class="text-sm text-muted-foreground">
-        Ranking is based on the total job orders created.
-      </p>
-    </CardHeader>
+    <div class="flex justify-between mb-3">
+      <CardHeader class="item-center flex flex-col justify-between">
+        <CardTitle class="text-lg font-semibold leading-[11px]">
+          Frontliner Rankings
+        </CardTitle>
+        <p class="text-sm text-muted-foreground">
+          Based on the total job orders created.
+        </p>
+      </CardHeader> 
+      <Button
+        type="icon"
+        variant="ghost"
+        @click="onFrontlinerExport"
+        class="h-4 w-4 mt-6 mr-6 bg-none hover:bg-none p-0"
+      >
+        <Download />
+      </Button>        
+    </div>
     <CardContent class="flex flex-col gap-3">
       <div class="mx-auto flex items-end justify-center gap-1">
         <div

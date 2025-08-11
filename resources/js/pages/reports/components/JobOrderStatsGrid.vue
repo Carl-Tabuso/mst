@@ -63,14 +63,7 @@ defineProps<JobOrderStatsGridProps>()
         <BriefcaseBusiness class="h-4 w-4 stroke-1 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div
-          :class="[
-            'font-bold text-primary sm:text-2xl',
-            top.client.length > 12
-              ? 'lg:max-w-52 lg:truncate lg:text-lg'
-              : 'text-2xl',
-          ]"
-        >
+        <div class="text-2xl font-bold text-primary lg:max-w-56 lg:truncate">
           {{ top.client }}
         </div>
         <p class="text-xs text-muted-foreground">
@@ -88,14 +81,7 @@ defineProps<JobOrderStatsGridProps>()
         <Wrench class="h-4 w-4 stroke-1 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div
-          :class="[
-            'font-bold text-primary sm:text-2xl',
-            top.client.length > 12
-              ? 'lg:max-w-52 lg:truncate lg:text-lg'
-              : 'text-2xl',
-          ]"
-        >
+        <div class="text-2xl font-bold text-primary lg:max-w-56 lg:truncate">
           {{ top.service }}
         </div>
         <p class="text-xs text-muted-foreground">Most availed service type</p>

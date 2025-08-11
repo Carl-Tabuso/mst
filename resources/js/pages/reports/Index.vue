@@ -51,7 +51,7 @@ interface IndexProps {
     }[]
     year: number
   }
-  availableYears: number[]
+  availableYears?: number[]
 }
 
 const urlParam = useUrlSearchParams('history')
@@ -73,6 +73,7 @@ const onYearSelect = (year: number) => {
     },
     {
       only: ['data'],
+      showProgress: false,
       preserveState: true,
       replace: true,
       onSuccess: () => (selectedYear.value = year),

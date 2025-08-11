@@ -9,6 +9,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeRatingController;
 use App\Http\Controllers\ExportActivityLogController;
+use App\Http\Controllers\ExportFrontlinerRankingsController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
@@ -45,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
         Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
         Route::get('export', ExportJobOrderController::class)->name('export');
+        Route::get('export-frontliner', ExportFrontlinerRankingsController::class)->name('export.frontliner_rankings');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])->name('index');
@@ -82,7 +84,7 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    Route::prefix('activities')->name('activity.')->group(function () {
+    Route::middleware(['can:viewActivityLogs'])->prefix('activities')->name('activity.')->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('export', ExportActivityLogController::class)->name('export');
     });
@@ -171,19 +173,23 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/job-orders/dropdown', [JobOrderController::class, 'dropdownOptions']);
         Route::get('/users', [UserController::class, 'getUsersData']);
         Route::get('/positions', [\App\Http\Controllers\PositionController::class, 'index']);
-
     });
 });
 
 Route::get('test', function () {
-    $dispatchers = User::role(UserRole::Dispatcher)->get()->pluck('email');
-    $teamLeaders = User::role(UserRole::TeamLeader)->get()->pluck('email');
-    $head        = User::role(UserRole::HeadFrontliner)->get()->pluck('email');
+    $dispatchers = User::role(UserRole::Dispatcher)->get()->pluck('email')->toArray();
+    $teamLeaders = User::role(UserRole::TeamLeader)->get()->pluck('email')->toArray();
+    $head        = User::role(UserRole::HeadFrontliner)->first()->email;
+    $itAdmins    = User::role(UserRole::ITAdmin)->get()->pluck('email')->toArray();
+    $consultants = User::role(UserRole::Consultant)->get()->pluck('email')->toArray();
     dd(
         [
             'dispatchers'  => $dispatchers,
             'team leaders' => $teamLeaders,
             'head'         => $head,
+            'it admins'    => $itAdmins,
+            'consultants'  => $consultants,
+            User::first()->permissions()
         ],
     );
 });
