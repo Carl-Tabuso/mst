@@ -219,7 +219,7 @@ const unapprovedCorrections = computed(() => {
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div
-        class="sticky top-3 z-10 border-b border-border bg-background shadow-sm"
+        class="sticky top-3 z-10 mt-auto border-b border-border bg-background shadow-sm"
       >
         <div
           v-if="unapprovedCorrections"
