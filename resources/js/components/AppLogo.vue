@@ -4,13 +4,12 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue'
 
 <template>
   <div
-    class="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground"
+    class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
   >
     <AppLogoIcon class="size-5 fill-current text-white dark:text-black" />
   </div>
-  <div class="ml-1 grid flex-1 text-left text-sm">
-    <span class="mb-0.5 truncate font-semibold leading-none"
-      >Laravel Starter Kit</span
-    >
+  <div class="grid flex-1 text-left text-sm leading-tight">
+    <span class="truncate font-semibold">JOMS</span>
+    <span class="truncate text-xs">Hauling Services</span>
   </div>
 </template>
