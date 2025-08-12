@@ -10,6 +10,7 @@ use App\Http\Controllers\EmployeeRatingController;
 use App\Http\Controllers\ExportActivityLogController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\ExportReportsController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
@@ -22,9 +23,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
-
-    // Home (Default route with Inertia)
-    Route::inertia('/', 'Home')->name('home');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
 
     /*
     |--------------------------------------------------------------------------
