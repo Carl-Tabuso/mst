@@ -1,10 +1,25 @@
 <script setup lang="ts">
 import AppLogoIcon from '@/components/AppLogoIcon.vue'
+import { cn } from '@/lib/utils'
+import { HTMLAttributes } from 'vue'
+
+interface AppLogoProps {
+  class?: HTMLAttributes['class']
+}
+
+const props = defineProps<AppLogoProps>()
 </script>
 
 <template>
   <div
-    class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
+    :class="
+      cn(
+        [
+          'flex aspect-square size-8 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground',
+        ],
+        props.class,
+      )
+    "
   >
     <AppLogoIcon class="size-5 fill-current text-white dark:text-black" />
   </div>

@@ -223,7 +223,7 @@ const rightNavItems: NavItem[] = [
           :href="route('home')"
           class="flex items-center gap-x-2"
         >
-          <AppLogo />
+          <AppLogo class="size-10" />
         </Link>
 
         <!-- Desktop Menu -->
