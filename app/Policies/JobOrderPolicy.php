@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\UserPermission;
+use App\Enums\UserRole;
 use App\Models\JobOrder;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -11,9 +12,11 @@ class JobOrderPolicy
 {
     public function viewAny(User $user): Response
     {
-        return $user->hasPermissionTo(UserPermission::ViewAnyJobOrder)
-            ? Response::allow()
-            : Response::deny();
+        return
+            $user->hasPermissionTo(UserPermission::ViewAnyJobOrder) ||
+            $user->hasRole(UserRole::Frontliner)
+                ? Response::allow()
+                : Response::deny();
     }
 
     public function view(User $user, JobOrder $jobOrder): Response
@@ -33,14 +36,18 @@ class JobOrderPolicy
             : Response::deny();
     }
 
-    public function update(User $user, JobOrder $jobOrder): bool
+    public function update(User $user, JobOrder $jobOrder): Response
     {
-        return false;
+        return $user->hasPermissionTo(UserPermission::UpdateJobOrder)
+            ? Response::allow()
+            : Response::deny();
     }
 
-    public function delete(User $user, JobOrder $jobOrder): bool
+    public function delete(User $user, JobOrder $jobOrder): Response
     {
-        return false;
+        return $user->hasPermissionTo(UserPermission::UpdateJobOrder)
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function restore(User $user, JobOrder $jobOrder): bool
