@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ArchiveColumn from '@/components/job-orders/ArchiveColumn.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +22,7 @@ import {
   type JobOrderStatus,
 } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
+import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
 import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import { compareDesc, format } from 'date-fns'
@@ -38,19 +38,21 @@ import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
 
 interface WasteManagementEditProps {
-  jobOrder: JobOrder
-  employees?: Employee[]
+  data: {
+    jobOrder: JobOrder
+    employees?: Employee[]
+  }
 }
 
 const props = defineProps<WasteManagementEditProps>()
 
-const serviceDate = new Date(props.jobOrder.dateTime)
+const serviceDate = new Date(props.data.jobOrder.dateTime)
 
 const { can } = usePermissions()
 const { canUpdateProposalInformation } = useWasteManagementStages()
 
 const canUpdateProposal = computed(() => {
-  return canUpdateProposalInformation(props.jobOrder.status)
+  return canUpdateProposalInformation(props.data.jobOrder.status)
 })
 
 const form = useForm<Record<string, any>>({
@@ -60,22 +62,22 @@ const form = useForm<Record<string, any>>({
     minute: '2-digit',
     hour12: false,
   }),
-  client: props.jobOrder.client,
-  address: props.jobOrder.address,
-  department: props.jobOrder.department,
-  contact_position: props.jobOrder.contactPosition,
-  contact_person: props.jobOrder.contactPerson,
-  contact_no: props.jobOrder.contactNo,
-  payment_date: props.jobOrder.serviceable?.paymentDate,
-  payment_type: props.jobOrder.serviceable?.form3?.paymentType,
-  bid_bond: props.jobOrder.serviceable?.bidBond,
-  or_number: props.jobOrder.serviceable?.orNumber,
-  status: props.jobOrder.status,
-  approved_date: props.jobOrder.serviceable?.form3?.approvedDate,
+  client: props.data.jobOrder.client,
+  address: props.data.jobOrder.address,
+  department: props.data.jobOrder.department,
+  contact_position: props.data.jobOrder.contactPosition,
+  contact_person: props.data.jobOrder.contactPerson,
+  contact_no: props.data.jobOrder.contactNo,
+  payment_date: props.data.jobOrder.serviceable?.paymentDate,
+  payment_type: props.data.jobOrder.serviceable?.form3?.paymentType,
+  bid_bond: props.data.jobOrder.serviceable?.bidBond,
+  or_number: props.data.jobOrder.serviceable?.orNumber,
+  status: props.data.jobOrder.status,
+  approved_date: props.data.jobOrder.serviceable?.form3?.approvedDate,
 })
 
 watch(
-  () => props.jobOrder,
+  () => props.data.jobOrder,
   (newValue) => {
     const { serviceable: service } = newValue
     const form3 = service?.form3
@@ -98,12 +100,15 @@ watch(
 )
 
 const jobOrderStatus = computed(() =>
-  JobOrderStatuses.find((s) => props.jobOrder.status === s.id),
+  JobOrderStatuses.find((s) => props.data.jobOrder.status === s.id),
 )
 
 const onSubmit = () => {
   form.patch(
-    route('job_order.waste_management.update', props.jobOrder.serviceable.id),
+    route(
+      'job_order.waste_management.update',
+      props.data.jobOrder.serviceable.id,
+    ),
     {
       preserveScroll: true,
       onSuccess: (page: any) => {
@@ -131,7 +136,7 @@ const onSubmitCorrection = () => {
       contact_person: data.contact_person,
       contact_no: data.contact_no,
       reason: reason.value,
-      ...(canCorrectProposalInformation(props.jobOrder.status)
+      ...(canCorrectProposalInformation(props.data.jobOrder.status)
         ? {
             payment_date: new Date(data.payment_date).toLocaleString(),
             or_number: data.or_number,
@@ -141,7 +146,7 @@ const onSubmitCorrection = () => {
           }
         : {}),
     }))
-    .post(route('job_order.correction.store', props.jobOrder.ticket), {
+    .post(route('job_order.correction.store', props.data.jobOrder.ticket), {
       onSuccess: (page: any) => {
         form.reset()
         isEditing.value = false
@@ -163,7 +168,7 @@ const manualStatuses: Array<JobOrderStatus> = [
 ]
 
 const canManuallyUpdate = computed(() =>
-  manualStatuses.includes(props.jobOrder.status),
+  manualStatuses.includes(props.data.jobOrder.status),
 )
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -176,13 +181,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/job-orders',
   },
   {
-    title: props.jobOrder.ticket,
+    title: props.data.jobOrder.ticket,
     href: '#',
   },
 ]
 
-const createdAt = computed(() => new Date(props.jobOrder.createdAt))
-const updatedAt = computed(() => new Date(props.jobOrder.updatedAt))
+const createdAt = computed(() => new Date(props.data.jobOrder.createdAt))
+const updatedAt = computed(() => new Date(props.data.jobOrder.updatedAt))
 
 const isJobOrderUpdated = computed(() => {
   return compareDesc(createdAt.value, updatedAt.value)
@@ -202,19 +207,19 @@ onMounted(() => {
 })
 
 const unapprovedCorrections = computed(() => {
-  return props.jobOrder.corrections?.find(
+  return props.data.jobOrder.corrections?.find(
     (correction) => !correction.isApproved,
   )
 })
 </script>
 
 <template>
-  <Head :title="jobOrder.ticket" />
+  <Head :title="data.jobOrder.ticket" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div
-        class="sticky top-0 z-10 border-b border-border bg-background shadow-sm"
+        class="sticky top-3 z-10 mt-auto border-b border-border bg-background shadow-sm"
       >
         <div
           v-if="unapprovedCorrections"
@@ -237,16 +242,16 @@ const unapprovedCorrections = computed(() => {
             </AlertDescription>
           </Alert>
         </div>
-        <div class="my-3 flex items-center justify-between">
+        <div class="mb-3 flex items-center justify-between">
           <div class="flex flex-col gap-1">
             <div class="flex items-center gap-4">
               <h3 class="scroll-m-20 text-3xl font-bold text-primary">
                 Ticket:
                 <span class="tracking-tighter text-muted-foreground">
-                  {{ jobOrder.ticket }}
+                  {{ data.jobOrder.ticket }}
                 </span>
               </h3>
-              <Dialog v-if="jobOrder.cancel">
+              <Dialog v-if="data.jobOrder.cancel">
                 <DialogTrigger>
                   <Button
                     variant="ghost"
@@ -275,7 +280,7 @@ const unapprovedCorrections = computed(() => {
                     <Label> Reason: </Label>
                     <div class="rounded-md border py-3">
                       <div class="mx-4 text-sm leading-4 text-muted-foreground">
-                        {{ jobOrder.cancel.reason }}
+                        {{ data.jobOrder.cancel.reason }}
                       </div>
                     </div>
                   </div>
@@ -293,18 +298,18 @@ const unapprovedCorrections = computed(() => {
             <div class="flex items-center gap-2">
               <Avatar class="h-7 w-7 shrink-0 rounded-full">
                 <AvatarImage
-                  v-if="jobOrder.creator?.account?.avatar"
-                  :src="jobOrder.creator.account.avatar"
-                  :alt="jobOrder.creator.fullName"
+                  v-if="data.jobOrder.creator?.account?.avatar"
+                  :src="data.jobOrder.creator.account.avatar"
+                  :alt="data.jobOrder.creator.fullName"
                 />
                 <AvatarFallback>
-                  {{ getInitials(jobOrder.creator?.fullName) }}
+                  {{ getInitials(data.jobOrder.creator?.fullName) }}
                 </AvatarFallback>
               </Avatar>
               <div
                 class="flex items-center gap-3 text-sm text-muted-foreground"
               >
-                <span>{{ `${jobOrder.creator?.fullName}` }}</span>
+                <span>{{ `${data.jobOrder.creator?.fullName}` }}</span>
                 <span>•</span>
                 <div class="flex items-center gap-1">
                   <Calendar
@@ -328,8 +333,8 @@ const unapprovedCorrections = computed(() => {
               class="ml-auto"
             >
               <StatusUpdater
-                :status="jobOrder.status"
-                :ticket="jobOrder.ticket"
+                :status="data.jobOrder.status"
+                :ticket="data.jobOrder.ticket"
               />
             </div>
             <Separator
@@ -358,12 +363,12 @@ const unapprovedCorrections = computed(() => {
                   Cancel Correction
                 </Button>
               </div>
-              <ArchiveColumn :jobOrder="jobOrder" />
+              <ArchiveColumn :jobOrder="data.jobOrder" />
             </div>
           </div>
         </div>
       </div>
-      <div class="my-4 flex h-full flex-1 flex-col gap-4 rounded-xl">
+      <div class="my-4 flex flex-col gap-4 rounded-xl">
         <div class="mb-3 flex items-center">
           <div class="flex w-full flex-col">
             <form class="grid gap-y-6">
@@ -371,7 +376,7 @@ const unapprovedCorrections = computed(() => {
                 <FirstSection
                   :is-editing="isEditing && can('update:job_order')"
                   :is-service-type-disabled="true"
-                  v-model:service-type="jobOrder.serviceableType"
+                  v-model:service-type="data.jobOrder.serviceableType"
                   v-model:service-date="form.date_time"
                   v-model:service-time="form.time"
                   v-model:client="form.client"
@@ -385,12 +390,14 @@ const unapprovedCorrections = computed(() => {
               <div class="mt-2">
                 <Separator class="mb-3 w-full" />
                 <SecondSection
-                  :status="jobOrder.status"
-                  :dispatcher="jobOrder.serviceable?.dispatcher"
-                  :appraisers="jobOrder.serviceable.appraisers"
-                  :appraised-date="jobOrder.serviceable?.form3?.appraisedDate"
-                  :serviceable-id="jobOrder.serviceable.id"
-                  :employees="employees"
+                  :status="data.jobOrder.status"
+                  :dispatcher="data.jobOrder.serviceable?.dispatcher"
+                  :appraisers="data.jobOrder.serviceable.appraisers"
+                  :appraised-date="
+                    data.jobOrder.serviceable?.form3?.appraisedDate
+                  "
+                  :serviceable-id="data.jobOrder.serviceable.id"
+                  :employees="data.employees"
                   @load-employees="loadEmployees"
                 />
               </div>
@@ -399,14 +406,14 @@ const unapprovedCorrections = computed(() => {
                 <ThirdSection
                   :is-editing="isEditing && canUpdateProposal"
                   :is-submit-btn-disabled="form.processing"
-                  :status="jobOrder.status"
+                  :status="data.jobOrder.status"
                   :errors="form.errors"
                   v-model:payment-type="form.payment_type"
                   v-model:bid-bond="form.bid_bond"
                   v-model:or-number="form.or_number"
                   v-model:payment-date="form.payment_date"
                   v-model:approved-date="form.approved_date"
-                  :employees="employees"
+                  :employees="data.employees"
                   @on-submit="onSubmit"
                   @on-cancel-submit="form.cancel()"
                 />
@@ -414,23 +421,23 @@ const unapprovedCorrections = computed(() => {
               <div class="mt-2">
                 <Separator class="mb-3 w-full" />
                 <FourthSection
-                  :status="jobOrder.status"
-                  :starting-date="jobOrder.serviceable?.form3?.from"
-                  :ending-date="jobOrder.serviceable?.form3?.to"
-                  :serviceable-id="jobOrder.serviceable.id"
-                  :dispatcher="jobOrder.serviceable?.dispatcher"
+                  :status="data.jobOrder.status"
+                  :starting-date="data.jobOrder.serviceable?.form3?.from"
+                  :ending-date="data.jobOrder.serviceable?.form3?.to"
+                  :serviceable-id="data.jobOrder.serviceable.id"
+                  :dispatcher="data.jobOrder.serviceable?.dispatcher"
                 />
               </div>
               <div
-                v-if="jobOrder.serviceable.form3?.haulings?.length"
+                v-if="data.jobOrder.serviceable.form3?.haulings?.length"
                 class="mt-2"
               >
                 <Separator class="mb-3 w-full" />
                 <FifthSection
-                  :status="jobOrder.status"
-                  :haulings="jobOrder.serviceable.form3?.haulings"
-                  :employees="employees"
-                  :serviceable-id="jobOrder.serviceable.id"
+                  :status="data.jobOrder.status"
+                  :haulings="data.jobOrder.serviceable.form3?.haulings"
+                  :employees="data.employees"
+                  :serviceable-id="data.jobOrder.serviceable.id"
                   @load-employees="loadEmployees"
                 />
               </div>
@@ -438,7 +445,7 @@ const unapprovedCorrections = computed(() => {
                 <Separator class="col-[1/-1] mb-3 w-full" />
                 <SixthSection
                   ref="sixthSection"
-                  :status="jobOrder.status"
+                  :status="data.jobOrder.status"
                   :error="form.errors?.reason"
                   v-model:reason="reason"
                 />

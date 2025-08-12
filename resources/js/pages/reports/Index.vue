@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -12,7 +13,9 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, Employee } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { useUrlSearchParams } from '@vueuse/core'
-import { ref } from 'vue'
+import { Download } from 'lucide-vue-next'
+import { onMounted, ref } from 'vue'
+import ReportsAnalyticsPlaholder from '../job-orders/waste-managements/components/placeholders/ReportsAnalyticsPlaholder.vue'
 import FrontlinerRankings from './components/FrontlinerRankings.vue'
 import JobOrderStatsGrid from './components/JobOrderStatsGrid.vue'
 import MonthlyJobOrderTrends from './components/MonthlyJobOrderTrends.vue'
@@ -20,7 +23,7 @@ import ServiceTypeCompletion from './components/ServiceTypeCompletion.vue'
 import ServiceTypeTrends from './components/ServiceTypeTrends.vue'
 
 interface IndexProps {
-  data: {
+  data?: {
     metrics: {
       month: string
       Completed: number
@@ -48,35 +51,57 @@ interface IndexProps {
     }[]
     year: number
   }
-  availableYears: number[]
+  availableYears?: number[]
 }
 
 const urlParam = useUrlSearchParams('history')
 
-const props = defineProps<IndexProps>()
+defineProps<IndexProps>()
 
 const selectedYear = ref<number>(
-  Number(urlParam.year) || props.availableYears[0],
+  Number(urlParam.year) || new Date().getFullYear(),
 )
 
+const isLoading = ref(true)
+
 const onYearSelect = (year: number) => {
+  isLoading.value = true
   router.get(
     route('report.index'),
     {
       year: year,
     },
     {
+      only: ['data'],
+      showProgress: false,
       preserveState: true,
       replace: true,
       onSuccess: () => (selectedYear.value = year),
+      onFinish: () => (isLoading.value = false),
     },
+  )
+}
+
+onMounted(() => {
+  router.reload({
+    only: ['data', 'availableYears'],
+    onFinish: () => (isLoading.value = false),
+  })
+})
+
+const onExport = () => {
+  window.open(
+    route('report.export', {
+      year: selectedYear.value,
+    }),
+    '__blank',
   )
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Reports and Analytics',
-    href: route('activity.index'),
+    href: route('report.index'),
   },
 ]
 </script>
@@ -114,33 +139,38 @@ const breadcrumbs: BreadcrumbItem[] = [
               </SelectItem>
             </SelectContent>
           </Select>
-          <!-- <Button
+          <Button
             variant="ghost"
             type="icon"
+            @click="onExport"
             class="rounded-md"
           >
             <Download />
-          </Button> -->
+          </Button>
         </div>
       </div>
-      <div class="mt-6 flex flex-col gap-4">
+      <ReportsAnalyticsPlaholder v-if="isLoading" />
+      <div
+        v-else
+        class="mt-6 flex flex-col gap-4"
+      >
         <JobOrderStatsGrid
-          :total="data.totalJobOrders"
-          :top="data.top"
+          :total="data!.totalJobOrders"
+          :top="data!.top"
         />
         <div class="sm-grid-cols-1 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <FrontlinerRankings
-            :frontliners="data.frontliners"
+            :frontliners="data!.frontliners"
             class="col-span-1"
           />
           <MonthlyJobOrderTrends
-            :metrics="data.metrics"
+            :metrics="data!.metrics"
             class="md:col-span-1 lg:col-span-2"
           />
         </div>
         <div class="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
-          <ServiceTypeTrends :data="data.trends" />
-          <ServiceTypeCompletion :data="data.completion" />
+          <ServiceTypeTrends :data="data!.trends" />
+          <ServiceTypeCompletion :data="data!.completion" />
         </div>
       </div>
     </div>

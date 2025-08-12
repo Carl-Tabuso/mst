@@ -11,50 +11,63 @@ class EmployeeSeeder extends Seeder
 {
     use RandomEmployee;
 
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $this->seedFrontliners();
         $this->seedDispatchers();
         $this->seedTeamLeaders();
-        $this->seedHeadFrontliners();
+        $this->seedHeadFrontliner();
         $this->seedHaulers();
+        $this->seedItAdmins();
+        $this->seedConsultants();
     }
 
-    private function seedFrontliners()
+    private function seedFrontliners(): void
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Frontliner'),
         ]);
     }
 
-    private function seedDispatchers()
+    private function seedDispatchers(): void
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Dispatcher'),
         ]);
     }
 
-    private function seedTeamLeaders()
+    private function seedTeamLeaders(): void
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Team Leader'),
         ]);
     }
 
-    private function seedHeadFrontliners()
+    private function seedHeadFrontliner(): void
     {
-        Employee::factory(5)->create([
+        Employee::factory()->create([
             'position_id' => $this->getPositionId('Head Frontliner'),
         ]);
     }
 
-    private function seedHaulers()
+    private function seedHaulers(): void
     {
         Employee::factory(30)->create([
             'position_id' => $this->getPositionId('Hauler'),
+        ]);
+    }
+
+    private function seedItAdmins(): void
+    {
+        Employee::factory(5)->create([
+            'position_id' => $this->getPositionId('IT Admin'),
+        ]);
+    }
+
+    private function seedConsultants(): void
+    {
+        Employee::factory(5)->create([
+            'position_id' => $this->getPositionId('Consultant'),
         ]);
     }
 

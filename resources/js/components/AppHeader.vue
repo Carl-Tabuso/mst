@@ -31,10 +31,24 @@ import {
 } from '@/components/ui/tooltip'
 import UserMenuContent from '@/components/UserMenuContent.vue'
 import { getInitials } from '@/composables/useInitials'
-import type { BreadcrumbItem, NavItem } from '@/types'
+import { usePermissions } from '@/composables/usePermissions'
+import { SharedData, type BreadcrumbItem, type NavItem } from '@/types'
 import { Link, usePage } from '@inertiajs/vue3'
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next'
+import {
+  Archive,
+  Award,
+  ChartPie,
+  ClipboardList,
+  FilePenLine,
+  History,
+  Home,
+  Menu,
+  Pencil,
+  UserRoundCog,
+  UsersRound,
+} from 'lucide-vue-next'
 import { computed } from 'vue'
+import DarkModeToggle from './DarkModeToggle.vue'
 
 interface Props {
   breadcrumbs?: BreadcrumbItem[]
@@ -44,44 +58,104 @@ const props = withDefaults(defineProps<Props>(), {
   breadcrumbs: () => [],
 })
 
-const page = usePage()
+const page = usePage<SharedData>()
 const auth = computed(() => page.props.auth)
 
 const isCurrentRoute = computed(() => (url: string) => page.url === url)
 
 const activeItemStyles = computed(
-  () => (url: string) =>
-    isCurrentRoute.value(url)
-      ? 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
-      : '',
+  () => (url: string) => (isCurrentRoute.value(url) ? 'text-primary' : ''),
 )
+
+const { can, canAny } = usePermissions()
+
+const canAccessJobOrders = computed(() => {
+  return canAny({
+    roles: ['frontliner', 'head frontliner', 'team leader', 'dispatcher'],
+  })
+})
 
 const mainNavItems: NavItem[] = [
   {
     title: 'Home',
     href: '/',
-    icon: LayoutGrid,
+    icon: Home,
+    can: true,
+  },
+  {
+    title: 'Job Order List',
+    href: '/job-orders',
+    icon: ClipboardList,
+    can: canAccessJobOrders.value,
+  },
+  {
+    title: 'Job Order Corrections',
+    href: '/job-orders/corrections',
+    icon: Pencil,
+    can: canAccessJobOrders.value,
+  },
+  {
+    title: 'User Management',
+    href: '/users',
+    icon: UserRoundCog,
+    can: can('manage:employee_account'),
+  },
+  {
+    title: 'Employee Management',
+    href: '#',
+    icon: UsersRound,
+    can: can('manage:employees'),
+  },
+  {
+    title: 'Activity Logs',
+    href: '/activities',
+    icon: History,
+    can: can('view:activity_logs'),
+  },
+  {
+    title: 'Incident Reports',
+    href: '/incidents/report',
+    icon: FilePenLine,
+    can: can('manage:incident_reports'),
+  },
+  {
+    title: 'Performance Monitoring',
+    href: '/performances',
+    icon: Award,
+    can: can('view:performances'),
+  },
+  {
+    title: 'Reports and Analytics',
+    href: '/reports',
+    icon: ChartPie,
+    can: can('view:reports_analytics'),
+  },
+  {
+    title: 'Archives',
+    href: '/archives',
+    icon: Archive,
+    can: can('update:job_order'),
   },
 ]
 
 const rightNavItems: NavItem[] = [
-  {
-    title: 'Repository',
-    href: 'https://github.com/laravel/vue-starter-kit',
-    icon: Folder,
-  },
-  {
-    title: 'Documentation',
-    href: 'https://laravel.com/docs/starter-kits',
-    icon: BookOpen,
-  },
+  // {
+  //   title: 'Repository',
+  //   href: 'https://github.com/laravel/vue-starter-kit',
+  //   icon: Folder,
+  // },
+  // {
+  //   title: 'Documentation',
+  //   href: 'https://laravel.com/docs/starter-kits',
+  //   icon: BookOpen,
+  // },
 ]
 </script>
 
 <template>
-  <div>
+  <div class="sticky top-0 z-10 bg-background">
     <div class="border-b border-sidebar-border/80">
-      <div class="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
+      <div class="mx-auto flex h-14 items-center px-6 md:max-w-7xl">
         <!-- Mobile Menu -->
         <div class="lg:hidden">
           <Sheet>
@@ -149,24 +223,26 @@ const rightNavItems: NavItem[] = [
           :href="route('home')"
           class="flex items-center gap-x-2"
         >
-          <AppLogo />
+          <AppLogo class="size-10" />
         </Link>
 
         <!-- Desktop Menu -->
         <div class="hidden h-full lg:flex lg:flex-1">
           <NavigationMenu class="ml-10 flex h-full items-stretch">
-            <NavigationMenuList class="flex h-full items-stretch space-x-2">
+            <NavigationMenuList class="flex h-full items-stretch">
               <NavigationMenuItem
                 v-for="(item, index) in mainNavItems"
                 :key="index"
                 class="relative flex h-full items-center"
               >
-                <Link :href="item.href">
+                <Link
+                  v-if="item?.can"
+                  :href="item.href"
+                >
                   <NavigationMenuLink
                     :class="[
                       navigationMenuTriggerStyle(),
                       activeItemStyles(item.href),
-                      'h-9 cursor-pointer px-3',
                     ]"
                   >
                     <component
@@ -179,7 +255,7 @@ const rightNavItems: NavItem[] = [
                 </Link>
                 <div
                   v-if="isCurrentRoute(item.href)"
-                  class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"
+                  class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary"
                 ></div>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -188,13 +264,14 @@ const rightNavItems: NavItem[] = [
 
         <div class="ml-auto flex items-center space-x-2">
           <div class="relative flex items-center space-x-1">
-            <Button
+            <!-- <Button
               variant="ghost"
               size="icon"
               class="group h-9 w-9 cursor-pointer"
             >
               <Search class="size-5 opacity-80 group-hover:opacity-100" />
-            </Button>
+            </Button> -->
+            <DarkModeToggle />
 
             <div class="hidden space-x-1 lg:flex">
               <template
@@ -243,12 +320,12 @@ const rightNavItems: NavItem[] = [
                   <AvatarImage
                     v-if="auth.user.avatar"
                     :src="auth.user.avatar"
-                    :alt="auth.user.name"
+                    :alt="auth.user.employee.full_name"
                   />
                   <AvatarFallback
-                    class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white"
+                    class="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
                   >
-                    {{ getInitials(auth.user?.name) }}
+                    {{ getInitials(auth.user.employee.full_name) }}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -266,10 +343,10 @@ const rightNavItems: NavItem[] = [
 
     <div
       v-if="props.breadcrumbs.length > 1"
-      class="flex w-full border-b border-sidebar-border/70"
+      class="flex w-full"
     >
       <div
-        class="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl"
+        class="mx-auto flex h-12 w-full items-center justify-start px-6 text-neutral-500 md:max-w-7xl"
       >
         <Breadcrumbs :breadcrumbs="breadcrumbs" />
       </div>

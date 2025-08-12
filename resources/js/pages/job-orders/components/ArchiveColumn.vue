@@ -5,7 +5,7 @@ import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import { Button } from '../ui/button'
+import { Button } from '../../../components/ui/button'
 import {
   Dialog,
   DialogClose,
@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog'
+} from '../../../components/ui/dialog'
 
 interface ArchiveColumnProps {
   jobOrder: JobOrder

@@ -83,14 +83,11 @@ const onMarkAsStop = () => {
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>
-        <DialogTitle> Read Carefully! </DialogTitle>
+        <DialogTitle> Ticket Status Update </DialogTitle>
         <DialogDescription>
-          <!---->
+          {{ currentStatus!.description }}
         </DialogDescription>
       </DialogHeader>
-      <div class="text-sm text-muted-foreground">
-        {{ currentStatus?.description }}
-      </div>
       <DialogFooter class="mt-5">
         <div class="flex items-center gap-3">
           <Dialog>

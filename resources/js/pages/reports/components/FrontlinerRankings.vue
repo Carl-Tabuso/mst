@@ -28,7 +28,7 @@ const top3Arrangement = computed(() => temp.toSpliced(1, 0, top3.value[0]))
         Frontliner Rankings
       </CardTitle>
       <p class="text-sm text-muted-foreground">
-        Ranking is based on the total job orders created.
+        Based on the total job orders created.
       </p>
     </CardHeader>
     <CardContent class="flex flex-col gap-3">

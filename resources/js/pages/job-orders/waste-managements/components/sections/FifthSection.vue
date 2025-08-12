@@ -14,7 +14,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { formatToDateString } from '@/composables/useDateFormatter'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { haulingRoles, HaulingRoleType } from '@/constants/hauling-role'
@@ -81,41 +80,13 @@ const handleHaulerMultiSelection = (employee: Employee, index: number) => {
 
   if (isExistingHauler(employee.id, index)) {
     removeHauler(employee, index)
-
-    toast(`Removed ${employee.fullName} from haulers`, {
-      position: 'top-right',
-      description: `on ${formatToDateString(hauling.date)} hauling`,
-      action: {
-        label: 'Undo',
-        onClick: () => hauling.haulers.push(employee),
-      },
-    })
   } else {
     hauling.haulers.push(employee)
-    toast(`Added ${employee.fullName} as hauler`, {
-      position: 'top-right',
-      description: `on ${formatToDateString(hauling.date)} hauling`,
-      action: {
-        label: 'Undo',
-        onClick: () => removeHauler(employee, index),
-      },
-    })
   }
 }
 
 const removeExistingHaulers = (index: number) => {
-  const temp = trackedHaulings.value[index].haulers
-
   trackedHaulings.value[index].haulers = []
-
-  toast(`Removed all ${temp.length} haulers`, {
-    position: 'top-right',
-    description: `for ${formatToDateString(trackedHaulings.value[index].date)} hauling`,
-    action: {
-      label: 'Undo',
-      onClick: () => (trackedHaulings.value[index].haulers = temp),
-    },
-  })
 }
 
 const handleAssignedPersonnelChanges = (
@@ -256,11 +227,7 @@ const onSubmit = () => {
             <AssignedPersonnelSelection
               v-for="haulingRole in haulingRoles"
               :key="`${hauling.id}-${haulingRole.id}`"
-              :can-edit="
-                isAuthorize &&
-                hauling.isOpen &&
-                hauling.status !== 'in progress'
-              "
+              :can-edit="isAuthorize && hauling.isOpen"
               :employees="employees"
               :hauling="hauling"
               :role="haulingRole.id"
@@ -274,7 +241,7 @@ const onSubmit = () => {
           </div>
           <div class="col-span-2 grid grid-cols-2 gap-x-24">
             <HaulersSelection
-              :is-authorize="isAuthorize && hauling.status !== 'in progress'"
+              :is-authorize="isAuthorize"
               :hauling="hauling"
               :employees="employees"
               :index="index"
@@ -291,11 +258,7 @@ const onSubmit = () => {
               </Label>
               <Input
                 :id="'truckNo-' + hauling.id"
-                :disabled="
-                  !isAuthorize ||
-                  !hauling.isOpen ||
-                  hauling.status === 'in progress'
-                "
+                :disabled="!isAuthorize || !hauling.isOpen"
                 placeholder="Enter truck plate number"
                 v-model="hauling.truckNo"
                 class="w-[400px]"

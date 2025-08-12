@@ -2,6 +2,7 @@
 import Breadcrumbs from '@/components/Breadcrumbs.vue'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import type { BreadcrumbItemType } from '@/types'
+import DarkModeToggle from './DarkModeToggle.vue'
 import { Separator } from './ui/separator'
 
 defineProps<{
@@ -22,6 +23,9 @@ defineProps<{
       <template v-if="breadcrumbs.length > 0">
         <Breadcrumbs :breadcrumbs="breadcrumbs" />
       </template>
+    </div>
+    <div class="ml-auto mr-2">
+      <DarkModeToggle />
     </div>
   </header>
 </template>

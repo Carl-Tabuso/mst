@@ -100,7 +100,8 @@ class AnnualReportSeeder extends Seeder
                         JobOrderStatus::Closed,
                     ]))
                     ->create(array_merge($timestamps, [
-                        'client' => fake()->randomElement(self::FAKE_COMPANIES),
+                        'client'    => fake()->randomElement(self::FAKE_COMPANIES),
+                        'date_time' => $date,
                     ]));
 
                 match ($jobOrder->serviceable_type) {

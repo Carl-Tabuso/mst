@@ -6,9 +6,9 @@ use App\Enums\ActivityLogName;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\UpdateJobOrderRequest;
 use App\Models\JobOrder;
+use App\Services\JobOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,61 +17,20 @@ class JobOrderController extends Controller
 {
     private const PER_PAGE = 10;
 
+    public function __construct(private JobOrderService $service) {}
+
     public function index(Request $request): Response
     {
         $perPage = $request->input('per_page', self::PER_PAGE);
 
-        $search = "%{$request->input('search')}%";
+        $search = $request->input('search', '');
 
-        $filters = null;
+        $filters = $request->input('filters', []);
 
-        if ($request->has('filters')) {
-            $filters = (object) $request->array('filters');
-        }
-
-        $hasStatuses = isset($filters->statuses) && count($filters->statuses) > 0;
-
-        $hasDateOfServiceRange =
-            isset($filters->fromDateOfService, $filters->toDateOfService) &&
-            ($filters->fromDateOfService && $filters->toDateOfService);
-
-        $jobOrders = JobOrder::query()
-            ->when($hasStatuses, fn ($q) => $q->ofStatuses($filters->statuses))
-            ->when($hasDateOfServiceRange, function ($q) use ($filters) {
-                return $q->where(function ($sq) use ($filters) {
-                    return $sq->whereBetween('date_time', [
-                        Carbon::parse($filters->fromDateOfService)->startOfDay(),
-                        Carbon::parse($filters->toDateOfService)->endOfDay(),
-                    ]);
-                });
-            })
-            ->when($search, function ($q) use ($search) {
-                return $q->where(function ($sq) use ($search) {
-                    $sq
-                        ->whereAny([
-                            'client',
-                            'address',
-                            'contact_no',
-                            'contact_person',
-                        ], 'like', $search)
-                        ->orWhereHas('creator', function ($ssq) use ($search) {
-                            return $ssq->whereAny([
-                                'first_name',
-                                'middle_name',
-                                'last_name',
-                                'suffix',
-                            ], 'like', $search);
-                        });
-                });
-            })
-            ->with(['creator'])
-            ->latest()
-            ->paginate($perPage)
-            ->withQueryString()
-            ->toResourceCollection();
+        $data = $this->service->getAllJobOrders($perPage, $search, $filters);
 
         return Inertia::render('job-orders/Index', [
-            'jobOrders'      => $jobOrders,
+            'data'           => $data,
             'emptySearchImg' => asset('state/search-empty.svg'),
             'emptyJobOrders' => asset('state/task-empty.svg'),
         ]);

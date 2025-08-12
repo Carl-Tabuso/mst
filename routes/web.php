@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\UserPermission;
 use App\Enums\UserRole;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ArchiveController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeRatingController;
 use App\Http\Controllers\ExportActivityLogController;
 use App\Http\Controllers\ExportJobOrderController;
+use App\Http\Controllers\ExportReportsController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
@@ -32,16 +32,27 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('job-orders')->name('job_order.')->group(function () {
-        Route::get('/', [JobOrderController::class, 'index'])->name('index');
-        Route::get('create', [JobOrderController::class, 'create'])->name('create');
-        Route::post('/', [JobOrderController::class, 'store'])->name('store');
-        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
-        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
-        Route::get('export', ExportJobOrderController::class)->name('export');
+        Route::get('/', [JobOrderController::class, 'index'])
+            ->name('index')
+            ->can('viewAny', 'App\\Models\\JobOrder');
+        Route::get('create', [JobOrderController::class, 'create'])
+            ->name('create')
+            ->can('create', 'App\\Models\JobOrder');
+        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])
+            ->name('update')
+            ->can('update', 'App\\Models\JobOrder');
+        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])
+            ->name('destroy')
+            ->can('update', 'App\\Models\JobOrder');
+        Route::get('export', ExportJobOrderController::class)
+            ->name('export')
+            ->can('viewAny', 'App\\Models\JobOrder');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])->name('index');
-            Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])->name('edit');
+            Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])
+                ->name('edit')
+                ->can('view', 'ticket');
             Route::post('/', [WasteManagementController::class, 'store'])->name('store');
             Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
 
@@ -73,12 +84,15 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    Route::prefix('activities')->name('activity.')->group(function () {
+    Route::middleware(['can:viewActivityLogs'])->prefix('activities')->name('activity.')->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('export', ExportActivityLogController::class)->name('export');
     });
 
-    Route::get('reports', [ReportController::class, 'index'])->name('report.index');
+    Route::middleware(['can:viewReports'])->prefix('reports')->name('report.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('export', ExportReportsController::class)->name('export');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -162,16 +176,24 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/job-orders/dropdown', [JobOrderController::class, 'dropdownOptions']);
         Route::get('/users', [UserController::class, 'getUsersData']);
         Route::get('/positions', [\App\Http\Controllers\PositionController::class, 'index']);
-
     });
 });
 
 Route::get('test', function () {
-    $dispatcherPermission = User::permission(UserPermission::SetHaulingDuration)->get()->pluck('email');
-    $teamLeaders          = User::role(UserRole::TeamLeader)->get()->pluck('email');
+    $dispatchers = User::role(UserRole::Dispatcher)->get()->pluck('email')->toArray();
+    $teamLeaders = User::role(UserRole::TeamLeader)->get()->pluck('email')->toArray();
+    $head        = User::role(UserRole::HeadFrontliner)->first()->email;
+    $itAdmins    = User::role(UserRole::ITAdmin)->get()->pluck('email')->toArray();
+    $consultants = User::role(UserRole::Consultant)->get()->pluck('email')->toArray();
     dd(
-        $dispatcherPermission,
-        $teamLeaders,
+        [
+            'dispatchers'  => $dispatchers,
+            'team leaders' => $teamLeaders,
+            'head'         => $head,
+            'it admins'    => $itAdmins,
+            'consultants'  => $consultants,
+            User::first()->permissions(),
+        ],
     );
 });
 

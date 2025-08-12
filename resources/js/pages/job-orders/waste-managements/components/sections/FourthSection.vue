@@ -14,7 +14,7 @@ import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
-import { addDays, format, formatDistanceStrict, subDays } from 'date-fns'
+import { formatDistanceStrict, subDays } from 'date-fns'
 import { Calendar, CalendarClock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
@@ -40,7 +40,7 @@ const endingDate = ref<any>(props.endingDate)
 const startingDateModel = computed(() => {
   return startingDate.value
     ? parseDate(startingDate.value.split('T')[0])
-    : parseDate(format(new Date(), 'yyyy-MM-dd'))
+    : undefined
 })
 
 const endingDateModel = computed(() => {
@@ -49,13 +49,9 @@ const endingDateModel = computed(() => {
     : undefined
 })
 
-const nextDay = computed(() => {
-  return addDays(new Date(startingDateModel.value.toString()), 1)
-})
-
-const endingMinDate = computed(() => {
-  return parseDate(format(nextDay.value, 'yyyy-MM-dd'))
-})
+const minDate = computed(() =>
+  parseDate(new Date().toISOString().split('T')[0]),
+)
 
 const form = useForm<Record<string, string>>({
   status: props.status,
@@ -156,7 +152,7 @@ const { isPreHauling } = useWasteManagementStages()
             </PopoverTrigger>
             <PopoverContent class="w-auto p-0">
               <AppCalendar
-                :min-value="startingDateModel"
+                :min-value="minDate"
                 :model-value="startingDateModel"
                 @update:model-value="
                   (value: any) => {
@@ -200,7 +196,7 @@ const { isPreHauling } = useWasteManagementStages()
             </PopoverTrigger>
             <PopoverContent class="w-auto p-0">
               <AppCalendar
-                :min-value="endingMinDate"
+                :min-value="minDate"
                 :model-value="endingDateModel"
                 @update:model-value="
                   (value: any) => {
