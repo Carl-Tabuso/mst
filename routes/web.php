@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\UserPermission;
 use App\Enums\UserRole;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ArchiveController;
@@ -9,8 +8,8 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeRatingController;
 use App\Http\Controllers\ExportActivityLogController;
-use App\Http\Controllers\ExportFrontlinerRankingsController;
 use App\Http\Controllers\ExportJobOrderController;
+use App\Http\Controllers\ExportReportsController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
@@ -35,18 +34,19 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('job-orders')->name('job_order.')->group(function () {
         Route::get('/', [JobOrderController::class, 'index'])
             ->name('index')
-            ->middleware([
-                'role_or_permission:'.
-                    UserRole::Frontliner->value.'|'.
-                    UserPermission::ViewAnyJobOrder->value,
-            ]);
+            ->can('viewAny', 'App\\Models\\JobOrder');
         Route::get('create', [JobOrderController::class, 'create'])
             ->name('create')
             ->can('create', 'App\\Models\JobOrder');
-        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])->name('update');
-        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])->name('destroy');
-        Route::get('export', ExportJobOrderController::class)->name('export');
-        Route::get('export-frontliner', ExportFrontlinerRankingsController::class)->name('export.frontliner_rankings');
+        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])
+            ->name('update')
+            ->can('update', 'App\\Models\JobOrder');
+        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])
+            ->name('destroy')
+            ->can('update', 'App\\Models\JobOrder');
+        Route::get('export', ExportJobOrderController::class)
+            ->name('export')
+            ->can('viewAny', 'App\\Models\JobOrder');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])->name('index');
@@ -89,7 +89,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('export', ExportActivityLogController::class)->name('export');
     });
 
-    Route::get('reports', [ReportController::class, 'index'])->name('report.index');
+    Route::middleware(['can:viewReports'])->prefix('reports')->name('report.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('export', ExportReportsController::class)->name('export');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -189,7 +192,7 @@ Route::get('test', function () {
             'head'         => $head,
             'it admins'    => $itAdmins,
             'consultants'  => $consultants,
-            User::first()->permissions()
+            User::first()->permissions(),
         ],
     );
 });

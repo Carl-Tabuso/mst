@@ -54,7 +54,7 @@ class AnnualReportService
 
     public function processAnnualReport(int $year): Collection
     {
-        $baseQuery = JobOrder::withTrashed()->whereYear('created_at', $year);
+        $baseQuery = JobOrder::withTrashed()->whereYear('date_time', $year);
 
         $clients       = collect();
         $frontlinerIds = collect();
@@ -84,9 +84,9 @@ class AnnualReportService
         }
         );
 
-        $this->findTopClient($clients);
+        $this->top['client'] = $this->getTopClient($clients);
 
-        $this->findTopMonth($monthlyItems);
+        $this->top['month'] = $this->getTopMonth($monthlyItems);
 
         $this->frontliners = $this->getFrontlinerRankings($frontlinerIds);
 
@@ -94,7 +94,7 @@ class AnnualReportService
 
         $this->findTopJobOrderService($serviceTypes);
 
-        $this->setJobOrderServiceTrends($serviceTypes);
+        $this->trends = $this->getJobOrderServiceTrends($serviceTypes);
 
         return collect(get_object_vars($this));
     }
@@ -151,16 +151,33 @@ class AnnualReportService
         });
     }
 
-    private function findTopClient(Collection $clients): void
+    private function getTopClient(Collection $clients): string
     {
-        $counts    = $clients->flatten()->countBy();
-        $maxValue  = $counts->max();
-        $topClient = $counts->search($maxValue);
+        $clientRankings = $this->getClientRankings($clients);
 
-        $this->top['client'] = $topClient;
+        $topClient = $clientRankings->keys()->first();
+
+        return $topClient;
     }
 
-    private function findTopMonth(Collection $monthlyItems): void
+    public function getClientRankings(Collection $clients): Collection
+    {
+        $counts    = $clients->flatten()->countBy();
+        $sorted    = $counts->sortDesc();
+
+        return $sorted;
+    }
+
+    private function getTopMonth(Collection $monthlyItems): string
+    {
+        $monthRankings = $this->getMonthRankings($monthlyItems);
+
+        $topMonth = $monthRankings->keys()->first();
+
+        return $topMonth;
+    }
+
+    public function getMonthRankings(Collection $monthlyItems)
     {
         $index = $monthlyItems->reduce(function (Collection $carry, Collection $items) {
             $items->each(function (Collection $subItems, string $month) use ($carry) {
@@ -170,9 +187,7 @@ class AnnualReportService
             return $carry;
         }, collect());
 
-        $topMonth = $index->sortDesc()->keys()->first();
-
-        $this->top['month'] = $topMonth;
+        return $index->sortDesc();
     }
 
     private function findTopJobOrderService(Collection $jobOrderServiceTypes): void
@@ -184,14 +199,16 @@ class AnnualReportService
         $this->top['service'] = JobOrderServiceType::from($topService)->getLabel();
     }
 
-    private function setJobOrderServiceTrends(Collection $jobOrderServiceTypes): void
+    public function getJobOrderServiceTrends(Collection $jobOrderServiceTypes): Collection
     {
         $counts = $jobOrderServiceTypes->flatten()->countBy();
 
-        $this->trends = $counts->map(fn ($count, $service) => [
+        $sorted = $counts->map(fn ($count, $service) => [
             'name'  => JobOrderServiceType::from($service)->getLabel(),
             'total' => $count,
         ])->values();
+
+        return $sorted;
     }
 
     public function getFrontlinerRankings(Collection $frontlinerIds): Collection

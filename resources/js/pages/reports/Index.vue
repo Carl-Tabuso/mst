@@ -89,6 +89,15 @@ onMounted(() => {
   })
 })
 
+const onExport = () => {
+  window.open(
+    route('report.export', {
+      year: selectedYear.value,
+    }),
+    '__blank',
+  )
+}
+
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Reports and Analytics',
@@ -133,6 +142,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           <Button
             variant="ghost"
             type="icon"
+            @click="onExport"
             class="rounded-md"
           >
             <Download />

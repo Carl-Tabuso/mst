@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Policies\ActivityLogPolicy;
+use App\Policies\ReportPolicy;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
@@ -34,5 +35,6 @@ class AppServiceProvider extends ServiceProvider
         JsonResource::withoutWrapping();
 
         Gate::define('viewActivityLogs', [ActivityLogPolicy::class, 'viewAny']);
+        Gate::define('viewReports', [ReportPolicy::class, 'viewAny']);
     }
 }
