@@ -98,7 +98,7 @@ const mainNavItems: NavItem[] = [
     title: 'User Management',
     href: '/users',
     icon: UserRoundCog,
-    can: can('manage:employee_account'),
+    can: can('manage:users'),
   },
   {
     title: 'Employee Management',
