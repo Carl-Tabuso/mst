@@ -2,9 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem } from '@/types'
 
-interface Home3Props {
-
-}
+interface Home3Props {}
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -15,11 +13,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-    <Head title="Home" />
+  <Head title="Home" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
-            Home 3
-        </div>
-    </AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">Home 3</div>
+  </AppLayout>
 </template>

@@ -39,10 +39,10 @@ Route::middleware(['auth'])->group(function () {
             ->can('create', 'App\\Models\JobOrder');
         Route::patch('{jobOrder}', [JobOrderController::class, 'update'])
             ->name('update')
-            ->can('update', 'App\\Models\JobOrder');
+            ->can('update', 'jobOrder');
         Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])
             ->name('destroy')
-            ->can('update', 'App\\Models\JobOrder');
+            ->can('update', 'jobOrder');
         Route::get('export', ExportJobOrderController::class)
             ->name('export')
             ->can('viewAny', 'App\\Models\JobOrder');

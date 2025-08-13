@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Inertia\Response;
 use App\Enums\UserRole;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class HomeController extends Controller
 {
@@ -16,33 +16,31 @@ class HomeController extends Controller
         $userRole = $user->getRoleNames()->first();
 
         $component = match (UserRole::from($userRole)) {
-            UserRole::HeadFrontliner => 'home/1',
-            UserRole::ITAdmin => 'home/2',
-            default => 'home/3',
+            UserRole::HeadFrontliner => 'home/1/Index',
+            UserRole::ITAdmin        => 'home/2/Index',
+            default                  => 'home/3/Index',
         };
 
         $hour = now()->hour;
 
         $currentHour = (object) [
-            'greeting' => '',
+            'dayPart'      => '',
             'illustration' => '',
         ];
 
-        $employeeFirstName = $user->employee->first_name;
-
         if ($hour < 12) {
-            $currentHour->greeting = "Good Morning, {$employeeFirstName}!";
+            $currentHour->dayPart      = 'morning';
             $currentHour->illustration = 'greetings/morning-illustration.svg';
         } elseif ($hour < 18) {
-            $currentHour->greeting = "Good Afternoon, {$employeeFirstName}!";
+            $currentHour->dayPart      = 'afternoon';
             $currentHour->illustration = 'greetings/afternoon-illustration.svg';
         } else {
-            $currentHour->greeting = "Good Evening, {$employeeFirstName}!";
+            $currentHour->dayPart      = 'evening';
             $currentHour->illustration = 'greetings/evening-illustration.svg';
         }
 
         return Inertia::render($component, [
-            'greeting' => $currentHour->greeting,
+            'dayPart'      => $currentHour->dayPart,
             'illustration' => $currentHour->illustration,
         ]);
     }

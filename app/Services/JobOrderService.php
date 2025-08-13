@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\JobOrderStatus;
 use App\Filters\JobOrder\ApplyDateOfServiceRange;
 use App\Filters\JobOrder\FilterOnlyChecklist;
 use App\Filters\JobOrder\FilterOnlyCreated;
@@ -34,5 +35,17 @@ class JobOrderService
                     ->withQueryString()
                     ->toResourceCollection();
             });
+    }
+
+    public function getAgingJobOrders()
+    {
+        $x = JobOrder::query()
+            ->latest()
+            ->where('status', JobOrderStatus::ForProposal)
+            ->where('updated_at', '<=', now()->subWeek())
+            ->take(10)
+            ->get();
+
+        dd($x);
     }
 }
