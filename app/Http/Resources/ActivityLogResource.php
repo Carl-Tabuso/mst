@@ -14,6 +14,7 @@ class ActivityLogResource extends JsonResource
         return [
             'id'          => $this->id,
             'time'        => $this->created_at->format('g:i A'),
+            'humanDiff'   => $this->created_at->diffForHumans(),
             'log'         => ActivityLogName::from($this->log_name)->getLabel(),
             'description' => $this->description,
             'ipAddress'   => $this->properties['ip_address'],
