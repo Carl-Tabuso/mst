@@ -186,3 +186,5 @@ export interface EloquentCollection {
   to: number
   total: number
 }
+
+export type ServiceType = 'Waste Management' | 'IT Service' | 'Other Services'
