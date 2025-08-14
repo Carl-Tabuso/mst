@@ -5,35 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
 import { getInitials } from '@/composables/useInitials'
-import { Activity } from 'lucide-vue-next'
+import { Link } from '@inertiajs/vue3'
+import { RecentActivitiesCard } from '..'
 
-const activities = [
-  {
-    id: 1,
-    frontliner: 'John Doe II',
-    date: '11:45 PM',
-  },
-  {
-    id: 2,
-    frontliner: 'Jane Smith',
-    date: '12:45 PM',
-  },
-  {
-    id: 3,
-    frontliner: 'Carlos Dela Cruz',
-    date: '1:56 AM',
-  },
-  {
-    id: 4,
-    frontliner: 'Maria Santos',
-    date: '8:00 AM',
-  },
-  {
-    id: 5,
-    frontliner: 'Robert Johnson',
-    date: '10:36 AM',
-  },
-]
+interface RecentActivitiesProps {
+  data?: RecentActivitiesCard[]
+}
+
+defineProps<RecentActivitiesProps>()
 </script>
 
 <template>
@@ -41,55 +20,50 @@ const activities = [
     <CardHeader class="py-4">
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <Activity class="stroke-2 text-primary" />
           <CardTitle class="text-lg font-semibold text-primary">
             Recent Activities
           </CardTitle>
         </div>
-        <Button
-          variant="outline"
-          @click="() => void 0"
-        >
-          View all
-        </Button>
+        <Link :href="route('activity.index')">
+          <Button variant="outline"> View all </Button>
+        </Link>
       </div>
     </CardHeader>
     <Separator />
-    <CardContent class="my-2 divide-y divide-border">
+    <CardContent
+      class="my-2 max-h-[394px] divide-y divide-border overflow-y-auto"
+    >
       <div
-        v-for="activity in activities"
+        v-for="activity in data"
         :key="activity.id"
         class="py-3"
       >
         <div class="flex items-start gap-3">
           <Avatar class="h-8 w-8 flex-shrink-0">
             <AvatarFallback>
-              {{ getInitials(activity.frontliner) }}
+              {{ getInitials(activity.causer.employee.fullName) }}
             </AvatarFallback>
           </Avatar>
           <div class="flex-1">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold">
-                  {{ activity.frontliner }}
+            <div class="flex items-start justify-between">
+              <div class="flex flex-col leading-tight">
+                <span class="truncate text-xs font-semibold">
+                  {{ activity.causer.employee.fullName }}
                 </span>
                 <UserRoleBadge
-                  :role-name="'frontliner'"
+                  :role-name="activity.causer.roles[0].name"
                   small
-                  class="text-xs"
+                  class="w-fit text-xs"
                 />
               </div>
               <span class="whitespace-nowrap text-xs text-muted-foreground">
-                {{ activity.date }}
+                {{ activity.humanDiff }}
               </span>
-            </div>
-            <div class="text-xs text-muted-foreground">
-              sample.mail@yahoo.com
             </div>
           </div>
         </div>
         <div class="mt-2 text-xs text-primary">
-          {{ activity.frontliner }} created a new Job Order
+          {{ activity.description }}
         </div>
       </div>
     </CardContent>

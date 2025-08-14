@@ -10,6 +10,7 @@ use App\Filters\JobOrder\FilterStatuses;
 use App\Filters\JobOrder\SearchDetails;
 use App\Models\JobOrder;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Pipeline;
 
 class JobOrderService

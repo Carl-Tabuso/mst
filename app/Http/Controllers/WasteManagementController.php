@@ -68,7 +68,7 @@ class WasteManagementController extends Controller
 
         $status = $request->safe()->enum('status', JobOrderStatus::class);
 
-        $message = $status === JobOrderStatus::HaulingInProgress
+        $message = $status === JobOrderStatus::InProgress
             ? __('responses.change')
             : __('responses.status_update', ['status' => $response]);
 
