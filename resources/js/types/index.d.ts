@@ -6,8 +6,25 @@ import type { LucideIcon } from 'lucide-vue-next'
 import type { Config } from 'ziggy-js'
 
 export interface Auth {
-  user: User
+  user: AuthUser
   permissions: string[]
+}
+
+export interface AuthUser {
+  avatar: string
+  email: string
+  employee: {
+    first_name: string
+    middle_name: string | null
+    last_name: string
+    full_name: string
+  }
+  roles: {
+    name: string
+    permissions: {
+      name: string
+    }[]
+  }[]
 }
 
 export interface BreadcrumbItem {

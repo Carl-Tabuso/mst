@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -16,7 +16,7 @@ defineProps<RecentActivitiesProps>()
 </script>
 
 <template>
-  <Card class="w-full max-w-sm shadow">
+  <Card class="w-full shadow">
     <CardHeader class="py-4">
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -25,7 +25,7 @@ defineProps<RecentActivitiesProps>()
           </CardTitle>
         </div>
         <Link :href="route('activity.index')">
-          <Button variant="outline"> View all </Button>
+          <Button variant="outline"> View </Button>
         </Link>
       </div>
     </CardHeader>
@@ -40,12 +40,17 @@ defineProps<RecentActivitiesProps>()
       >
         <div class="flex items-start gap-3">
           <Avatar class="h-8 w-8 flex-shrink-0">
+            <AvatarImage
+              v-if="activity.causer.employee?.account?.avatar"
+              :src="activity.causer.employee.account.avatar"
+              :alt="activity.causer.employee.fullName"
+            />
             <AvatarFallback>
               {{ getInitials(activity.causer.employee.fullName) }}
             </AvatarFallback>
           </Avatar>
           <div class="flex-1">
-            <div class="flex items-start justify-between">
+            <div class="flex items-start justify-between gap-2">
               <div class="flex flex-col leading-tight">
                 <span class="truncate text-xs font-semibold">
                   {{ activity.causer.employee.fullName }}

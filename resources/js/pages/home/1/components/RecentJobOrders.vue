@@ -10,6 +10,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
+import { Link } from '@inertiajs/vue3'
 import { Clock } from 'lucide-vue-next'
 import { RecentJobOrders } from '..'
 
@@ -45,27 +46,24 @@ const path = Object.fromEntries(
       </div>
     </CardHeader>
     <Separator />
-    <CardContent
-      class="my-2 max-h-[375px] divide-y divide-border overflow-y-auto"
-    >
+    <CardContent class="my-2 h-[375px] divide-y divide-border overflow-y-auto">
       <div
         v-for="jobOrder in data"
         :key="jobOrder.ticket"
         class="flex flex-col gap-1 px-1 py-3"
       >
         <div class="flex flex-row items-center justify-between">
-          <a
+          <Link
             :href="
               route(
                 `job_order.${path[jobOrder.serviceType]}.edit`,
                 jobOrder.ticket,
               )
             "
-            target="_blank"
             class="text-sm font-medium tracking-tighter text-primary hover:underline"
           >
             {{ jobOrder.ticket }}
-          </a>
+          </Link>
           <Badge
             :variant="statusMap[jobOrder.status]?.badge"
             class="border-0 p-0"

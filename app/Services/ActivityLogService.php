@@ -28,12 +28,4 @@ class ActivityLogService
 
         return $activities;
     }
-
-    public function getRecentLogs(?int $perPage = 10): LengthAwarePaginator
-    {
-        return Activity::query()
-            ->with(['causer' => ['employee', 'roles']])
-            ->latest()
-            ->paginate($perPage);
-    }
 }

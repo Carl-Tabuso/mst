@@ -113,6 +113,12 @@ class JobOrder extends Model
         return $query->whereDate('date_time', '>=', now()->subWeek());
     }
 
+    #[Scope]
+    public function updatedPastWeekOrMore(Builder $query): Builder
+    {
+        return $query->whereDate('updated_at', '<=', now()->subWeek());
+    }
+
     public function serviceable(): MorphTo
     {
         return $this->morphTo();
