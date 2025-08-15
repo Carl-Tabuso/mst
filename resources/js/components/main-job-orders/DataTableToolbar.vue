@@ -14,7 +14,6 @@ import { router } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
 import { Archive, Download, Search, Settings2 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { router } from '@inertiajs/vue3'
 import { route } from 'ziggy-js'
 import FilterPopover from './FilterPopover.vue'
 

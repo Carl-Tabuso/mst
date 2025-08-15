@@ -8,11 +8,6 @@ import { Link } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { columns } from '../types/columns'
-import JobOrderDataTable from '@/components/main-job-orders/DataTable.vue'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Link } from '@inertiajs/vue3'
-import { Plus } from 'lucide-vue-next'
-import Button from '@/components/ui/button/Button.vue'
 
 const props = defineProps<{
   jobOrders: { data: JobOrder[]; meta: EloquentCollection }
