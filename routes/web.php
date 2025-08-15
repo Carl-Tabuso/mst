@@ -60,11 +60,29 @@ Route::middleware(['auth'])->group(function () {
 
         Route::prefix('it-services')->name('it_service.')->group(function () {
             Route::get('/', [ITServicesController::class, 'index'])->name('index');
-            Route::get('/create', [ITServicesController::class, 'create'])->name('create');
-            Route::post('/', [ITServicesController::class, 'store'])->name('store');
 
-            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
+            // Initial
+            Route::get('/create', [ITServicesController::class, 'createInitial'])->name('create');
+            Route::post('/', [ITServicesController::class, 'storeInitial'])->name('store');
+            Route::get('{jobOrder}/edit', [ITServicesController::class, 'editInitial'])->name('edit');
+            Route::get('{jobOrder}', [ITServicesController::class, 'viewInitial'])->name('view');
+
+            // First Onsite
+            Route::get('{jobOrder}/onsite/initial', [ITServicesController::class, 'createFirstOnsite'])->name('onsite.first.create');
+            Route::post('{jobOrder}/onsite/initial', [ITServicesController::class, 'storeFirstOnsite'])->name(name: 'onsite.first.store');
+            Route::get('{jobOrder}/onsite/initial/{report}/view', [ITServicesController::class, 'viewFirstOnsite'])->name('onsite.first.view');
+            Route::get('{jobOrder}/onsite/initial/{reportId}/edit', [ITServicesController::class, 'editFirstOnsite'])->name('onsite.first.edit');
+
+            // Final Onsite
+            Route::get('{jobOrder}/onsite/final', [ITServicesController::class, 'createLastOnsite'])->name('onsite.last.create');
+            Route::post('{jobOrder}/onsite/final', [ITServicesController::class, 'storeLastOnsite'])->name('onsite.last.store');
+            Route::get('{jobOrder}/onsite/final/view', [ItServicesController::class, 'viewLastOnsite'])->name('onsite.last.view');
+            Route::get('{jobOrder}/onsite/final/edit', [ITServicesController::class, 'editLastOnsite'])->name('onsite.last.edit');
+
+            // Archive
             Route::post('/archive', [ITServicesController::class, 'archive'])->name('archive');
+
+            Route::post('{jobOrder}/corrections', [ITServicesController::class, 'requestCorrection'])->name('corrections.store');
 
         });
 

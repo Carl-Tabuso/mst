@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Contracts\Activity;
@@ -86,7 +87,13 @@ class JobOrder extends Model
     {
         $modelId = (int) str_replace($this->ticketPrefix, '', $value);
 
-        return parent::resolveRouteBinding($modelId, $field);
+        $jobOrder = static::where($field ?? $this->getRouteKeyName(), $modelId)->first();
+
+        if (!$jobOrder) {
+            throw (new ModelNotFoundException)->setModel(static::class, [$value]);
+        }
+
+        return $jobOrder;
     }
 
     #[Scope]

@@ -86,7 +86,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Archives',
-    href: '#',
+    href: '/archives',
     icon: Archive,
   },
 ]

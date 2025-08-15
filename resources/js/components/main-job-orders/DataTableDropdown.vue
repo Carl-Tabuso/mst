@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -8,36 +9,79 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { JobOrder } from '@/types'
 import { MoreVertical } from 'lucide-vue-next'
+import { router } from '@inertiajs/vue3'
 
-defineProps<{
-  jobOrder: JobOrder
-}>()
+const props = defineProps<{ jobOrder: JobOrder }>()
 
-function copy(id: string) {
-  navigator.clipboard.writeText(id)
+const actions = computed(() => {
+  const status = props.jobOrder.serviceable?.status?.value?.toLowerCase()
+
+  if (status === 'for check up') {
+    return ['Proceed to First Onsite', 'Edit Request', 'View']
+  } else if (status === 'for final service') {
+    return ['Proceed to Final Onsite', 'Edit Request', 'View']
+  } else if (status === 'completed') {
+    return ['Edit Request', 'View']
+  }
+
+  return ['View']
+})
+
+function handleAction(action: string) {
+  const jobOrderId = props.jobOrder.id;
+  const serviceableId = props.jobOrder.serviceableId;
+  const status = props.jobOrder.serviceable?.status?.value?.toLowerCase();
+  const reportInitialId = props.jobOrder.serviceable?.reportInitial?.id;
+
+  switch (action) {
+    case 'View':
+      if (status === 'for check up') {
+        router.visit(`/job-orders/it-services/${jobOrderId}`);
+      } else if (status === 'for final service') {
+        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/initial/${reportInitialId}/view`);
+      } else if (status === 'completed') {
+        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final/view`);
+      } else {
+        router.visit(`/job-orders/it-services/${jobOrderId}`);
+      }
+      break;
+
+    case 'Edit Request':
+      if (status === 'for check up') {
+        router.visit(`/job-orders/it-services/${jobOrderId}/edit`);
+      } else if (status === 'for final service') {
+        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/initial/${reportInitialId}/edit`);
+      } else if (status === 'completed') {
+        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final/edit`);
+      } else {
+        router.visit(`/job-orders/it-services/${jobOrderId}/edit`);
+      }
+      break;
+
+    case 'Proceed to First Onsite':
+      router.visit(`/job-orders/it-services/${jobOrderId}/onsite/initial?service_id=${serviceableId}`);
+      break;
+
+    case 'Proceed to Final Onsite':
+      router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final?service_id=${serviceableId}`);
+      break;
+  }
 }
+
 </script>
 
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button
-        variant="ghost"
-        class="h-8 w-8 p-0"
-      >
+      <Button variant="ghost" class="h-8 w-8 p-0">
         <span class="sr-only">Open menu</span>
         <MoreVertical class="h-4 w-4" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <!-- <DropdownMenuLabel>Actions</DropdownMenuLabel> -->
-      <!-- <DropdownMenuItem @click="copy(payment.id)">
-        Copy Job Order ID
-      </DropdownMenuItem> -->
-      <!-- <DropdownMenuSeparator /> -->
-      <DropdownMenuItem>View</DropdownMenuItem>
-      <DropdownMenuItem>Edit</DropdownMenuItem>
-      <DropdownMenuItem>Delete</DropdownMenuItem>
+      <DropdownMenuItem v-for="action in actions" :key="action" @click="handleAction(action)">
+        {{ action }}
+      </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
