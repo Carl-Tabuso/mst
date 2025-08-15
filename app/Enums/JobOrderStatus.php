@@ -5,7 +5,6 @@ namespace App\Enums;
 enum JobOrderStatus: string
 {
     case ForViewing             = 'for viewing';
-    case ForCheckUP             = 'for check up'; // For IT services
     case ForProposal            = 'for proposal';
     case ForApproval            = 'for approval';
     case Successful             = 'successful';
