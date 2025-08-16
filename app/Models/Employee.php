@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -28,6 +29,11 @@ class Employee extends Model
     protected $appends = [
         'full_name',
     ];
+
+    public function getDeletedAtColumn(): string
+    {
+        return 'archived_at';
+    }
 
     public function fullName(): Attribute
     {

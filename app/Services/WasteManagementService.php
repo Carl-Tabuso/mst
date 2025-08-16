@@ -92,7 +92,7 @@ class WasteManagementService
         return compact('jobOrder', 'employees');
     }
 
-    public function updateWasteManagement(array $validated, Form4 $form4)
+    public function updateWasteManagement(array $validated, Form4 $form4): string
     {
         $status = JobOrderStatus::from($validated['status']);
 
@@ -100,7 +100,7 @@ class WasteManagementService
             JobOrderStatus::ForAppraisal      => $this->handleForAppraisal($form4, $validated),
             JobOrderStatus::Successful        => $this->handleSuccessful($form4, $validated),
             JobOrderStatus::PreHauling        => $this->handlePrehauling($form4, $validated),
-            JobOrderStatus::HaulingInProgress => $this->handleHaulingInProgress($form4, $validated),
+            JobOrderStatus::InProgress        => $this->handleInProgress($form4, $validated),
         };
     }
 
@@ -173,14 +173,14 @@ class WasteManagementService
             Form3AssignedPersonnel::insert($preHaulingInserts);
 
             $form4->jobOrder()->update([
-                'status' => JobOrderStatus::HaulingInProgress,
+                'status' => JobOrderStatus::InProgress,
             ]);
         });
 
-        return JobOrderStatus::HaulingInProgress->value;
+        return JobOrderStatus::InProgress->value;
     }
 
-    private function handleHaulingInProgress(Form4 $form4, array $data)
+    private function handleInProgress(Form4 $form4, array $data)
     {
         $filteredHaulings = array_filter($data['haulings'],
             fn ($haul) => Carbon::parse($haul['date'])->gte(today())

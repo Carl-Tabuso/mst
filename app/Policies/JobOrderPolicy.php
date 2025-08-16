@@ -38,16 +38,31 @@ class JobOrderPolicy
 
     public function update(User $user, JobOrder $jobOrder): Response
     {
-        return $user->hasPermissionTo(UserPermission::UpdateJobOrder)
+        $isAuthorized = $user->employee->createdJobOrders->contains($jobOrder) &&
+            $user->hasPermissionTo(UserPermission::UpdateJobOrder);
+
+        return $isAuthorized
             ? Response::allow()
             : Response::deny();
     }
 
-    public function delete(User $user, JobOrder $jobOrder): Response
+    public function delete(User $user, ?JobOrder $jobOrder = null): Response
     {
-        return $user->hasPermissionTo(UserPermission::UpdateJobOrder)
+        $isCreatedByUser = $jobOrder
+            ? $user->employee->createdJobOrders->contains($jobOrder)
+            : true;
+
+        $isAuthorized = $isCreatedByUser &&
+            $user->hasPermissionTo(UserPermission::UpdateJobOrder);
+
+        return $isAuthorized
             ? Response::allow()
             : Response::deny();
+    }
+
+    public function deleteBatch(User $user, array $jobOrders): bool
+    {
+        return false;
     }
 
     public function restore(User $user, JobOrder $jobOrder): bool

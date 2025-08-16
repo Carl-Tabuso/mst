@@ -10,7 +10,6 @@ enum JobOrderStatus: string
     case Successful             = 'successful';
     case Failed                 = 'failed';
     case Dropped                = 'dropped';
-    case HaulingInProgress      = 'hauling in-progress';
     case OnHold                 = 'on-hold';
     case Closed                 = 'closed';
     case Completed              = 'completed';
@@ -29,7 +28,6 @@ enum JobOrderStatus: string
             self::Successful        => 'Successful',
             self::Failed            => 'Failed',
             self::Dropped           => 'Dropped',
-            self::HaulingInProgress => 'Hauling In-Progress',
             self::OnHold            => 'On-Hold',
             self::Closed            => 'Closed',
             self::Completed         => 'Completed',
@@ -79,7 +77,7 @@ enum JobOrderStatus: string
         return [
             self::ForVerification,
             self::PreHauling,
-            self::HaulingInProgress,
+            self::InProgress,
             self::OnHold,
             self::Closed,
             self::Completed,
