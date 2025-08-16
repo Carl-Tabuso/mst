@@ -1,26 +1,15 @@
-<script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue'
-import ITServiceFields from '../components/ITServiceFields.vue'
-import { useITServiceForm } from '../helpers/useITServiceForm'
-import { ITServiceFormProps } from '../types/types'
-
-const props = defineProps<ITServiceFormProps>();
-
-const { form, formComponent, submitForm } = useITServiceForm(props);
-
-function goBack() {
-  window.history.back();
-}
-</script>
-
 <template>
   <AppLayout>
     <div class="w-full px-4 md:px-12 xl:px-20 py-8">
       <h3 class="text-4xl font-bold mb-8 text-gray-700">Add IT Service</h3>
       <form @submit.prevent="submitForm" class="space-y-8 text-sm w-full">
-        <!-- Use the formComponent ref from the composable -->
-        <ITServiceFields ref="formComponent" :form="form" :technicians="props.technicians"
-          :machineTypes="props.machineTypes" :machineStatuses="props.machineStatuses" />
+        <ITServiceFields 
+          ref="formComponent" 
+          :form="form" 
+          :technicians="props.technicians"
+          :machineTypes="props.machineTypes" 
+          :machineStatuses="props.machineStatuses" 
+        />
 
         <div class="md:col-span-2 flex justify-end gap-4 mt-6 px-6">
           <button type="button" @click="goBack"
@@ -35,13 +24,31 @@ function goBack() {
           </button>
         </div>
 
-        <div
-          v-if="form.recentlySuccessful"
-          class="mt-2 text-green-600 md:col-span-2"
-        >
+        <div v-if="form.recentlySuccessful" class="mt-2 text-green-600 md:col-span-2">
           Saved!
         </div>
       </form>
     </div>
   </AppLayout>
 </template>
+
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue'
+import ITServiceFields from '../components/ITServiceFields.vue'
+import { useITServiceForm } from '../helpers/useITServiceForm'
+import { ITServiceFormProps } from '../types/types'
+
+const props = defineProps<ITServiceFormProps>();
+
+const { form, formComponent, submitForm } = useITServiceForm(props);
+
+function goBack() {
+  window.history.back();
+}
+
+// Debug: Check if route function is available
+console.log('Route function available:', typeof route !== 'undefined');
+if (typeof route !== 'undefined') {
+  console.log('Store route:', route('job_order.it_service.store'));
+}
+</script>

@@ -99,6 +99,7 @@ export interface JobOrder {
   serviceable?: any // add it services and others here
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
+  itServiceStatus?: string | { value: string; label: string }
 }
 
 export interface Form4 {

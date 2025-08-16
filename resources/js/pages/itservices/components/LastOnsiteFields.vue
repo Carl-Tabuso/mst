@@ -118,26 +118,27 @@ defineExpose({
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-4 sm:space-y-6">
         <!-- Header -->
-        <div class="bg-white px-6 py-4">
-            <h2 class="text-lg font-medium text-gray-700">Final Onsite Visit Details</h2>
+        <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-medium text-gray-700 dark:text-gray-300">Final Onsite Visit Details</h2>
         </div>
 
         <!-- Service Performed -->
-        <div class="bg-white px-6 space-y-4">
-            <div class="flex flex-col md:flex-row gap-3">
-                <label class="w-40 text-sm font-medium text-gray-700 mt-2">Service Performed</label>
+        <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Service
+                    Performed</label>
                 <div class="flex flex-col flex-1">
                     <textarea v-model="form.service_performed" :class="[
                         'input-field flex-1',
-                        hasError('service_performed') ? 'border-red-500 bg-red-50' : ''
+                        hasError('service_performed') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
                     ]" rows="4"
                         placeholder="Describe all services performed during this final visit (minimum 10 characters)"></textarea>
-                    <span v-if="hasError('service_performed')" class="text-red-500 text-xs mt-1">
+                    <span v-if="hasError('service_performed')" class="text-red-500 dark:text-red-400 text-xs mt-1">
                         {{ getError('service_performed') }}
                     </span>
-                    <span class="text-gray-500 text-xs mt-1">
+                    <span class="text-gray-500 dark:text-gray-400 text-xs mt-1">
                         {{ form.service_performed?.length || 0 }}/1000 characters
                     </span>
                 </div>
@@ -145,19 +146,20 @@ defineExpose({
         </div>
 
         <!-- Parts Replaced -->
-        <div class="bg-white px-6 space-y-4">
-            <div class="flex flex-col md:flex-row gap-3">
-                <label class="w-40 text-sm font-medium text-gray-700 mt-2">Parts Replaced</label>
+        <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Parts
+                    Replaced</label>
                 <div class="flex flex-col flex-1">
                     <textarea v-model="form.parts_replaced" :class="[
                         'input-field flex-1',
-                        hasError('parts_replaced') ? 'border-red-500 bg-red-50' : ''
+                        hasError('parts_replaced') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
                     ]" rows="3"
                         placeholder="List all parts that were replaced or installed (minimum 5 characters)"></textarea>
-                    <span v-if="hasError('parts_replaced')" class="text-red-500 text-xs mt-1">
+                    <span v-if="hasError('parts_replaced')" class="text-red-500 dark:text-red-400 text-xs mt-1">
                         {{ getError('parts_replaced') }}
                     </span>
-                    <span class="text-gray-500 text-xs mt-1">
+                    <span class="text-gray-500 dark:text-gray-400 text-xs mt-1">
                         {{ form.parts_replaced?.length || 0 }}/500 characters
                     </span>
                 </div>
@@ -165,19 +167,20 @@ defineExpose({
         </div>
 
         <!-- Final Remark -->
-        <div class="bg-white px-6 space-y-4">
-            <div class="flex flex-col md:flex-row gap-3">
-                <label class="w-40 text-sm font-medium text-gray-700 mt-2">Final Remark</label>
+        <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Final
+                    Remark</label>
                 <div class="flex flex-col flex-1">
                     <textarea v-model="form.final_remark" :class="[
                         'input-field flex-1',
-                        hasError('final_remark') ? 'border-red-500 bg-red-50' : ''
+                        hasError('final_remark') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
                     ]" rows="4"
                         placeholder="Provide final remarks, current machine status, and any follow-up recommendations (minimum 10 characters)"></textarea>
-                    <span v-if="hasError('final_remark')" class="text-red-500 text-xs mt-1">
+                    <span v-if="hasError('final_remark')" class="text-red-500 dark:text-red-400 text-xs mt-1">
                         {{ getError('final_remark') }}
                     </span>
-                    <span class="text-gray-500 text-xs mt-1">
+                    <span class="text-gray-500 dark:text-gray-400 text-xs mt-1">
                         {{ form.final_remark?.length || 0 }}/1000 characters
                     </span>
                 </div>
@@ -185,33 +188,31 @@ defineExpose({
         </div>
 
         <!-- Machine Status -->
-        <div class="bg-white px-6 space-y-4">
-            <div class="flex flex-col md:flex-row gap-3">
-                <label class="w-40 text-sm font-medium text-gray-700 mt-2">Machine Status</label>
+        <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Machine
+                    Status</label>
                 <div class="flex flex-col flex-1">
                     <select v-model="form.final_machine_status" :class="[
                         'input-field',
-                        hasError('final_machine_status') ? 'border-red-500 bg-red-50' : ''
+                        hasError('final_machine_status') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
                     ]">
                         <option value="">Select status</option>
                         <option v-for="status in machineStatuses" :key="status.value" :value="status.value">
                             {{ status.label }}
                         </option>
                     </select>
-                    <span v-if="hasError('final_machine_status')" class="text-red-500 text-xs mt-1">
+                    <span v-if="hasError('final_machine_status')" class="text-red-500 dark:text-red-400 text-xs mt-1">
                         {{ getError('final_machine_status') }}
                     </span>
                 </div>
             </div>
         </div>
-
-
     </div>
 </template>
 
 <style scoped>
 .input-field {
-    @apply border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-blue-200 focus:border-blue-200 transition-colors;
+    @apply border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-600 focus:border-blue-200 dark:focus:border-blue-600 transition-colors;
 }
 </style>
-
