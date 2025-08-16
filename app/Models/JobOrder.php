@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Collections\JobOrderCollection;
 use App\Enums\ActivityLogName;
 use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
 use App\Policies\JobOrderPolicy;
+use Illuminate\Database\Eloquent\Attributes\CollectedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +23,7 @@ use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+#[CollectedBy(JobOrderCollection::class)]
 #[UsePolicy(JobOrderPolicy::class)]
 class JobOrder extends Model
 {
@@ -96,6 +99,24 @@ class JobOrder extends Model
     public function cancelled(Builder $query): Builder
     {
         return $query->whereIn('status', JobOrderStatus::getCancelledStatuses());
+    }
+
+    #[Scope]
+    public function fromPastMonth(Builder $query): Builder
+    {
+        return $query->whereDate('date_time', '>=', now()->subMonth());
+    }
+
+    #[Scope]
+    public function fromPastWeek(Builder $query): Builder
+    {
+        return $query->whereDate('date_time', '>=', now()->subWeek());
+    }
+
+    #[Scope]
+    public function updatedPastWeekOrMore(Builder $query): Builder
+    {
+        return $query->whereDate('updated_at', '<=', now()->subWeek());
     }
 
     public function serviceable(): MorphTo

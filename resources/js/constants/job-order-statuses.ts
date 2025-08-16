@@ -40,8 +40,8 @@ export const JobOrderStatuses = [
     badge: 'error',
   },
   {
-    id: 'hauling in-progress',
-    label: 'Hauling In-Progress',
+    id: 'in-progress',
+    label: 'In-Progress',
     badge: 'progress',
   },
   {
@@ -62,6 +62,11 @@ export const JobOrderStatuses = [
   {
     id: 'pre-hauling',
     label: 'Pre-Hauling',
+    badge: 'continuous',
+  },
+  {
+    id: 'for check up',
+    label: 'For Checkup',
     badge: 'continuous',
   },
 ] as const
@@ -107,7 +112,7 @@ export const manualUpdateStatuses: manualStatusUpdaterType[] = [
       'Choose “Mark as successful if the business client accepted the proposal terms and conditions, otherwise “Mark as failed if they have decided not to move forward.',
   },
   {
-    id: 'hauling in-progress',
+    id: 'in-progress',
     next: {
       tag: 'for verification',
       label: 'Mark as for verification',

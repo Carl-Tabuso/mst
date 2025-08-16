@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue'
 import AppLogoIcon from '@/components/AppLogoIcon.vue'
-import Breadcrumbs from '@/components/Breadcrumbs.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -98,7 +97,7 @@ const mainNavItems: NavItem[] = [
     title: 'User Management',
     href: '/users',
     icon: UserRoundCog,
-    can: can('manage:employee_account'),
+    can: can('manage:users'),
   },
   {
     title: 'Employee Management',
@@ -341,7 +340,7 @@ const rightNavItems: NavItem[] = [
       </div>
     </div>
 
-    <div
+    <!-- <div
       v-if="props.breadcrumbs.length > 1"
       class="flex w-full"
     >
@@ -350,6 +349,6 @@ const rightNavItems: NavItem[] = [
       >
         <Breadcrumbs :breadcrumbs="breadcrumbs" />
       </div>
-    </div>
+    </div> -->
   </div>
 </template>

@@ -21,6 +21,7 @@ html {
     --primary-foreground: 200.84 97% 98%;
     --secondary: 200 50% 94.5%;
     --secondary-foreground: 200 25% 30%;
+    --tertiary: 85.22 100% 25%;
     --muted: 200 50% 95%;
     --muted-foreground: 200 20% 40%;
     --accent: 200 45% 96%;
@@ -68,6 +69,7 @@ html {
     --primary-foreground: 220 15% 10%;
     --secondary: 220 12% 20%;
     --secondary-foreground: 220 10% 92%;
+    --tertiary: 85.22 100% 25%;
     --muted: 220 12% 16%;
     --muted-foreground: 220 10% 65%;
     --accent: 220 15% 22%;
@@ -86,7 +88,7 @@ html {
     --chart-5: 340 60% 60%;
     --sidebar-background: 220 15% 10%;
     --sidebar-foreground: 220 10% 90%;
-    --sidebar-primary: 220 60% 96%;
+    --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: 220 15% 10%;
     --sidebar-accent: 220 15% 16%;
     --sidebar-accent-foreground: 220 12% 92%;
