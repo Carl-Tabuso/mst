@@ -17,7 +17,6 @@ export const useITServiceForm = (props: ITServiceFormProps) => {
     client: '',
     address: '',
     department: '',
-    position: '',
     contact_no: '',
     contact_person: '',
     date: '',
@@ -33,11 +32,18 @@ export const useITServiceForm = (props: ITServiceFormProps) => {
 
   const submitForm = () => {
     
-    if (formComponent.value?.validateForm) {
+    if (!formComponent.value) {
+      console.error('Form component ref is null');
+      return;
+    }
 
+    if (formComponent.value.validateForm) {
+      console.log('Validating form...');
       const isValid = formComponent.value.validateForm();
+      console.log('Form is valid:', isValid);
 
       if (!isValid) {
+        console.log('Form validation failed');
         setTimeout(() => {
           const firstError = document.querySelector('.border-red-500') as HTMLElement;
           if (firstError) {
@@ -55,20 +61,37 @@ export const useITServiceForm = (props: ITServiceFormProps) => {
         return;
       }
     } else {
-      console.log('No form component or validateForm method available');
+      console.error('validateForm method not available');
       return;
     }
 
-    router.post(route('job_order.it_service.store'), form.data(), {
-      onSuccess: () => {
+    console.log('Form data before submission:', form.data()); 
+    console.log('Attempting to submit to route:', route('job_order.it_service.store')); 
+
+    // Submit form
+    form.post(route('job_order.it_service.store'), {
+      onBefore: () => {
+        console.log('Form submission started');
+      },
+      onStart: () => {
+        console.log('Request started');
+      },
+      onProgress: () => {
+        console.log('Upload progress');
+      },
+      onSuccess: (response) => {
+        console.log('Form submission successful:', response);
         form.reset();
         if (formComponent.value?.showValidation) {
           formComponent.value.showValidation.value = false;
         }
-        router.visit(route('job_order.it_service.index'))
+        ;
       },
-      onError: (errors: any) => {
+      onError: (errors) => {
         console.error('Form submission errors:', errors);
+      },
+      onFinish: () => {
+        console.log('Form submission finished'); 
       }
     });
   };

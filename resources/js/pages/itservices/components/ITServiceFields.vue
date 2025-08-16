@@ -46,11 +46,6 @@ const validationRules: ValidationRules = {
     minLength: 2,
     maxLength: 50
   },
-  position: {
-    required: true,
-    minLength: 2,
-    maxLength: 50
-  },
   contact_person: {
     required: true,
     minLength: 2,
@@ -150,7 +145,6 @@ const validateField = (fieldName: string, value: any): string | null => {
     }
   }
 
-
   return null
 }
 
@@ -199,57 +193,61 @@ defineExpose({
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-4 sm:space-y-6">
     <!-- Type of Service -->
-    <div class="bg-white px-6 space-y-4">
-      <div class="flex items-center">
+    <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0">
         <!-- Label -->
-        <label class="w-44 text-sm font-medium text-gray-700">Type of Service</label>
+        <label class="w-full sm:w-44 text-sm font-medium text-gray-700 dark:text-gray-300">Type of Service</label>
 
         <!-- Radio buttons -->
         <div class="flex flex-wrap gap-6">
           <label class="flex items-center">
             <input type="radio" v-model="form.service_type" value="waste_management"
-              class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" disabled />
-            <span class="ml-2 text-sm text-gray-400">Waste Management</span>
+              class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              disabled />
+            <span class="ml-2 text-sm text-gray-400 dark:text-gray-500">Waste Management</span>
           </label>
 
           <label class="flex items-center">
             <input type="radio" v-model="form.service_type" value="it_services"
-              class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked disabled />
-            <span class="ml-2 text-sm text-gray-700">IT Services</span>
+              class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              checked disabled />
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">IT Services</span>
           </label>
 
           <label class="flex items-center">
             <input type="radio" v-model="form.service_type" value="other_services"
-              class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" disabled />
-            <span class="ml-2 text-sm text-gray-400">Other Services (specify)</span>
+              class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              disabled />
+            <span class="ml-2 text-sm text-gray-400 dark:text-gray-500">Other Services (specify)</span>
           </label>
         </div>
       </div>
     </div>
 
     <!-- Date and Time of Service -->
-    <div class="bg-white px-6 space-y-4">
-      <div class="flex flex-col md:flex-row md:items-start gap-3">
-        <label class="w-40 text-sm font-medium text-gray-700 mt-2">Date and Time of Service</label>
+    <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+        <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Date and Time of
+          Service</label>
         <div class="flex flex-col gap-2">
           <div class="flex gap-3">
             <div class="flex flex-col">
               <input type="date" v-model="form.date" :class="[
                 'input-field',
-                hasError('date') ? 'border-red-500 bg-red-50' : ''
+                hasError('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
               ]" />
-              <span v-if="hasError('date')" class="text-red-500 text-xs mt-1">
+              <span v-if="hasError('date')" class="text-red-500 dark:text-red-400 text-xs mt-1">
                 {{ getError('date') }}
               </span>
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col flex-1">
               <input type="time" v-model="form.time" :class="[
                 'input-field',
-                hasError('time') ? 'border-red-500 bg-red-50' : ''
+                hasError('time') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
               ]" />
-              <span v-if="hasError('time')" class="text-red-500 text-xs mt-1">
+              <span v-if="hasError('time')" class="text-red-500 dark:text-red-400 text-xs mt-1">
                 {{ getError('time') }}
               </span>
             </div>
@@ -259,178 +257,184 @@ defineExpose({
     </div>
 
     <!-- Client Information -->
-    <div class="bg-white px-6 space-y-4">
-      <h3 class="text-lg font-medium text-gray-700">Client's Info</h3>
+    <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Client's Info</h3>
 
-      <!-- Client -->
-      <div class="flex flex-col md:flex-row md:items-start gap-3">
-        <label class="w-40 text-sm font-medium text-gray-700 mt-2">Client</label>
-        <div class="flex flex-col flex-1">
-          <input v-model="form.client" :class="[
-            'input-field flex-1',
-            hasError('client') ? 'border-red-500 bg-red-50' : ''
-          ]" placeholder="Enter client/company name" />
-          <span v-if="hasError('client')" class="text-red-500 text-xs mt-1">
-            {{ getError('client') }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Address -->
-      <div class="flex flex-col md:flex-row gap-3">
-        <label class="w-40 text-sm font-medium text-gray-700 mt-2">Address</label>
-        <div class="flex flex-col flex-1">
-          <textarea v-model="form.address" :class="[
-            'input-field flex-1',
-            hasError('address') ? 'border-red-500 bg-red-50' : ''
-          ]" rows="3" placeholder="Enter client's complete address"></textarea>
-          <span v-if="hasError('address')" class="text-red-500 text-xs mt-1">
-            {{ getError('address') }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Contact Person & Contact Number -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Contact Person</label>
+        <!-- Client -->
+        <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+          <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Client</label>
           <div class="flex flex-col flex-1">
-            <input v-model="form.contact_person" :class="[
+            <input v-model="form.client" :class="[
               'input-field flex-1',
-              hasError('contact_person') ? 'border-red-500 bg-red-50' : ''
-            ]" placeholder="Enter contact person" />
-            <span v-if="hasError('contact_person')" class="text-red-500 text-xs mt-1">
-              {{ getError('contact_person') }}
+              hasError('client') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+            ]" placeholder="Enter client/company name" />
+            <span v-if="hasError('client')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+              {{ getError('client') }}
             </span>
           </div>
         </div>
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Contact Number</label>
+
+        <!-- Address -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Address</label>
           <div class="flex flex-col flex-1">
-            <input v-model="form.contact_no" :class="[
+            <textarea v-model="form.address" :class="[
               'input-field flex-1',
-              hasError('contact_no') ? 'border-red-500 bg-red-50' : ''
-            ]" placeholder="09XXXXXXXXX" />
-            <span v-if="hasError('contact_no')" class="text-red-500 text-xs mt-1">
-              {{ getError('contact_no') }}
+              hasError('address') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+            ]" rows="3" placeholder="Enter client's complete address"></textarea>
+            <span v-if="hasError('address')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+              {{ getError('address') }}
             </span>
+          </div>
+        </div>
+
+        <!-- Contact Person & Contact Number -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Contact
+              Person</label>
+            <div class="flex flex-col flex-1">
+              <input v-model="form.contact_person" :class="[
+                'input-field flex-1',
+                hasError('contact_person') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]" placeholder="Enter contact person" />
+              <span v-if="hasError('contact_person')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('contact_person') }}
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Contact
+              Number</label>
+            <div class="flex flex-col flex-1">
+              <input v-model="form.contact_no" :class="[
+                'input-field flex-1',
+                hasError('contact_no') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]" placeholder="09XXXXXXXXX" />
+              <span v-if="hasError('contact_no')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('contact_no') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label
+              class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Department/Branch</label>
+            <div class="flex flex-col flex-1">
+              <input v-model="form.department" :class="[
+                'input-field flex-1',
+                hasError('department') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]" placeholder="Enter client/company's department" />
+              <span v-if="hasError('department')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('department') }}
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Technician</label>
+            <div class="flex flex-col flex-1">
+              <select v-model="form.technician_id" :class="[
+                'input-field flex-1',
+                hasError('technician_id') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]">
+                <option disabled value="">Select technician</option>
+                <option v-for="tech in technicians" :key="tech.id" :value="tech.id">
+                  {{ tech.first_name }} {{ tech.middle_name }} {{ tech.last_name }} {{ tech.suffix }}
+                </option>
+              </select>
+              <span v-if="hasError('technician_id')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('technician_id') }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Department/Branch</label>
-          <div class="flex flex-col flex-1">
-            <input v-model="form.department" :class="[
-              'input-field flex-1',
-              hasError('department') ? 'border-red-500 bg-red-50' : ''
-            ]" placeholder="Enter client/company's department" />
-            <span v-if="hasError('department')" class="text-red-500 text-xs mt-1">
-              {{ getError('department') }}
-            </span>
-          </div>
-        </div>
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Technician</label>
-          <div class="flex flex-col flex-1">
-            <select v-model="form.technician_id" :class="[
-              'input-field flex-1',
-              hasError('technician_id') ? 'border-red-500 bg-red-50' : ''
-            ]">
-              <option disabled value="">Select technician</option>
-              <option v-for="tech in technicians" :key="tech.id" :value="tech.id">
-                {{ tech.first_name }} {{ tech.middle_name }} {{ tech.last_name }} {{ tech.suffix }}
-              </option>
-            </select>
-            <span v-if="hasError('technician_id')" class="text-red-500 text-xs mt-1">
-              {{ getError('technician_id') }}
-            </span>
-          </div>
-        </div>
-      </div>
-
     </div>
 
-    <div class="px-6 space-y-4">
-      <h3 class="text-lg font-medium text-gray-700">Machine Details</h3>
+    <!-- Machine Details -->
+    <div class="bg-white dark:bg-gray-800 px-4 sm:px-6 py-4  border-gray-200 dark:border-gray-700">
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Machine Details</h3>
 
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Machine Type -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Machine Type</label>
+            <div class="flex flex-col flex-1">
+              <select v-model="form.machine_type" :class="[
+                'input-field flex-1',
+                hasError('machine_type') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]">
+                <option disabled value="">Select machine type</option>
+                <option v-for="type in machineTypes" :key="type" :value="type">{{ type }}</option>
+              </select>
+              <span v-if="hasError('machine_type')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('machine_type') }}
+              </span>
+            </div>
+          </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Machine Type -->
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Machine Type</label>
-          <div class="flex flex-col flex-1">
-            <select v-model="form.machine_type" :class="[
-            'input-field flex-1',
-            hasError('machine_type') ? 'border-red-500 bg-red-50' : ''
-          ]">
-              <option disabled value="">Select machine type</option>
-              <option v-for="type in machineTypes" :key="type" :value="type">{{ type }}</option>
-            </select>
-            <span v-if="hasError('machine_type')" class="text-red-500 text-xs mt-1">
-              {{ getError('machine_type') }}
-            </span>
+          <!-- Model -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Model</label>
+            <div class="flex flex-col flex-1">
+              <input v-model="form.model" :class="[
+                'input-field flex-1',
+                hasError('model') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]" placeholder="Enter model" />
+              <span v-if="hasError('model')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('model') }}
+              </span>
+            </div>
           </div>
         </div>
 
-        <!-- Model -->
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Model</label>
-          <div class="flex flex-col flex-1">
-            <input v-model="form.model" :class="[
-            'input-field flex-1',
-            hasError('model') ? 'border-red-500 bg-red-50' : ''
-          ]" placeholder="Enter model" />
-            <span v-if="hasError('model')" class="text-red-500 text-xs mt-1">
-              {{ getError('model') }}
-            </span>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Serial No -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Serial No</label>
+            <div class="flex flex-col flex-1">
+              <input v-model="form.serial_no" :class="[
+                'input-field flex-1',
+                hasError('serial_no') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]" placeholder="Enter serial number" />
+              <span v-if="hasError('serial_no')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('serial_no') }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Tag No -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+            <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Tag No</label>
+            <div class="flex flex-col flex-1">
+              <input v-model="form.tag_no" :class="[
+                'input-field flex-1',
+                hasError('tag_no') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+              ]" placeholder="Enter tag number" />
+              <span v-if="hasError('tag_no')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+                {{ getError('tag_no') }}
+              </span>
+            </div>
           </div>
         </div>
 
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Serial No -->
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Serial No</label>
+        <!-- Machine Problem -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <label class="w-full sm:w-40 text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Machine
+            Problem</label>
           <div class="flex flex-col flex-1">
-            <input v-model="form.serial_no" :class="[
-            'input-field flex-1',
-            hasError('serial_no') ? 'border-red-500 bg-red-50' : ''
-          ]" placeholder="Enter serial number" />
-            <span v-if="hasError('serial_no')" class="text-red-500 text-xs mt-1">
-              {{ getError('serial_no') }}
+            <textarea v-model="form.machine_problem" :class="[
+              'input-field flex-1',
+              hasError('machine_problem') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-400' : ''
+            ]" rows="3" placeholder="Describe the machine problem (minimum 10 characters)"></textarea>
+            <span v-if="hasError('machine_problem')" class="text-red-500 dark:text-red-400 text-xs mt-1">
+              {{ getError('machine_problem') }}
             </span>
           </div>
-        </div>
-
-        <!-- Tag No -->
-        <div class="flex items-start gap-3">
-          <label class="w-40 text-sm font-medium text-gray-700 mt-2">Tag No</label>
-          <div class="flex flex-col flex-1">
-            <input v-model="form.tag_no" :class="[
-            'input-field flex-1',
-            hasError('tag_no') ? 'border-red-500 bg-red-50' : ''
-          ]" placeholder="Enter tag number" />
-            <span v-if="hasError('tag_no')" class="text-red-500 text-xs mt-1">
-              {{ getError('tag_no') }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Machine Problem -->
-      <div class="flex flex-col md:flex-row gap-3">
-        <label class="w-40 text-sm font-medium text-gray-700 mt-2">Machine Problem</label>
-        <div class="flex flex-col flex-1">
-          <textarea v-model="form.machine_problem" :class="[
-            'input-field flex-1',
-            hasError('machine_problem') ? 'border-red-500 bg-red-50' : ''
-          ]" rows="3" placeholder="Describe the machine problem (minimum 10 characters)"></textarea>
-          <span v-if="hasError('machine_problem')" class="text-red-500 text-xs mt-1">
-            {{ getError('machine_problem') }}
-          </span>
         </div>
       </div>
     </div>
@@ -439,6 +443,12 @@ defineExpose({
 
 <style scoped>
 .input-field {
-  @apply border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-blue-200 focus:border-blue-200 transition-colors;
+  @apply border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-600 focus:border-blue-200 dark:focus:border-blue-600 transition-colors;
+}
+
+@media (max-width: 475px) {
+  .xs\:flex-row {
+    flex-direction: row;
+  }
 }
 </style>

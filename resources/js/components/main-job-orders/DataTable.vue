@@ -39,6 +39,7 @@ const columnVisibility = ref<VisibilityState>({
   client: true,
   contactNo: false,
   address: false,
+  itServiceStatus: true,
   status: true,
   creator: true,
   dateTime: false,

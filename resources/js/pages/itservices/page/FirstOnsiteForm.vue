@@ -8,7 +8,6 @@ const props = defineProps<{
     machineStatuses: MachineStatusOption[],
     jobOrderId: number,
     serviceId: number,
-    jobOrderNumber: string
 }>()
 
 const { form, formComponent, submitForm } = useFirstOnsiteForm(props.jobOrderId, props.serviceId);
@@ -27,7 +26,7 @@ function goBack() {
                     <p class="text-sm text-gray-500 mt-1">Complete the initial service report</p>
                 </div>
                 <div class="text-lg font-semibold text-blue-900">
-                    Job Order: {{ jobOrderNumber }}
+                    Job Order: {{ jobOrderId }}
                 </div>
             </div>
 

@@ -30,10 +30,19 @@ class JobOrderResource extends JsonResource
             'employeePerformance'   => EmployeePerformanceResource::make($this->whenLoaded('employeePerformance')),
             'corrections'           => JobOrderCorrectionResource::collection($this->whenLoaded('corrections')),
             'cancel'                => CancelledJobOrderResource::make($this->whenLoaded('cancel')),
-            'itServiceStatus' => $this->when(
-                $this->serviceable_type === 'it_service' && filled($this->serviceable?->status),
-                fn () => $this->serviceable->status->getLabel()
-            ),
+            'itServiceStatus' => $this->whenLoaded('serviceable', function () {
+                if ($this->serviceable instanceof \App\Models\ITService) {
+                    return $this->serviceable->status;
+                }
+
+                return null;
+            }),
+            'itServiceStatusLabel' => $this->whenLoaded('serviceable', function () {
+                if ($this->serviceable instanceof \App\Models\ITService  && $this->serviceable->status instanceof \App\Enums\ITServiceStatus) {
+                    return $this->serviceable->status->getLabel();
+                }
+                return null;
+            }),
             'serviceable' => $this->whenLoaded('serviceable', function () {
                 $serviceable = $this->serviceable;
 

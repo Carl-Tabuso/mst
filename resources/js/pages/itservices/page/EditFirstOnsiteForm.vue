@@ -127,7 +127,7 @@ const submitForm = () => {
                 if (firstOnsiteFormComponent.value?.showValidation) {
                     firstOnsiteFormComponent.value.showValidation.value = false
                 }
-                router.visit(route('job_order.it_service.index'))
+                
             },
             onError: (errors: any) => {
                 console.error('[ERROR] Validation failed:', errors)

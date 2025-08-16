@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import ITServiceFields from '../components/ITServiceFields.vue';
 import LastOnsiteFields from '../components/LastOnsiteFields.vue';
-import ITServiceFirstOnsiteFields from '../components/ITServiceFirstOnsiteFields.vue';
+import ITServiceFirstOnsiteFieldsForEdit from '../components/ITServiceFirstOnsiteFieldsForEdit.vue';
 import { useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import type { Technician, MachineStatusOption } from '../types/types';
@@ -55,7 +55,7 @@ interface Props {
         service_performed: string;
         parts_replaced: string;
         final_remark: string;
-        final_machine_status: string; // CORRECTED: This should be final_machine_status
+        final_machine_status: string;
         attached_file?: string;
     };
     isEdit: boolean;
@@ -82,18 +82,15 @@ const form = useForm({
     tag_no: props.itService?.tag_no || '',
     machine_problem: props.itService?.machine_problem || '',
 
-    // First onsite report fields - FIXED FIELD NAMES
     first_service_performed: props.firstOnsiteReport?.service_performed || '',
-    first_recommendation: props.firstOnsiteReport?.recommendation || '',
-    first_machine_status: props.firstOnsiteReport?.machine_status || '', // This should initialize properly now
-    first_attached_file: null as File | null,
+    recommendation: props.firstOnsiteReport?.recommendation || '',
+    machine_status: props.firstOnsiteReport?.machine_status || '',
+    attached_file: null as File | null,
 
-    // Final onsite report fields - CORRECTED FIELD MAPPING  
     service_performed: props.existingFinalReport?.service_performed || '',
     parts_replaced: props.existingFinalReport?.parts_replaced || '',
     final_remark: props.existingFinalReport?.final_remark || '',
-    final_machine_status: props.existingFinalReport?.final_machine_status || '', // FIXED: Use final_machine_status instead of machine_status
-    attached_file: null as File | null,
+    final_machine_status: props.existingFinalReport?.final_machine_status || '',
 });
 
 const submitForm = () => {
@@ -129,8 +126,6 @@ const submitForm = () => {
         delete formData.first_attached_file;
     }
 
-    console.log('Form data being submitted:', formData); // Debug log
-
     router.post(
         route('job_order.it_service.corrections.store', {
             jobOrder: jobOrderId,
@@ -150,7 +145,7 @@ const submitForm = () => {
                 if (finalOnsiteFormComponent.value?.showValidation) {
                     finalOnsiteFormComponent.value.showValidation.value = false
                 }
-                router.visit(route('job_order.it_service.index'))
+                
             },
             onError: (errors: any) => {
                 console.error('[ERROR] Validation failed:', errors)
@@ -168,7 +163,7 @@ function goBack() {
 
 // Debug: Log the initialized values
 console.log('Initialized form values:', {
-    first_machine_status: form.first_machine_status,
+    machine_status: form.machine_status,
     final_machine_status: form.final_machine_status,
     firstOnsiteReport: props.firstOnsiteReport,
     existingFinalReport: props.existingFinalReport
@@ -198,7 +193,7 @@ console.log('Initialized form values:', {
 
                 <!-- First Onsite Fields -->
                 <div class="px-6">
-                    <ITServiceFirstOnsiteFields ref="firstOnsiteFormComponent" :form="form"
+                    <ITServiceFirstOnsiteFieldsForEdit ref="firstOnsiteFormComponent" :form="form"
                         :machineStatuses="props.firstOnsiteStatuses" />
 
                     <!-- Show current first onsite file -->

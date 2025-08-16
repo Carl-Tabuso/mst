@@ -14,13 +14,15 @@ declare module '@tanstack/vue-table' {
 }
 
 export const ItServiceStatuses = [
-    { id: 'for check up', label: 'For Check Up', badge: 'secondary' },
-    { id: 'for final service', label: 'For Final Service', badge: 'progress' },
-    { id: 'completed', label: 'Completed', badge: 'success' },
-    { id: 'unknown', label: 'Unknown', badge: 'default' },
+  { id: 'For Check Up', label: 'For Check Up', badge: 'secondary' },
+  { id: 'For Final Service', label: 'For Final Service', badge: 'progress' },
+  { id: 'Completed', label: 'Completed', badge: 'success' },
+  { id: 'Unknown', label: 'Unknown', badge: 'default' },
 ] as const
 
 export type ItServiceStatus = (typeof ItServiceStatuses)[number]['id']
+
+console.log('ItServiceStatuses:', ItServiceStatuses)
 
 export const columns: ColumnDef<JobOrder>[] = [
     {
@@ -67,21 +69,23 @@ export const columns: ColumnDef<JobOrder>[] = [
         cell: ({ row }) => h('div', { class: 'text-xs' }, row.getValue('address'))
     },
     {
-        accessorKey: 'itServiceStatus',
-        meta: { label: 'IT Service Status' },
-        header: ({ column }) => h(DataTableHeader, { column }),
-        cell: ({ row }) => {
-            const status: string = String(row.getValue('itServiceStatus')).toLowerCase()
-            const match = ItServiceStatuses.find((s) => s.id === status)
+    accessorKey: 'itServiceStatus',
+    header: ({ column }) => h(DataTableHeader, { column }),
+    cell: ({ row }) => {
+        const status = row.original.itServiceStatus
+        const label = row.original.itServiceStatusLabel
 
-            return h(
-                Badge,
-                { variant: match?.badge ?? 'default', class: 'truncate' },
-                () => match?.label ?? 'Unknown'
-            )
-        }
+        const match = ItServiceStatuses.find(
+        (s) => s.id === status || s.label === label
+        )
+
+        return h(
+        Badge,
+        { variant: match?.badge ?? 'default', class: 'truncate' },
+        () => match?.label ?? label ?? 'Unknown'
+        )
     },
-
+    },
     {
         accessorKey: 'creator',
         meta: { label: 'Frontliner' },

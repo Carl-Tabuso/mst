@@ -142,7 +142,7 @@ class ITServicesController extends Controller
         $jobOrder->serviceable()->associate($itService);
         $jobOrder->save();
 
-        return redirect()->route('job_order.index')->with('success', 'IT Service created successfully!');
+        return redirect()->route('job_order.it_service.index')->with('success', 'IT Service created successfully!');
     }
 
     public function editInitial(JobOrder $jobOrder)
@@ -201,9 +201,7 @@ class ITServicesController extends Controller
     {
         $itService = $jobOrder->serviceable;
 
-        if (! $itService || $jobOrder->serviceable_type !== 'it_service') {
-            abort(404, 'Invalid IT Service job order');
-        }
+        $itService->load('technician');
 
         return Inertia::render('itservices/page/ViewInitial', [
             'jobOrder'  => $jobOrder,
@@ -261,7 +259,7 @@ class ITServicesController extends Controller
             'status' => ITServiceStatus::ForFinalService,
         ]);
 
-        return redirect()->route('job_order.index')->with('success', 'First Onsite Report submitted!');
+        return redirect()->route('job_order.it_service.index')->with('success', 'First Onsite Report submitted!');
     }
 
     public function editFirstOnsite(JobOrder $jobOrder, $reportId)
@@ -401,10 +399,6 @@ class ITServicesController extends Controller
     {
         $itService = ITService::findOrFail($request->service_id);
 
-        if (! $itService || $jobOrder->serviceable_type !== 'it_service') {
-            abort(404, 'Invalid IT Service job order');
-        }
-
         $machineStatuses = collect(MachineStatus::cases())->map(fn($status) => [
             'label' => $status->getLabel(),
             'value' => $status->value,
@@ -443,20 +437,13 @@ class ITServicesController extends Controller
         ]);
 
         return redirect()
-            ->route('job_order.index')
+            ->route('job_order.it_service.index')
             ->with('success', 'Final Onsite Report submitted successfully!');
     }
 
     public function editLastOnsite(JobOrder $jobOrder)
     {
         $itService = $jobOrder->serviceable;
-
-        if (! $itService || $jobOrder->serviceable_type !== 'it_service') {
-            Log::error('Invalid IT Service job order.', [
-                'job_order_id' => $jobOrder->id,
-            ]);
-            abort(404, 'Invalid IT Service job order');
-        }
 
         $firstOnsiteReport = ITServiceReport::where('it_service_id', $itService->id)
             ->whereRaw('LOWER(onsite_type) = ?', ['initial'])
@@ -519,10 +506,6 @@ class ITServicesController extends Controller
     {
         $itService = $jobOrder->serviceable;
 
-        if (! $itService || $jobOrder->serviceable_type !== 'it_service') {
-            abort(404, 'Invalid IT Service job order');
-        }
-
         $itService->load('technician');
 
         $reports = ITServiceReport::where('it_service_id', $itService->id)->get();
@@ -530,7 +513,6 @@ class ITServicesController extends Controller
         $firstOnsite = $reports->firstWhere('onsite_type', 'Initial');
         $finalOnsite = $reports->firstWhere('onsite_type', 'Final');
 
-        // Only process machine_status from the Initial report
         $mapReport = function ($report, $machineStatusSource = null) {
             if (! $report) {
                 return null;
@@ -570,11 +552,9 @@ class ITServicesController extends Controller
         }
 
         try {
-            // Keep the existing validation structure for backward compatibility
             $validated = $request->validate([
                 'fields'                     => ['required', 'array'],
                 'fields.*'                   => ['nullable'],
-                // Add specific file validation rules
                 'fields.attached_file'       => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
                 'fields.first_attached_file' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
             ]);
@@ -587,7 +567,6 @@ class ITServicesController extends Controller
 
         $fields = $validated['fields'];
 
-        // Handle file uploads - files will be in the nested structure
         $attachedFile      = $request->file('fields.attached_file');
         $firstAttachedFile = $request->file('fields.first_attached_file');
 
@@ -599,7 +578,6 @@ class ITServicesController extends Controller
             'all_files'               => $request->allFiles(),
         ]);
 
-        // Store uploaded files if they exist and replace the file objects with paths
         if ($attachedFile) {
             $attachedFilePath        = $attachedFile->store('it_service_reports', 'public');
             $fields['attached_file'] = $attachedFilePath;
@@ -622,7 +600,6 @@ class ITServicesController extends Controller
                 continue;
             }
 
-            // Skip file objects that have been processed (this shouldn't happen now since we replaced them with paths)
             if ($newValue instanceof \Illuminate\Http\UploadedFile) {
                 continue;
             }
@@ -672,7 +649,10 @@ class ITServicesController extends Controller
             'properties'    => ['before' => $before, 'after' => $after],
         ]);
 
-        return back()->with('message', 'Correction submitted for approval.');
+        return redirect()
+            ->route('job_order.it_service.index')
+            ->with('message', 'Correction submitted for approval.');
+
     }
 
     private function buildComprehensiveCurrentData(JobOrder $jobOrder, ITService $itService): array
@@ -713,10 +693,8 @@ class ITServicesController extends Controller
             ->first();
 
         if ($lastOnsiteReport) {
-            // For final stage, we need to handle potential field conflicts
-            // The service_performed field exists in both reports, so we'll use the final one
             $currentData = array_merge($currentData, [
-                'service_performed' => $lastOnsiteReport->service_performed, // Final overrides initial
+                'service_performed' => $lastOnsiteReport->service_performed,
                 'parts_replaced'    => $lastOnsiteReport->parts_replaced,
                 'final_remark'      => $lastOnsiteReport->final_remark,
             ]);

@@ -69,7 +69,7 @@ export const useLastOnsiteForm = (
           if (formComponent.value?.showValidation) {
             formComponent.value.showValidation.value = false
           }
-          router.visit(route('job_order.it_service.index'))
+          
         },
         onError: (errors: any) => {
           console.error('[ERROR] Validation failed:', errors)
