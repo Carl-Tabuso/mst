@@ -12,10 +12,13 @@ class JobOrderCorrectionResource extends JsonResource
         return [
             'id'         => $this->id,
             'jobOrderId' => $this->job_order_id,
+            'status'     => $this->status->getLabel(),
             'properties' => $this->properties,
-            'isApproved' => $this->is_approved,
+            'approvedAt' => $this->approved_at,
+            'reason'     => $this->reason,
             'createdAt'  => $this->created_at,
             'updatedAt'  => $this->updated_at,
+            'jobOrder'   => JobOrderResource::make($this->whenLoaded('jobOrder')),
         ];
     }
 }

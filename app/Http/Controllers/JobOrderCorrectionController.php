@@ -2,14 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ActivityLogName;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreJobOrderCorrectionRequest;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
+use App\Services\JobOrderCorrectionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class JobOrderCorrectionController extends Controller
 {
+    public function __construct(private JobOrderCorrectionService $service) {}
+
+    public function index(Request $request): Response
+    {
+        $perPage = $request->input('per_page', 10);
+
+        $search = $request->input('search', '');
+
+        $data = $this->service->getAllJobOrderCorrections($perPage, $search);
+
+        return Inertia::render('corrections/Index', compact('data'));
+    }
+
     public function store(StoreJobOrderCorrectionRequest $request, JobOrder $ticket)
     {
         $validated = (object) $request->validated();
@@ -53,15 +71,54 @@ class JobOrderCorrectionController extends Controller
         }
 
         $data['reason'] = $validated->reason;
-        // dd($data);
 
         $ticket->corrections()->create($data);
 
         return back()->with(['message' => __('responses.correction')]);
     }
 
+    public function show(JobOrderCorrection $correction)
+    {
+        //
+    }
+
     public function update(Request $request, JobOrderCorrection $correction)
     {
         //
+    }
+
+    public function destroy(Request $request, ?JobOrderCorrection $correction = null)
+    {
+        if ($correction) {
+            $correction->delete();
+
+            return redirect()->route('job_order.correction.index')
+                ->with(['message' => __('responses.archive.correction', [
+                    'ticket' => $correction->jobOrder->ticket,
+                ])]);
+        }
+
+        $correctionIds = $request->array('correctionIds');
+
+        activity()->withoutLogs(fn () => DB::transaction(fn () => JobOrderCorrection::destroy($correctionIds)));
+
+        $user = $request->user();
+
+        activity()
+            ->useLog(ActivityLogName::TicketCorrectionBatchArchive->value)
+            ->causedBy($user)
+            ->event('deleted')
+            ->withProperties([
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ])
+            ->log(__('activity.job_order.archived.batch', [
+                'causer'       => $user->employee->full_name,
+                'ticket_count' => count($correctionIds),
+            ]));
+
+        return back()->with(['message' => __('responses.batch_archive.correction', [
+            'count' => count($correctionIds),
+        ])]);
     }
 }

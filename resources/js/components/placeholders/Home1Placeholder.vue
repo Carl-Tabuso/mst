@@ -11,7 +11,9 @@ import { Skeleton } from '@/components/ui/skeleton'
       </div>
       <Skeleton class="h-full min-h-[300px] rounded-lg" />
     </div>
-    <div class="grid items-start gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+    <div
+      class="grid items-start gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+    >
       <Skeleton class="h-[500px] rounded-lg" />
       <Skeleton class="h-[500px] rounded-lg" />
       <Skeleton class="h-[500px] rounded-lg" />

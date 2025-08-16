@@ -1,14 +1,12 @@
 <script setup lang="ts">
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getInitials } from '@/composables/useInitials'
+import { JobOrder } from '@/types'
+import { Row } from '@tanstack/vue-table'
 import { computed } from 'vue'
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '../../../components/ui/avatar'
 
 interface CreatorAndTimestampProps {
-  row: {}
+  row: Row<JobOrder>
 }
 
 const props = defineProps<CreatorAndTimestampProps>()

@@ -20,7 +20,7 @@ export interface AuthUser {
     full_name: string
   }
   roles: {
-    name: string
+    name: UserRoleType
     permissions: {
       name: string
     }[]
@@ -95,7 +95,7 @@ export interface JobOrder {
   errorCount: number
   createdAt: string
   updatedAt: string
-  creator?: Employee
+  creator: Employee
   serviceable?: any // add it services and others here
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
@@ -175,10 +175,13 @@ export interface CancelledJobOrder {
 export interface JobOrderCorrection {
   id: number
   jobOrderId: number
+  status: 'Pending' | 'Approved' | 'Rejected'
   properties: { before: {}; after: {} }
-  isApproved: boolean
+  reason: string
+  approvedAt: string
   createdAt: string
   updatedAt: string
+  jobOrder: JobOrder
 }
 
 export interface ActivityLog {

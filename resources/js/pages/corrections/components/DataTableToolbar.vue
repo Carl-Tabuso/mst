@@ -2,6 +2,14 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -10,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { usePermissions } from '@/composables/usePermissions'
 import { router } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
 import { useDebounceFn } from '@vueuse/core'
@@ -25,15 +32,8 @@ import {
 import { VisuallyHidden } from 'radix-vue'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from '../../../components/ui/dialog'
-import FilterPopover from './FilterPopover.vue'
+
+import FilterStatus from './FilterStatus.vue'
 
 interface DataTableToolbarProps {
   table: Table<TData>
@@ -94,8 +94,6 @@ const handlePageSizeArchival = () => {
     },
   })
 }
-
-const { can } = usePermissions()
 </script>
 
 <template>
@@ -116,7 +114,7 @@ const { can } = usePermissions()
       </span>
     </div>
 
-    <FilterPopover />
+    <FilterStatus />
 
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
@@ -171,7 +169,7 @@ const { can } = usePermissions()
     </Button>
 
     <div
-      v-if="hasRowSelection && can('update:job_order')"
+      v-show="hasRowSelection"
       class="ml-auto"
     >
       <Dialog>

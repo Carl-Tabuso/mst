@@ -58,7 +58,7 @@ class JobOrderController extends Controller
             $jobOrder->delete();
 
             return redirect()->route('job_order.index')
-                ->with(['message' => __('responses.archive', [
+                ->with(['message' => __('responses.archive.ticket', [
                     'ticket' => $jobOrder->ticket,
                 ])]);
         }
@@ -82,7 +82,7 @@ class JobOrderController extends Controller
                 'ticket_count' => count($jobOrderIds),
             ]));
 
-        return back()->with(['message' => __('responses.batch_archive')]);
+        return back()->with(['message' => __('responses.batch_archive.ticket')]);
     }
 
     public function dropdownOptions()

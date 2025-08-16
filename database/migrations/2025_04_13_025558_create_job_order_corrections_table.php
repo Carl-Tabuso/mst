@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\JobOrderCorrectionRequestStatus;
 use App\Models\JobOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,6 +19,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+            $table->string('status')->default(JobOrderCorrectionRequestStatus::Pending);
             $table->json('properties'); // before and after
             $table->timestamp('approved_at')->nullable();
             $table->text('reason');
