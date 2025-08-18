@@ -1,21 +1,27 @@
 import { BadgeVariants } from '@/components/ui/badge'
 
 interface CorrectionStatus {
-  id: 'Pending' | 'Approved' | 'Rejected'
+  id: 'pending' | 'approved' | 'rejected'
+  label: 'Pending' | 'Approved' | 'Rejected'
   badge: BadgeVariants['variant']
 }
 
 export const correctionStatuses: CorrectionStatus[] = [
   {
-    id: 'Pending',
+    id: 'pending',
+    label: 'Pending',
     badge: 'continuous',
   },
   {
-    id: 'Approved',
+    id: 'approved',
+    label: 'Approved',
     badge: 'success',
   },
   {
-    id: 'Rejected',
+    id: 'rejected',
+    label: 'Rejected',
     badge: 'destructive',
   },
-]
+] as const
+
+export type CorrectionStatusType = typeof correctionStatuses[number]['id']

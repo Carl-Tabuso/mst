@@ -169,7 +169,6 @@ class HomeService
     {
         $concernStatuses = [
             JobOrderStatus::ForViewing,
-            JobOrderStatus::ForCheckUP,
             JobOrderStatus::ForProposal,
             JobOrderStatus::ForApproval,
             JobOrderStatus::Successful,

@@ -6,7 +6,7 @@ export function useCorrections() {
       'for verification',
       'failed',
       'pre-hauling',
-      'hauling in-progress',
+      'in-progress',
       'on-hold',
       'closed',
       'completed',

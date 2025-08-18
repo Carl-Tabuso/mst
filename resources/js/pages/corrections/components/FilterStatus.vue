@@ -19,37 +19,51 @@ import {
 } from '@/components/ui/popover'
 import { Check, PlusCircle } from 'lucide-vue-next'
 import { ref } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { useUrlSearchParams } from '@vueuse/core'
+import { correctionStatuses, CorrectionStatusType } from '@/constants/correction-statuses'
 
-interface FilterStatusProps {
-  statuses?: any[]
+const selectedStatuses = ref<CorrectionStatusType[]>([])
+
+const isLoading = ref<boolean>(false)
+
+const urlParams = useUrlSearchParams('history')
+
+if (Object.keys(urlParams).length > 0) {
+  selectedStatuses.value = Array.from(Object.values(urlParams)) as CorrectionStatusType[]
 }
 
-const props = defineProps<FilterStatusProps>()
+const onSelect = (status: CorrectionStatusType) => {
+  isLoading.value = true
 
-const correctionStatuses = [
-  {
-    id: 'pending',
-    label: 'Pending',
-  },
-  {
-    id: 'approved',
-    label: 'Approved',
-  },
-  {
-    id: 'rejected',
-    label: 'Rejected',
-  },
-]
+  const isRemoving = selectedStatuses.value.includes(status)
+  const filters = isRemoving
+    ? selectedStatuses.value.filter(s => s !== status)
+    : [...selectedStatuses.value, status]
 
-const selectedStatuses = ref<any[]>(props.statuses || [])
+  router.get(route('job_order.correction.index'), {
+    statuses: filters
+  }, {
+    preserveState: true,
+    replace: true,
+    onSuccess: () => selectedStatuses.value = filters,
+    onError: () => isLoading.value = false,
+    onCancel: () => isLoading.value = false,
+    onFinish: () => isLoading.value = false,
+  })
+}
 
-const onSelect = (status: any) => {
-  if (selectedStatuses.value.includes(status)) {
-    const index = selectedStatuses.value.findIndex((s) => s.id === status.id)
-    selectedStatuses.value.splice(index, 1)
-  } else {
-    selectedStatuses.value.push(status)
-  }
+const onClearFilters = () => {
+  isLoading.value = true
+  
+  router.get(route('job_order.correction.index'), {}, {
+    preserveState: true,
+    replace: true,
+    onSuccess: () => selectedStatuses.value = [],
+    onError: () => isLoading.value = false,
+    onCancel: () => isLoading.value = false,
+    onFinish: () => isLoading.value = false,
+  })
 }
 </script>
 
@@ -73,10 +87,10 @@ const onSelect = (status: any) => {
       </Button>
     </PopoverTrigger>
     <PopoverContent
-      class="w-[200px] p-0"
+      class="w-44 w- p-0"
       align="start"
     >
-      <Command>
+      <Command :class="[{ 'pointer-events-none opacity-60': isLoading }]">
         <CommandInput placeholder="Request Status" />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
@@ -84,14 +98,15 @@ const onSelect = (status: any) => {
             <CommandItem
               v-for="status in correctionStatuses"
               :key="status.id"
-              :value="status"
-              @select="onSelect(status)"
+              :value="status.id"
+              @select="onSelect(status.id)"
+              class="cursor-pointer"
             >
               <div
                 :class="
                   cn(
                     'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                    selectedStatuses.includes(status)
+                    selectedStatuses.includes(status.id)
                       ? 'bg-primary text-primary-foreground'
                       : 'opacity-50 [&_svg]:invisible',
                   )
@@ -100,12 +115,6 @@ const onSelect = (status: any) => {
                 <Check :class="cn('h-4 w-4')" />
               </div>
               <span>{{ status.label }}</span>
-              <!-- <span
-                v-if="facets?.get(option.value)"
-                class="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs"
-              >
-                {{ facets.get(option.value) }}
-              </span> -->
             </CommandItem>
           </CommandGroup>
 
@@ -115,7 +124,7 @@ const onSelect = (status: any) => {
               <CommandItem
                 :value="{ label: 'Clear filters' }"
                 class="justify-center text-center"
-                @select="() => (selectedStatuses = [])"
+                @select="onClearFilters"
               >
                 Clear filters
               </CommandItem>

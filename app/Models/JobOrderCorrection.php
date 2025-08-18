@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\JobOrderCorrectionRequestStatus;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +34,22 @@ class JobOrderCorrection extends Model
     public function getDeletedAtColumn(): string
     {
         return 'archived_at';
+    }
+
+    #[Scope]
+    public function ofStatuses(Builder $query, JobOrderCorrectionRequestStatus|array $requestStatuses): Builder
+    {
+        if ($requestStatuses instanceof JobOrderCorrectionRequestStatus) {
+            return $query->where('status', $requestStatuses->value);
+        }
+
+        $values = [];
+
+        foreach ($requestStatuses as $status) {
+            $values[] = $status;
+        }
+
+        return $query->whereIn('status', $values);
     }
 
     public function jobOrder(): BelongsTo

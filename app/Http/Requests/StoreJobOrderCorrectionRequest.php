@@ -22,12 +22,12 @@ class StoreJobOrderCorrectionRequest extends FormRequest
             'contact_position' => ['required', 'string'],
             'contact_person'   => ['required', 'string'],
             'contact_no'       => ['required', 'digits:11'],
-            'payment_date'     => ['sometimes', 'required', 'date'],
-            'or_number'        => ['sometimes', 'required', 'string'],
-            'bid_bond'         => ['sometimes', 'required'],
-            'payment_type'     => ['sometimes', 'required', 'string'],
-            'approved_date'    => ['sometimes', 'required', 'date'],
-            'reason'           => ['sometimes', 'required', 'string'],
+            'payment_date'     => ['required', 'date'],
+            'or_number'        => ['required', 'string'],
+            'bid_bond'         => ['required'],
+            'payment_type'     => ['required', 'string'],
+            'approved_date'    => ['required', 'date'],
+            'reason'           => ['required', 'string'],
         ];
     }
 

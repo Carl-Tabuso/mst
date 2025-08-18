@@ -13,7 +13,7 @@ export function useJobOrderDicts() {
 
   const correctionStatusMap = Object.fromEntries(
     correctionStatuses.map((status) => {
-      return [status.id, { badge: status.badge }]
+      return [status.id, status]
     }),
   )
 

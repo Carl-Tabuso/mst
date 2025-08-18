@@ -60,12 +60,12 @@ const { statusMap, routeMap } = useJobOrderDicts()
             {{ statusMap[agingJobOrder.status].label }}
           </Badge>
         </div>
-        <div class="flex justify-between text-xs text-muted-foreground">
-          <span class="flex items-center gap-1">
+        <div class="flex justify-between gap-10 text-xs text-muted-foreground">
+          <span class="flex items-center gap-2 whitespace-nowrap">
             <Clock class="size-3" /> Last updated
             {{ agingJobOrder.lastUpdated }}
           </span>
-          <span class="font-medium">{{ agingJobOrder.frontliner }}</span>
+          <span class="font-medium truncate">{{ agingJobOrder.frontliner }}</span>
         </div>
       </div>
     </CardContent>

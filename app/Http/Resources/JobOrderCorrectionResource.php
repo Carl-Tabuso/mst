@@ -12,7 +12,7 @@ class JobOrderCorrectionResource extends JsonResource
         return [
             'id'         => $this->id,
             'jobOrderId' => $this->job_order_id,
-            'status'     => $this->status->getLabel(),
+            'status'     => $this->status,
             'properties' => $this->properties,
             'approvedAt' => $this->approved_at,
             'reason'     => $this->reason,

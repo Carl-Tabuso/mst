@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ActivityLogName;
+use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreJobOrderCorrectionRequest;
+use App\Http\Resources\JobOrderCorrectionResource;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use App\Services\JobOrderCorrectionService;
@@ -23,7 +25,9 @@ class JobOrderCorrectionController extends Controller
 
         $search = $request->input('search', '');
 
-        $data = $this->service->getAllJobOrderCorrections($perPage, $search);
+        $filters = $request->input('statuses', []);
+
+        $data = $this->service->getAllJobOrderCorrections($perPage, $search, $filters);
 
         return Inertia::render('corrections/Index', compact('data'));
     }
@@ -79,7 +83,25 @@ class JobOrderCorrectionController extends Controller
 
     public function show(JobOrderCorrection $correction)
     {
-        //
+        $correction->load([
+            'jobOrder' => [
+                'creator' => ['account:avatar'],
+                'cancel',
+                'serviceable',
+            ]
+        ]);
+
+        $subFolder = match ($correction->jobOrder->serviceable_type) {
+            JobOrderServiceType::Form4 => 'waste-managements',
+            JobOrderServiceType::ITService => 'it-services',
+            JobOrderServiceType::Form5 => 'other-services',
+        };
+
+        $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
+
+        return Inertia::render($component, [
+            'data' => JobOrderCorrectionResource::make($correction)
+        ]);
     }
 
     public function update(Request $request, JobOrderCorrection $correction)

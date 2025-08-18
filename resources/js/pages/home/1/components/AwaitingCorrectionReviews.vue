@@ -60,12 +60,12 @@ const { routeMap } = useJobOrderDicts()
             {{ correction.changesCount }} changes
           </Badge>
         </div>
-        <div class="flex justify-between text-xs text-muted-foreground">
-          <span class="flex items-center gap-1">
+        <div class="flex justify-between gap-10 text-xs text-muted-foreground">
+          <span class="flex items-center gap-2 whitespace-nowrap">
             <Clock class="size-3" /> Requested in
             {{ correction.requestedAt }}
           </span>
-          <span>{{ correction.requestedBy }}</span>
+          <span class="font-medium truncate">{{ correction.requestedBy }}</span>
         </div>
       </div>
     </CardContent>

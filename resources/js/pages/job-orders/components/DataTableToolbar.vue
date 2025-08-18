@@ -32,11 +32,12 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from '../../../components/ui/dialog'
+} from '@/components/ui/dialog'
 import FilterPopover from './FilterPopover.vue'
+import { JobOrder } from '@/types'
 
 interface DataTableToolbarProps {
-  table: Table<TData>
+  table: Table<JobOrder>
   globalFilter: string | number
 }
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,7 +22,7 @@ import {
 } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
-import { Employee, JobOrder, type BreadcrumbItem } from '@/types'
+import { Employee, JobOrder, SharedData, type BreadcrumbItem } from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import { compareDesc, format } from 'date-fns'
 import { Calendar, LoaderCircle, Pencil, X } from 'lucide-vue-next'
@@ -36,6 +35,8 @@ import SecondSection from './components/sections/SecondSection.vue'
 import SixthSection from './components/sections/SixthSection.vue'
 import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
+import CorrectionRequestBanner from './components/CorrectionRequestBanner.vue'
+import TicketHeader from '../components/TicketHeader.vue'
 
 interface WasteManagementEditProps {
   data: {
@@ -99,10 +100,6 @@ watch(
   },
 )
 
-const jobOrderStatus = computed(() =>
-  JobOrderStatuses.find((s) => props.data.jobOrder.status === s.id),
-)
-
 const onSubmit = () => {
   form.patch(
     route(
@@ -164,7 +161,7 @@ const isEditing = ref<boolean>(false)
 const manualStatuses: Array<JobOrderStatus> = [
   'for viewing',
   'for proposal',
-  'hauling in-progress',
+  'in-progress',
 ]
 
 const canManuallyUpdate = computed(() =>
@@ -186,14 +183,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-const createdAt = computed(() => new Date(props.data.jobOrder.createdAt))
-const updatedAt = computed(() => new Date(props.data.jobOrder.updatedAt))
-
-const isJobOrderUpdated = computed(() => {
-  return compareDesc(createdAt.value, updatedAt.value)
-})
-
-const page = usePage<any>()
+const page = usePage<SharedData>()
 
 onMounted(() => {
   const message = page.props.flash.message
@@ -208,8 +198,12 @@ onMounted(() => {
 
 const unapprovedCorrections = computed(() => {
   return props.data.jobOrder.corrections?.find(
-    (correction) => !correction.isApproved,
+    (correction) => !correction.approvedAt,
   )
+})
+
+const isNotHeadFrontliner = computed(() => {
+  return page.props.auth.user.roles[0].name !== 'head frontliner'
 })
 </script>
 
@@ -219,111 +213,13 @@ const unapprovedCorrections = computed(() => {
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div
-        class="sticky top-3 z-10 mt-auto border-b border-border bg-background shadow-sm"
+        :class="['sticky top-0 z-10 border-b border-border bg-background shadow-sm', {
+          'top-[57px]': isNotHeadFrontliner
+        }]"
       >
-        <div
-          v-if="unapprovedCorrections"
-          class="mt-3 flex justify-center"
-        >
-          <Alert
-            variant="warning"
-            class="w-full py-1"
-          >
-            <AlertDescription class="flex items-center justify-center">
-              <span class="font-normal">
-                This ticket has a pending correction request submitted on
-                {{
-                  format(
-                    unapprovedCorrections.createdAt,
-                    "MMMM d, yyyy 'at' h:mm a",
-                  )
-                }}.
-              </span>
-            </AlertDescription>
-          </Alert>
-        </div>
+        <CorrectionRequestBanner :correction="unapprovedCorrections" />
         <div class="mb-3 flex items-center justify-between">
-          <div class="flex flex-col gap-1">
-            <div class="flex items-center gap-4">
-              <h3 class="scroll-m-20 text-3xl font-bold text-primary">
-                Ticket:
-                <span class="tracking-tighter text-muted-foreground">
-                  {{ data.jobOrder.ticket }}
-                </span>
-              </h3>
-              <Dialog v-if="data.jobOrder.cancel">
-                <DialogTrigger>
-                  <Button
-                    variant="ghost"
-                    class="rounded-full p-1"
-                  >
-                    <Badge
-                      :variant="jobOrderStatus?.badge"
-                      class="overflow-hidden truncate text-ellipsis"
-                    >
-                      {{ jobOrderStatus?.label }}
-                    </Badge>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>
-                      <span class="font-bold text-destructive">
-                        {{ jobOrderStatus?.label }}
-                      </span>
-                    </DialogTitle>
-                    <DialogDescription>
-                      <!---->
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div>
-                    <Label> Reason: </Label>
-                    <div class="rounded-md border py-3">
-                      <div class="mx-4 text-sm leading-4 text-muted-foreground">
-                        {{ data.jobOrder.cancel.reason }}
-                      </div>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <template v-else>
-                <Badge
-                  :variant="jobOrderStatus?.badge"
-                  class="overflow-hidden truncate text-ellipsis"
-                >
-                  {{ jobOrderStatus?.label }}
-                </Badge>
-              </template>
-            </div>
-            <div class="flex items-center gap-2">
-              <Avatar class="h-7 w-7 shrink-0 rounded-full">
-                <AvatarImage
-                  v-if="data.jobOrder.creator?.account?.avatar"
-                  :src="data.jobOrder.creator.account.avatar"
-                  :alt="data.jobOrder.creator.fullName"
-                />
-                <AvatarFallback>
-                  {{ getInitials(data.jobOrder.creator?.fullName) }}
-                </AvatarFallback>
-              </Avatar>
-              <div
-                class="flex items-center gap-3 text-sm text-muted-foreground"
-              >
-                <span>{{ `${data.jobOrder.creator?.fullName}` }}</span>
-                <span>•</span>
-                <div class="flex items-center gap-1">
-                  <Calendar
-                    :size="16"
-                    class="mr-1"
-                  />
-                  <span>{{
-                    `${format(updatedAt, "EEEE, MMMM d, yyyy 'at' h:mm a")}
-                    ${isJobOrderUpdated ? '(Edited)' : ''}`
-                  }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <TicketHeader :job-order="data.jobOrder" />
           <div
             v-if="can('submit:job_order_correction')"
             class="flex h-8 items-center gap-2"

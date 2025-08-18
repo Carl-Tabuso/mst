@@ -72,11 +72,12 @@ export const columns: ColumnDef<JobOrderCorrection>[] = [
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
       const status: string = row.getValue('status')
+      const mappedStatus = correctionStatusMap[status]
 
       return h(
         Badge,
-        { variant: correctionStatusMap[status].badge },
-        () => status,
+        { variant: mappedStatus.badge },
+        () => mappedStatus.label,
       )
     },
   },

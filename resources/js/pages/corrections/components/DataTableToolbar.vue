@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TData">
+<script setup lang="ts">
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,15 +32,16 @@ import {
 import { VisuallyHidden } from 'radix-vue'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
-
 import FilterStatus from './FilterStatus.vue'
+import { usePermissions } from '@/composables/usePermissions'
+import { JobOrderCorrection } from '@/types'
 
-interface DataTableToolbarProps {
+interface DataTableToolbarProps<TData> {
   table: Table<TData>
   globalFilter: string | number
 }
 
-const props = defineProps<DataTableToolbarProps>()
+const props = defineProps<DataTableToolbarProps<JobOrderCorrection>>()
 
 const handleOnSearch = (value: string | number) => {
   debounceGlobalFilter(value)
@@ -94,6 +95,8 @@ const handlePageSizeArchival = () => {
     },
   })
 }
+
+const { can } = usePermissions()
 </script>
 
 <template>
@@ -169,7 +172,7 @@ const handlePageSizeArchival = () => {
     </Button>
 
     <div
-      v-show="hasRowSelection"
+      v-if="hasRowSelection && can('approve:job_order_correction')"
       class="ml-auto"
     >
       <Dialog>

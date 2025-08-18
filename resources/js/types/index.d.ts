@@ -11,6 +11,7 @@ export interface Auth {
 }
 
 export interface AuthUser {
+  employee_id: number
   avatar: string
   email: string
   employee: {
@@ -49,7 +50,7 @@ export interface SharedData extends PageProps {
   quote: { message: string; author: string }
   auth: Auth
   ziggy: Config & { location: string }
-  flash: { message: string }
+  flash: { message: any }
 }
 
 export interface User {

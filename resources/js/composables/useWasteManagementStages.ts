@@ -15,8 +15,8 @@ export function useWasteManagementStages() {
     return isForStage(jobOrderStatus, 'for proposal')
   }
 
-  const isHaulingInProgress = (jobOrderStatus: JobOrderStatus) => {
-    return isForStage(jobOrderStatus, 'hauling in-progress')
+  const isInProgress = (jobOrderStatus: JobOrderStatus) => {
+    return isForStage(jobOrderStatus, 'in-progress')
   }
 
   const isSuccessfulProposal = (jobOrderStatus: JobOrderStatus) => {
@@ -40,7 +40,7 @@ export function useWasteManagementStages() {
       'successful',
       'failed',
       'pre-hauling',
-      'hauling in-progress',
+      'in-progress',
       'on-hold',
       'closed',
       'completed',
@@ -58,7 +58,7 @@ export function useWasteManagementStages() {
   return {
     isForAppraisal,
     isForProposal,
-    isHaulingInProgress,
+    isInProgress,
     isSuccessfulProposal,
     isPreHauling,
     isForStage,
