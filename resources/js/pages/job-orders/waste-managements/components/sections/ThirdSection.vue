@@ -9,6 +9,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
@@ -74,6 +81,13 @@ const canNextStage = computed(() => {
 })
 
 const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
+
+const paymentTypes = [
+  'Cash',
+  'E-wallet (GCash, PayMaya)',
+  'Credit / Debit Card',
+  'Bank Transfer',
+]
 </script>
 
 <template>
@@ -103,20 +117,31 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
             Type of Payment
           </Label>
           <div class="flex w-full flex-col gap-1">
-            <Input
-              id="paymentType"
-              :disabled="isDisabled"
-              required
-              placeholder="Enter client's payment type"
+            <Select
               v-model="paymentType"
-              :class="[
-                'w-full',
-                {
-                  'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
-                    errors.payment_type,
-                },
-              ]"
-            />
+              :disabled="isDisabled"
+            >
+              <SelectTrigger
+                :class="[
+                  'w-full',
+                  {
+                    'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+                      errors.payment_type,
+                  },
+                ]"
+              >
+                <SelectValue placeholder="Select payment type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  v-for="(type, index) in paymentTypes"
+                  :key="index"
+                  :value="type"
+                >
+                  {{ type }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <InputError :message="errors.payment_type" />
           </div>
         </div>

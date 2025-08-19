@@ -65,7 +65,9 @@ const { statusMap, routeMap } = useJobOrderDicts()
             <Clock class="size-3" /> Last updated
             {{ agingJobOrder.lastUpdated }}
           </span>
-          <span class="font-medium truncate">{{ agingJobOrder.frontliner }}</span>
+          <span class="truncate font-medium">{{
+            agingJobOrder.frontliner
+          }}</span>
         </div>
       </div>
     </CardContent>

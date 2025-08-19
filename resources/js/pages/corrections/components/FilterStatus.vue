@@ -17,11 +17,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Check, PlusCircle } from 'lucide-vue-next'
-import { ref } from 'vue'
+import {
+  correctionStatuses,
+  CorrectionStatusType,
+} from '@/constants/correction-statuses'
 import { router } from '@inertiajs/vue3'
 import { useUrlSearchParams } from '@vueuse/core'
-import { correctionStatuses, CorrectionStatusType } from '@/constants/correction-statuses'
+import { Check, PlusCircle } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 const selectedStatuses = ref<CorrectionStatusType[]>([])
 
@@ -30,7 +33,9 @@ const isLoading = ref<boolean>(false)
 const urlParams = useUrlSearchParams('history')
 
 if (Object.keys(urlParams).length > 0) {
-  selectedStatuses.value = Array.from(Object.values(urlParams)) as CorrectionStatusType[]
+  selectedStatuses.value = Array.from(
+    Object.values(urlParams),
+  ) as CorrectionStatusType[]
 }
 
 const onSelect = (status: CorrectionStatusType) => {
@@ -38,32 +43,40 @@ const onSelect = (status: CorrectionStatusType) => {
 
   const isRemoving = selectedStatuses.value.includes(status)
   const filters = isRemoving
-    ? selectedStatuses.value.filter(s => s !== status)
+    ? selectedStatuses.value.filter((s) => s !== status)
     : [...selectedStatuses.value, status]
 
-  router.get(route('job_order.correction.index'), {
-    statuses: filters
-  }, {
-    preserveState: true,
-    replace: true,
-    onSuccess: () => selectedStatuses.value = filters,
-    onError: () => isLoading.value = false,
-    onCancel: () => isLoading.value = false,
-    onFinish: () => isLoading.value = false,
-  })
+  router.get(
+    route('job_order.correction.index'),
+    {
+      statuses: filters,
+    },
+    {
+      preserveState: true,
+      replace: true,
+      onSuccess: () => (selectedStatuses.value = filters),
+      onError: () => (isLoading.value = false),
+      onCancel: () => (isLoading.value = false),
+      onFinish: () => (isLoading.value = false),
+    },
+  )
 }
 
 const onClearFilters = () => {
   isLoading.value = true
-  
-  router.get(route('job_order.correction.index'), {}, {
-    preserveState: true,
-    replace: true,
-    onSuccess: () => selectedStatuses.value = [],
-    onError: () => isLoading.value = false,
-    onCancel: () => isLoading.value = false,
-    onFinish: () => isLoading.value = false,
-  })
+
+  router.get(
+    route('job_order.correction.index'),
+    {},
+    {
+      preserveState: true,
+      replace: true,
+      onSuccess: () => (selectedStatuses.value = []),
+      onError: () => (isLoading.value = false),
+      onCancel: () => (isLoading.value = false),
+      onFinish: () => (isLoading.value = false),
+    },
+  )
 }
 </script>
 
@@ -87,7 +100,7 @@ const onClearFilters = () => {
       </Button>
     </PopoverTrigger>
     <PopoverContent
-      class="w-44 w- p-0"
+      class="w- w-44 p-0"
       align="start"
     >
       <Command :class="[{ 'pointer-events-none opacity-60': isLoading }]">

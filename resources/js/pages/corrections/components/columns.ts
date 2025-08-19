@@ -74,11 +74,7 @@ export const columns: ColumnDef<JobOrderCorrection>[] = [
       const status: string = row.getValue('status')
       const mappedStatus = correctionStatusMap[status]
 
-      return h(
-        Badge,
-        { variant: mappedStatus.badge },
-        () => mappedStatus.label,
-      )
+      return h(Badge, { variant: mappedStatus.badge }, () => mappedStatus.label)
     },
   },
   {

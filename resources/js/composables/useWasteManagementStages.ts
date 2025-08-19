@@ -37,7 +37,6 @@ export function useWasteManagementStages() {
   const canUpdateProposalInformation = (jobOrderStatus: JobOrderStatus) => {
     const validStatuses: Array<JobOrderStatus> = [
       'for verification',
-      'successful',
       'failed',
       'pre-hauling',
       'in-progress',

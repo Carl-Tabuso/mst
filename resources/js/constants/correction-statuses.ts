@@ -24,4 +24,4 @@ export const correctionStatuses: CorrectionStatus[] = [
   },
 ] as const
 
-export type CorrectionStatusType = typeof correctionStatuses[number]['id']
+export type CorrectionStatusType = (typeof correctionStatuses)[number]['id']

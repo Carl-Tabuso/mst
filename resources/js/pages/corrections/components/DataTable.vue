@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { usePermissions } from '@/composables/usePermissions'
 import { valueUpdater } from '@/lib/utils'
 import { EloquentCollection, JobOrderCorrection } from '@/types'
 import { router } from '@inertiajs/vue3'
@@ -25,7 +26,6 @@ import {
 import { useUrlSearchParams } from '@vueuse/core'
 import { ref } from 'vue'
 import DataTableToolbar from './DataTableToolbar.vue'
-import { usePermissions } from '@/composables/usePermissions'
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData, TValue>[]
@@ -40,7 +40,7 @@ const { can } = usePermissions()
 const sorting = ref<SortingState>([])
 const columnVisibility = ref<VisibilityState>({
   reason: false,
-  archive: can('approve:job_order_correction')
+  archive: can('approve:job_order_correction'),
 })
 const rowSelection = ref({})
 const pagination = ref<PaginationState>({

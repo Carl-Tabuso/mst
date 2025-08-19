@@ -8,10 +8,10 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { Link } from '@inertiajs/vue3'
 import { Clock } from 'lucide-vue-next'
 import { RecentJobOrders } from '..'
-import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 
 interface RecentJobOrdersProps {
   data?: RecentJobOrders[]
@@ -67,7 +67,7 @@ const { statusMap, routeMap } = useJobOrderDicts()
             <Clock class="size-3" />
             {{ jobOrder.humanDiff }}
           </span>
-          <span class="font-medium truncate">{{ jobOrder.frontliner }}</span>
+          <span class="truncate font-medium">{{ jobOrder.frontliner }}</span>
         </div>
       </div>
     </CardContent>

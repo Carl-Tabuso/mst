@@ -1,33 +1,19 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { useCorrections } from '@/composables/useCorrections'
-import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
-import {
-  JobOrderStatuses,
-  type JobOrderStatus,
-} from '@/constants/job-order-statuses'
+import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
 import { Employee, JobOrder, SharedData, type BreadcrumbItem } from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
-import { compareDesc, format } from 'date-fns'
-import { Calendar, LoaderCircle, Pencil, X } from 'lucide-vue-next'
+import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
+import TicketHeader from '../components/TicketHeader.vue'
+import CorrectionRequestBanner from './components/CorrectionRequestBanner.vue'
 import FifthSection from './components/sections/FifthSection.vue'
 import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
@@ -35,8 +21,6 @@ import SecondSection from './components/sections/SecondSection.vue'
 import SixthSection from './components/sections/SixthSection.vue'
 import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
-import CorrectionRequestBanner from './components/CorrectionRequestBanner.vue'
-import TicketHeader from '../components/TicketHeader.vue'
 
 interface WasteManagementEditProps {
   data: {
@@ -213,9 +197,12 @@ const isNotHeadFrontliner = computed(() => {
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div
-        :class="['sticky top-0 z-10 border-b border-border bg-background shadow-sm', {
-          'top-[57px]': isNotHeadFrontliner
-        }]"
+        :class="[
+          'sticky top-0 z-10 border-b border-border bg-background shadow-sm',
+          {
+            'top-[57px]': isNotHeadFrontliner,
+          },
+        ]"
       >
         <CorrectionRequestBanner :correction="unapprovedCorrections" />
         <div class="mb-3 flex items-center justify-between">

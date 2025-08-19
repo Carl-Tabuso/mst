@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { usePermissions } from '@/composables/usePermissions'
+import { JobOrderCorrection } from '@/types'
 import { router } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
 import { useDebounceFn } from '@vueuse/core'
@@ -33,8 +35,6 @@ import { VisuallyHidden } from 'radix-vue'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import FilterStatus from './FilterStatus.vue'
-import { usePermissions } from '@/composables/usePermissions'
-import { JobOrderCorrection } from '@/types'
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>

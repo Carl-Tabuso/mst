@@ -82,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [JobOrderCorrectionController::class, 'index'])->name('index');
             Route::get('{correction}', [JobOrderCorrectionController::class, 'show'])->name('show');
             Route::post('{ticket}', [JobOrderCorrectionController::class, 'store'])->name('store');
+            Route::patch('{correction}', [JobOrderCorrectionController::class, 'update'])->name('update');
             Route::delete('{correction?}', [JobOrderCorrectionController::class, 'destroy'])->name('destroy');
         });
     });

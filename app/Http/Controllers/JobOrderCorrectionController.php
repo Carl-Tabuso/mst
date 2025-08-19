@@ -6,6 +6,7 @@ use App\Enums\ActivityLogName;
 use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreJobOrderCorrectionRequest;
+use App\Http\Requests\UpdateJobOrderCorrectionRequest;
 use App\Http\Resources\JobOrderCorrectionResource;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
@@ -87,7 +88,7 @@ class JobOrderCorrectionController extends Controller
             'jobOrder' => [
                 'creator' => ['account:avatar'],
                 'cancel',
-                'serviceable',
+                'serviceable' => ['form3'],
             ]
         ]);
 
@@ -104,9 +105,9 @@ class JobOrderCorrectionController extends Controller
         ]);
     }
 
-    public function update(Request $request, JobOrderCorrection $correction)
+    public function update(UpdateJobOrderCorrectionRequest $request, JobOrderCorrection $correction)
     {
-        //
+        dd($request->all(), $correction);
     }
 
     public function destroy(Request $request, ?JobOrderCorrection $correction = null)

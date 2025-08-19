@@ -65,7 +65,7 @@ const { routeMap } = useJobOrderDicts()
             <Clock class="size-3" /> Requested in
             {{ correction.requestedAt }}
           </span>
-          <span class="font-medium truncate">{{ correction.requestedBy }}</span>
+          <span class="truncate font-medium">{{ correction.requestedBy }}</span>
         </div>
       </div>
     </CardContent>
