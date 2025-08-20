@@ -48,7 +48,7 @@ const wasChanged = (field: keyof typeof fieldMap) => {
       class: 'bg-amber-50 border-warning dark:bg-transparent',
     }
   } else {
-    const value = getNestedObject(props.jobOrder, fieldMap[field])
+    const value = getNestedObject(props.jobOrder, fieldMap[field].path)
     if (field === 'date_time' && formatter) {
       return {
         defaultValue: formatter(value),
@@ -62,7 +62,7 @@ const wasChanged = (field: keyof typeof fieldMap) => {
 </script>
 
 <template>
-  <div class="mb-4 mt-7 flex flex-col gap-4 rounded-xl">
+  <div class="my-4 flex flex-col gap-4 rounded-xl">
     <div class="mb-3 flex items-center">
       <div class="flex w-full flex-col">
         <div class="grid gap-y-6">

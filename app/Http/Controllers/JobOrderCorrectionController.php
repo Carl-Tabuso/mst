@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ActivityLogName;
+use App\Enums\JobOrderCorrectionRequestStatus;
 use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreJobOrderCorrectionRequest;
@@ -11,6 +12,7 @@ use App\Http\Resources\JobOrderCorrectionResource;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use App\Services\JobOrderCorrectionService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -89,25 +91,33 @@ class JobOrderCorrectionController extends Controller
                 'creator' => ['account:avatar'],
                 'cancel',
                 'serviceable' => ['form3'],
-            ]
+            ],
         ]);
 
         $subFolder = match ($correction->jobOrder->serviceable_type) {
-            JobOrderServiceType::Form4 => 'waste-managements',
+            JobOrderServiceType::Form4     => 'waste-managements',
             JobOrderServiceType::ITService => 'it-services',
-            JobOrderServiceType::Form5 => 'other-services',
+            JobOrderServiceType::Form5     => 'other-services',
         };
 
         $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
 
         return Inertia::render($component, [
-            'data' => JobOrderCorrectionResource::make($correction)
+            'data' => JobOrderCorrectionResource::make($correction),
         ]);
     }
 
-    public function update(UpdateJobOrderCorrectionRequest $request, JobOrderCorrection $correction)
+    public function update(UpdateJobOrderCorrectionRequest $request, JobOrderCorrection $correction): RedirectResponse
     {
-        dd($request->all(), $correction);
+        $status             = $request->safe()->enum('status', JobOrderCorrectionRequestStatus::class);
+        $correction->status = $status;
+        $correction->save();
+
+        // sent email notification to frontliner?
+
+        $message = __('responses.correction_update', ['status' => $status->getLabel()]);
+
+        return redirect()->route('job_order.correction.index')->with(compact('message'));
     }
 
     public function destroy(Request $request, ?JobOrderCorrection $correction = null)

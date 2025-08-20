@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useForm } from '@inertiajs/vue3'
 import { CircleCheck, LoaderCircle } from 'lucide-vue-next'
 import { inject } from 'vue'
+import { toast } from 'vue-sonner'
 
 const selections = [
   {
@@ -30,6 +31,10 @@ const form = useForm({
   status: '',
 })
 
+const emit = defineEmits<{
+  (e: 'onStatusUpdate'): void
+}>()
+
 const correctionId = inject<number>('correctionId')
 
 const onSubmit = () => {
@@ -38,6 +43,12 @@ const onSubmit = () => {
     showProgress: false,
     preserveState: true,
     replace: true,
+    onSuccess: (page: any) => {
+      toast(page.props.flash.message, {
+        position: 'top-center',
+      })
+    },
+    onFinish: () => emit('onStatusUpdate'),
   })
 }
 </script>

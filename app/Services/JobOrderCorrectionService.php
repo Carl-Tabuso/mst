@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 class JobOrderCorrectionService
 {
     public function getAllJobOrderCorrections(?int $perPage = 10, ?string $search = '', ?array $filters = [])
-    {   
+    {
         $user = request()->user();
 
         $isFrontliner = $user->hasRole(UserRole::Frontliner);

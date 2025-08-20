@@ -2,18 +2,24 @@ import { JobOrderStatus } from '@/constants/job-order-statuses'
 
 export function useCorrections() {
   const fieldMap = {
-    date_time: 'dateTime',
-    client: 'client',
-    address: 'address',
-    department: 'department',
-    contact_no: 'contactNo',
-    contact_person: 'contactPerson',
-    contact_position: 'contactPosition',
-    payment_date: 'serviceable.paymentDate',
-    or_number: 'serviceable.orNumber',
-    bid_bond: 'serviceable.bidBond',
-    payment_type: 'serviceable.form3.paymentType',
-    approved_date: 'serviceable.form3.approvedDate',
+    date_time: { path: 'dateTime', label: 'Date and Time of Service' },
+    client: { path: 'client', label: 'Client' },
+    address: { path: 'address', label: 'Address' },
+    department: { path: 'department', label: 'Department/Branch' },
+    contact_no: { path: 'contactNo', label: 'Contact Number' },
+    contact_person: { path: 'contactPerson', label: 'Contact Person' },
+    contact_position: { path: 'contactPosition', label: 'Contact Position' },
+    payment_date: { path: 'serviceable.paymentDate', label: 'Payment Date' },
+    or_number: { path: 'serviceable.orNumber', label: 'O.R. Number' },
+    bid_bond: { path: 'serviceable.bidBond', label: 'Bid Bond' },
+    payment_type: {
+      path: 'serviceable.form3.paymentType',
+      label: 'Payment Type',
+    },
+    approved_date: {
+      path: 'serviceable.form3.approvedDate',
+      label: 'Approved Date',
+    },
   } as const
 
   const getNestedObject = (obj: any, path: string) => {

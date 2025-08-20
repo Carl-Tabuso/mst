@@ -15,5 +15,6 @@ return [
         'ticket'     => 'Successfullly archived ticket(s).',
         'correction' => 'Successfullly archived :count correction request(s).',
     ],
-    'correction'    => 'Successfully requested for correction.',
+    'correction'        => 'Successfully requested for correction.',
+    'correction_update' => 'Marked correction request as :status.',
 ];

@@ -20,7 +20,7 @@ export const correctionStatuses: CorrectionStatus[] = [
   {
     id: 'rejected',
     label: 'Rejected',
-    badge: 'destructive',
+    badge: 'error',
   },
 ] as const
 

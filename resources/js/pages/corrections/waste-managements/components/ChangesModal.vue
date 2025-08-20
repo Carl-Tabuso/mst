@@ -10,37 +10,41 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  CorrectionFieldKey,
+  useCorrections,
+} from '@/composables/useCorrections'
+import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { CircleArrowRight, FileClock } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import ConfirmStatus from './ConfirmStatus.vue'
 
 interface ChangesModalProps {
   changes: any
+  status: CorrectionStatusType
 }
 
-interface Change {
-  field: string
-  oldValue: string
-  newValue: string
-}
+const props = defineProps<ChangesModalProps>()
 
-const mockChanges: Change[] = [
-  {
-    field: 'Employee Name',
-    oldValue: 'Juan Dela Cruz',
-    newValue: 'Juan De la Cruz',
-  },
-  {
-    field: 'Job Title',
-    oldValue: 'Software Engr.',
-    newValue: 'Software Engineer',
-  },
-  { field: 'Date Hired', oldValue: '2023-01-15', newValue: '2023-01-20' },
-  { field: 'Department', oldValue: 'IT', newValue: 'Information Technology' },
-]
+const isDialogOpen = ref<boolean>(false)
+
+const { before, after } = props.changes
+
+const { fieldMap } = useCorrections()
+
+const changes = (Object.keys(before) as CorrectionFieldKey[]).map((b) => ({
+  field: fieldMap[b].label,
+  oldValue: before[b],
+  newValue: after[b],
+}))
+
+const isApprovable = computed(() => {
+  return props.status === 'pending'
+})
 </script>
 
 <template>
-  <Dialog>
+  <Dialog v-model="isDialogOpen">
     <DialogTrigger>
       <Button
         variant="link"
@@ -53,34 +57,32 @@ const mockChanges: Change[] = [
     <DialogContent class="max-w-2xl">
       <DialogHeader>
         <DialogTitle class="text-yellow-500 dark:text-warning">
-          Comparing Changes
+          Viewing Changes
         </DialogTitle>
         <DialogDescription>
           Here are the previous changes with the new corrections. Review the
           changes below and decide whether to accept or reject the corrections.
         </DialogDescription>
       </DialogHeader>
-      <div
-        class="flex max-h-[90dvh] flex-col overflow-y-auto rounded-md border px-4 py-2"
-      >
+      <div class="my-2 flex max-h-[90dvh] flex-col overflow-y-auto">
         <div
-          v-for="change in mockChanges"
-          :key="change.field"
+          v-for="{ field, oldValue, newValue } in changes"
+          :key="field"
           class="py-1"
         >
           <div class="mb-1 text-xs font-medium text-muted-foreground">
-            {{ change.field }}
+            {{ field }}
           </div>
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div
               class="rounded-md bg-red-50 px-3 py-1 text-red-700 dark:bg-red-950/30 dark:text-red-300"
             >
-              {{ change.oldValue }}
+              {{ oldValue }}
             </div>
             <div
               class="rounded-md bg-green-50 px-3 py-1 text-green-700 dark:bg-green-950/30 dark:text-green-300"
             >
-              {{ change.newValue }}
+              {{ newValue }}
             </div>
           </div>
         </div>
@@ -90,13 +92,16 @@ const mockChanges: Change[] = [
           <Button variant="outline"> Close </Button>
         </DialogClose>
         <Dialog>
-          <DialogTrigger>
-            <Button variant="warning">
+          <DialogTrigger :disabled="!isApprovable">
+            <Button
+              variant="warning"
+              :class="{ 'cursor-not-allowed opacity-50': !isApprovable }"
+            >
               <CircleArrowRight class="mr-1 stroke-2" />
               Proceed to Approval
             </Button>
           </DialogTrigger>
-          <ConfirmStatus />
+          <ConfirmStatus @on-status-update="isDialogOpen = false" />
         </Dialog>
       </DialogFooter>
     </DialogContent>

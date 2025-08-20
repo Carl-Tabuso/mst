@@ -14,7 +14,7 @@ class UpdateJobOrderCorrectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'in:approved,rejected']
+            'status' => ['required', 'in:approved,rejected'],
         ];
     }
 }

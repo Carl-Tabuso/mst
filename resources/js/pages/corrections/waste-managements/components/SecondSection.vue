@@ -41,7 +41,7 @@ const wasChanged = (field: keyof typeof fieldMap) => {
       class: 'bg-amber-50 border-warning dark:bg-transparent',
     }
   } else {
-    const value = getNestedObject(props.jobOrder, fieldMap[field])
+    const value = getNestedObject(props.jobOrder, fieldMap[field].path)
     return {
       defaultValue: formatter && value ? formatter(value) : value,
     }
@@ -55,7 +55,9 @@ const wasChanged = (field: keyof typeof fieldMap) => {
     class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6"
   >
     <div>
-      <div class="text-xl font-semibold leading-6">Proposal Information</div>
+      <div class="text-xl font-semibold leading-6 text-foreground">
+        Proposal Information
+      </div>
       <p class="text-sm text-muted-foreground">
         Information regarding business client's payment.
       </p>
