@@ -16,6 +16,12 @@ import { CircleCheck, LoaderCircle } from 'lucide-vue-next'
 import { inject } from 'vue'
 import { toast } from 'vue-sonner'
 
+interface ConfirmStatusProps {
+  newValues: any
+}
+
+const { newValues } = defineProps<ConfirmStatusProps>()
+
 const selections = [
   {
     label: 'Approve',
@@ -29,6 +35,7 @@ const selections = [
 
 const form = useForm({
   status: '',
+  new_values: newValues,
 })
 
 const emit = defineEmits<{

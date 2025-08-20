@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\JobOrderCorrectionRequestStatus;
+use App\Enums\JobOrderServiceType;
 use App\Enums\UserRole;
 use App\Models\JobOrderCorrection;
 use Illuminate\Database\Eloquent\Builder;
@@ -54,5 +56,39 @@ class JobOrderCorrectionService
             ->paginate($perPage)
             ->withQueryString()
             ->toResourceCollection();
+    }
+
+    public function updateJobOrderCorrection(array $data, JobOrderCorrection $correction)
+    {
+        $status = JobOrderCorrectionRequestStatus::from($data['status']);
+
+        $serviceType = $correction->jobOrder->serviceable_type;
+        
+        $correction->status = $status;
+
+        if ($status !== JobOrderCorrectionRequestStatus::Approved) {
+            return $correction->save();
+        }
+
+        return match ($serviceType) {
+            JobOrderServiceType::Form4 => $this->updateWasteManagement($data),
+            JobOrderServiceType::ITService => $this->updateItService($data),
+            JobOrderServiceType::Form5 => $this->updateOtherService($data),
+        };
+    }
+
+    private function updateWasteManagement(array $data)
+    {
+        dd($data);
+    }
+
+    private function updateItService(array $data)
+    {
+        //
+    }
+
+    private function updateOtherService(array $data)
+    {
+        //
     }
 }

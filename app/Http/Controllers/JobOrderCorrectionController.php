@@ -109,11 +109,11 @@ class JobOrderCorrectionController extends Controller
 
     public function update(UpdateJobOrderCorrectionRequest $request, JobOrderCorrection $correction): RedirectResponse
     {
-        $status             = $request->safe()->enum('status', JobOrderCorrectionRequestStatus::class);
-        $correction->status = $status;
-        $correction->save();
+        $data = $request->validated();
 
-        // sent email notification to frontliner?
+        $this->service->updateJobOrderCorrection($data, $correction);
+
+        $status = $request->safe()->enum('status', JobOrderCorrectionRequestStatus::class);
 
         $message = __('responses.correction_update', ['status' => $status->getLabel()]);
 

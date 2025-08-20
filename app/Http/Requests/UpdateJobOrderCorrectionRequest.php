@@ -15,6 +15,7 @@ class UpdateJobOrderCorrectionRequest extends FormRequest
     {
         return [
             'status' => ['required', 'in:approved,rejected'],
+            'new_values' => ['required'],
         ];
     }
 }

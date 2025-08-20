@@ -32,7 +32,7 @@ const { before, after } = props.changes
 
 const { fieldMap } = useCorrections()
 
-const changes = (Object.keys(before) as CorrectionFieldKey[]).map((b) => ({
+const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map((b) => ({
   field: fieldMap[b].label,
   oldValue: before[b],
   newValue: after[b],
@@ -66,7 +66,7 @@ const isApprovable = computed(() => {
       </DialogHeader>
       <div class="my-2 flex max-h-[90dvh] flex-col overflow-y-auto">
         <div
-          v-for="{ field, oldValue, newValue } in changes"
+          v-for="{ field, oldValue, newValue } in mappedChanges"
           :key="field"
           class="py-1"
         >
@@ -101,7 +101,10 @@ const isApprovable = computed(() => {
               Proceed to Approval
             </Button>
           </DialogTrigger>
-          <ConfirmStatus @on-status-update="isDialogOpen = false" />
+          <ConfirmStatus
+            :new-values="changes.after"
+            @on-status-update="isDialogOpen = false"
+          />
         </Dialog>
       </DialogFooter>
     </DialogContent>
