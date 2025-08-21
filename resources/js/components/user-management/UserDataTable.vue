@@ -10,14 +10,14 @@ const props = defineProps<{
   isLoading?: boolean
 }>()
 
-// Use getter function for reactive data
+
 const table = useVueTable({
   get data() {
     return props.data || []
-  }, // Reactive data access
+  },
   get columns() {
     return props.columns
-  }, // Reactive columns access
+  },
   getCoreRowModel: getCoreRowModel(),
 })
 </script>

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Traits\RandomEmployee;
@@ -13,44 +14,41 @@ class EmployeeSeeder extends Seeder
 
     public function run(): void
     {
+        $this->seedDepartments();
         $this->seedFrontliners();
         $this->seedDispatchers();
         $this->seedTeamLeaders();
-        $this->seedHeadFrontliner();
+        $this->seedHeadFrontliners();
         $this->seedHaulers();
         $this->seedItAdmins();
         $this->seedConsultants();
     }
 
-    private function seedFrontliners(): void
+    private function seedDepartments()
+    {
+        $departments = [
+            ['name' => 'Operations', 'code' => 'OPS'],
+            ['name' => 'Logistics', 'code' => 'LOG'],
+            ['name' => 'Human Resources', 'code' => 'HR'],
+            ['name' => 'Field Services', 'code' => 'FLD'],
+        ];
+
+        foreach ($departments as $department) {
+            Department::firstOrCreate(
+                ['name' => $department['name']],
+                $department
+            );
+        }
+    }
+
+    private function seedFrontliners()
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Frontliner'),
+            'department_id' => $this->getRandomDepartmentId(),
         ]);
     }
-
-    private function seedDispatchers(): void
-    {
-        Employee::factory(10)->create([
-            'position_id' => $this->getPositionId('Dispatcher'),
-        ]);
-    }
-
-    private function seedTeamLeaders(): void
-    {
-        Employee::factory(10)->create([
-            'position_id' => $this->getPositionId('Team Leader'),
-        ]);
-    }
-
-    private function seedHeadFrontliner(): void
-    {
-        Employee::factory()->create([
-            'position_id' => $this->getPositionId('Head Frontliner'),
-        ]);
-    }
-
-    private function seedHaulers(): void
+     private function seedHaulers(): void
     {
         Employee::factory(30)->create([
             'position_id' => $this->getPositionId('Hauler'),
@@ -71,8 +69,39 @@ class EmployeeSeeder extends Seeder
         ]);
     }
 
+
+
+    private function seedDispatchers(): void
+    {
+        Employee::factory(10)->create([
+            'position_id' => $this->getPositionId('Dispatcher'),
+            'department_id' => $this->getRandomDepartmentId(),
+        ]);
+    }
+
+    private function seedTeamLeaders(): void
+    {
+        Employee::factory(10)->create([
+            'position_id' => $this->getPositionId('Team Leader'),
+            'department_id' => $this->getRandomDepartmentId(),
+        ]);
+    }
+
+    private function seedHeadFrontliners()
+    {
+        Employee::factory(5)->create([
+            'position_id' => $this->getPositionId('Head Frontliner'),
+            'department_id' => $this->getRandomDepartmentId(),
+        ]);
+    }
+
     private function getPositionId($positionName): int
     {
         return Position::firstWhere(['name' => $positionName])->id;
+    }
+
+    private function getRandomDepartmentId(): int
+    {
+        return Department::inRandomOrder()->first()->id;
     }
 }

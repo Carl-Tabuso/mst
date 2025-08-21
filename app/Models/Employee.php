@@ -21,9 +21,23 @@ class Employee extends Model
         'updated_at',
     ];
 
+     protected $fillable = [
+        'last_name',
+        'first_name',
+        'middle_name',
+        'suffix',
+        'date_of_birth',
+        'email',
+        'contact_number',
+        'department_id',
+        'position_id',
+        'job_assignment'
+    ];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'date_of_birth' => 'date',
     ];
 
     protected $appends = [
@@ -48,6 +62,31 @@ class Employee extends Model
             )
         );
     }
+     public function address()
+    {
+        return $this->hasOne(EmployeeAddress::class);
+    }
+
+    public function emergencyContact()
+    {
+        return $this->hasOne(EmployeeEmergencyContact::class);
+    }
+
+   public function employmentDetails()
+    {
+        return $this->hasOne(EmployeeEmploymentDetail::class);
+    }
+       public function compensation()
+    {
+        return $this->hasOne(EmployeeCompensation::class);
+    }
+
+
+   public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
 
     public function account(): HasOne
     {
@@ -98,6 +137,7 @@ class Employee extends Model
             'i_t_service_id'
         );
     }
+
 
     public function createdJobOrders(): HasMany
     {

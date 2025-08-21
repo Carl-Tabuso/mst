@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Department;
 use App\Models\Position;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,11 +19,16 @@ class EmployeeFactory extends Factory
     public function definition(): array
     {
         return [
-            'first_name'  => fake()->firstName(),
+            'first_name' => fake()->firstName(),
             'middle_name' => fake()->randomElement([fake()->firstName(), null]),
-            'last_name'   => fake()->lastName(),
-            'suffix'      => fake()->randomElement(['Sr.', 'Jr.', 'II', 'III', null]),
+            'last_name' => fake()->lastName(),
+            'suffix' => fake()->randomElement(['Sr.', 'Jr.', 'II', 'III', null]),
+            'date_of_birth' => fake()->dateTimeBetween('-60 years', '-18 years')->format('Y-m-d'),
+            'email' => fake()->unique()->companyEmail(),
+            'contact_number' => fake()->phoneNumber(),
             'position_id' => Position::inRandomOrder()->first()->id,
+            'department_id' => Department::inRandomOrder()->first()->id,
+            'job_assignment' => fake()->randomElement(['Main Office', 'Field Operation', 'Headquarters', 'Regional Office']),
         ];
     }
 }

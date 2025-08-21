@@ -77,9 +77,9 @@ onMounted(() => fetchUsers())
           total: users.total,
         }"
         :isLoading="isLoading"
-        @page-change="(page) => fetchUsers({ page })"
-        @per-page-change="(per_page) => fetchUsers({ per_page, page: 1 })"
-        @filter-change="(filters) => fetchUsers({ ...filters, page: 1 })"
+        @page-change="(page: any) => fetchUsers({ page })"
+        @per-page-change="(per_page: any) => fetchUsers({ per_page, page: 1 })"
+        @filter-change="(filters: { page?: number; per_page?: number; search?: string; status?: string; sort?: string } | undefined) => fetchUsers({ ...filters, page: 1 })"
       />
     </div>
   </AppLayout>
