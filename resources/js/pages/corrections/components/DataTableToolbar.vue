@@ -36,12 +36,12 @@ import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import FilterStatus from './FilterStatus.vue'
 
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>
+interface DataTableToolbarProps {
+  table: Table<JobOrderCorrection>
   globalFilter: string | number
 }
 
-const props = defineProps<DataTableToolbarProps<JobOrderCorrection>>()
+const props = defineProps<DataTableToolbarProps>()
 
 const handleOnSearch = (value: string | number) => {
   debounceGlobalFilter(value)
@@ -62,7 +62,7 @@ const visibleColumnCount = computed(
       .filter((column) => column.getCanHide() && column.getIsVisible()).length,
 )
 
-const jobOrderIds = computed(() => {
+const correctionIds = computed(() => {
   return props.table.getSelectedRowModel().rows.map((row) => {
     return row.original.id
   })
@@ -70,8 +70,8 @@ const jobOrderIds = computed(() => {
 
 const handleExport = () => {
   window.open(
-    route('job_order.export', {
-      jobOrderIds: jobOrderIds.value,
+    route('job_order.correction.export', {
+      correctionIds: correctionIds.value,
     }),
     '_blank',
   )
@@ -82,10 +82,12 @@ const handleExport = () => {
 const isLoading = ref<boolean>(false)
 
 const handlePageSizeArchival = () => {
-  router.visit(route('job_order.destroy'), {
+  router.visit(route('job_order.correction.bulk_destroy'), {
     method: 'delete',
-    data: { jobOrderIds: jobOrderIds.value },
+    data: { correctionIds: correctionIds.value },
     preserveScroll: true,
+    showProgress: false,
+    replace: true,
     onBefore: () => (isLoading.value = true),
     onSuccess: (page: any) => {
       isLoading.value = false
@@ -172,7 +174,7 @@ const { can } = usePermissions()
     </Button>
 
     <div
-      v-if="hasRowSelection && can('approve:job_order_correction')"
+      v-if="hasRowSelection && can('update:job_order_correction')"
       class="ml-auto"
     >
       <Dialog>
@@ -200,12 +202,11 @@ const { can } = usePermissions()
               class="h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
             />
             <div class="mb-4 flex flex-col">
-              <div class="text-3xl font-bold text-amber-500 dark:text-white">
-                Archiving {{ table.getSelectedRowModel().rows.length }} Job
-                Order(s)
+              <div class="text-center text-3xl font-bold text-amber-500 dark:text-white">
+                Archiving {{ table.getSelectedRowModel().rows.length }} Corrections
               </div>
-              <div class="text-sm text-muted-foreground">
-                Are you sure you want to archive the following?
+              <div class="text-sm text-center text-muted-foreground">
+                Are you sure you want to archive the following request of correction for these tickets?
               </div>
             </div>
             <div class="max-h-40 w-full overflow-y-auto">
@@ -215,7 +216,7 @@ const { can } = usePermissions()
                   :key="row.id"
                   class="rounded-sm bg-muted px-3 py-2 text-xs font-medium shadow-sm"
                 >
-                  {{ row.getValue('ticket') }}
+                  {{ row.original.jobOrder.ticket }}
                 </li>
               </ul>
             </div>

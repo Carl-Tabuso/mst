@@ -29,6 +29,22 @@ class JobOrder extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
+    protected $fillable = [
+        'serviceable_type',
+        'serviceable_id',
+        'date_time',
+        'client',
+        'address',
+        'department',
+        'contact_no',
+        'contact_person',
+        'contact_position',
+        'created_by',
+        'status',
+        'error_count',
+        'archived_at',
+    ];
+
     protected $guarded = [
         'id',
         'created_at',
@@ -119,6 +135,19 @@ class JobOrder extends Model
         return $query->whereDate('updated_at', '<=', now()->subWeek());
     }
 
+    public function attributesForCorrection(): array
+    {
+        return [
+            'date_time',
+            'client',
+            'address',
+            'department',
+            'contact_no',
+            'contact_person',
+            'contact_position',
+        ];
+    }
+
     public function serviceable(): MorphTo
     {
         return $this->morphTo();
@@ -126,7 +155,7 @@ class JobOrder extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'created_by');
+        return $this->belongsTo(Employee::class, 'created_by')->withTrashed();
     }
 
     public function teamLeaderPerformance(): HasOne

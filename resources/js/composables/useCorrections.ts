@@ -26,6 +26,10 @@ export function useCorrections() {
     return path.split('.').reduce((acc, key) => acc?.[key], obj)
   }
 
+  const isDateString = (field: keyof typeof fieldMap) => {
+    return (<Array<keyof typeof fieldMap>>['date_time','payment_date', 'approved_date']).includes(field)
+  }
+
   const canCorrectProposalInformation = (status: JobOrderStatus) => {
     const validStatuses: Array<JobOrderStatus> = [
       'for verification',
@@ -44,6 +48,7 @@ export function useCorrections() {
     fieldMap,
     getNestedObject,
     canCorrectProposalInformation,
+    isDateString,
   }
 }
 

@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use App\Enums\JobOrderCorrectionRequestStatus;
+use App\Policies\JobOrderCorrectionPolicy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[UsePolicy(JobOrderCorrectionPolicy::class)]
 class JobOrderCorrection extends Model
 {
     use HasFactory, SoftDeletes;
@@ -54,6 +57,11 @@ class JobOrderCorrection extends Model
 
     public function jobOrder(): BelongsTo
     {
-        return $this->belongsTo(JobOrder::class);
+        return $this->belongsTo(JobOrder::class)->withTrashed();
     }
+
+    // public function recentRequest(): BelongsTo
+    // {
+    //     return $this->belongsTo(JobOrder::class)->latestOfMany();
+    // }
 }

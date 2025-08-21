@@ -39,8 +39,13 @@ const { can } = usePermissions()
 
 const sorting = ref<SortingState>([])
 const columnVisibility = ref<VisibilityState>({
+  ticket: true,
   reason: false,
-  archive: can('approve:job_order_correction'),
+  creator: true,
+  status: true,
+  errorCount: true,
+  createdAt: true,
+  archive: can('update:job_order_correction'),
 })
 const rowSelection = ref({})
 const pagination = ref<PaginationState>({

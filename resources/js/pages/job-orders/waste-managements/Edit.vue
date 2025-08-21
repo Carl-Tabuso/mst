@@ -208,7 +208,7 @@ const isNotHeadFrontliner = computed(() => {
         <div class="mb-3 flex items-center justify-between">
           <TicketHeader :job-order="data.jobOrder" />
           <div
-            v-if="can('submit:job_order_correction')"
+            v-if="can('create:job_order_correction')"
             class="flex h-8 items-center gap-2"
           >
             <div

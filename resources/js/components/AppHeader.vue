@@ -91,7 +91,7 @@ const mainNavItems: NavItem[] = [
     title: 'Job Order Corrections',
     href: '/job-orders/corrections',
     icon: Pencil,
-    can: canAccessJobOrders.value,
+    can: canAny({ roles: ['frontliner', 'head frontliner'] }),
   },
   {
     title: 'User Management',

@@ -14,8 +14,6 @@ const props = defineProps<RequestingFrontlinerProps>()
 const changesCount = computed(() => {
   return Object.keys(props.row.original.properties.after).length
 })
-
-const { jobOrder } = props.row.original
 </script>
 
 <template>
@@ -23,17 +21,17 @@ const { jobOrder } = props.row.original
     <div class="flex items-center gap-2">
       <Avatar class="h-9 w-9 shrink-0">
         <AvatarImage
-          v-if="jobOrder.creator.account?.avatar"
-          :src="jobOrder.creator.account.avatar"
-          :alt="jobOrder.creator.fullName"
+          v-if="row.original.jobOrder.creator.account?.avatar"
+          :src="row.original.jobOrder.creator.account.avatar"
+          :alt="row.original.jobOrder.creator.fullName"
         />
         <AvatarFallback>
-          {{ getInitials(jobOrder.creator.fullName) }}
+          {{ getInitials(row.original.jobOrder.creator.fullName) }}
         </AvatarFallback>
       </Avatar>
       <div>
         <div class="text-xs font-medium">
-          {{ jobOrder.creator?.fullName }}
+          {{ row.original.jobOrder.creator?.fullName }}
         </div>
         <div class="text-[11px] text-muted-foreground">
           Made

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\JobOrderCorrectionRequestStatus;
 use App\Enums\JobOrderStatus;
 use App\Models\Employee;
 use App\Models\Form3;
@@ -18,7 +19,7 @@ class JobOrderCorrectionSeeder extends Seeder
      */
     public function run(): void
     {
-        $dateCreated = Carbon::parse(fake()->dateTimeBetween('-2 weeks', '1 week'));
+        $dateCreated = Carbon::parse(fake()->dateTimeBetween('-2 weeks', '-1 week'));
 
         $jobOrder = JobOrder::factory()
             ->for(Form4::factory(), 'serviceable')
@@ -51,6 +52,8 @@ class JobOrderCorrectionSeeder extends Seeder
         JobOrderCorrection::factory()->create([
             'job_order_id' => $jobOrder->id,
             'properties'   => $properties,
+            'approved_at'  => null,
+            'status'       => JobOrderCorrectionRequestStatus::Pending,
             'created_at'   => $dateCreated->copy()->addDay(),
             'updated_at'   => $dateCreated->copy()->addDay(),
         ]);

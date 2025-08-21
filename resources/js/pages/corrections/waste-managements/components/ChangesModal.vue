@@ -18,6 +18,7 @@ import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { CircleArrowRight, FileClock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmStatus from './ConfirmStatus.vue'
+import { formatToDateDisplay } from '@/composables/useDateFormatter'
 
 interface ChangesModalProps {
   changes: any
@@ -30,12 +31,12 @@ const isDialogOpen = ref<boolean>(false)
 
 const { before, after } = props.changes
 
-const { fieldMap } = useCorrections()
+const { fieldMap, isDateString } = useCorrections()
 
 const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map((b) => ({
   field: fieldMap[b].label,
-  oldValue: before[b],
-  newValue: after[b],
+  oldValue: isDateString(b) ? formatToDateDisplay(before[b], 'MMMM d, yyyy') : before[b],
+  newValue: isDateString(b) ? formatToDateDisplay(after[b], 'MMMM d, yyyy') : after[b],
 }))
 
 const isApprovable = computed(() => {
@@ -64,7 +65,7 @@ const isApprovable = computed(() => {
           changes below and decide whether to accept or reject the corrections.
         </DialogDescription>
       </DialogHeader>
-      <div class="my-2 flex max-h-[90dvh] flex-col overflow-y-auto">
+      <div class="my-2 flex max-h-[60dvh] flex-col overflow-y-auto">
         <div
           v-for="{ field, oldValue, newValue } in mappedChanges"
           :key="field"

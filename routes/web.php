@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\UserRole;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CancelledJobOrderController;
@@ -14,12 +13,10 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
-use App\Http\Controllers\JobOrderCorrectionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SafetyInspectionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -37,15 +34,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('create', [JobOrderController::class, 'create'])
             ->name('create')
             ->can('create', 'App\\Models\JobOrder');
-        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])
-            ->name('update')
-            ->can('update', 'jobOrder');
-        Route::delete('{jobOrder?}', [JobOrderController::class, 'destroy'])
-            ->name('destroy')
-            ->can('update', 'jobOrder');
+        Route::delete('bulk-destroy', [JobOrderController::class, 'bulkDestroy'])
+            ->name('bulk_destroy')
+            ->can('deleteBatch', 'App\\Models\JobOrder');
         Route::get('export', ExportJobOrderController::class)
             ->name('export')
             ->can('viewAny', 'App\\Models\JobOrder');
+        Route::patch('{jobOrder}', [JobOrderController::class, 'update'])
+            ->name('update')
+            ->can('update', 'jobOrder');
+        Route::delete('{jobOrder}', [JobOrderController::class, 'destroy'])
+            ->name('destroy')
+            ->can('update', 'jobOrder');
 
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])->name('index');
@@ -54,7 +54,6 @@ Route::middleware(['auth'])->group(function () {
                 ->can('view', 'ticket');
             Route::post('/', [WasteManagementController::class, 'store'])->name('store');
             Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
-
             Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
                 ->name('safety_inspection.update');
         });
@@ -76,14 +75,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::prefix('cancels')->name('cancel.')->group(function () {
             Route::post('{jobOrder}', [CancelledJobOrderController::class, 'create'])->name('create');
-        });
-
-        Route::prefix('corrections')->name('correction.')->group(function () {
-            Route::get('/', [JobOrderCorrectionController::class, 'index'])->name('index');
-            Route::get('{correction}', [JobOrderCorrectionController::class, 'show'])->name('show');
-            Route::post('{ticket}', [JobOrderCorrectionController::class, 'store'])->name('store');
-            Route::patch('{correction}', [JobOrderCorrectionController::class, 'update'])->name('update');
-            Route::delete('{correction?}', [JobOrderCorrectionController::class, 'destroy'])->name('destroy');
         });
     });
 
@@ -182,23 +173,10 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-Route::get('test', function () {
-    $dispatchers = User::role(UserRole::Dispatcher)->get()->pluck('email')->toArray();
-    $teamLeaders = User::role(UserRole::TeamLeader)->get()->pluck('email')->toArray();
-    $head        = User::role(UserRole::HeadFrontliner)->first()->email;
-    $itAdmins    = User::role(UserRole::ITAdmin)->get()->pluck('email')->toArray();
-    $consultants = User::role(UserRole::Consultant)->get()->pluck('email')->toArray();
-    dd(
-        [
-            'dispatchers'  => $dispatchers,
-            'team leaders' => $teamLeaders,
-            'head'         => $head,
-            'it admins'    => $itAdmins,
-            'consultants'  => $consultants,
-            User::first()->permissions(),
-        ],
-    );
-});
+if (app()->isLocal()) {
+    require __DIR__.'/sandbox.php';
+}
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+require __DIR__.'/corrections.php';

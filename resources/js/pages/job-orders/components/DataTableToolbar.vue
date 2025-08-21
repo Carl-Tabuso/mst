@@ -82,7 +82,7 @@ const handleExport = () => {
 const isLoading = ref<boolean>(false)
 
 const handlePageSizeArchival = () => {
-  router.visit(route('job_order.destroy'), {
+  router.visit(route('job_order.bulk_destroy'), {
     method: 'delete',
     data: { jobOrderIds: jobOrderIds.value },
     preserveScroll: true,

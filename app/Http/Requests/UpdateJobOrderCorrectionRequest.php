@@ -8,13 +8,13 @@ class UpdateJobOrderCorrectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('update', $this->correction);
     }
 
     public function rules(): array
     {
         return [
-            'status' => ['required', 'in:approved,rejected'],
+            'status'     => ['required', 'in:approved,rejected'],
             'new_values' => ['required'],
         ];
     }

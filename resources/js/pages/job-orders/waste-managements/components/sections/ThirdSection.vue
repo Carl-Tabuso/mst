@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { formatToDateString } from '@/composables/useDateFormatter'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
@@ -26,6 +25,7 @@ import { Calendar } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
+import { format, parseISO } from 'date-fns'
 
 interface ThirdSectionProps {
   isEditing?: boolean
@@ -52,24 +52,28 @@ const bidBond = defineModel<string | number>('bidBond')
 const orNumber = defineModel<string>('orNumber')
 const paymentDate = defineModel<any>('paymentDate', {
   get(value) {
-    if (value) return parseDate(value.split('T')[0])
+    if (value) {
+      const formatted = format(value, 'yyyy-MM-d')
+      return parseDate(formatted)
+    }
   },
-  default: '',
+  set(value) {
+    return new Date(value).toISOString()
+  },
+  default: undefined,
 })
 const approvedDate = defineModel<any>('approvedDate', {
   get(value) {
-    if (value) return parseDate(value.split('T')[0])
+    if (value) {
+      const formatted = format(value, 'yyyy-MM-d')
+      return parseDate(formatted)
+    }
   },
-  default: '',
+  set(value) {
+    return new Date(value).toISOString()
+  },
+  default: undefined,
 })
-
-const handlePaymentDateChange = (value: any) => {
-  paymentDate.value = new Date(value).toISOString()
-}
-
-const handleApprovedDateChange = (value: any) => {
-  approvedDate.value = new Date(value).toISOString()
-}
 
 const { isSuccessfulProposal } = useWasteManagementStages()
 const { can } = usePermissions()
@@ -88,6 +92,13 @@ const paymentTypes = [
   'Credit / Debit Card',
   'Bank Transfer',
 ]
+
+const formatDisplayDate = (date?: string) => {
+  if (!date) {
+    return 'Pick a date'
+  }
+  return format(date, 'MMMM d, yyyy')
+}
 </script>
 
 <template>
@@ -223,11 +234,7 @@ const paymentTypes = [
                   ]"
                 >
                   <span>
-                    {{
-                      paymentDate
-                        ? formatToDateString(paymentDate.toString())
-                        : 'Pick a date'
-                    }}
+                    {{ formatDisplayDate(paymentDate) }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -238,7 +245,7 @@ const paymentTypes = [
               >
                 <AppCalendar
                   :model-value="paymentDate"
-                  @update:model-value="handlePaymentDateChange"
+                  @update:model-value="(value) => paymentDate = value"
                 />
               </PopoverContent>
             </Popover>
@@ -273,11 +280,7 @@ const paymentTypes = [
                   ]"
                 >
                   <span>
-                    {{
-                      approvedDate
-                        ? formatToDateString(approvedDate.toString())
-                        : 'Pick a date'
-                    }}
+                    {{ formatDisplayDate(approvedDate) }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -288,7 +291,7 @@ const paymentTypes = [
               >
                 <AppCalendar
                   :model-value="approvedDate"
-                  @update:model-value="handleApprovedDateChange"
+                  @update:model-value="(value) => approvedDate = value"
                 />
               </PopoverContent>
             </Popover>

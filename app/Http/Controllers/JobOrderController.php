@@ -52,17 +52,18 @@ class JobOrderController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, ?JobOrder $jobOrder = null): RedirectResponse
+    public function destroy(JobOrder $jobOrder): RedirectResponse
     {
-        if ($jobOrder) {
-            $jobOrder->delete();
+        $jobOrder->delete();
 
-            return redirect()->route('job_order.index')
-                ->with(['message' => __('responses.archive.ticket', [
-                    'ticket' => $jobOrder->ticket,
-                ])]);
-        }
+        return redirect()->route('job_order.index')
+            ->with(['message' => __('responses.archive.ticket', [
+                'ticket' => $jobOrder->ticket,
+            ])]);
+    }
 
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
         $jobOrderIds = $request->array('jobOrderIds');
 
         activity()->withoutLogs(fn () => DB::transaction(fn () => JobOrder::destroy($jobOrderIds)));

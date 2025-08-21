@@ -78,6 +78,14 @@ export const columns: ColumnDef<JobOrderCorrection>[] = [
     },
   },
   {
+    id: 'errorCount',
+    meta: { label: 'Errors' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      return h('div', { class: 'font-semibold text-destructive' }, row.original.jobOrder.errorCount)
+    }
+  },
+  {
     accessorKey: 'createdAt',
     meta: { label: 'Date Requested' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
