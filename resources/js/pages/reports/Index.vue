@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ReportsAnalyticsPlaholder from '@/components/placeholders/ReportsAnalyticsPlaholder.vue'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -15,7 +16,6 @@ import { router } from '@inertiajs/vue3'
 import { useUrlSearchParams } from '@vueuse/core'
 import { Download } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
-import ReportsAnalyticsPlaholder from '@/components/placeholders/ReportsAnalyticsPlaholder.vue'
 import FrontlinerRankings from './components/FrontlinerRankings.vue'
 import JobOrderStatsGrid from './components/JobOrderStatsGrid.vue'
 import MonthlyJobOrderTrends from './components/MonthlyJobOrderTrends.vue'

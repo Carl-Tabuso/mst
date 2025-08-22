@@ -6,12 +6,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import type { User } from '@/types'
+import type { AuthUser } from '@/types'
 import { Link } from '@inertiajs/vue3'
 import { LogOut, Settings, UserRound } from 'lucide-vue-next'
 
 interface Props {
-  user: User
+  user: AuthUser
 }
 
 defineProps<Props>()

@@ -18,9 +18,9 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->timestamp('approved_date')->nullable();
+            $table->date('approved_date')->nullable();
             $table->string('payment_type')->nullable();
-            $table->timestamp('appraised_date')->nullable();
+            $table->date('appraised_date')->nullable();
             $table->date('from')->nullable();
             $table->date('to')->nullable();
             $table->timestamps();

@@ -104,7 +104,7 @@ class WasteManagementService
         };
     }
 
-    private function handleForAppraisal(Form4 $form4, array $data)
+    private function handleForAppraisal(Form4 $form4, array $data): string
     {
         DB::transaction(function () use ($form4, $data) {
             $form4->update(['form_dispatcher' => $data['user']->id]);
@@ -120,7 +120,7 @@ class WasteManagementService
         return JobOrderStatus::ForViewing->value;
     }
 
-    private function handleSuccessful(Form4 $form4, array $data)
+    private function handleSuccessful(Form4 $form4, array $data): string
     {
         DB::transaction(function () use ($form4, $data) {
             $form4->form3()->update([
@@ -142,7 +142,7 @@ class WasteManagementService
         return JobOrderStatus::PreHauling->value;
     }
 
-    private function handlePrehauling(Form4 $form4, array $data)
+    private function handlePrehauling(Form4 $form4, array $data): string
     {
         DB::transaction(function () use ($form4, $data) {
             $from = Carbon::parse($data['from']);

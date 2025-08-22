@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\JobOrderCorrectionRequestStatus;
 use App\Models\JobOrder;
 use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,8 +24,11 @@ class JobOrderCorrectionFactory extends Factory
         return [
             'job_order_id' => JobOrder::inRandomOrder()->first(),
             'properties'   => null,
-            'approved_at'  => fake()->optional()->dateTime(),
+            'approved_at'  => $approval = fake()->optional()->dateTime(),
             'reason'       => fake()->paragraph(),
+            'status'       => $approval
+                                ? JobOrderCorrectionRequestStatus::Approved
+                                : JobOrderCorrectionRequestStatus::Pending,
         ];
     }
 }

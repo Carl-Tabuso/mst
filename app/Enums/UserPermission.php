@@ -8,8 +8,8 @@ enum UserPermission: string
 {
     case CreateJobOrder                   = 'create:job_order';
     case UpdateJobOrder                   = 'update:job_order';
-    case SubmitJobOrderCorrection         = 'submit:job_order_correction';
-    case ApproveJobOrderCorrection        = 'approve:job_order_correction';
+    case CreateJobOrderCorrection         = 'create:job_order_correction';
+    case UpdateJobOrderCorrection         = 'update:job_order_correction';
     case FillOutSafetyInspectionChecklist = 'fill:safety_inspection_checklist';
     case AssignHaulingPersonnel           = 'assign:hauling_personnel';
     case AssignAppraisers                 = 'assign:appraisers';
@@ -21,14 +21,15 @@ enum UserPermission: string
     case ManageEmployees                  = 'manage:employees';
     case ViewReportsAnalytics             = 'view:reports_analytics';
     case ViewPerformances                 = 'view:performances';
+    case ViewAnyJobOrderCorrection        = 'view:any_job_order_correction';
 
     public function getLabel(): string
     {
         return match ($this) {
             self::CreateJobOrder                   => 'Create Job Order',
             self::UpdateJobOrder                   => 'Update Job Order',
-            self::SubmitJobOrderCorrection         => 'Submit Job Order Correction',
-            self::ApproveJobOrderCorrection        => 'Approve Job Order Correction',
+            self::CreateJobOrderCorrection         => 'Create Job Order Correction',
+            self::UpdateJobOrderCorrection         => 'Update Job Order Correction',
             self::FillOutSafetyInspectionChecklist => 'Fill-out Safety Inspection Checklist',
             self::AssignHaulingPersonnel           => 'Assign Hauling Personnel',
             self::AssignAppraisers                 => 'Assign Hauling Appraisers',
@@ -38,7 +39,8 @@ enum UserPermission: string
             self::ManageUsers                      => 'Manage Employee Account',
             self::ManageIncidentReports            => 'Manage Incident Reports',
             self::ManageEmployees                  => 'Manage Employees',
-            self::ViewReportsAnalytics             => 'View Reports And Analytics'
+            self::ViewReportsAnalytics             => 'View Reports And Analytics',
+            self::ViewAnyJobOrderCorrection        => 'View Any Job Order Corrections',
         };
     }
 
@@ -47,7 +49,7 @@ enum UserPermission: string
         return [
             self::CreateJobOrder,
             self::UpdateJobOrder,
-            self::SubmitJobOrderCorrection,
+            self::CreateJobOrderCorrection,
         ];
     }
 
@@ -72,11 +74,13 @@ enum UserPermission: string
     public static function getHeadFrontlinerPermissions(): array
     {
         return [
-            self::ApproveJobOrderCorrection,
+            self::UpdateJobOrderCorrection,
             self::ViewAnyJobOrder,
             self::ViewActivityLogs,
             self::ViewReportsAnalytics,
             self::ViewPerformances,
+            self::ViewAnyJobOrderCorrection,
+            self::UpdateJobOrderCorrection,
         ];
     }
 

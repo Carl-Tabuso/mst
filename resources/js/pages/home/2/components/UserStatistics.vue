@@ -14,8 +14,6 @@ interface UserStatisticsProps {
 
 const props = defineProps<UserStatisticsProps>()
 
-console.log(props.data)
-
 const statBindings: Record<any, any> = {
   'Total Users': {
     textClass: 'text-sky-900',

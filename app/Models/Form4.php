@@ -28,6 +28,15 @@ class Form4 extends Model
         'updated_at'   => 'datetime',
     ];
 
+    public function attributesForCorrection(): array
+    {
+        return [
+            'payment_date',
+            'bid_bond',
+            'or_number',
+        ];
+    }
+
     public function jobOrder(): MorphOne
     {
         return $this->morphOne(JobOrder::class, 'serviceable');

@@ -1,3 +1,4 @@
+import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { HaulingStatusType } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { UserRoleType } from '@/constants/user-role'
@@ -11,6 +12,7 @@ export interface Auth {
 }
 
 export interface AuthUser {
+  employee_id: number
   avatar: string
   email: string
   employee: {
@@ -20,7 +22,7 @@ export interface AuthUser {
     full_name: string
   }
   roles: {
-    name: string
+    name: UserRoleType
     permissions: {
       name: string
     }[]
@@ -49,7 +51,7 @@ export interface SharedData extends PageProps {
   quote: { message: string; author: string }
   auth: Auth
   ziggy: Config & { location: string }
-  flash: { message: string }
+  flash: { message: any }
 }
 
 export interface User {
@@ -95,17 +97,17 @@ export interface JobOrder {
   errorCount: number
   createdAt: string
   updatedAt: string
-  creator?: Employee
-  serviceable?: any // add it services and others here
+  creator: Employee
+  serviceable: Form4 // add it services and others here
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
 }
 
 export interface Form4 {
   id: number
-  paymentDate: string
-  bidBond: string
-  orNumber: string
+  paymentDate: string | null
+  bidBond: string | null
+  orNumber: string | null
   createdAt: string
   updatedAt: string
   jobOrder: JobOrder
@@ -117,11 +119,11 @@ export interface Form4 {
 export interface Form3 {
   id: number
   form4Id: number
-  paymentType: string
-  appraisedDate: string
-  approvedDate: string
-  from: string
-  to: string
+  paymentType: string | null
+  appraisedDate: string | null
+  approvedDate: string | null
+  from: string | null
+  to: string | null
   createdAt: string
   updatedAt: string
   form4: Form4
@@ -175,10 +177,13 @@ export interface CancelledJobOrder {
 export interface JobOrderCorrection {
   id: number
   jobOrderId: number
+  status: CorrectionStatusType
   properties: { before: {}; after: {} }
-  isApproved: boolean
+  reason: string
+  approvedAt: string
   createdAt: string
   updatedAt: string
+  jobOrder: JobOrder
 }
 
 export interface ActivityLog {
