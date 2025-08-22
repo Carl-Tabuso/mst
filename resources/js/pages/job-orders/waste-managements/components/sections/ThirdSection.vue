@@ -21,11 +21,11 @@ import { useWasteManagementStages } from '@/composables/useWasteManagementStages
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
+import { format } from 'date-fns'
 import { Calendar } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import SectionButton from '../SectionButton.vue'
-import { format, parseISO } from 'date-fns'
 
 interface ThirdSectionProps {
   isEditing?: boolean
@@ -245,7 +245,7 @@ const formatDisplayDate = (date?: string) => {
               >
                 <AppCalendar
                   :model-value="paymentDate"
-                  @update:model-value="(value) => paymentDate = value"
+                  @update:model-value="(value) => (paymentDate = value)"
                 />
               </PopoverContent>
             </Popover>
@@ -291,7 +291,7 @@ const formatDisplayDate = (date?: string) => {
               >
                 <AppCalendar
                   :model-value="approvedDate"
-                  @update:model-value="(value) => approvedDate = value"
+                  @update:model-value="(value) => (approvedDate = value)"
                 />
               </PopoverContent>
             </Popover>

@@ -32,7 +32,7 @@ const isLoading = ref<boolean>(false)
 
 const urlParams = useUrlSearchParams('history')
 
-if ( Object.keys(urlParams).find(key => key.includes('statuses'))) {
+if (Object.keys(urlParams).find((key) => key.includes('statuses'))) {
   selectedStatuses.value = Array.from(
     Object.values(urlParams),
   ) as CorrectionStatusType[]

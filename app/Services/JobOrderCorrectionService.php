@@ -28,7 +28,6 @@ class JobOrderCorrectionService
             new FilterOnlyCreated($user),
             new FilterStatuses($filters),
             new SearchDetails($search),
-
         ];
 
         return Pipeline::send(JobOrderCorrection::query())

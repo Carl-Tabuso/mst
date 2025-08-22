@@ -43,7 +43,7 @@ const columnVisibility = ref<VisibilityState>({
   reason: false,
   creator: true,
   status: true,
-  errorCount: true,
+  // errorCount: true,
   createdAt: true,
   archive: can('update:job_order_correction'),
 })

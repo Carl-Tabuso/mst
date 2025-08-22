@@ -27,7 +27,11 @@ export function useCorrections() {
   }
 
   const isDateString = (field: keyof typeof fieldMap) => {
-    return (<Array<keyof typeof fieldMap>>['date_time','payment_date', 'approved_date']).includes(field)
+    return (<Array<keyof typeof fieldMap>>[
+      'date_time',
+      'payment_date',
+      'approved_date',
+    ]).includes(field)
   }
 
   const canCorrectProposalInformation = (status: JobOrderStatus) => {

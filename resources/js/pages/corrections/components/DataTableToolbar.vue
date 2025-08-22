@@ -202,11 +202,15 @@ const { can } = usePermissions()
               class="h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
             />
             <div class="mb-4 flex flex-col">
-              <div class="text-center text-3xl font-bold text-amber-500 dark:text-white">
-                Archiving {{ table.getSelectedRowModel().rows.length }} Corrections
+              <div
+                class="text-center text-3xl font-bold text-amber-500 dark:text-white"
+              >
+                Archiving
+                {{ table.getSelectedRowModel().rows.length }} Corrections
               </div>
-              <div class="text-sm text-center text-muted-foreground">
-                Are you sure you want to archive the following request of correction for these tickets?
+              <div class="text-center text-sm text-muted-foreground">
+                Are you sure you want to archive the following request of
+                correction for these tickets?
               </div>
             </div>
             <div class="max-h-40 w-full overflow-y-auto">

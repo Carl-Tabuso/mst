@@ -14,11 +14,11 @@ import {
   CorrectionFieldKey,
   useCorrections,
 } from '@/composables/useCorrections'
+import { formatToDateDisplay } from '@/composables/useDateFormatter'
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { CircleArrowRight, FileClock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmStatus from './ConfirmStatus.vue'
-import { formatToDateDisplay } from '@/composables/useDateFormatter'
 
 interface ChangesModalProps {
   changes: any
@@ -33,11 +33,17 @@ const { before, after } = props.changes
 
 const { fieldMap, isDateString } = useCorrections()
 
-const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map((b) => ({
-  field: fieldMap[b].label,
-  oldValue: isDateString(b) ? formatToDateDisplay(before[b], 'MMMM d, yyyy') : before[b],
-  newValue: isDateString(b) ? formatToDateDisplay(after[b], 'MMMM d, yyyy') : after[b],
-}))
+const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map(
+  (b) => ({
+    field: fieldMap[b].label,
+    oldValue: isDateString(b)
+      ? formatToDateDisplay(before[b], 'MMMM d, yyyy')
+      : before[b],
+    newValue: isDateString(b)
+      ? formatToDateDisplay(after[b], 'MMMM d, yyyy')
+      : after[b],
+  }),
+)
 
 const isApprovable = computed(() => {
   return props.status === 'pending'
