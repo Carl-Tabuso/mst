@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 test('reset password link screen can be rendered', function () {
     $response = $this->get('/forgot-password');
@@ -43,12 +44,14 @@ test('password can be reset with valid token', function () {
 
     $this->post('/forgot-password', ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+    $strongPassword = Str::password(8);
+
+    Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user, $strongPassword) {
         $response = $this->post('/reset-password', [
             'token'                 => $notification->token,
             'email'                 => $user->email,
-            'password'              => 'password',
-            'password_confirmation' => 'password',
+            'password'              => $strongPassword,
+            'password_confirmation' => $strongPassword,
         ]);
 
         $response

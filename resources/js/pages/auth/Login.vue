@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label'
 import AuthBase from '@/layouts/AuthLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
-import { computed } from 'vue'
 
 defineProps<{
   status?: string
@@ -19,12 +18,6 @@ const form = useForm({
   email: '',
   password: '',
   remember: false,
-})
-
-// Initial form validation enabling
-const isValid = computed(() => {
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
-  return emailValid && form.password.length >= 8 //enable button to passwords with 8 chars or more
 })
 
 const submit = () => {
@@ -41,16 +34,20 @@ const submit = () => {
   >
     <Head title="Log in" />
 
+    <div
+      v-if="status"
+      class="mb-4 text-center text-sm font-medium text-green-600"
+    >
+      {{ status }}
+    </div>
+
     <form
       @submit.prevent="submit"
-      class="mx-auto flex h-full w-full max-w-xs flex-col gap-2 px-4 pb-8 pt-4 sm:max-w-sm sm:px-6 sm:pb-10 sm:pt-6 md:max-w-md md:px-12 md:pb-12 md:pt-8 lg:max-w-lg lg:px-16 lg:pb-16 lg:pt-10"
+      class="flex flex-col gap-6"
     >
-      <div class="space-y-2">
-        <div>
-          <Label
-            for="email"
-            class="mb-0.5 block text-[11px] font-medium text-neutral-700 sm:text-xs md:text-sm"
-          >
+      <div class="grid gap-6">
+        <div class="grid gap-2">
+          <Label for="email">
             Email Address <span class="text-red-500">*</span>
           </Label>
           <Input
@@ -60,23 +57,24 @@ const submit = () => {
             autofocus
             autocomplete="email"
             v-model="form.email"
-            class="w-full px-2 py-1 text-[11px] sm:text-xs md:text-sm"
             placeholder="email@example.com"
           />
-          <InputError
-            :message="form.errors.email"
-            class="text-[10px] sm:text-xs md:text-sm"
-          />
+          <InputError :message="form.errors.email" />
         </div>
 
-        <div>
-          <div class="mb-0.5 flex items-center justify-between">
-            <Label
-              for="password"
-              class="text-[11px] font-medium text-neutral-700 sm:text-xs md:text-sm"
-            >
+        <div class="grid gap-2">
+          <div class="flex items-center justify-between">
+            <Label for="password">
               Password <span class="text-red-500">*</span>
             </Label>
+            <TextLink
+              v-if="canResetPassword"
+              :href="route('password.request')"
+              class="text-sm"
+              :tabindex="5"
+            >
+              Forgot password?
+            </TextLink>
           </div>
           <Input
             id="password"
@@ -84,49 +82,36 @@ const submit = () => {
             required
             autocomplete="current-password"
             v-model="form.password"
-            class="w-full px-2 py-1 text-[11px] sm:text-xs md:text-sm"
             placeholder="Password"
           />
-          <InputError
-            :message="form.errors.password"
-            class="text-[10px] sm:text-xs md:text-sm"
-          />
+          <InputError :message="form.errors.password" />
         </div>
 
-        <div class="flex justify-end">
-          <TextLink
-            v-if="canResetPassword"
-            :href="route('password.request')"
-            class="text-[10px] text-neutral-700 hover:text-neutral-900 hover:underline sm:text-xs md:text-sm"
-          >
-            Forgot password?
-          </TextLink>
-        </div>
-
-        <div class="flex items-center space-x-1">
-          <Checkbox
-            id="remember"
-            class="size-2 border-neutral-700 sm:size-3"
-            v-model:checked="form.remember"
-          />
+        <div
+          class="flex items-center justify-between"
+          :tabindex="3"
+        >
           <Label
             for="remember"
-            class="text-[10px] text-neutral-700 sm:text-xs md:text-sm"
-            >Remember me</Label
+            class="flex items-center space-x-3"
           >
+            <Checkbox
+              id="remember"
+              v-model:checked="form.remember"
+              :tabindex="4"
+            />
+            <span>Remember me</span>
+          </Label>
         </div>
-
         <Button
           type="submit"
-          :class="[
-            'w-full bg-blue-900 py-1.5 text-[11px] text-white hover:bg-blue-800 sm:text-xs md:text-sm',
-            form.processing || !isValid ? 'cursor-not-allowed opacity-60' : '',
-          ]"
-          :disabled="form.processing || !isValid"
+          class="mt-4 w-full"
+          :tabindex="4"
+          :disabled="form.processing"
         >
           <LoaderCircle
             v-if="form.processing"
-            class="mr-1 h-3 w-3 animate-spin"
+            class="h-4 w-4 animate-spin"
           />
           Log in
         </Button>
