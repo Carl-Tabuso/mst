@@ -36,7 +36,7 @@ const submit = () => {
 
     <div
       v-if="status"
-      class="mb-4 text-sm font-medium text-center text-green-600"  
+      class="mb-4 text-center text-sm font-medium text-green-600"
     >
       {{ status }}
     </div>
@@ -87,11 +87,14 @@ const submit = () => {
           <InputError :message="form.errors.password" />
         </div>
 
-        <div class="flex items-center justify-between" :tabindex="3">
+        <div
+          class="flex items-center justify-between"
+          :tabindex="3"
+        >
           <Label
             for="remember"
             class="flex items-center space-x-3"
-            >
+          >
             <Checkbox
               id="remember"
               v-model:checked="form.remember"
@@ -100,8 +103,16 @@ const submit = () => {
             <span>Remember me</span>
           </Label>
         </div>
-        <Button type="submit" class="mt-4 w-full" :tabindex="4" :disabled="form.processing">
-          <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
+        <Button
+          type="submit"
+          class="mt-4 w-full"
+          :tabindex="4"
+          :disabled="form.processing"
+        >
+          <LoaderCircle
+            v-if="form.processing"
+            class="h-4 w-4 animate-spin"
+          />
           Log in
         </Button>
       </div>
