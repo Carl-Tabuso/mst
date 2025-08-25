@@ -67,14 +67,16 @@ const initialFormComponent = ref<FormComponentInstance | null>(null);
 const firstOnsiteFormComponent = ref<FormComponentInstance | null>(null);
 const finalOnsiteFormComponent = ref<FormComponentInstance | null>(null);
 
+const dateTime = props.jobOrder.date_time ? new Date(props.jobOrder.date_time) : null;
+
 const form = useForm({
     client: props.jobOrder?.client || '',
     address: props.jobOrder?.address || '',
     department: props.jobOrder?.department || '',
     contact_no: props.jobOrder?.contact_no || '',
     contact_person: props.jobOrder?.contact_person || '',
-    date: props.jobOrder?.date_time?.split(' ')[0] || '',
-    time: props.jobOrder?.date_time?.split(' ')[1]?.slice(0, 5) || '',
+    date: dateTime ? dateTime.toISOString().split('T')[0] : '',
+    time: dateTime ? dateTime.toTimeString().slice(0, 5) : '',
     technician_id: props.itService?.technician_id || '',
     machine_type: props.itService?.machine_type || '',
     model: props.itService?.model || '',
@@ -147,12 +149,6 @@ const submitForm = () => {
                 }
                 
             },
-            onError: (errors: any) => {
-                console.error('[ERROR] Validation failed:', errors)
-            },
-            onFinish: () => {
-                console.log('[FINISH] Edit final onsite form submission finished')
-            }
         }
     );
 };
@@ -161,13 +157,6 @@ function goBack() {
     window.history.back();
 }
 
-// Debug: Log the initialized values
-console.log('Initialized form values:', {
-    machine_status: form.machine_status,
-    final_machine_status: form.final_machine_status,
-    firstOnsiteReport: props.firstOnsiteReport,
-    existingFinalReport: props.existingFinalReport
-});
 </script>
 
 <template>
@@ -196,7 +185,6 @@ console.log('Initialized form values:', {
                     <ITServiceFirstOnsiteFieldsForEdit ref="firstOnsiteFormComponent" :form="form"
                         :machineStatuses="props.firstOnsiteStatuses" />
 
-                    <!-- Show current first onsite file -->
                     <div v-if="props.firstOnsiteReport?.attached_file" class="mt-4 bg-white p-4 rounded-xl">
                         <h3 class="text-sm font-medium text-blue-800 mb-2">Current First Onsite Report File</h3>
                         <div class="flex items-center space-x-2">
@@ -204,8 +192,10 @@ console.log('Initialized form values:', {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                             </svg>
-                            <a :href="`/storage/${props.firstOnsiteReport.attached_file}`" target="_blank"
-                                class="text-blue-600 hover:text-blue-800 text-sm underline">
+                            <a :href="route('job_order.it_service.report.download', {
+                                jobOrder: jobOrder.id,
+                                reportId: firstOnsiteReport.id,
+                            })" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
                                 View Current First Onsite Report
                             </a>
                         </div>

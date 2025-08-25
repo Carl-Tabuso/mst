@@ -46,9 +46,4 @@ function goBack() {
   window.history.back();
 }
 
-// Debug: Check if route function is available
-console.log('Route function available:', typeof route !== 'undefined');
-if (typeof route !== 'undefined') {
-  console.log('Store route:', route('job_order.it_service.store'));
-}
 </script>

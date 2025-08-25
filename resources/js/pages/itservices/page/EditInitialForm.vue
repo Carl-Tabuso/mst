@@ -40,14 +40,16 @@ const props = defineProps<Props>();
 
 const formComponent = ref<FormComponentInstance | null>(null);
 
+const dateTime = props.jobOrder.date_time ? new Date(props.jobOrder.date_time) : null;
+
 const form = useForm({
     client: props.jobOrder.client,
     address: props.jobOrder.address,
     department: props.jobOrder.department,
     contact_no: props.jobOrder.contact_no,
     contact_person: props.jobOrder.contact_person,
-    date: props.jobOrder.date_time?.split(' ')[0] ?? '',
-    time: props.jobOrder.date_time?.split(' ')[1]?.slice(0, 5) ?? '',
+    date: dateTime ? dateTime.toISOString().split('T')[0] : '',
+    time: dateTime ? dateTime.toTimeString().slice(0, 5) : '',
     technician_id: props.itService.technician_id,
     machine_type: props.itService.machine_type,
     model: props.itService.model,
@@ -76,7 +78,6 @@ const submitForm = () => {
             return
         }
     } else {
-        console.log('[ERROR] No form component or validateForm method available')
         return
     }
 
@@ -98,12 +99,6 @@ const submitForm = () => {
                 }
                 
             },
-            onError: (errors: any) => {
-                console.error('[ERROR] Validation failed:', errors)
-            },
-            onFinish: () => {
-                console.log('[FINISH] Edit form submission finished')
-            }
         }
     );
 };
@@ -150,7 +145,7 @@ function goBack() {
                             </svg>
                             Updating...
                         </span>
-                        <span v-else">Request Update</span>
+                        <span v-else>Request Update</span>
                     </button>
                 </div>
 

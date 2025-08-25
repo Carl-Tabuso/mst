@@ -34,6 +34,31 @@ const formatDate = (date: string | null) => {
         hour12: true,
     }).format(d)
 }
+
+const getFileName = (filePath: string) => {
+    if (!filePath) return 'Unknown file';
+    const parts = filePath.split(/[/\\]/);
+    return parts[parts.length - 1] || 'Unknown file';
+};
+
+const getFileExtension = (fileName: string) => {
+    if (!fileName) return '';
+    const parts = fileName.split('.');
+    return parts.length > 1 ? parts.pop()?.toLowerCase() || '' : '';
+};
+
+const getFileIcon = (fileName: string) => {
+    const ext = getFileExtension(fileName);
+
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(ext)) {
+        return 'image-icon';
+    } else if (ext === 'pdf') {
+        return 'pdf-icon';
+    } else if (['doc', 'docx'].includes(ext)) {
+        return 'document-icon';
+    }
+    return 'file-icon';
+};
 </script>
 
 <template>
@@ -99,7 +124,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                                         {{
-                                            jobOrder.client }}</p>
+                                        jobOrder.client }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -108,7 +133,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                                         {{
-                                            jobOrder.contact_person }}</p>
+                                        jobOrder.contact_person }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -116,7 +141,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                                         {{
-                                            jobOrder.department }}</p>
+                                        jobOrder.department }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -206,7 +231,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                                         {{
-                                            itService.model }}</p>
+                                        itService.model }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -242,7 +267,7 @@ const formatDate = (date: string | null) => {
                                             <p
                                                 class="text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed text-sm sm:text-base">
                                                 {{
-                                                    itService.machine_problem }}</p>
+                                                itService.machine_problem }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -289,7 +314,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white capitalize">
                                             {{
-                                                firstOnsiteReport.onsite_type ?? 'Initial' }}</p>
+                                            firstOnsiteReport.onsite_type ?? 'Initial' }}</p>
                                     </div>
                                 </div>
                                 <div class="space-y-2">
@@ -319,7 +344,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed text-sm sm:text-base">
                                             {{
-                                                firstOnsiteReport.service_performed ?? 'N/A' }}</p>
+                                            firstOnsiteReport.service_performed ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -340,26 +365,33 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed text-sm sm:text-base">
                                             {{
-                                                firstOnsiteReport.recommendation ?? 'N/A' }}</p>
+                                            firstOnsiteReport.recommendation ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div v-if="firstOnsiteReport.attached_file" class="space-y-3">
                                 <label
-                                    class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">First
-                                    Visit Report</label>
+                                    class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                                    First Visit Report
+                                </label>
                                 <div
                                     class="bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 p-4 rounded-lg">
-                                    <a :href="`/storage/${firstOnsiteReport.attached_file}`" target="_blank"
-                                        class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors text-sm sm:text-base">
+                                    <a :href="route('job_order.it_service.report.download', {
+                                        jobOrder: jobOrder.id,
+                                        reportId: firstOnsiteReport.id
+                                    })" target="_blank" class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors text-sm sm:text-base">
+
+                                        <!-- File icon -->
                                         <svg class="w-4 sm:w-5 h-4 sm:h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
                                             </path>
                                         </svg>
+
                                         <span>View First Visit Report</span>
+
                                         <svg class="w-3 sm:w-4 h-3 sm:h-4" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -367,6 +399,11 @@ const formatDate = (date: string | null) => {
                                             </path>
                                         </svg>
                                     </a>
+
+                                    <div class="mt-2 text-xs text-gray-500 dark:text-gray-400"
+                                        v-if="firstOnsiteReport.attached_file">
+                                        <span>{{ getFileName(firstOnsiteReport.attached_file) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -410,7 +447,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white capitalize">
                                             {{
-                                                finalOnsiteReport.onsite_type ?? 'Final' }}</p>
+                                            finalOnsiteReport.onsite_type ?? 'Final' }}</p>
                                     </div>
                                 </div>
                                 <div class="space-y-2">
@@ -427,7 +464,7 @@ const formatDate = (date: string | null) => {
                                             </svg>
                                             <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                                                 {{
-                                                    finalOnsiteReport.final_machine_status ?? 'N/A' }}</p>
+                                                finalOnsiteReport.final_machine_status ?? 'N/A' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -448,7 +485,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed text-sm sm:text-base">
                                             {{
-                                                finalOnsiteReport.service_performed ?? 'N/A' }}</p>
+                                            finalOnsiteReport.service_performed ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -469,7 +506,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed text-sm sm:text-base">
                                             {{
-                                                finalOnsiteReport.parts_replaced ?? 'N/A' }}</p>
+                                            finalOnsiteReport.parts_replaced ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -490,35 +527,12 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed text-sm sm:text-base">
                                             {{
-                                                finalOnsiteReport.final_remark ?? 'N/A' }}</p>
+                                            finalOnsiteReport.final_remark ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div v-if="finalOnsiteReport.attached_file" class="space-y-3">
-                                <label
-                                    class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Final
-                                    Service Report</label>
-                                <div
-                                    class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 p-4 rounded-lg">
-                                    <a :href="`/storage/${finalOnsiteReport.attached_file}`" target="_blank"
-                                        class="inline-flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-medium transition-colors text-sm sm:text-base">
-                                        <svg class="w-4 sm:w-5 h-4 sm:h-5" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
-                                            </path>
-                                        </svg>
-                                        <span>View Final Service Report</span>
-                                        <svg class="w-3 sm:w-4 h-3 sm:h-4" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
-                                            </path>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
 

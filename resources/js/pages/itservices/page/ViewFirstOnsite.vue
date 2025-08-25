@@ -33,6 +33,31 @@ const formatDate = (date: string | null) => {
         hour12: true,
     }).format(d)
 }
+
+const getFileName = (filePath: string) => {
+    if (!filePath) return 'Unknown file';
+    const parts = filePath.split(/[/\\]/);
+    return parts[parts.length - 1] || 'Unknown file';
+};
+
+const getFileExtension = (fileName: string) => {
+    if (!fileName) return '';
+    const parts = fileName.split('.');
+    return parts.length > 1 ? parts.pop()?.toLowerCase() || '' : '';
+};
+
+const getFileIcon = (fileName: string) => {
+    const ext = getFileExtension(fileName);
+
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(ext)) {
+        return 'image-icon';
+    } else if (ext === 'pdf') {
+        return 'pdf-icon';
+    } else if (['doc', 'docx'].includes(ext)) {
+        return 'document-icon';
+    }
+    return 'file-icon';
+};
 </script>
 
 <template>
@@ -100,7 +125,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg break-words">
                                         {{
-                                            jobOrder.client }}</p>
+                                        jobOrder.client }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -109,7 +134,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg break-words">
                                         {{
-                                            jobOrder.contact_person }}</p>
+                                        jobOrder.contact_person }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -117,7 +142,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg break-words">
                                         {{
-                                            jobOrder.department }}</p>
+                                        jobOrder.department }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -133,7 +158,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white break-words min-w-0 flex-1">
                                             {{
-                                                full_name(itService.technician) }}</p>
+                                            full_name(itService.technician) }}</p>
                                     </div>
                                 </div>
                                 <div class="space-y-2">
@@ -214,7 +239,7 @@ const formatDate = (date: string | null) => {
                                     <p
                                         class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg break-words">
                                         {{
-                                            itService.model }}</p>
+                                        itService.model }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -245,7 +270,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-white whitespace-pre-line leading-relaxed text-sm sm:text-base">
                                             {{
-                                                itService.machine_problem }}</p>
+                                            itService.machine_problem }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -290,7 +315,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-white whitespace-pre-line leading-relaxed text-sm sm:text-base min-w-0 flex-1">
                                             {{
-                                                report.service_performed }}</p>
+                                            report.service_performed }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -310,7 +335,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white break-words min-w-0 flex-1">
                                             {{
-                                                report.machine_status ?? 'N/A' }}</p>
+                                            report.machine_status ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -330,7 +355,7 @@ const formatDate = (date: string | null) => {
                                         <p
                                             class="text-gray-900 dark:text-white whitespace-pre-line leading-relaxed text-sm sm:text-base min-w-0 flex-1">
                                             {{
-                                                report.recommendation }}</p>
+                                            report.recommendation }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -341,7 +366,10 @@ const formatDate = (date: string | null) => {
                                     Report</label>
                                 <div
                                     class="bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 p-4 rounded-lg">
-                                    <a :href="`/storage/${report.attached_file}`" target="_blank"
+                                    <a :href="route('job_order.it_service.report.download', {
+                                        jobOrder: jobOrder.id,
+                                        reportId: report.id,
+                                    })" target=" _blank"
                                         class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors duration-200 text-sm sm:text-base break-words">
                                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -357,6 +385,10 @@ const formatDate = (date: string | null) => {
                                             </path>
                                         </svg>
                                     </a>
+                                    <div class="mt-2 text-xs text-gray-500 dark:text-gray-400"
+                                        v-if="report.attached_file">
+                                        <span>{{ getFileName(report.attached_file) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

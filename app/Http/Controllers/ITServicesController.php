@@ -12,6 +12,7 @@ use App\Models\JobOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -249,7 +250,7 @@ class ITServicesController extends Controller
         ]);
 
         if ($request->hasFile('attached_file')) {
-            $validated['attached_file'] = $request->file('attached_file')->store('it_service_reports', 'public');
+            $validated['attached_file'] = $request->file('attached_file')->store('it_service_reports', 'private');
         }
 
         ITServiceReport::create($validated);
@@ -393,6 +394,96 @@ class ITServicesController extends Controller
             'report'             => $report,
             'machineStatusLabel' => $report->machine_status ? $status->getLabel() : null,
         ]);
+    }
+
+    public function downloadAttachment(JobOrder $jobOrder, $reportId)
+    {
+        if (!auth()->check()) {
+            Log::error('Download attempt without authentication', ['report_id' => $reportId]);
+            abort(401, 'Authentication required');
+        }
+
+        $user = auth()->user();
+        if (!$user) {
+            Log::error('User not found in downloadAttachment');
+            abort(401, 'User not found');
+        }
+
+        $employee = $user->employee()->with('position')->first();
+        if (!$employee) {
+            Log::error('Employee not found for user', ['user_id' => $user->id]);
+            abort(403, 'Employee record not found');
+        }
+
+        if (!$employee->position) {
+            Log::error('Position not found for employee', ['employee_id' => $employee->id]);
+            abort(403, 'Employee position not found');
+        }
+        
+        $allowedPositions = ['frontliner', 'dispatcher', 'technician', 'admin'];
+        if (!in_array(strtolower($employee->position->name ?? ''), $allowedPositions)) {
+            Log::warning('Unauthorized file access attempt', [
+                'user_id' => $user->id,
+                'employee_id' => $employee->id,
+                'position' => $employee->position->name ?? 'null',
+                'report_id' => $reportId
+            ]);
+            abort(403, 'Unauthorized to access this file');
+        }
+
+        $itService = $jobOrder->serviceable;
+        if (!$itService) {
+            Log::error('IT Service not found for job order', ['job_order_id' => $jobOrder->id]);
+            abort(404, 'IT Service not found for this job order');
+        }
+        
+        $report = ITServiceReport::where('id', $reportId)
+            ->where('it_service_id', $itService->id)
+            ->whereIn('onsite_type', ['initial', 'final'])
+            ->first();
+
+        if (!$report) {
+            Log::error('Report not found', [
+                'report_id' => $reportId,
+                'it_service_id' => $itService->id,
+                'job_order_id' => $jobOrder->id
+            ]);
+            abort(404, 'Report not found');
+        }
+
+        if (!$report->attached_file) {
+            Log::warning('No file attached to report', ['report_id' => $reportId]);
+            abort(404, 'No file attached to this report');
+        }
+
+        if (!Storage::disk('private')->exists($report->attached_file)) {
+            Log::error('File not found in storage', [
+                'file_path' => $report->attached_file,
+                'report_id' => $reportId
+            ]);
+            abort(404, 'File not found in storage');
+        }
+
+        $originalName = $this->getOriginalFileName($report, $jobOrder);
+        
+        Log::info('File download initiated', [
+            'user_id' => $user->id,
+            'employee_id' => $employee->id,
+            'report_id' => $reportId,
+            'job_order_id' => $jobOrder->id,
+            'file_path' => $report->attached_file
+        ]);
+        
+        return Storage::disk('private')->download($report->attached_file, $originalName);
+    }
+
+    private function getOriginalFileName($report, $jobOrder)
+    {
+        $extension = pathinfo($report->attached_file, PATHINFO_EXTENSION);
+        $reportType = ucfirst(strtolower($report->onsite_type));
+        $jobOrderNo = $jobOrder->job_order_no ?? 'Unknown';
+        
+        return "{$reportType}_Report_{$jobOrderNo}.{$extension}";
     }
 
     public function createLastOnsite(Request $request, JobOrder $jobOrder)
@@ -585,7 +676,7 @@ class ITServicesController extends Controller
         }
 
         if ($firstAttachedFile) {
-            $firstAttachedFilePath         = $firstAttachedFile->store('it_service_reports', 'public');
+            $firstAttachedFilePath         = $firstAttachedFile->store('it_service_reports', 'private');
             $fields['first_attached_file'] = $firstAttachedFilePath;
             Log::info('First onsite file uploaded', ['path' => $firstAttachedFilePath]);
         }

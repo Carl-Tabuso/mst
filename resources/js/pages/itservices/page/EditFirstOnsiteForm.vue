@@ -58,15 +58,16 @@ const props = defineProps<Props>();
 const initialFormComponent = ref<FormComponentInstance | null>(null);
 const firstOnsiteFormComponent = ref<FormComponentInstance | null>(null);
 
+const dateTime = props.jobOrder.date_time ? new Date(props.jobOrder.date_time) : null;
+
 const form = useForm({
-    // Initial stage fields (from JobOrder and ITService)
     client: props.jobOrder.client,
     address: props.jobOrder.address,
     department: props.jobOrder.department,
     contact_no: props.jobOrder.contact_no,
     contact_person: props.jobOrder.contact_person,
-    date: props.jobOrder.date_time?.split(' ')[0] ?? '',
-    time: props.jobOrder.date_time?.split(' ')[1]?.slice(0, 5) ?? '',
+    date: dateTime ? dateTime.toISOString().split('T')[0] : '',
+    time: dateTime ? dateTime.toTimeString().slice(0, 5) : '',
     technician_id: props.itService.technician_id,
     machine_type: props.itService.machine_type,
     model: props.itService.model,
@@ -74,11 +75,10 @@ const form = useForm({
     tag_no: props.itService.tag_no,
     machine_problem: props.itService.machine_problem,
 
-    // First onsite fields (from ITServiceReport)
     service_performed: props.existingReport.service_performed,
     recommendation: props.existingReport.recommendation,
     machine_status: props.existingReport.machine_status,
-    attached_file: null as File | null, // For new file uploads
+    attached_file: null as File | null,
 });
 
 const submitForm = () => {
@@ -129,12 +129,6 @@ const submitForm = () => {
                 }
                 
             },
-            onError: (errors: any) => {
-                console.error('[ERROR] Validation failed:', errors)
-            },
-            onFinish: () => {
-                console.log('[FINISH] Edit first onsite form submission finished')
-            }
         }
     );
 };
@@ -161,21 +155,14 @@ function goBack() {
                 <!-- Initial Stage Fields -->
                 <div class="p-6">
                     <h2 class="text-lg font-medium text-gray-700 mb-4">Initial Information</h2>
-                    <ITServiceFields 
-                        ref="initialFormComponent"
-                        :form="form" 
-                        :technicians="props.technicians" 
-                        :machineTypes="props.machineTypes" 
-                    />
+                    <ITServiceFields ref="initialFormComponent" :form="form" :technicians="props.technicians"
+                        :machineTypes="props.machineTypes" />
                 </div>
 
                 <!-- First Onsite Fields -->
-                <div class= "px-6">
-                    <ITServiceFirstOnsiteFields
-                        ref="firstOnsiteFormComponent"
-                        :form="form" 
-                        :machineStatuses="props.machineStatuses" 
-                    />
+                <div class="px-6">
+                    <ITServiceFirstOnsiteFields ref="firstOnsiteFormComponent" :form="form"
+                        :machineStatuses="props.machineStatuses" />
                 </div>
 
                 <!-- Current Attached File Display -->
@@ -186,8 +173,10 @@ function goBack() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                         </svg>
-                        <a :href="`/storage/${props.existingReport.attached_file}`" target="_blank"
-                            class="text-blue-600 hover:text-blue-800 text-sm underline">
+                        <a :href="route('job_order.it_service.report.download', {
+                            jobOrder: jobOrder.id,
+                            reportId: existingReport.id,
+                        })" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
                             View Current File
                         </a>
                     </div>

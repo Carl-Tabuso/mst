@@ -32,13 +32,15 @@ export interface JobOrder {
   serviceableId: number;
   serviceable?: {
     status?: {
-      value?: string
-    }
-    reportInitial?: { id: number }
-    reportFinal?: { id: number }
-  }
+      value?: string;
+    };
+    reportInitial?: { id: number };
+    reportFinal?: { id: number };
+  };
   status: string;
   date_time: string;
+  date?: string;
+  time?: string;
   client: string;
   contact_person: string;
   contact_no: string;
@@ -63,6 +65,8 @@ export interface ITService {
     suffix: string;
   };
   date_time?: string;
+  date?: string;
+  time?: string;
 }
 
 export interface ITServiceReport {

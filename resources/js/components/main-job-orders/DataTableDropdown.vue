@@ -17,14 +17,24 @@ const actions = computed(() => {
   const status = props.jobOrder.serviceable?.status?.value?.toLowerCase()
 
   if (status === 'for check up') {
-    return ['Proceed to First Onsite', 'Edit Request', 'View']
+    return ['Proceed to First Onsite', 'Edit Request']
   } else if (status === 'for final service') {
-    return ['Proceed to Final Onsite', 'Edit Request', 'View']
+    return ['Proceed to Final Onsite', 'Edit Request']
   } else if (status === 'completed') {
-    return ['Edit Request', 'View']
+    return ['Edit Request']
   }
 
-  return ['View']
+  return ['']
+
+  // if (status === 'for check up') {
+  //   return ['Proceed to First Onsite', 'Edit Request', 'View']
+  // } else if (status === 'for final service') {
+  //   return ['Proceed to Final Onsite', 'Edit Request', 'View']
+  // } else if (status === 'completed') {
+  //   return ['Edit Request', 'View']
+  // }
+
+  // return ['View']
 })
 
 function handleAction(action: string) {
@@ -34,17 +44,17 @@ function handleAction(action: string) {
   const reportInitialId = props.jobOrder.serviceable?.reportInitial?.id;
 
   switch (action) {
-    case 'View':
-      if (status === 'for check up') {
-        router.visit(`/job-orders/it-services/${jobOrderId}`);
-      } else if (status === 'for final service') {
-        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/initial/${reportInitialId}/view`);
-      } else if (status === 'completed') {
-        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final/view`);
-      } else {
-        router.visit(`/job-orders/it-services/${jobOrderId}`);
-      }
-      break;
+    // case 'View':
+    //   if (status === 'for check up') {
+    //     router.visit(`/job-orders/it-services/${jobOrderId}`);
+    //   } else if (status === 'for final service') {
+    //     router.visit(`/job-orders/it-services/${jobOrderId}/onsite/initial/${reportInitialId}/view`);
+    //   } else if (status === 'completed') {
+    //     router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final/view`);
+    //   } else {
+    //     router.visit(`/job-orders/it-services/${jobOrderId}`);
+    //   }
+    //   break;
 
     case 'Edit Request':
       if (status === 'for check up') {

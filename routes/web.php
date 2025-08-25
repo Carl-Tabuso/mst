@@ -73,6 +73,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{jobOrder}/onsite/initial/{report}/view', [ITServicesController::class, 'viewFirstOnsite'])->name('onsite.first.view');
             Route::get('{jobOrder}/onsite/initial/{reportId}/edit', [ITServicesController::class, 'editFirstOnsite'])->name('onsite.first.edit');
 
+            Route::get('{jobOrder}/reports/{reportId}/download', [ITServicesController::class, 'downloadAttachment'])->name('report.download');
+
             // Final Onsite
             Route::get('{jobOrder}/onsite/final', [ITServicesController::class, 'createLastOnsite'])->name('onsite.last.create');
             Route::post('{jobOrder}/onsite/final', [ITServicesController::class, 'storeLastOnsite'])->name('onsite.last.store');
