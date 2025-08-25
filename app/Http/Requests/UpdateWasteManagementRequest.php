@@ -29,7 +29,7 @@ class UpdateWasteManagementRequest extends FormRequest
             'approved_date'  => [Rule::requiredIf($isSuccessful), 'date', 'before_or_equal:'.today()->endOfDay()],
             'truck_no'       => ['nullable', 'string'],
             'payment_type'   => [Rule::requiredIf($isSuccessful), 'string'],
-            'from'           => [Rule::requiredIf($isPreHauling), 'date', 'after_or_equal:'.today()->endOfDay()],
+            'from'           => [Rule::requiredIf($isPreHauling), 'date', 'after_or_equal:'.today()->startOfDay()],
             'to'             => [Rule::requiredIf($isPreHauling), 'date', 'after_or_equal:from'],
             'haulings'       => ['nullable', 'array'],
             // 'team_leader'    => ['nullable'],

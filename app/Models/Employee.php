@@ -51,7 +51,7 @@ class Employee extends Model
 
     public function account(): HasOne
     {
-        return $this->hasOne(User::class);
+        return $this->hasOne(User::class)->withTrashed();
     }
 
     public function position(): BelongsTo
@@ -101,7 +101,7 @@ class Employee extends Model
 
     public function createdJobOrders(): HasMany
     {
-        return $this->hasMany(JobOrder::class, 'created_by');
+        return $this->hasMany(JobOrder::class, 'created_by')->withTrashed();
     }
 
     public function form3sAsTeamLeader(): HasMany

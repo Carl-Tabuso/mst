@@ -20,11 +20,20 @@ class Form3 extends Model
     ];
 
     protected $casts = [
-        'appraised_date' => 'datetime:Y-m-d',
-        'approved_date'  => 'datetime:Y-m-d',
+        'appraised_date' => 'date',
+        'approved_date'  => 'date',
         'created_at'     => 'datetime',
         'updated_at'     => 'datetime',
     ];
+
+    public function attributesForCorrection(): array
+    {
+        return [
+            'approved_date',
+            'payment_type',
+            'appraised_date',
+        ];
+    }
 
     public function form4(): BelongsTo
     {

@@ -8,8 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { jobOrderRouteNames } from '@/constants/job-order-route'
-import { JobOrderStatuses } from '@/constants/job-order-statuses'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { Link } from '@inertiajs/vue3'
 import { Clock } from 'lucide-vue-next'
 import { RecentJobOrders } from '..'
@@ -20,17 +19,7 @@ interface RecentJobOrdersProps {
 
 defineProps<RecentJobOrdersProps>()
 
-const statusMap = Object.fromEntries(
-  JobOrderStatuses.map((jobOrderStatus) => {
-    return [jobOrderStatus.id, jobOrderStatus]
-  }),
-)
-
-const path = Object.fromEntries(
-  jobOrderRouteNames.map((route) => {
-    return [route.id, route.route]
-  }),
-)
+const { statusMap, routeMap } = useJobOrderDicts()
 </script>
 
 <template>
@@ -56,7 +45,7 @@ const path = Object.fromEntries(
           <Link
             :href="
               route(
-                `job_order.${path[jobOrder.serviceType]}.edit`,
+                `job_order.${routeMap[jobOrder.serviceType]}.edit`,
                 jobOrder.ticket,
               )
             "
@@ -72,13 +61,13 @@ const path = Object.fromEntries(
           </Badge>
         </div>
         <div
-          class="flex flex-row justify-between text-xs text-muted-foreground"
+          class="flex flex-row justify-between gap-10 text-xs text-muted-foreground"
         >
-          <span class="flex items-center gap-2">
+          <span class="flex items-center gap-2 whitespace-nowrap">
             <Clock class="size-3" />
             {{ jobOrder.humanDiff }}
           </span>
-          <span>{{ jobOrder.frontliner }}</span>
+          <span class="truncate font-medium">{{ jobOrder.frontliner }}</span>
         </div>
       </div>
     </CardContent>

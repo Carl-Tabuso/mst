@@ -1,3 +1,4 @@
+import { correctionStatuses } from '@/constants/correction-statuses'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 
@@ -10,8 +11,15 @@ export function useJobOrderDicts() {
     jobOrderRouteNames.map((route) => [route.id, route.route]),
   )
 
+  const correctionStatusMap = Object.fromEntries(
+    correctionStatuses.map((status) => {
+      return [status.id, status]
+    }),
+  )
+
   return {
     statusMap,
     routeMap,
+    correctionStatusMap,
   }
 }

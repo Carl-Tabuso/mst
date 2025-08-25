@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Http\Resources\ActivityLogResource;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;
 

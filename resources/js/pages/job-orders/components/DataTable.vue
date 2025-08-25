@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TData, TValue">
+<script setup lang="ts" generic="TValue">
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table'
 import { usePermissions } from '@/composables/usePermissions'
 import { valueUpdater } from '@/lib/utils'
-import { EloquentCollection } from '@/types'
+import { EloquentCollection, JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
 import type {
   ColumnDef,
@@ -28,12 +28,14 @@ import { ref } from 'vue'
 import DataTablePagination from './DataTablePagination.vue'
 import DataTableToolbar from './DataTableToolbar.vue'
 
-const props = defineProps<{
+interface DataTableProps<TData> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   meta: EloquentCollection
   emptyImgUri: string
-}>()
+}
+
+const props = defineProps<DataTableProps<JobOrder>>()
 
 const { can } = usePermissions()
 

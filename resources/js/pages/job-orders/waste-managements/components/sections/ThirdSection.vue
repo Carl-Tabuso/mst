@@ -9,12 +9,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { formatToDateString } from '@/composables/useDateFormatter'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
+import { format } from 'date-fns'
 import { Calendar } from 'lucide-vue-next'
 import { computed } from 'vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
@@ -45,24 +52,28 @@ const bidBond = defineModel<string | number>('bidBond')
 const orNumber = defineModel<string>('orNumber')
 const paymentDate = defineModel<any>('paymentDate', {
   get(value) {
-    if (value) return parseDate(value.split('T')[0])
+    if (value) {
+      const formatted = format(value, 'yyyy-MM-d')
+      return parseDate(formatted)
+    }
   },
-  default: '',
+  set(value) {
+    return new Date(value).toISOString()
+  },
+  default: undefined,
 })
 const approvedDate = defineModel<any>('approvedDate', {
   get(value) {
-    if (value) return parseDate(value.split('T')[0])
+    if (value) {
+      const formatted = format(value, 'yyyy-MM-d')
+      return parseDate(formatted)
+    }
   },
-  default: '',
+  set(value) {
+    return new Date(value).toISOString()
+  },
+  default: undefined,
 })
-
-const handlePaymentDateChange = (value: any) => {
-  paymentDate.value = new Date(value).toISOString()
-}
-
-const handleApprovedDateChange = (value: any) => {
-  approvedDate.value = new Date(value).toISOString()
-}
 
 const { isSuccessfulProposal } = useWasteManagementStages()
 const { can } = usePermissions()
@@ -74,6 +85,20 @@ const canNextStage = computed(() => {
 })
 
 const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
+
+const paymentTypes = [
+  'Cash',
+  'E-wallet (GCash, PayMaya)',
+  'Credit / Debit Card',
+  'Bank Transfer',
+]
+
+const formatDisplayDate = (date?: string) => {
+  if (!date) {
+    return 'Pick a date'
+  }
+  return format(date, 'MMMM d, yyyy')
+}
 </script>
 
 <template>
@@ -103,20 +128,31 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
             Type of Payment
           </Label>
           <div class="flex w-full flex-col gap-1">
-            <Input
-              id="paymentType"
-              :disabled="isDisabled"
-              required
-              placeholder="Enter client's payment type"
+            <Select
               v-model="paymentType"
-              :class="[
-                'w-full',
-                {
-                  'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
-                    errors.payment_type,
-                },
-              ]"
-            />
+              :disabled="isDisabled"
+            >
+              <SelectTrigger
+                :class="[
+                  'w-full',
+                  {
+                    'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+                      errors.payment_type,
+                  },
+                ]"
+              >
+                <SelectValue placeholder="Select payment type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  v-for="(type, index) in paymentTypes"
+                  :key="index"
+                  :value="type"
+                >
+                  {{ type }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <InputError :message="errors.payment_type" />
           </div>
         </div>
@@ -198,11 +234,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   ]"
                 >
                   <span>
-                    {{
-                      paymentDate
-                        ? formatToDateString(paymentDate.toString())
-                        : 'Pick a date'
-                    }}
+                    {{ formatDisplayDate(paymentDate) }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -213,7 +245,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
               >
                 <AppCalendar
                   :model-value="paymentDate"
-                  @update:model-value="handlePaymentDateChange"
+                  @update:model-value="(value) => (paymentDate = value)"
                 />
               </PopoverContent>
             </Popover>
@@ -248,11 +280,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
                   ]"
                 >
                   <span>
-                    {{
-                      approvedDate
-                        ? formatToDateString(approvedDate.toString())
-                        : 'Pick a date'
-                    }}
+                    {{ formatDisplayDate(approvedDate) }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -263,7 +291,7 @@ const isDisabled = computed(() => !props.isEditing && !canNextStage.value)
               >
                 <AppCalendar
                   :model-value="approvedDate"
-                  @update:model-value="handleApprovedDateChange"
+                  @update:model-value="(value) => (approvedDate = value)"
                 />
               </PopoverContent>
             </Popover>

@@ -2,14 +2,14 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\UserPermission;
+use App\Models\JobOrderCorrection;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreJobOrderCorrectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasPermissionTo(UserPermission::SubmitJobOrderCorrection);
+        return $this->user()->can('create', JobOrderCorrection::class);
     }
 
     public function rules(): array
@@ -27,7 +27,7 @@ class StoreJobOrderCorrectionRequest extends FormRequest
             'bid_bond'         => ['sometimes', 'required'],
             'payment_type'     => ['sometimes', 'required', 'string'],
             'approved_date'    => ['sometimes', 'required', 'date'],
-            'reason'           => ['sometimes', 'required', 'string'],
+            'reason'           => ['required', 'string'],
         ];
     }
 

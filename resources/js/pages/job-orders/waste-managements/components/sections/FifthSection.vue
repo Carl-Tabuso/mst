@@ -124,9 +124,9 @@ const onPopoverToggle = (
   loadEmployeesIfMissing()
 }
 
-const { isHaulingInProgress } = useWasteManagementStages()
+const { isInProgress } = useWasteManagementStages()
 
-const isHauling = computed(() => isHaulingInProgress(props.status))
+const isHauling = computed(() => isInProgress(props.status))
 
 const form = useForm({
   status: props.status,

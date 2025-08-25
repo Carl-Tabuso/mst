@@ -39,7 +39,10 @@ defineProps<RecentActivitiesProps>()
         class="py-3"
       >
         <div class="flex items-start gap-3">
-          <Avatar class="h-8 w-8 flex-shrink-0">
+          <Avatar
+            v-if="activity.causer"
+            class="h-8 w-8 flex-shrink-0"
+          >
             <AvatarImage
               v-if="activity.causer.employee?.account?.avatar"
               :src="activity.causer.employee.account.avatar"
@@ -51,7 +54,10 @@ defineProps<RecentActivitiesProps>()
           </Avatar>
           <div class="flex-1">
             <div class="flex items-start justify-between gap-2">
-              <div class="flex flex-col leading-tight">
+              <div
+                v-if="activity.causer"
+                class="flex flex-col leading-tight"
+              >
                 <span class="truncate text-xs font-semibold">
                   {{ activity.causer.employee.fullName }}
                 </span>
@@ -60,6 +66,14 @@ defineProps<RecentActivitiesProps>()
                   small
                   class="w-fit text-xs"
                 />
+              </div>
+              <div
+                v-else
+                class="flex flex-col leading-tight"
+              >
+                <span class="truncate text-xs font-semibold">
+                  System Generated
+                </span>
               </div>
               <span class="whitespace-nowrap text-xs text-muted-foreground">
                 {{ activity.humanDiff }}

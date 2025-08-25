@@ -13,7 +13,7 @@ class Form4Resource extends JsonResource
         return [
             'id'          => $this->id,
             'ticket'      => $this->ticket,
-            'paymentDate' => $this->payment_date?->toISOString(),
+            'paymentDate' => $this->payment_date,
             'bidBond'     => $this->when($this->bid_bond, fn () => Number::format($this->bid_bond, 2)),
             'orNumber'    => $this->or_number,
             'createdAt'   => $this->created_at,

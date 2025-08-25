@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,15 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         JsonResource::withoutWrapping();
+
+        Password::defaults(fn () => Password::min(8)
+            ->letters()
+            ->mixedCase()
+            ->numbers()
+            ->symbols()
+            ->uncompromised()
+            ->rules(['not_regex:/\s/'])
+        );
 
         Gate::define('viewPulse', fn (User $user) => $user->hasRole(UserRole::ITAdmin));
         Gate::define('viewActivityLogs', [ActivityLogPolicy::class, 'viewAny']);

@@ -2,6 +2,14 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -10,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { usePermissions } from '@/composables/usePermissions'
+import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
 import { useDebounceFn } from '@vueuse/core'
@@ -24,18 +34,10 @@ import {
 import { VisuallyHidden } from 'radix-vue'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from '../../../components/ui/dialog'
 import FilterPopover from './FilterPopover.vue'
 
 interface DataTableToolbarProps {
-  table: Table<TData>
+  table: Table<JobOrder>
   globalFilter: string | number
 }
 
@@ -80,7 +82,7 @@ const handleExport = () => {
 const isLoading = ref<boolean>(false)
 
 const handlePageSizeArchival = () => {
-  router.visit(route('job_order.destroy'), {
+  router.visit(route('job_order.bulk_destroy'), {
     method: 'delete',
     data: { jobOrderIds: jobOrderIds.value },
     preserveScroll: true,
@@ -93,6 +95,8 @@ const handlePageSizeArchival = () => {
     },
   })
 }
+
+const { can } = usePermissions()
 </script>
 
 <template>
@@ -168,7 +172,7 @@ const handlePageSizeArchival = () => {
     </Button>
 
     <div
-      v-show="hasRowSelection"
+      v-if="hasRowSelection && can('update:job_order')"
       class="ml-auto"
     >
       <Dialog>

@@ -14,7 +14,6 @@ enum JobOrderStatus: string
     case Closed                 = 'closed';
     case Completed              = 'completed';
     case ForVerification        = 'for verification';
-    case Verified               = 'verified';
     case ForAppraisal           = 'for appraisal';
     case PreHauling             = 'pre-hauling';
     case InProgress             = 'in-progress';
@@ -32,7 +31,6 @@ enum JobOrderStatus: string
             self::Closed            => 'Closed',
             self::Completed         => 'Completed',
             self::ForVerification   => 'For Verification',
-            self::Verified          => 'Verified',
             self::ForAppraisal      => 'For Appraisal',
             self::PreHauling        => 'Pre-Hauling',
             self::ForCheckUP        => 'For Check Up',

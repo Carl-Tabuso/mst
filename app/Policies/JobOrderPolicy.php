@@ -60,9 +60,11 @@ class JobOrderPolicy
             : Response::deny();
     }
 
-    public function deleteBatch(User $user, array $jobOrders): bool
+    public function deleteBatch(User $user): Response
     {
-        return false;
+        return $user->hasPermissionTo(UserPermission::UpdateJobOrder)
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function restore(User $user, JobOrder $jobOrder): bool

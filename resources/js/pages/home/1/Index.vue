@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Home1Placeholder from '@/components/placeholders/Home1Placeholder.vue'
 import { Separator } from '@/components/ui/separator'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem } from '@/types'
@@ -20,7 +21,6 @@ import EmployeeMetrics from './components/EmployeeMetrics.vue'
 import LatestJobOrders from './components/LatestJobOrders.vue'
 import RecentActivities from './components/RecentActivities.vue'
 import RecentJobOrders from './components/RecentJobOrders.vue'
-import Home1Placeholder from '@/components/placeholders/Home1Placeholder.vue'
 
 interface Home1Props {
   dayPart: GreetingKey
@@ -68,9 +68,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
-      <Home1Placeholder
-        v-if="isLoading"
-      />
+      <Home1Placeholder v-if="isLoading" />
       <div v-else>
         <div class="grid items-start gap-4 md:grid-cols-1 lg:grid-cols-3">
           <div class="flex flex-col gap-4 lg:col-span-2">
