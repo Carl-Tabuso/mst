@@ -54,11 +54,8 @@ export const useLastOnsiteForm = (
         return
       }
     } else {
-      console.log('[ERROR] No form component or validateForm method available')
       return
     }
-
-    console.log('[DEBUG] Submitting form with data:', form.data()); // Debug log
 
     router.post(
       route('job_order.it_service.onsite.last.store', jobOrderId),
@@ -71,23 +68,9 @@ export const useLastOnsiteForm = (
           }
           
         },
-        onError: (errors: any) => {
-          console.error('[ERROR] Validation failed:', errors)
-        },
-        onFinish: () => {
-          console.log('[FINISH] Final onsite submission finished')
-        }
       }
     )
   }
-
-  // Debug log for initialization
-  console.log('[DEBUG] useLastOnsiteForm initialized with:', {
-    jobOrderId,
-    serviceId,
-    existingFinalReport,
-    initialFormValues: form.data()
-  });
 
   return { 
     form, 

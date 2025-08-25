@@ -1,5 +1,5 @@
 import { useForm, router } from '@inertiajs/vue3'
-import { computed, ref, Ref } from 'vue'
+import { ref, Ref } from 'vue'
 
 interface FormComponentInstance {
   validateForm(): boolean;
@@ -43,12 +43,8 @@ export const useFirstOnsiteForm = (jobOrderId: number, serviceId: number) => {
         return
       }
     } else {
-      console.log('[ERROR] No form component or validateForm method available')
       return
     }
-
-    console.log('Form data before submission:', form.data())
-    console.log('File:', form.attached_file)
 
     router.post(
       route('job_order.it_service.onsite.first.store', jobOrderId),
@@ -57,20 +53,12 @@ export const useFirstOnsiteForm = (jobOrderId: number, serviceId: number) => {
         forceFormData: true,
         preserveState: false,
         onSuccess: () => {
-          console.log('[SUCCESS] First onsite submitted successfully')
           form.reset()
           if (formComponent.value?.showValidation) {
             formComponent.value.showValidation.value = false
           }
           
         },
-        onError: (errors: any) => {
-          console.error('[ERROR] Validation failed:', errors)
-          console.log('Current form state:', form.data())
-        },
-        onFinish: () => {
-          console.log('[FINISH] Submission finished')
-        }
       }
     )
   }

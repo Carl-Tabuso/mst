@@ -22,8 +22,6 @@ export const ItServiceStatuses = [
 
 export type ItServiceStatus = (typeof ItServiceStatuses)[number]['id']
 
-console.log('ItServiceStatuses:', ItServiceStatuses)
-
 export const columns: ColumnDef<JobOrder>[] = [
     {
         id: 'select',
@@ -70,6 +68,7 @@ export const columns: ColumnDef<JobOrder>[] = [
     },
     {
     accessorKey: 'itServiceStatus',
+    meta: { label: 'Status' },
     header: ({ column }) => h(DataTableHeader, { column }),
     cell: ({ row }) => {
         const status = row.original.itServiceStatus
