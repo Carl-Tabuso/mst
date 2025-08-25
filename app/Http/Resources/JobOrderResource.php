@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -27,11 +26,42 @@ class JobOrderResource extends JsonResource
             'createdAt'             => $this->created_at,
             'updatedAt'             => $this->updated_at,
             'creator'               => EmployeeResource::make($this->whenLoaded('creator')),
-            'serviceable'           => $this->whenLoaded('serviceable', fn () => $this->serviceable->toResource()),
             'teamLeaderPerformance' => TeamLeaderPerformanceResource::make($this->whenLoaded('teamLeaderPerformance')),
             'employeePerformance'   => EmployeePerformanceResource::make($this->whenLoaded('employeePerformance')),
             'corrections'           => JobOrderCorrectionResource::collection($this->whenLoaded('corrections')),
             'cancel'                => CancelledJobOrderResource::make($this->whenLoaded('cancel')),
+            'itServiceStatus' => $this->whenLoaded('serviceable', function () {
+                if ($this->serviceable instanceof \App\Models\ITService) {
+                    return $this->serviceable->status;
+                }
+
+                return null;
+            }),
+            'itServiceStatusLabel' => $this->whenLoaded('serviceable', function () {
+                if ($this->serviceable instanceof \App\Models\ITService  && $this->serviceable->status instanceof \App\Enums\ITServiceStatus) {
+                    return $this->serviceable->status->getLabel();
+                }
+                return null;
+            }),
+            'serviceable' => $this->whenLoaded('serviceable', function () {
+                $serviceable = $this->serviceable;
+
+                return array_merge(
+                    $serviceable->asResource()->toArray(request()),
+                    [
+                        'status' => [
+                            'value' => $serviceable?->status->value ?? null,
+                        ],
+                        'reportInitial' => $serviceable instanceof \App\Models\ITService
+                            ? $serviceable->reports()->where('onsite_type', 'initial')->latest()->first()
+                            : null,
+                        'reportFinal' => $serviceable instanceof \App\Models\ITService
+                            ? $serviceable->reports()->where('onsite_type', 'final')->latest()->first()
+                            : null,
+                    ]
+                );
+            }),
+
         ];
     }
 }

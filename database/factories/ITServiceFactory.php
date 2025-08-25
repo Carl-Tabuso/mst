@@ -1,45 +1,30 @@
 <?php
-
 namespace Database\Factories;
 
+use App\Enums\ITServiceStatus;
 use App\Models\Employee;
 use App\Models\ITService;
-use App\Models\MachineInfo;
-use App\Models\Position;
-use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ITService>
- */
 class ITServiceFactory extends Factory
 {
-    use RandomEmployee;
+    protected $model = ITService::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
+        $technician = Employee::whereHas('position', fn($q) => $q->where('name', 'Technician'))
+            ->inRandomOrder()
+            ->first();
+
         return [
+            'technician_id'   => $technician?->id,
+            'machine_type'    => $this->faker->randomElement(['Printer', 'Laptop', 'Desktop']),
+            'model'           => $this->faker->bothify('Model-###'),
+            'serial_no'       => strtoupper(Str::random(10)),
+            'tag_no'          => strtoupper(Str::random(6)),
+            'machine_problem' => $this->faker->sentence(8),
+            'status'          => ITServiceStatus::ForCheckUp,
         ];
-    }
-
-    public function configure()
-    {
-        return $this->afterCreating(function (ITService $itService) {
-            $technicianPositionId = Position::where('name', 'Technician')->value('id');
-            $technicianIds        = Employee::where('position_id', $technicianPositionId)
-                ->inRandomOrder()
-                ->limit(rand(1, 3))
-                ->pluck('id');
-            $itService->technicians()->attach($technicianIds);
-
-            MachineInfo::factory(rand(1, 3))->create([
-                'it_service_id' => $itService->id,
-            ]);
-        });
     }
 }
