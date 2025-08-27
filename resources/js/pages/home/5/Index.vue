@@ -3,25 +3,23 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
-import { GreetingKey, MyRecentActivites } from '..'
+import { EmployeeStatistics, GreetingKey, MyRecentActivites } from '..'
+import EmployeeMetrics from '../1/components/EmployeeMetrics.vue'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import MyRecentActivities from '../components/RecentActivities.vue'
 
-interface Home3Props {
+interface Home5Props {
   dayPart: GreetingKey
   illustration: string
   data?: {
+    employeeMetrics: EmployeeStatistics[]
     recentActivities: MyRecentActivites[]
   }
 }
 
-defineProps<Home3Props>()
+defineProps<Home5Props>()
 
-onMounted(() => {
-  router.reload({
-    only: ['data'],
-  })
-})
+onMounted(() => router.reload({ only: ['data'] }))
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -44,6 +42,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                 :day-part="dayPart"
                 :illustration="illustration"
               />
+            </div>
+            <div>
+              <EmployeeMetrics :data="data?.employeeMetrics" />
             </div>
           </div>
           <MyRecentActivities :data="data?.recentActivities" />

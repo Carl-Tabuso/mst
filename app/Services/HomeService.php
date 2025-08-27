@@ -11,6 +11,7 @@ use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Jenssegers\Agent\Facades\Agent;
 use Spatie\Activitylog\Models\Activity;
 
 class HomeService
@@ -42,14 +43,19 @@ class HomeService
     {
         $role = UserRole::from(request()->user()->getRoleNames()->first());
 
-        return match ($role) {
-            UserRole::HeadFrontliner => 'home/1/Index',
-            UserRole::ITAdmin        => 'home/2/Index',
-            default                  => 'home/3/Index',
+        $subFolder = match ($role) {
+            UserRole::HeadFrontliner => '1',
+            UserRole::ITAdmin        => '2',
+            UserRole::TeamLeader     => '3',
+            UserRole::Consultant     => '4',
+            UserRole::HumanResource  => '5',
+            default                  => '6',
         };
+
+        return sprintf('%s/%s/%s', 'home', $subFolder, 'Index');
     }
 
-    public function getUserHomeData()
+    public function getUserHomeData(): array
     {
         $role = UserRole::from(request()->user()->getRoleNames()->first());
 
@@ -67,8 +73,25 @@ class HomeService
                 'userStatistics'   => $this->getUserStatistics(),
                 'recentActivities' => $this->getRecentActivities(),
             ];
+        } elseif ($role === UserRole::TeamLeader) {
+            return [
+                'recentActivities' => $this->getUserRecentActivities(),
+            ];
+        } elseif ($role === UserRole::Consultant) {
+            return [
+                'latestFromJobOrderCards' => $this->getMonthlyJobOrderCounts(),
+                'employeeMetrics'         => $this->getEmployeeStatusCounts(),
+                'recentActivities'        => $this->getUserRecentActivities(),
+            ];
+        } elseif ($role === UserRole::HumanResource) {
+            return [
+                'employeeMetrics'  => $this->getEmployeeStatusCounts(),
+                'recentActivities' => $this->getUserRecentActivities(),
+            ];
         } else {
-            return null;
+            return [
+                'recentActivities' => $this->getUserRecentActivities(),
+            ];
         }
     }
 
@@ -157,6 +180,7 @@ class HomeService
             ->take(10)
             ->get()
             ->map(fn (JobOrderCorrection $correction) => [
+                'id'           => $correction->id,
                 'ticket'       => $correction->jobOrder->ticket,
                 'serviceType'  => $correction->jobOrder->serviceable_type,
                 'requestedAt'  => $correction->created_at->format('M d'),
@@ -210,12 +234,38 @@ class HomeService
                 ],
                 [
                     'label' => 'Active Users',
-                    'total' => $users->whereNull('deleted_at')->count(),
+                    'total' => $users->active()->count(),
                 ],
                 [
                     'label' => 'Inactive Users',
-                    'total' => $users->whereNotNull('deleted_at')->count(),
+                    'total' => $users->inactive()->count(),
                 ],
             ]);
     }
+
+    public function getUserRecentActivities(): Collection
+    {
+        $user = request()->user();
+
+        return Activity::query()
+            ->where('causer_type', $user->getMorphClass())
+            ->where('causer_id', $user->id)
+            ->latest()
+            ->take(10)
+            ->get()
+            ->map(fn (Activity $activity) => [
+                'description' => $activity->description,
+                'ipAddress'   => $activity->properties['ip_address'],
+                'browser'     => Agent::browser($activity->properties['user_agent']),
+                'platform'    => Agent::platform($activity->properties['user_agent']),
+                'timestamp'   => $activity->created_at->diffForHumans(),
+            ]);
+    }
+
+    // public function getCurrentYearParticipation()
+    // {
+    //     $user = request()->user();
+
+    //     $x = JobOrder
+    // }
 }

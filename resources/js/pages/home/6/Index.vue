@@ -7,15 +7,13 @@ import { GreetingKey, MyRecentActivites } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import MyRecentActivities from '../components/RecentActivities.vue'
 
-interface Home3Props {
+interface Home4Props {
   dayPart: GreetingKey
   illustration: string
-  data?: {
-    recentActivities: MyRecentActivites[]
-  }
+  data?: { recentActivities: MyRecentActivites[] }
 }
 
-defineProps<Home3Props>()
+defineProps<Home4Props>()
 
 onMounted(() => {
   router.reload({

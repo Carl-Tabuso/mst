@@ -20,6 +20,7 @@ class EmployeeSeeder extends Seeder
         $this->seedHaulers();
         $this->seedItAdmins();
         $this->seedConsultants();
+        $this->seedHumanResources();
     }
 
     private function seedFrontliners(): void
@@ -52,7 +53,7 @@ class EmployeeSeeder extends Seeder
 
     private function seedHaulers(): void
     {
-        Employee::factory(30)->create([
+        Employee::factory(20)->create([
             'position_id' => $this->getPositionId('Hauler'),
         ]);
     }
@@ -68,6 +69,13 @@ class EmployeeSeeder extends Seeder
     {
         Employee::factory(5)->create([
             'position_id' => $this->getPositionId('Consultant'),
+        ]);
+    }
+
+    private function seedHumanResources(): void
+    {
+        Employee::factory(3)->create([
+            'position_id' => $this->getPositionId('Human Resource'),
         ]);
     }
 

@@ -81,8 +81,7 @@ class AnnualReportService
             ]);
 
             $monthlyItems->push($groupedMonths);
-        }
-        );
+        });
 
         $this->top['client'] = $this->getTopClient($clients);
 

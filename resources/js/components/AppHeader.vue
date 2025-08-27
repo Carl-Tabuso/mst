@@ -106,12 +106,6 @@ const mainNavItems: NavItem[] = [
     can: can('manage:employees'),
   },
   {
-    title: 'Activity Logs',
-    href: '/activities',
-    icon: History,
-    can: can('view:activity_logs'),
-  },
-  {
     title: 'Incident Reports',
     href: '/incidents/report',
     icon: FilePenLine,
@@ -135,6 +129,12 @@ const mainNavItems: NavItem[] = [
     icon: Archive,
     can: can('update:job_order'),
   },
+  {
+    title: 'Activity Logs',
+    href: '/activities',
+    icon: History,
+    can: can('view:activity_logs'),
+  },
 ]
 
 const rightNavItems: NavItem[] = [
@@ -154,7 +154,7 @@ const rightNavItems: NavItem[] = [
 <template>
   <div class="sticky top-0 z-10 bg-background">
     <div class="border-b border-sidebar-border/80">
-      <div class="mx-auto flex h-14 items-center px-6 md:max-w-7xl">
+      <div class="mx-auto flex h-12 items-center px-6 md:max-w-7xl">
         <!-- Mobile Menu -->
         <div class="lg:hidden">
           <Sheet>
@@ -222,7 +222,7 @@ const rightNavItems: NavItem[] = [
           :href="route('home')"
           class="flex items-center gap-x-2"
         >
-          <AppLogo class="size-10" />
+          <AppLogo class="size-9" />
         </Link>
 
         <!-- Desktop Menu -->
@@ -244,11 +244,11 @@ const rightNavItems: NavItem[] = [
                       activeItemStyles(item.href),
                     ]"
                   >
-                    <component
+                    <!-- <component
                       v-if="item.icon"
                       :is="item.icon"
                       class="mr-2 h-4 w-4"
-                    />
+                    /> -->
                     {{ item.title }}
                   </NavigationMenuLink>
                 </Link>

@@ -1,21 +1,31 @@
 <script setup lang="ts">
+import TextLink from '@/components/TextLink.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
-import { GreetingKey, MyRecentActivites } from '..'
+import {
+  EmployeeStatistics,
+  GreetingKey,
+  JobOrderServiceTypeCards,
+  MyRecentActivites,
+} from '..'
+import EmployeeMetrics from '../1/components/EmployeeMetrics.vue'
+import LatestJobOrders from '../1/components/LatestJobOrders.vue'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import MyRecentActivities from '../components/RecentActivities.vue'
 
-interface Home3Props {
+interface Home4Props {
   dayPart: GreetingKey
   illustration: string
   data?: {
+    employeeMetrics: EmployeeStatistics[]
+    latestFromJobOrderCards: JobOrderServiceTypeCards[]
     recentActivities: MyRecentActivites[]
   }
 }
 
-defineProps<Home3Props>()
+defineProps<Home4Props>()
 
 onMounted(() => {
   router.reload({
@@ -45,8 +55,23 @@ const breadcrumbs: BreadcrumbItem[] = [
                 :illustration="illustration"
               />
             </div>
+            <div>
+              <EmployeeMetrics :data="data?.employeeMetrics" />
+            </div>
+            <div>
+              <LatestJobOrders :data="data?.latestFromJobOrderCards" />
+            </div>
+            <TextLink
+              :href="route('report.index')"
+              class="flex items-center justify-end text-xs"
+            >
+              See Reports and Analytics
+            </TextLink>
           </div>
-          <MyRecentActivities :data="data?.recentActivities" />
+          <MyRecentActivities
+            :data="data?.recentActivities"
+            content-height="h-[435px]"
+          />
         </div>
       </div>
     </div>

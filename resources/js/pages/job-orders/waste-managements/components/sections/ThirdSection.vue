@@ -19,7 +19,6 @@ import {
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
-import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
 import { format } from 'date-fns'
 import { Calendar } from 'lucide-vue-next'
@@ -31,7 +30,6 @@ interface ThirdSectionProps {
   isEditing?: boolean
   status: JobOrderStatus
   errors: any
-  employees?: Employee[]
   isSubmitBtnDisabled?: boolean
 }
 

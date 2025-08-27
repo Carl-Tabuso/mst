@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Mail\TestMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -12,14 +13,20 @@ Route::get('test', function () {
     $head        = User::role(UserRole::HeadFrontliner)->first()->email;
     $itAdmins    = User::role(UserRole::ITAdmin)->get()->pluck('email')->toArray();
     $consultants = User::role(UserRole::Consultant)->get()->pluck('email')->toArray();
-    dd(
-        [
-            'dispatchers'  => $dispatchers,
-            'team leaders' => $teamLeaders,
-            'head'         => $head,
-            'it admins'    => $itAdmins,
-            'consultants'  => $consultants,
-            User::first()->permissions(),
-        ],
-    );
+    $hrs         = User::role(UserRole::HumanResource)->get()->pluck('email')->toArray();
+    $regulars    = User::role(UserRole::Regular)->get()->pluck('email')->toArray();
+
+    dd([
+        'dispatchers'     => $dispatchers,
+        'team leaders'    => $teamLeaders,
+        'head'            => $head,
+        'it admins'       => $itAdmins,
+        'consultants'     => $consultants,
+        'human resources' => $hrs,
+        'regulars'        => $regulars,
+    ]);
+});
+
+Route::get('test-mail', function () {
+    return new TestMail;
 });

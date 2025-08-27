@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/popover'
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { getInitials } from '@/composables/useInitials'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
@@ -29,6 +30,7 @@ import { parseDate } from '@internationalized/date'
 import { Calendar, ChevronsUpDown, UserRound, X } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
+import { GroupedEmployeesByAccountRole } from '../..'
 import EmployeePopoverSelection from '../EmployeePopoverSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import EmployeeCommandListPlaceholder from '../placeholders/EmployeeCommandListPlaceholder.vue'
@@ -36,7 +38,7 @@ import SectionButton from '../SectionButton.vue'
 
 interface SecondSectionProps {
   status: JobOrderStatus
-  employees?: Employee[]
+  groupedEmployees?: GroupedEmployeesByAccountRole[]
   dispatcher: Employee | null
   appraisers: Employee[]
   appraisedDate: any
@@ -98,15 +100,19 @@ const emit = defineEmits<{
 }>()
 
 const handleAppraisersPopover = (isOpen: boolean) => {
-  if (isOpen && props.employees === undefined) {
+  if (isOpen && props.groupedEmployees === undefined) {
     emit('loadEmployees')
   }
 }
 
 const remainingEmployees = computed(() => {
-  const filtered = props.employees?.filter(
-    (e) => !appraisers.value?.flatMap((a) => a.id).includes(e.id),
-  )
+  const filtered = props.groupedEmployees?.map((group) => ({
+    ...group,
+    items: group.items.filter((employee) => {
+      const appraiserIds = appraisers.value?.map((appraiser) => appraiser.id)
+      return !appraiserIds.includes(employee.id)
+    }),
+  }))
 
   return new Set(filtered)
 })
@@ -121,6 +127,8 @@ const onSubmit = () => {
     },
   })
 }
+
+const { userRoleMap } = useJobOrderDicts()
 </script>
 
 <template>
@@ -234,7 +242,7 @@ const onSubmit = () => {
                             v-for="appraiser in appraisers"
                             :key="appraiser.id"
                             :value="appraiser"
-                            @select="() => handleEmployeeMultiselect(appraiser)"
+                            @select="handleEmployeeMultiselect(appraiser)"
                           >
                             <EmployeePopoverSelection
                               :employee="appraiser"
@@ -246,22 +254,29 @@ const onSubmit = () => {
                       </div>
                       <CommandSeparator v-if="canEdit" />
                     </template>
-                    <CommandGroup v-if="canEdit">
-                      <template v-if="!employees">
-                        <EmployeeCommandListPlaceholder />
-                      </template>
+                    <div v-if="canEdit">
+                      <EmployeeCommandListPlaceholder
+                        v-if="!groupedEmployees?.length"
+                      />
                       <template v-else>
-                        <CommandItem
-                          v-for="employee in remainingEmployees"
-                          :key="employee.id"
-                          :value="employee"
-                          class="cursor-pointer"
-                          @select="() => handleEmployeeMultiselect(employee)"
+                        <CommandGroup
+                          v-for="group in remainingEmployees"
+                          :key="group.role"
                         >
-                          <EmployeePopoverSelection :employee="employee" />
-                        </CommandItem>
+                          <span class="pl-2 text-xs font-medium">{{
+                            userRoleMap[group.role].label
+                          }}</span>
+                          <CommandItem
+                            v-for="employee in group.items"
+                            :key="employee.id"
+                            :value="employee"
+                            @select="handleEmployeeMultiselect(employee)"
+                          >
+                            <EmployeePopoverSelection :employee="employee" />
+                          </CommandItem>
+                        </CommandGroup>
                       </template>
-                    </CommandGroup>
+                    </div>
                   </CommandList>
                 </Command>
               </PopoverContent>

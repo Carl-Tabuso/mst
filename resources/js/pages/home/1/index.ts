@@ -1,17 +1,5 @@
 import { JobOrderStatus } from '@/constants/job-order-statuses'
-import { ServiceType, User } from '@/types'
-
-export type Status = 'Active' | 'Inactive' | 'No Account'
-
-export interface EmployeeStatistics {
-  status: Status
-  total: number
-}
-
-export interface JobOrderServiceTypeCards {
-  serviceType: ServiceType
-  total: number
-}
+import { User } from '@/types'
 
 export interface RecentActivitiesCard {
   id: number
@@ -29,6 +17,7 @@ export interface RecentJobOrders {
 }
 
 export interface AwaitingCorrectionReviewsCard {
+  id: number
   ticket: string
   serviceType: string
   requestedAt: string

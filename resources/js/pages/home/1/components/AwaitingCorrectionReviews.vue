@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { Link } from '@inertiajs/vue3'
 import { Clock } from 'lucide-vue-next'
 import { AwaitingCorrectionReviewsCard } from '..'
@@ -18,8 +17,6 @@ interface AwaitingCorrectionReviewsProps {
 }
 
 defineProps<AwaitingCorrectionReviewsProps>()
-
-const { routeMap } = useJobOrderDicts()
 </script>
 
 <template>
@@ -43,12 +40,7 @@ const { routeMap } = useJobOrderDicts()
       >
         <div class="flex items-center justify-between">
           <Link
-            :href="
-              route(
-                `job_order.${routeMap[correction.serviceType]}.edit`,
-                correction.ticket,
-              )
-            "
+            :href="route('job_order.correction.show', correction.id)"
             class="text-sm font-medium tracking-tighter text-primary hover:underline"
           >
             {{ correction.ticket }}

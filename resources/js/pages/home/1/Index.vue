@@ -8,12 +8,10 @@ import { onMounted, onUpdated, ref } from 'vue'
 import {
   AgingJobOrderOrdersCard,
   AwaitingCorrectionReviewsCard,
-  EmployeeStatistics,
-  JobOrderServiceTypeCards,
   RecentActivitiesCard,
   RecentJobOrders as RecentJobOrdersType,
 } from '.'
-import { GreetingKey } from '..'
+import { EmployeeStatistics, GreetingKey, JobOrderServiceTypeCards } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import AgingJobOrderTickets from './components/AgingJobOrderTickets.vue'
 import AwaitingCorrectionReviews from './components/AwaitingCorrectionReviews.vue'
