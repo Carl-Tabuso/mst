@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import TextLink from '@/components/TextLink.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { BreadcrumbItem } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
 import {
@@ -11,9 +10,9 @@ import {
   MyRecentActivites,
 } from '..'
 import EmployeeMetrics from '../components/EmployeeMetrics.vue'
-import LatestJobOrders from '../components/LatestJobOrders.vue'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
-import MyRecentActivities from '../components/RecentActivities.vue'
+import LatestJobOrders from '../components/LatestJobOrders.vue'
+import MyRecentActivities from '../components/MyRecentActivities.vue'
 
 interface Home4Props {
   dayPart: GreetingKey
@@ -32,19 +31,12 @@ onMounted(() => {
     only: ['data'],
   })
 })
-
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Home',
-    href: '/',
-  },
-]
 </script>
 
 <template>
   <Head title="Home" />
 
-  <AppLayout :breadcrumbs="breadcrumbs">
+  <AppLayout>
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div>
         <div class="grid items-start gap-4 md:grid-cols-1 lg:grid-cols-3">

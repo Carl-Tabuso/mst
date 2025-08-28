@@ -1,12 +1,4 @@
 import { JobOrderStatus } from '@/constants/job-order-statuses'
-import { User } from '@/types'
-
-export interface RecentActivitiesCard {
-  id: number
-  humanDiff: string
-  description: string
-  causer: User
-}
 
 export interface RecentJobOrders {
   ticket: string

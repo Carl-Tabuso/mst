@@ -154,7 +154,7 @@ const rightNavItems: NavItem[] = [
 <template>
   <div class="sticky top-0 z-10 bg-background">
     <div class="border-b border-sidebar-border/80">
-      <div class="mx-auto flex h-12 items-center px-6 md:max-w-7xl">
+      <div class="mx-auto flex h-14 items-center px-6 md:max-w-7xl">
         <!-- Mobile Menu -->
         <div class="lg:hidden">
           <Sheet>
@@ -222,7 +222,7 @@ const rightNavItems: NavItem[] = [
           :href="route('home')"
           class="flex items-center gap-x-2"
         >
-          <AppLogo class="size-9" />
+          <AppLogo />
         </Link>
 
         <!-- Desktop Menu -->

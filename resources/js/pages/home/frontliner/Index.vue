@@ -2,23 +2,30 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
-import { EmployeeStatistics, GreetingKey, MyRecentActivites } from '..'
-import EmployeeMetrics from '../components/EmployeeMetrics.vue'
+import { JobOrderCorrectionRequestStatus } from '.'
+import { GreetingKey, JobOrderServiceTypeCards, MyRecentActivites } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import MyRecentActivities from '../components/MyRecentActivities.vue'
+import MyJobOrderStatistics from './components/CreatedJobOrders.vue'
+import JobOrderCorrectionRequests from './components/JobOrderCorrectionRequests.vue'
 
-interface Home5Props {
+interface RegularHomeProps {
   dayPart: GreetingKey
   illustration: string
   data?: {
-    employeeMetrics: EmployeeStatistics[]
     recentActivities: MyRecentActivites[]
+    createdJobOrderStatistics: JobOrderServiceTypeCards[]
+    jobOrderCorrectionStatistics: JobOrderCorrectionRequestStatus[]
   }
 }
 
-defineProps<Home5Props>()
+defineProps<RegularHomeProps>()
 
-onMounted(() => router.reload({ only: ['data'] }))
+onMounted(() => {
+  router.reload({
+    only: ['data'],
+  })
+})
 </script>
 
 <template>
@@ -36,10 +43,20 @@ onMounted(() => router.reload({ only: ['data'] }))
               />
             </div>
             <div>
-              <EmployeeMetrics :data="data?.employeeMetrics" />
+              <MyJobOrderStatistics
+                :data="data?.createdJobOrderStatistics"
+              />
+            </div>
+            <div>
+              <JobOrderCorrectionRequests
+                :data="data?.jobOrderCorrectionStatistics"
+              />
             </div>
           </div>
-          <MyRecentActivities :data="data?.recentActivities" />
+          <MyRecentActivities
+            :data="data?.recentActivities"
+            class="h-[387px]"
+          />
         </div>
       </div>
     </div>

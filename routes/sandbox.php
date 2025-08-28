@@ -15,6 +15,7 @@ Route::get('test', function () {
     $consultants = User::role(UserRole::Consultant)->get()->pluck('email')->toArray();
     $hrs         = User::role(UserRole::HumanResource)->get()->pluck('email')->toArray();
     $regulars    = User::role(UserRole::Regular)->get()->pluck('email')->toArray();
+    $frontliners = User::role(UserRole::Frontliner)->get()->pluck('email')->toArray();
 
     dd([
         'dispatchers'     => $dispatchers,
@@ -24,6 +25,7 @@ Route::get('test', function () {
         'consultants'     => $consultants,
         'human resources' => $hrs,
         'regulars'        => $regulars,
+        'frontliners'     => $frontliners,
     ]);
 });
 

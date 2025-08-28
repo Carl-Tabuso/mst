@@ -11,6 +11,7 @@ use App\Filters\JobOrder\FilterOnlyCreated;
 use App\Filters\JobOrder\FilterServiceType;
 use App\Filters\JobOrder\FilterStatuses;
 use App\Filters\JobOrder\SearchDetails;
+use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\JobOrderResource;
 use App\Models\Employee;
 use App\Models\Form3AssignedPersonnel;
@@ -20,6 +21,7 @@ use App\Models\Form4;
 use App\Models\JobOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
 use Inertia\Inertia;
@@ -85,22 +87,34 @@ class WasteManagementService
 
         $jobOrder = JobOrderResource::make($loads);
 
-        $employees = Inertia::optional(
-            fn () => Employee::with('account:avatar')->get()->toResourceCollection()
-        );
+        $employees = Inertia::optional(fn () => $this->getEmployeesMappedByAccountRole());
 
         return compact('jobOrder', 'employees');
     }
 
-    public function updateWasteManagement(array $validated, Form4 $form4): string
+    private function getEmployeesMappedByAccountRole(): Collection
+    {
+        return Employee::query()
+            ->with('account')
+            ->has('account')
+            ->get()
+            ->groupBy(fn (Employee $employee) => $employee->account->getRoleNames()->first())
+            ->map(fn (Collection $grouped, string $role) => [
+                'role'  => $role,
+                'items' => EmployeeResource::collection($grouped),
+            ])
+            ->values();
+    }
+
+    public function updateWasteManagement(array $validated, Form4 $form4): mixed
     {
         $status = JobOrderStatus::from($validated['status']);
 
         return match ($status) {
-            JobOrderStatus::ForAppraisal      => $this->handleForAppraisal($form4, $validated),
-            JobOrderStatus::Successful        => $this->handleSuccessful($form4, $validated),
-            JobOrderStatus::PreHauling        => $this->handlePrehauling($form4, $validated),
-            JobOrderStatus::InProgress        => $this->handleInProgress($form4, $validated),
+            JobOrderStatus::ForAppraisal => $this->handleForAppraisal($form4, $validated),
+            JobOrderStatus::Successful   => $this->handleSuccessful($form4, $validated),
+            JobOrderStatus::PreHauling   => $this->handlePrehauling($form4, $validated),
+            JobOrderStatus::InProgress   => $this->handleInProgress($form4, $validated),
         };
     }
 
@@ -180,7 +194,7 @@ class WasteManagementService
         return JobOrderStatus::InProgress->value;
     }
 
-    private function handleInProgress(Form4 $form4, array $data)
+    private function handleInProgress(Form4 $form4, array $data): void
     {
         $filteredHaulings = array_filter($data['haulings'],
             fn ($haul) => Carbon::parse($haul['date'])->gte(today())

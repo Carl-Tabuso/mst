@@ -1,38 +1,34 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { GreetingKey, MyRecentActivites } from '..'
-import { router } from '@inertiajs/vue3'
-import { BreadcrumbItem } from '@/types'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { router } from '@inertiajs/vue3'
+import { onMounted } from 'vue'
+import { CurrentYearParticipation, GreetingKey, MyRecentActivites } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
-import MyRecentActivities from '../components/RecentActivities.vue'
+import MyRecentActivities from '../components/MyRecentActivities.vue'
+import ParticipationOverview from '../components/ParticipationOverview.vue'
 
-interface Home7Props {
-    dayPart: GreetingKey
-    illustration: string
-    data?: { recentActivities: MyRecentActivites[] }
+interface RegularHomeProps {
+  dayPart: GreetingKey
+  illustration: string
+  data?: {
+    recentActivities: MyRecentActivites[]
+    currentYearParticipation: CurrentYearParticipation[]
+  }
 }
 
-defineProps<Home7Props>()
+defineProps<RegularHomeProps>()
 
 onMounted(() => {
   router.reload({
     only: ['data'],
   })
 })
-
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Home',
-    href: '/',
-  },
-]
 </script>
 
 <template>
   <Head title="Home" />
 
-  <AppLayout :breadcrumbs="breadcrumbs">
+  <AppLayout>
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div>
         <div class="grid items-start gap-4 md:grid-cols-1 lg:grid-cols-3">
@@ -43,6 +39,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 :illustration="illustration"
               />
             </div>
+            <ParticipationOverview :data="data?.currentYearParticipation" />
           </div>
           <MyRecentActivities :data="data?.recentActivities" />
         </div>

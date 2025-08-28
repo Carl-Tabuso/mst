@@ -3,8 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { UserRoundMinus, UserRoundX, UsersRound } from 'lucide-vue-next'
 import { FunctionalComponent } from 'vue'
-import { Status } from '..'
-import { EmployeeStatistics } from '..'
+import { EmployeeStatistics, Status } from '..'
 
 interface EmployeeMetricsProps {
   data?: EmployeeStatistics[]

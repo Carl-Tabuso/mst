@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { serviceTypes } from '@/constants/service-type'
 import { ServiceType } from '@/types'
 import { format, subMonths } from 'date-fns'
-import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { JobOrderServiceTypeCards } from '..'
 
@@ -13,23 +13,7 @@ interface LatestJobOrdersProps {
 
 defineProps<LatestJobOrdersProps>()
 
-const serviceTypeBindings: Record<ServiceType, any> = {
-  'Waste Management': {
-    icon: Truck,
-    bgClass: 'bg-tertiary/75 text-white',
-    textClass: 'text-tertiary',
-  },
-  'IT Service': {
-    icon: MonitorCog,
-    bgClass: 'bg-sky-900/75 text-white',
-    textClass: 'text-sky-900',
-  },
-  'Other Services': {
-    icon: Wrench,
-    bgClass: 'bg-zinc-700/75 text-white',
-    textClass: 'text-muted-foreground',
-  },
-}
+const serviceTypeBindings = serviceTypes
 
 const asOfMonth = computed(() => {
   const pastMonth = subMonths(new Date(), 1)

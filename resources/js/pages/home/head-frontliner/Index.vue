@@ -8,16 +8,20 @@ import { onMounted, onUpdated, ref } from 'vue'
 import {
   AgingJobOrderOrdersCard,
   AwaitingCorrectionReviewsCard,
-  RecentActivitiesCard,
   RecentJobOrders as RecentJobOrdersType,
 } from '.'
-import { EmployeeStatistics, GreetingKey, JobOrderServiceTypeCards } from '..'
+import {
+  EmployeeStatistics,
+  GreetingKey,
+  JobOrderServiceTypeCards,
+  RecentActivities as RecentActivitiesCard,
+} from '..'
+import EmployeeMetrics from '../components/EmployeeMetrics.vue'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
+import LatestJobOrders from '../components/LatestJobOrders.vue'
+import RecentActivities from '../components/RecentActivities.vue'
 import AgingJobOrderTickets from './components/AgingJobOrderTickets.vue'
 import AwaitingCorrectionReviews from './components/AwaitingCorrectionReviews.vue'
-import EmployeeMetrics from '../components/EmployeeMetrics.vue'
-import LatestJobOrders from '../components/LatestJobOrders.vue'
-import RecentActivities from './components/RecentActivities.vue'
 import RecentJobOrders from './components/RecentJobOrders.vue'
 
 interface HeadFrontlinerHomeProps {
