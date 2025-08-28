@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
 import { getInitials } from '@/composables/useInitials'
 import { Link } from '@inertiajs/vue3'
-import { RecentActivitiesCard } from '..'
+import { RecentActivitiesCard } from '../index'
 
 interface RecentActivitiesProps {
   data?: RecentActivitiesCard[]

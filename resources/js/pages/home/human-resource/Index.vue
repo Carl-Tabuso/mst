@@ -1,37 +1,25 @@
 <script setup lang="ts">
-import TextLink from '@/components/TextLink.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
-import {
-  EmployeeStatistics,
-  GreetingKey,
-  JobOrderServiceTypeCards,
-  MyRecentActivites,
-} from '..'
-import EmployeeMetrics from '../1/components/EmployeeMetrics.vue'
-import LatestJobOrders from '../1/components/LatestJobOrders.vue'
+import { EmployeeStatistics, GreetingKey, MyRecentActivites } from '..'
+import EmployeeMetrics from '../components/EmployeeMetrics.vue'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import MyRecentActivities from '../components/RecentActivities.vue'
 
-interface Home4Props {
+interface Home5Props {
   dayPart: GreetingKey
   illustration: string
   data?: {
     employeeMetrics: EmployeeStatistics[]
-    latestFromJobOrderCards: JobOrderServiceTypeCards[]
     recentActivities: MyRecentActivites[]
   }
 }
 
-defineProps<Home4Props>()
+defineProps<Home5Props>()
 
-onMounted(() => {
-  router.reload({
-    only: ['data'],
-  })
-})
+onMounted(() => router.reload({ only: ['data'] }))
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -58,20 +46,8 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div>
               <EmployeeMetrics :data="data?.employeeMetrics" />
             </div>
-            <div>
-              <LatestJobOrders :data="data?.latestFromJobOrderCards" />
-            </div>
-            <TextLink
-              :href="route('report.index')"
-              class="flex items-center justify-end text-xs"
-            >
-              See Reports and Analytics
-            </TextLink>
           </div>
-          <MyRecentActivities
-            :data="data?.recentActivities"
-            content-height="h-[435px]"
-          />
+          <MyRecentActivities :data="data?.recentActivities" />
         </div>
       </div>
     </div>

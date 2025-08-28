@@ -15,12 +15,12 @@ import { EmployeeStatistics, GreetingKey, JobOrderServiceTypeCards } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import AgingJobOrderTickets from './components/AgingJobOrderTickets.vue'
 import AwaitingCorrectionReviews from './components/AwaitingCorrectionReviews.vue'
-import EmployeeMetrics from './components/EmployeeMetrics.vue'
-import LatestJobOrders from './components/LatestJobOrders.vue'
+import EmployeeMetrics from '../components/EmployeeMetrics.vue'
+import LatestJobOrders from '../components/LatestJobOrders.vue'
 import RecentActivities from './components/RecentActivities.vue'
 import RecentJobOrders from './components/RecentJobOrders.vue'
 
-interface Home1Props {
+interface HeadFrontlinerHomeProps {
   dayPart: GreetingKey
   illustration: string
   data?: {
@@ -33,7 +33,7 @@ interface Home1Props {
   }
 }
 
-const props = defineProps<Home1Props>()
+const props = defineProps<HeadFrontlinerHomeProps>()
 
 const isLoading = ref<boolean>(true)
 
