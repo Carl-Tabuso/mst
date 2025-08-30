@@ -1,6 +1,7 @@
 import { correctionStatuses } from '@/constants/correction-statuses'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
+import { userRoles } from '@/constants/user-role'
 
 export function useJobOrderDicts() {
   const statusMap = Object.fromEntries(
@@ -17,9 +18,16 @@ export function useJobOrderDicts() {
     }),
   )
 
+  const userRoleMap = Object.fromEntries(
+    userRoles.map((role) => {
+      return [role.id, role]
+    }),
+  )
+
   return {
     statusMap,
     routeMap,
     correctionStatusMap,
+    userRoleMap,
   }
 }

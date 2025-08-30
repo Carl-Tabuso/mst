@@ -7,11 +7,12 @@ import { useWasteManagementStages } from '@/composables/useWasteManagementStages
 import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
-import { Employee, JobOrder, SharedData, type BreadcrumbItem } from '@/types'
+import { JobOrder, SharedData, type BreadcrumbItem } from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
+import { GroupedEmployeesByAccountRole } from '.'
 import TicketHeader from '../components/TicketHeader.vue'
 import CorrectionRequestBanner from './components/CorrectionRequestBanner.vue'
 import FifthSection from './components/sections/FifthSection.vue'
@@ -25,7 +26,7 @@ import StatusUpdater from './components/StatusUpdater.vue'
 interface WasteManagementEditProps {
   data: {
     jobOrder: JobOrder
-    employees?: Employee[]
+    employees?: GroupedEmployeesByAccountRole[]
   }
 }
 
@@ -280,7 +281,7 @@ const isNotHeadFrontliner = computed(() => {
                     data.jobOrder.serviceable?.form3?.appraisedDate
                   "
                   :serviceable-id="data.jobOrder.serviceable.id"
-                  :employees="data.employees"
+                  :grouped-employees="data.employees"
                   @load-employees="loadEmployees"
                 />
               </div>
@@ -296,7 +297,6 @@ const isNotHeadFrontliner = computed(() => {
                   v-model:or-number="form.or_number"
                   v-model:payment-date="form.payment_date"
                   v-model:approved-date="form.approved_date"
-                  :employees="data.employees"
                   @on-submit="onSubmit"
                   @on-cancel-submit="form.cancel()"
                 />
@@ -319,7 +319,7 @@ const isNotHeadFrontliner = computed(() => {
                 <FifthSection
                   :status="data.jobOrder.status"
                   :haulings="data.jobOrder.serviceable.form3?.haulings"
-                  :employees="data.employees"
+                  :grouped-employees="data.employees"
                   :serviceable-id="data.jobOrder.serviceable.id"
                   @load-employees="loadEmployees"
                 />

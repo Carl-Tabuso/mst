@@ -42,7 +42,7 @@ class JobOrderCorrectionController extends Controller
         return back()->with(['message' => __('responses.correction')]);
     }
 
-    public function show(JobOrderCorrection $correction)
+    public function show(JobOrderCorrection $correction): Response
     {
         $correction->load([
             'jobOrder' => [

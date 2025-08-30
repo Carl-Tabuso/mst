@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 test('password can be updated', function () {
     $user = User::factory()->create();
 
-    $strongPassword = Str::password(8);
+    $strongPassword = Str::password();
 
     $response = $this
         ->actingAs($user)

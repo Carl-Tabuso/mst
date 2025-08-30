@@ -106,12 +106,6 @@ const mainNavItems: NavItem[] = [
     can: can('manage:employees'),
   },
   {
-    title: 'Activity Logs',
-    href: '/activities',
-    icon: History,
-    can: can('view:activity_logs'),
-  },
-  {
     title: 'Incident Reports',
     href: '/incidents/report',
     icon: FilePenLine,
@@ -134,6 +128,12 @@ const mainNavItems: NavItem[] = [
     href: '/archives',
     icon: Archive,
     can: can('update:job_order'),
+  },
+  {
+    title: 'Activity Logs',
+    href: '/activities',
+    icon: History,
+    can: can('view:activity_logs'),
   },
 ]
 
@@ -222,7 +222,7 @@ const rightNavItems: NavItem[] = [
           :href="route('home')"
           class="flex items-center gap-x-2"
         >
-          <AppLogo class="size-10" />
+          <AppLogo />
         </Link>
 
         <!-- Desktop Menu -->
@@ -244,11 +244,11 @@ const rightNavItems: NavItem[] = [
                       activeItemStyles(item.href),
                     ]"
                   >
-                    <component
+                    <!-- <component
                       v-if="item.icon"
                       :is="item.icon"
                       class="mr-2 h-4 w-4"
-                    />
+                    /> -->
                     {{ item.title }}
                   </NavigationMenuLink>
                 </Link>

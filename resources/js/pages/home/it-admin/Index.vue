@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { BreadcrumbItem } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
 import { UserStatisticsCard } from '.'
-import { GreetingKey } from '..'
-import { RecentActivitiesCard } from '../1'
-import RecentActivities from '../1/components/RecentActivities.vue'
+import { GreetingKey, RecentActivities as RecentActivitiesCard } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
+import RecentActivities from '../components/RecentActivities.vue'
 import UserStatistics from './components/UserStatistics.vue'
 import VitalSignsCard from './components/VitalSignsCard.vue'
 
@@ -31,19 +29,12 @@ onMounted(() => {
     onFinish: () => (isDataLoaded.value = !isDataLoaded.value),
   })
 })
-
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Home',
-    href: '/',
-  },
-]
 </script>
 
 <template>
   <Head title="Home" />
 
-  <AppLayout :breadcrumbs="breadcrumbs">
+  <AppLayout>
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div
         v-if="!isDataLoaded"
