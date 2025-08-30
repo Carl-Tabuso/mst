@@ -43,9 +43,7 @@ onMounted(() => {
               />
             </div>
             <div>
-              <MyJobOrderStatistics
-                :data="data?.createdJobOrderStatistics"
-              />
+              <MyJobOrderStatistics :data="data?.createdJobOrderStatistics" />
             </div>
             <div>
               <JobOrderCorrectionRequests

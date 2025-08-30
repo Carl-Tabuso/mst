@@ -62,7 +62,7 @@ onMounted(() => {
           </div>
           <MyRecentActivities
             :data="data?.recentActivities"
-            content-height="h-[435px]"
+            class="h-[435px]"
           />
         </div>
       </div>

@@ -2,10 +2,12 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
+import { AwaitingPersonnelAssignment as AwaitingPersonnelAssignmentType } from '.'
 import { CurrentYearParticipation, GreetingKey, MyRecentActivites } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import MyRecentActivities from '../components/MyRecentActivities.vue'
 import ParticipationOverview from '../components/ParticipationOverview.vue'
+import AwaitingPersonnelAssignment from './components/AwaitingPersonnelAssignment.vue'
 
 interface Home4Props {
   dayPart: GreetingKey
@@ -13,6 +15,7 @@ interface Home4Props {
   data?: {
     recentActivities: MyRecentActivites[]
     currentYearParticipation: CurrentYearParticipation[]
+    awaitingPersonnelAssignment: AwaitingPersonnelAssignmentType[]
   }
 }
 
@@ -44,6 +47,13 @@ onMounted(() => {
           <MyRecentActivities
             :data="data?.recentActivities"
             content-height="h-[490px]"
+          />
+        </div>
+      </div>
+      <div class="mt-4 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <AwaitingPersonnelAssignment
+            :data="data?.awaitingPersonnelAssignment"
           />
         </div>
       </div>

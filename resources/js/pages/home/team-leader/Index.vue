@@ -2,10 +2,12 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
+import { AwaitingSafetyInspection } from '.'
 import { CurrentYearParticipation, GreetingKey, MyRecentActivites } from '..'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
 import MyRecentActivities from '../components/MyRecentActivities.vue'
 import ParticipationOverview from '../components/ParticipationOverview.vue'
+import AwaitingSafetyInspections from './components/AwaitingSafetyInspections.vue'
 
 interface Home3Props {
   dayPart: GreetingKey
@@ -13,6 +15,7 @@ interface Home3Props {
   data?: {
     recentActivities: MyRecentActivites[]
     currentYearParticipation: CurrentYearParticipation[]
+    awaitingSafetyInspections: AwaitingSafetyInspection[]
   }
 }
 
@@ -42,6 +45,11 @@ onMounted(() => {
             <ParticipationOverview :data="data?.currentYearParticipation" />
           </div>
           <MyRecentActivities :data="data?.recentActivities" />
+        </div>
+      </div>
+      <div class="mt-4 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <AwaitingSafetyInspections :data="data?.awaitingSafetyInspections" />
         </div>
       </div>
     </div>
