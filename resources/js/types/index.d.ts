@@ -209,4 +209,13 @@ export interface EloquentCollection {
   total: number
 }
 
+export interface Truck {
+  id: number
+  model: string
+  plateNo: string
+  creator?: Employee | null
+  createdAt?: string
+  updatedAt?: string
+}
+
 export type ServiceType = 'Waste Management' | 'IT Service' | 'Other Services'
