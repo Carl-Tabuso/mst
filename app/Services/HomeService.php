@@ -134,9 +134,9 @@ class HomeService
             ];
         } elseif ($role === UserRole::TeamLeader) {
             return [
-                'recentActivities'         => $this->getUserRecentActivities(),
-                'currentYearParticipation' => $this->getCurrentYearParticipation(),
-                'awaitingSafetyInspection' => $this->getJobOrdersAwaitingSafetyInspection(),
+                'recentActivities'          => $this->getUserRecentActivities(),
+                'currentYearParticipation'  => $this->getCurrentYearParticipation(),
+                'awaitingSafetyInspections' => $this->getJobOrdersAwaitingSafetyInspection(),
             ];
         } elseif ($role === UserRole::Consultant) {
             return [
@@ -337,23 +337,42 @@ class HomeService
             ]);
     }
 
-    public function getJobOrdersAwaitingPersonnelAssignment()
+    public function getJobOrdersAwaitingPersonnelAssignment(): Collection
     {
-        $x = JobOrder::query()
+        return JobOrder::query()
             ->whereHasMorph('serviceable', [Form4::class], function (Builder $query) {
                 $query->whereHas('form3.haulings', function (Builder $subQuery) {
                     $subQuery->where('status', HaulingStatus::ForPersonnelAssignment);
                 });
             })
             ->latest()
-            ->get();
+            ->take(10)
+            ->get()
+            ->map(function (JobOrder $jobOrder) {
+                $haulings = $jobOrder->serviceable->form3->haulings;
+                $from     = $haulings->first()->date;
+                $to       = $haulings->last()->date;
 
-        // dd($x);
+                return [
+                    'ticket'      => $jobOrder->ticket,
+                    'serviceType' => $jobOrder->serviceable_type,
+                    'total'       => $haulings->where('status', HaulingStatus::ForPersonnelAssignment)->count(),
+                    'duration'    => $from->format('M d').' to '.$to->format('M d'),
+                    'inDays'      => ((int) $from->diffInDays($to)) + 1,
+                ];
+            });
     }
 
-    public function getJobOrdersAwaitingSafetyInspection()
+    public function getJobOrdersAwaitingSafetyInspection(): Collection
     {
-        $x = JobOrder::query()
+        return JobOrder::query()
+            ->with([
+                'serviceable' => [
+                    'form3' => [
+                        'haulings',
+                    ],
+                ],
+            ])
             ->whereHasMorph('serviceable', [Form4::class], function (Builder $query) {
                 $query->whereHas('form3.haulings', function (Builder $subQuery) {
                     $subQuery
@@ -364,9 +383,21 @@ class HomeService
                 });
             })
             ->latest()
-            ->get();
+            ->take(10)
+            ->get()
+            ->map(function (JobOrder $jobOrder) {
+                $haulings = $jobOrder->serviceable->form3->haulings;
+                $from     = $haulings->first()->date;
+                $to       = $haulings->last()->date;
 
-        dd($x);
+                return [
+                    'ticket'      => $jobOrder->ticket,
+                    'serviceType' => $jobOrder->serviceable_type,
+                    'total'       => $haulings->where('status', HaulingStatus::ForSafetyInspection)->count(),
+                    'duration'    => $from->format('M d').' to '.$to->format('M d'),
+                    'inDays'      => ((int) $from->diffInDays($to)) + 1,
+                ];
+            });
     }
 
     public function getCurrentYearParticipation(): Collection
