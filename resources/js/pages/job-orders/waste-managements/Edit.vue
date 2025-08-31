@@ -7,10 +7,10 @@ import { useWasteManagementStages } from '@/composables/useWasteManagementStages
 import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
-import { JobOrder, SharedData, type BreadcrumbItem } from '@/types'
+import { JobOrder, SharedData, Truck, type BreadcrumbItem } from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, provide, readonly, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { GroupedEmployeesByAccountRole } from '.'
 import TicketHeader from '../components/TicketHeader.vue'
@@ -24,21 +24,24 @@ import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
 
 interface WasteManagementEditProps {
-  data: {
-    jobOrder: JobOrder
-    employees?: GroupedEmployeesByAccountRole[]
-  }
+  data: JobOrder
+  employees?: GroupedEmployeesByAccountRole[]
+  trucks?: Truck[]
 }
 
 const props = defineProps<WasteManagementEditProps>()
 
-const serviceDate = new Date(props.data.jobOrder.dateTime)
+const trucks = ref(props?.trucks)
+
+provide('trucks', readonly(trucks))
+
+const serviceDate = new Date(props.data.dateTime)
 
 const { can } = usePermissions()
 const { canUpdateProposalInformation } = useWasteManagementStages()
 
 const canUpdateProposal = computed(() => {
-  return canUpdateProposalInformation(props.data.jobOrder.status)
+  return canUpdateProposalInformation(props.data.status)
 })
 
 const form = useForm<Record<string, any>>({
@@ -48,49 +51,44 @@ const form = useForm<Record<string, any>>({
     minute: '2-digit',
     hour12: false,
   }),
-  client: props.data.jobOrder.client,
-  address: props.data.jobOrder.address,
-  department: props.data.jobOrder.department,
-  contact_position: props.data.jobOrder.contactPosition,
-  contact_person: props.data.jobOrder.contactPerson,
-  contact_no: props.data.jobOrder.contactNo,
-  payment_date: props.data.jobOrder.serviceable?.paymentDate,
-  payment_type: props.data.jobOrder.serviceable?.form3?.paymentType,
-  bid_bond: props.data.jobOrder.serviceable?.bidBond,
-  or_number: props.data.jobOrder.serviceable?.orNumber,
-  status: props.data.jobOrder.status,
-  approved_date: props.data.jobOrder.serviceable?.form3?.approvedDate,
+  client: props.data.client,
+  address: props.data.address,
+  department: props.data.department,
+  contact_position: props.data.contactPosition,
+  contact_person: props.data.contactPerson,
+  contact_no: props.data.contactNo,
+  payment_date: props.data.serviceable?.paymentDate,
+  payment_type: props.data.serviceable?.form3?.paymentType,
+  bid_bond: props.data.serviceable?.bidBond,
+  or_number: props.data.serviceable?.orNumber,
+  status: props.data.status,
+  approved_date: props.data.serviceable?.form3?.approvedDate,
 })
 
-watch(
-  () => props.data.jobOrder,
-  (newValue) => {
-    const { serviceable: service } = newValue
-    const form3 = service?.form3
-    const newDate = new Date(newValue.dateTime)
+watch([props.data, () => props?.trucks], ([newValue, newTrucks]) => {
+  trucks.value = newTrucks
+  const { serviceable: service } = newValue
+  const form3 = service?.form3
+  const newDate = new Date(newValue.dateTime)
 
-    form.date_time = newDate.toISOString()
-    form.client = newValue.client
-    form.address = newValue.address
-    form.department = newValue.department
-    form.contact_position = newValue.contactPosition
-    form.contact_person = newValue.contactPerson
-    form.contact_no = newValue.contactNo
-    form.payment_date = service?.paymentDate
-    form.payment_type = form3?.paymentType
-    form.bid_bond = service?.bidBond
-    form.or_number = service?.orNumber
-    form.status = newValue.status
-    form.approved_date = form3?.approvedDate
-  },
-)
+  form.date_time = newDate.toISOString()
+  form.client = newValue.client
+  form.address = newValue.address
+  form.department = newValue.department
+  form.contact_position = newValue.contactPosition
+  form.contact_person = newValue.contactPerson
+  form.contact_no = newValue.contactNo
+  form.payment_date = service?.paymentDate
+  form.payment_type = form3?.paymentType
+  form.bid_bond = service?.bidBond
+  form.or_number = service?.orNumber
+  form.status = newValue.status
+  form.approved_date = form3?.approvedDate
+})
 
 const onSubmit = () => {
   form.patch(
-    route(
-      'job_order.waste_management.update',
-      props.data.jobOrder.serviceable.id,
-    ),
+    route('job_order.waste_management.update', props.data.serviceable.id),
     {
       preserveScroll: true,
       onSuccess: (page: any) => {
@@ -118,7 +116,7 @@ const onSubmitCorrection = () => {
       contact_person: data.contact_person,
       contact_no: data.contact_no,
       reason: reason.value,
-      ...(canCorrectProposalInformation(props.data.jobOrder.status)
+      ...(canCorrectProposalInformation(props.data.status)
         ? {
             payment_date: new Date(data.payment_date).toLocaleString(),
             or_number: data.or_number,
@@ -128,7 +126,7 @@ const onSubmitCorrection = () => {
           }
         : {}),
     }))
-    .post(route('job_order.correction.store', props.data.jobOrder.ticket), {
+    .post(route('job_order.correction.store', props.data.ticket), {
       onSuccess: (page: any) => {
         form.reset()
         isEditing.value = false
@@ -150,7 +148,7 @@ const manualStatuses: Array<JobOrderStatus> = [
 ]
 
 const canManuallyUpdate = computed(() =>
-  manualStatuses.includes(props.data.jobOrder.status),
+  manualStatuses.includes(props.data.status),
 )
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -163,7 +161,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/job-orders',
   },
   {
-    title: props.data.jobOrder.ticket,
+    title: props.data.ticket,
     href: '#',
   },
 ]
@@ -182,9 +180,7 @@ onMounted(() => {
 })
 
 const unapprovedCorrections = computed(() => {
-  return props.data.jobOrder.corrections?.find(
-    (correction) => !correction.approvedAt,
-  )
+  return props.data.corrections?.find((correction) => !correction.approvedAt)
 })
 
 const isNotHeadFrontliner = computed(() => {
@@ -193,7 +189,7 @@ const isNotHeadFrontliner = computed(() => {
 </script>
 
 <template>
-  <Head :title="data.jobOrder.ticket" />
+  <Head :title="data.ticket" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
@@ -207,7 +203,7 @@ const isNotHeadFrontliner = computed(() => {
       >
         <CorrectionRequestBanner :correction="unapprovedCorrections" />
         <div class="mb-3 flex items-center justify-between">
-          <TicketHeader :job-order="data.jobOrder" />
+          <TicketHeader :job-order="data" />
           <div
             v-if="can('create:job_order_correction')"
             class="flex h-8 items-center gap-2"
@@ -217,8 +213,8 @@ const isNotHeadFrontliner = computed(() => {
               class="ml-auto"
             >
               <StatusUpdater
-                :status="data.jobOrder.status"
-                :ticket="data.jobOrder.ticket"
+                :status="data.status"
+                :ticket="data.ticket"
               />
             </div>
             <Separator
@@ -247,7 +243,7 @@ const isNotHeadFrontliner = computed(() => {
                   Cancel Correction
                 </Button>
               </div>
-              <ArchiveColumn :jobOrder="data.jobOrder" />
+              <ArchiveColumn :jobOrder="data" />
             </div>
           </div>
         </div>
@@ -260,7 +256,7 @@ const isNotHeadFrontliner = computed(() => {
                 <FirstSection
                   :is-editing="isEditing && can('update:job_order')"
                   :is-service-type-disabled="true"
-                  v-model:service-type="data.jobOrder.serviceableType"
+                  v-model:service-type="data.serviceableType"
                   v-model:service-date="form.date_time"
                   v-model:service-time="form.time"
                   v-model:client="form.client"
@@ -274,14 +270,12 @@ const isNotHeadFrontliner = computed(() => {
               <div class="mt-2">
                 <Separator class="mb-3 w-full" />
                 <SecondSection
-                  :status="data.jobOrder.status"
-                  :dispatcher="data.jobOrder.serviceable?.dispatcher"
-                  :appraisers="data.jobOrder.serviceable.appraisers"
-                  :appraised-date="
-                    data.jobOrder.serviceable?.form3?.appraisedDate
-                  "
-                  :serviceable-id="data.jobOrder.serviceable.id"
-                  :grouped-employees="data.employees"
+                  :status="data.status"
+                  :dispatcher="data.serviceable?.dispatcher"
+                  :appraisers="data.serviceable.appraisers"
+                  :appraised-date="data.serviceable?.form3?.appraisedDate"
+                  :serviceable-id="data.serviceable.id"
+                  :grouped-employees="employees"
                   @load-employees="loadEmployees"
                 />
               </div>
@@ -290,7 +284,7 @@ const isNotHeadFrontliner = computed(() => {
                 <ThirdSection
                   :is-editing="isEditing && canUpdateProposal"
                   :is-submit-btn-disabled="form.processing"
-                  :status="data.jobOrder.status"
+                  :status="data.status"
                   :errors="form.errors"
                   v-model:payment-type="form.payment_type"
                   v-model:bid-bond="form.bid_bond"
@@ -304,23 +298,23 @@ const isNotHeadFrontliner = computed(() => {
               <div class="mt-2">
                 <Separator class="mb-3 w-full" />
                 <FourthSection
-                  :status="data.jobOrder.status"
-                  :starting-date="data.jobOrder.serviceable?.form3?.from"
-                  :ending-date="data.jobOrder.serviceable?.form3?.to"
-                  :serviceable-id="data.jobOrder.serviceable.id"
-                  :dispatcher="data.jobOrder.serviceable?.dispatcher"
+                  :status="data.status"
+                  :starting-date="data.serviceable?.form3?.from"
+                  :ending-date="data.serviceable?.form3?.to"
+                  :serviceable-id="data.serviceable.id"
+                  :dispatcher="data.serviceable?.dispatcher"
                 />
               </div>
               <div
-                v-if="data.jobOrder.serviceable.form3?.haulings?.length"
+                v-if="data.serviceable.form3?.haulings?.length"
                 class="mt-2"
               >
                 <Separator class="mb-3 w-full" />
                 <FifthSection
-                  :status="data.jobOrder.status"
-                  :haulings="data.jobOrder.serviceable.form3?.haulings"
-                  :grouped-employees="data.employees"
-                  :serviceable-id="data.jobOrder.serviceable.id"
+                  :status="data.status"
+                  :haulings="data.serviceable.form3?.haulings"
+                  :grouped-employees="employees"
+                  :serviceable-id="data.serviceable.id"
                   @load-employees="loadEmployees"
                 />
               </div>
@@ -328,7 +322,7 @@ const isNotHeadFrontliner = computed(() => {
                 <Separator class="col-[1/-1] mb-3 w-full" />
                 <SixthSection
                   ref="sixthSection"
-                  :status="data.jobOrder.status"
+                  :status="data.status"
                   :error="form.errors?.reason"
                   v-model:reason="reason"
                 />

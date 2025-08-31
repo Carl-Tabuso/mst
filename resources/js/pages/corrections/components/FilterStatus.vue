@@ -100,7 +100,7 @@ const onClearFilters = () => {
       </Button>
     </PopoverTrigger>
     <PopoverContent
-      class="w- w-44 p-0"
+      class="w-44 p-0"
       align="start"
     >
       <Command :class="[{ 'pointer-events-none opacity-60': isLoading }]">

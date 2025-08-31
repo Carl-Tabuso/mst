@@ -55,7 +55,11 @@ class WasteManagementController extends Controller
     {
         $data = $this->service->getWasteManagementData($ticket);
 
-        return Inertia::render('job-orders/waste-managements/Edit', compact('data'));
+        $employees = Inertia::optional(fn () => $this->service->getEmployeesMappedByAccountRole());
+
+        $trucks = Inertia::optional(fn () => $this->service->getAllTrucks());
+
+        return Inertia::render('job-orders/waste-managements/Edit', compact('data', 'employees', 'trucks'));
     }
 
     public function update(UpdateWasteManagementRequest $request, Form4 $form4): RedirectResponse

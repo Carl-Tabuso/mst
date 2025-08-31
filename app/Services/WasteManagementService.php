@@ -19,12 +19,13 @@ use App\Models\Form3Hauling;
 use App\Models\Form3HaulingChecklist;
 use App\Models\Form4;
 use App\Models\JobOrder;
+use App\Models\Truck;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
-use Inertia\Inertia;
 
 class WasteManagementService
 {
@@ -61,7 +62,7 @@ class WasteManagementService
         });
     }
 
-    public function getWasteManagementData(JobOrder $ticket): array
+    public function getWasteManagementData(JobOrder $ticket): JobOrderResource
     {
         $loads = $ticket->load([
             'creator'     => ['account:avatar'],
@@ -73,6 +74,7 @@ class WasteManagementService
                 'form3'      => [
                     'haulings' => [
                         'checklist',
+                        'truck',
                         'haulers'           => ['account:avatar'],
                         'assignedPersonnel' => [
                             'teamLeader'    => ['account:avatar'],
@@ -85,14 +87,15 @@ class WasteManagementService
             ],
         ]);
 
-        $jobOrder = JobOrderResource::make($loads);
-
-        $employees = Inertia::optional(fn () => $this->getEmployeesMappedByAccountRole());
-
-        return compact('jobOrder', 'employees');
+        return JobOrderResource::make($loads);
     }
 
-    private function getEmployeesMappedByAccountRole(): Collection
+    public function getAllTrucks(): ResourceCollection
+    {
+        return Truck::all()->toResourceCollection();
+    }
+
+    public function getEmployeesMappedByAccountRole(): Collection
     {
         return Employee::query()
             ->with('account')
@@ -212,7 +215,7 @@ class WasteManagementService
                     'team_mechanic'  => $personnel['teamMechanic']['id']  ?? null,
                 ],
                 'haulers'  => array_map(fn ($h) => $h['id'], $hauling['haulers']),
-                'truck_no' => $hauling['truckNo'] ?? null,
+                'truck_id' => $hauling['truck']['id'] ?? null,
             ];
         }, $filteredHaulings);
 
@@ -224,7 +227,7 @@ class WasteManagementService
 
                 $personnel                      = $mapped['assignedPersonnel'];
                 $isForSafetyInspectionChecklist =
-                    $mapped['truck_no']          &&
+                    $mapped['truck_id']          &&
                     $personnel['team_leader']    &&
                     $personnel['team_driver']    &&
                     $personnel['safety_officer'] &&
@@ -238,7 +241,7 @@ class WasteManagementService
                         : $hauling->haulers()->sync($mapped['haulers']);
 
                     $hauling->update([
-                        'truck_no' => $mapped['truck_no'],
+                        'truck_id' => $mapped['truck_id'],
                         'status'   => $isForSafetyInspectionChecklist
                                         ? HaulingStatus::ForSafetyInspection
                                         : HaulingStatus::ForPersonnelAssignment,
