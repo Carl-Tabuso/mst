@@ -33,9 +33,9 @@ class TruckFactory extends Factory
     public function definition(): array
     {
         return [
-            'model' => fake()->randomElement(self::MODELS),
-            'plate_no' => strtoupper(fake()->bothify('???-####')),
-            'added_by' => $this->getByPosition('Dispatcher'),
+            'model'    => fake()->randomElement(self::MODELS),
+            'plate_no' => strtoupper(fake()->unique()->bothify('???-####')),
+            'added_by' => fake()->optional()->passthrough($this->getByPosition('Dispatcher')),
         ];
     }
 }

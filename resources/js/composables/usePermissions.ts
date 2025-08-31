@@ -31,9 +31,14 @@ export function usePermissions() {
     return authorizedRoles || authorizedPermissions
   }
 
+  const hasRole = (role: string) => {
+    return authUserRole === role
+  }
+
   return {
     can,
     cannot,
     canAny,
+    hasRole,
   }
 }

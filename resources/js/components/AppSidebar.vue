@@ -22,6 +22,7 @@ import {
   FilePenLine,
   History,
   Home,
+  Truck,
   UserRoundCog,
   UsersRound,
 } from 'lucide-vue-next'
@@ -47,6 +48,11 @@ const mainNavItems: NavItem[] = [
         href: '/job-orders/corrections',
       },
     ],
+  },
+  {
+    title: 'Truck Inventory',
+    href: '/trucks',
+    icon: Truck,
   },
   {
     title: 'User Management',

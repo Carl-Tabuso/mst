@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
+use App\Enums\UserRole;
+use App\Http\Requests\StoreTruckRequest;
+use App\Http\Requests\UpdateTruckRequest;
+use App\Models\Employee;
 use App\Models\Truck;
-use Inertia\Response;
-use Illuminate\Http\Request;
-use App\Http\Resources\TruckResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class TruckController extends Controller
 {
@@ -15,27 +19,52 @@ class TruckController extends Controller
     {
         $searchQuery = $request->input('search', '');
 
-        $trucks = Truck::query()
+        $perPage = $request->integer('per_page', 15);
+
+        $dispatcherFilters = $request->input('filters.dispatchers', []);
+
+        $data = Truck::query()
             ->with('creator')
             ->where(fn (Builder $query) => $query->whereAny([
                 'model',
                 'plate_no',
             ], 'like', "%{$searchQuery}%"))
-            ->paginate()
-            ->withQueryString();
+            // ->whereIn('added_by', $dispatcherFilters)
+            ->latest()
+            ->paginate($perPage)
+            ->onEachSide(1)
+            ->withQueryString()
+            ->toResourceCollection();
 
-        $data = TruckResource::collection($trucks);
+        $dispatchers = Employee::query()
+            ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Dispatcher))
+            ->with('account')
+            ->get()
+            ->toResourceCollection();
 
-        return Inertia::render('trucks/Index', compact('data'));
+        return Inertia::render('trucks/Index', compact('data', 'dispatchers'));
     }
 
-    public function store(Request $request)
+    public function store(StoreTruckRequest $request): RedirectResponse
     {
-        //
+        $data = array_merge($request->validated(), [
+            'added_by' => $request->added_by,
+        ]);
+
+        Truck::create($data);
+
+        return back()->with(['message' => __('responses.truck.create')]);
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateTruckRequest $request, Truck $truck): RedirectResponse
     {
-        //
+        $updated = tap($truck)->update($request->validated());
+
+        $message = __('responses.truck.update', [
+            'model'    => $updated->model,
+            'plate_no' => $updated->plate_no,
+        ]);
+
+        return back()->with(compact('message'));
     }
 }

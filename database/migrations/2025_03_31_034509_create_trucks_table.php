@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('trucks', function (Blueprint $table) {
             $table->id();
             $table->string('model');
-            $table->string('plate_no');
+            $table->string('plate_no')->unique();
             $table->foreignIdFor(Employee::class, 'added_by')
                 ->nullable()
                 ->constrained()

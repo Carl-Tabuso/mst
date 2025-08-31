@@ -133,12 +133,12 @@ export interface Form3 {
 export interface Form3Hauling {
   id: number
   form3Id: number
-  truckNo: string
   date: string
   form3: Form3
   assignedPersonnel: Form3AssignedPersonnel
   haulers: Employee[]
   checklist: Form3HaulingChecklist
+  truck: Truck
   status: HaulingStatusType
   isOpen: boolean
 }
@@ -207,6 +207,21 @@ export interface EloquentCollection {
   from: number
   to: number
   total: number
+  links: MetaPaginationLinks[]
+}
+
+export interface MetaPaginationLinks {
+  url: string | null
+  label: string
+  active: boolean
+  length: number
+}
+
+export interface PaginationLinks {
+  first: string
+  last: string
+  next: string | null
+  prev: string | null
 }
 
 export interface Truck {
@@ -214,8 +229,8 @@ export interface Truck {
   model: string
   plateNo: string
   creator?: Employee | null
-  createdAt?: string
-  updatedAt?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export type ServiceType = 'Waste Management' | 'IT Service' | 'Other Services'
