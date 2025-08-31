@@ -7,8 +7,6 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Tooltip,
   TooltipContent,
@@ -32,6 +30,7 @@ import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 import SafetyInspectionChecklist from '../SafetyInspectionChecklist.vue'
 import SectionButton from '../SectionButton.vue'
+import TruckSelection from '../TruckSelection.vue'
 
 interface FifthSectionProps {
   status: JobOrderStatus
@@ -262,7 +261,7 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
               @on-remove-existing-haulers="removeExistingHaulers"
               @on-hauler-toggle="loadEmployeesIfMissing"
             />
-            <div class="flex items-center gap-x-10">
+            <!-- <div class="flex items-center gap-x-10">
               <Label
                 :for="'truckNo-' + hauling.id"
                 class="w-28 shrink-0"
@@ -276,7 +275,11 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
                 v-model="hauling.truckNo"
                 class="w-[400px]"
               />
-            </div>
+            </div> -->
+            <TruckSelection
+              v-model:truck="hauling.truck"
+              :can-edit="isAuthorize && hauling.isOpen"
+            />
           </div>
         </AccordionContent>
       </AccordionItem>

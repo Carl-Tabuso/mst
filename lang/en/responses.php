@@ -17,4 +17,8 @@ return [
     ],
     'correction'        => 'Successfully requested for correction.',
     'correction_update' => 'Marked correction request as :status.',
+    'truck'             => [
+        'create' => 'Saved new truck information.',
+        'update' => 'Saved changes :model: :plate_no.',
+    ],
 ];

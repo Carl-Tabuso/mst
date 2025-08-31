@@ -27,7 +27,6 @@ class UpdateWasteManagementRequest extends FormRequest
             'bid_bond'       => [Rule::requiredIf($isSuccessful), 'integer'],
             'or_number'      => [Rule::requiredIf($isSuccessful), 'string'],
             'approved_date'  => [Rule::requiredIf($isSuccessful), 'date', 'before_or_equal:'.today()->endOfDay()],
-            'truck_no'       => ['nullable', 'string'],
             'payment_type'   => [Rule::requiredIf($isSuccessful), 'string'],
             'from'           => [Rule::requiredIf($isPreHauling), 'date', 'after_or_equal:'.today()->startOfDay()],
             'to'             => [Rule::requiredIf($isPreHauling), 'date', 'after_or_equal:from'],
