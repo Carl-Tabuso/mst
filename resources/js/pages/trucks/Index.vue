@@ -8,11 +8,12 @@ import {
   PaginationLinks,
   Truck,
 } from '@/types'
-import { provide } from 'vue'
+import { onMounted, provide, readonly, ref, watch } from 'vue'
 import AddNewTruck from './components/AddNewTruck.vue'
 import Toolbar from './components/Toolbar.vue'
 import TruckCard from './components/TruckCard.vue'
 import TruckListPagination from './components/TruckListPagination.vue'
+import { router } from '@inertiajs/vue3'
 
 interface IndexProps {
   data: {
@@ -20,12 +21,22 @@ interface IndexProps {
     meta: EloquentCollection
     links: PaginationLinks
   }
-  dispatchers: Employee[]
+  dispatchers?: Employee[]
 }
 
 const props = defineProps<IndexProps>()
 
-provide('dispatchers', props.dispatchers)
+const dispatchers = ref<Employee[]>(props?.dispatchers ?? [])
+
+provide('dispatchers', readonly(dispatchers))
+
+onMounted(() => router.reload({ only: ['dispatchers'] }) )
+
+watch(() => props?.dispatchers, (newDispatchers) => {
+  if (newDispatchers?.length) {
+    dispatchers.value = newDispatchers
+  }
+})
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -70,10 +81,19 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             <TruckCard
+              v-if="data.meta.total"
               v-for="truck in data.data"
               :key="truck.id"
               :truck="truck"
             />
+            <div
+              v-else
+              class="py-28 md:col-span-3 sm:col-span-2 justify-items-center text-muted-foreground"
+            >
+              <p class="text-md">
+                No results found.
+              </p>
+            </div>
           </div>
           <div class="mt-2 flex justify-center">
             <TruckListPagination :meta="data.meta" />

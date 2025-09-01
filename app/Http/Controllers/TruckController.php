@@ -25,22 +25,28 @@ class TruckController extends Controller
 
         $data = Truck::query()
             ->with('creator')
-            ->where(fn (Builder $query) => $query->whereAny([
-                'model',
-                'plate_no',
-            ], 'like', "%{$searchQuery}%"))
-            // ->whereIn('added_by', $dispatcherFilters)
+            ->when($searchQuery, function (Builder $query) use ($searchQuery) {
+                $query->where(fn (Builder $subQuery) => $subQuery->whereAny([
+                    'model',
+                    'plate_no',
+                ], 'like', "%{$searchQuery}%"));
+            })
+            ->when(count($dispatcherFilters) > 0,
+                fn (Builder $query) => $query->whereIn('added_by', $dispatcherFilters)
+            )
             ->latest()
             ->paginate($perPage)
             ->onEachSide(1)
             ->withQueryString()
             ->toResourceCollection();
 
-        $dispatchers = Employee::query()
-            ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Dispatcher))
-            ->with('account')
-            ->get()
-            ->toResourceCollection();
+        $dispatchers = Inertia::optional(function () {
+            return Employee::query()
+                ->with('account.roles')
+                ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Dispatcher))
+                ->get()
+                ->toResourceCollection();
+        });
 
         return Inertia::render('trucks/Index', compact('data', 'dispatchers'));
     }
