@@ -2,7 +2,11 @@ import DropdownAction from '@/components/main-job-orders/DataTableDropdown.vue'
 import DataTableHeader from '@/components/main-job-orders/DataTableHeader.vue'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { JobOrder } from '@/types'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
+import { JobOrderRouteName } from '@/constants/job-order-route'
+import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { ITService, JobOrder } from '@/types'
+import { Link } from '@inertiajs/vue3'
 import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { h } from 'vue'
@@ -13,14 +17,7 @@ declare module '@tanstack/vue-table' {
   }
 }
 
-export const ItServiceStatuses = [
-  { id: 'For Check Up', label: 'For Check Up', badge: 'secondary' },
-  { id: 'For Final Service', label: 'For Final Service', badge: 'progress' },
-  { id: 'Completed', label: 'Completed', badge: 'success' },
-  { id: 'Unknown', label: 'Unknown', badge: 'default' },
-] as const
-
-export type ItServiceStatus = (typeof ItServiceStatuses)[number]['id']
+const { statusMap } = useJobOrderDicts()
 
 export const columns: ColumnDef<JobOrder>[] = [
     {
@@ -38,6 +35,27 @@ export const columns: ColumnDef<JobOrder>[] = [
             class: 'border-gray-400 dark:border-white'
         }),
         enableSorting: false,
+        enableHiding: false,
+    },
+    {
+        accessorKey: 'ticket',
+        meta: { label: 'Ticket' },
+        header: ({ column }) => h(DataTableHeader, { column: column }),
+        cell: ({ row }) => {
+            return h('div', { class: 'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter' }, row.getValue('ticket'))
+            // return h(
+            //     Link,
+            //     {
+            //     href: route(
+            //         `job_order.${routeMap[serviceType]}.edit`,
+            //         row.getValue('ticket'),
+            //     ),
+            //     class:
+            //         'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+            //     },
+            //     () => row.getValue('ticket'),
+            // )
+        },
         enableHiding: false,
     },
     {
@@ -67,24 +85,17 @@ export const columns: ColumnDef<JobOrder>[] = [
         cell: ({ row }) => h('div', { class: 'text-xs' }, row.getValue('address'))
     },
     {
-    accessorKey: 'itServiceStatus',
-    meta: { label: 'Status' },
-    header: ({ column }) => h(DataTableHeader, { column }),
-    cell: ({ row }) => {
-        const status = row.original.itServiceStatus
-        const label = row.original.itServiceStatusLabel
-
-        const match = ItServiceStatuses.find(
-        (s) => s.id === status || s.label === label
-        )
-
-        return h(
-        Badge,
-        { variant: match?.badge ?? 'default', class: 'truncate' },
-        () => match?.label ?? label ?? 'Unknown'
-        )
-    },
-    },
+        accessorKey: 'status',
+            meta: { label: 'Status' },
+            header: ({ column }) => h(DataTableHeader, { column }),
+            cell: ({ row }) => {
+                const status: JobOrderStatus = row.getValue('status')
+                return h(
+                    Badge, { variant: statusMap[status].badge ?? 'default', class: 'truncate' },
+                    () => statusMap[status].label
+                )
+            },
+        },
     {
         accessorKey: 'creator',
         meta: { label: 'Frontliner' },
@@ -125,18 +136,6 @@ export const columns: ColumnDef<JobOrder>[] = [
             ])
         },
     },
-    // {
-    //     accessorKey: 'machineInfos',
-    //     meta: { label: 'Machines' },
-    //     header: ({ column }) => h(DataTableHeader, { column: column }),
-    //     cell: ({ row }) => {
-    //         const machines = row.original.machineInfos || []
-    //         if (!machines.length) return h('span', { class: 'text-xs text-muted-foreground' }, '—')
-    //         return h('ul', { class: 'text-xs list-disc ml-4' }, machines.map((m: any) =>
-    //             h('li', {}, `${m.machine_type} (${m.model})`)
-    //         ))
-    //     }
-    // },
     {
         id: 'actions',
         cell: ({ row }) => {
@@ -145,5 +144,4 @@ export const columns: ColumnDef<JobOrder>[] = [
         },
         enableHiding: false,
     }
-    //add more if needed(wait for the ligma)
 ]

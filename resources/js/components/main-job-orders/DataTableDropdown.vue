@@ -14,7 +14,7 @@ import { router } from '@inertiajs/vue3'
 const props = defineProps<{ jobOrder: JobOrder }>()
 
 const actions = computed(() => {
-  const status = props.jobOrder.serviceable?.status?.value?.toLowerCase()
+  const status = props.jobOrder.status?.toLowerCase()
 
   if (status === 'for check up') {
     return ['Proceed to First Onsite', 'Edit Request']
@@ -40,7 +40,7 @@ const actions = computed(() => {
 function handleAction(action: string) {
   const jobOrderId = props.jobOrder.id;
   const serviceableId = props.jobOrder.serviceableId;
-  const status = props.jobOrder.serviceable?.status?.value?.toLowerCase();
+  const status = props.jobOrder.status;
   const reportInitialId = props.jobOrder.serviceable?.reportInitial?.id;
 
   switch (action) {
@@ -69,7 +69,9 @@ function handleAction(action: string) {
       break;
 
     case 'Proceed to First Onsite':
-      router.visit(`/job-orders/it-services/${jobOrderId}/onsite/initial?service_id=${serviceableId}`);
+      router.visit(route('job_order.it_service.onsite.create', {
+        itService: props.jobOrder.serviceableId,
+      }));
       break;
 
     case 'Proceed to Final Onsite':

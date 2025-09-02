@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Enums;
 
-enum ITServiceStatus: string {
-    case ForCheckUp       = 'For Check Up';
+enum ITServiceStatus: string
+{
+    case ForCheckUp       = 'for check up';
     // case WaitingQuotation = 'Waiting Quotation';
-    case ForFinalService  = 'For Final Service';
-    case Completed        = 'Completed';
+    case ForFinalService  = 'for final service';
+    case Completed        = 'completed';
 
     public function getLabel(): string
     {
@@ -13,7 +15,7 @@ enum ITServiceStatus: string {
             self::ForCheckUp => 'For Check Up',
             // self::WaitingQuotation => 'Waiting for Quotation',
             self::ForFinalService => 'For Final Service',
-            self::Completed => 'Completed',
+            self::Completed       => 'Completed',
         };
     }
 }

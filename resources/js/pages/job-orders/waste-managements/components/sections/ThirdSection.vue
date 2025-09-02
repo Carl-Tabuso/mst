@@ -51,7 +51,8 @@ const orNumber = defineModel<string>('orNumber')
 const paymentDate = defineModel<any>('paymentDate', {
   get(value) {
     if (value) {
-      const formatted = format(value, 'yyyy-MM-d')
+      const formatted = format(value, 'yyyy-MM-dd')
+      // console.log(formatted, value)
       return parseDate(formatted)
     }
   },
@@ -63,7 +64,7 @@ const paymentDate = defineModel<any>('paymentDate', {
 const approvedDate = defineModel<any>('approvedDate', {
   get(value) {
     if (value) {
-      const formatted = format(value, 'yyyy-MM-d')
+      const formatted = format(value, 'yyyy-MM-dd')
       return parseDate(formatted)
     }
   },

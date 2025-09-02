@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\ActivityLogName;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\UpdateJobOrderRequest;
+use App\Models\Employee;
 use App\Models\JobOrder;
+use App\Models\Position;
 use App\Services\JobOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,7 +40,15 @@ class JobOrderController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('job-orders/Create');
+        $technicians = Employee::query()
+            ->with('account')
+            ->where('position_id', Position::firstWhere(['name' => 'Technician'])->id)
+            ->get()
+            ->toResourceCollection();
+
+        // dd($technicians);
+
+        return Inertia::render('job-orders/Create', compact('technicians'));
     }
 
     public function update(UpdateJobOrderRequest $request, JobOrder $jobOrder): RedirectResponse

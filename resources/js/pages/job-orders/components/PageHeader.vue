@@ -15,7 +15,7 @@ const { can } = usePermissions()
 </script>
 
 <template>
-  <div class="mb-1 flex items-start">
+  <div class="mb-1 flex items-center">
     <div class="flex flex-col">
       <h3 class="scroll-m-20 text-3xl font-bold text-primary">
         {{ title }}

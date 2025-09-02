@@ -1,9 +1,8 @@
 <?php
+
 namespace App\Models;
 
-use App\Enums\ITServiceStatus;
-use App\Http\Resources\ITServiceResource;
-use App\Models\ITServiceReport;
+use App\Enums\JobOrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,7 +20,7 @@ class ITService extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'status'     => ITServiceStatus::class,
+        'status'     => JobOrderStatus::class,
     ];
 
     protected $appends = ['current_status'];
@@ -36,24 +35,29 @@ class ITService extends Model
         return $this->belongsTo(Employee::class, 'technician_id');
     }
 
-    public function reports(): HasMany
-    {
-        return $this->hasMany(ITServiceReport::class, 'it_service_id');
-    }
+    // public function reports(): HasMany
+    // {
+    //     return $this->hasMany(ITServiceReport::class, 'it_service_id');
+    // }
 
-    public function firstOnsiteReport()
+    // public function firstOnsiteReport()
+    // {
+    //     return $this->hasOne(ITServiceReport::class)->where('onsite_type', 'Initial');
+    // }
+
+    // public function finalOnsiteReport()
+    // {
+    //     return $this->hasOne(ITServiceReport::class)->where('onsite_type', 'Final');
+    // }
+
+    public function initialOnsiteReport()
     {
-        return $this->hasOne(ITServiceReport::class)->where('onsite_type', 'Initial');
+        return $this->hasOne(InitialOnsiteReport::class, 'it_service_id');
     }
 
     public function finalOnsiteReport()
     {
-        return $this->hasOne(ITServiceReport::class)->where('onsite_type', 'Final');
-    }
-
-    public function asResource(): ITServiceResource
-    {
-        return new ITServiceResource($this);
+        return $this->hasOne(FinalOnsiteReport::class, 'it_service_id');
     }
 
     // Individual scope methods for better maintainability

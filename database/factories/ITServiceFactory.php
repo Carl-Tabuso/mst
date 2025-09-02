@@ -1,7 +1,7 @@
 <?php
+
 namespace Database\Factories;
 
-use App\Enums\ITServiceStatus;
 use App\Models\Employee;
 use App\Models\ITService;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -13,7 +13,7 @@ class ITServiceFactory extends Factory
 
     public function definition(): array
     {
-        $technician = Employee::whereHas('position', fn($q) => $q->where('name', 'Technician'))
+        $technician = Employee::whereHas('position', fn ($q) => $q->where('name', 'Technician'))
             ->inRandomOrder()
             ->first();
 
@@ -24,7 +24,6 @@ class ITServiceFactory extends Factory
             'serial_no'       => strtoupper(Str::random(10)),
             'tag_no'          => strtoupper(Str::random(6)),
             'machine_problem' => $this->faker->sentence(8),
-            'status'          => ITServiceStatus::ForCheckUp,
         ];
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ class ITServiceCorrection extends Model
     use HasFactory;
 
     protected $table = 'it_service_corrections';
-    
+
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $casts = [

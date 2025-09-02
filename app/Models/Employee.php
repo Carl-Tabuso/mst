@@ -94,7 +94,7 @@ class Employee extends Model
         return $this->belongsToMany(
             ITService::class,
             'it_services_technicians',
-            'technicians', 
+            'technicians',
             'it_service_id'
         );
     }

@@ -53,7 +53,7 @@ class EmployeeSeeder extends Seeder
 
     private function seedHaulers(): void
     {
-        Employee::factory(20)->create([
+        Employee::factory(15)->create([
             'position_id' => $this->getPositionId('Hauler'),
         ]);
     }

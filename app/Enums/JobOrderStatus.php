@@ -14,11 +14,11 @@ enum JobOrderStatus: string
     case Closed                 = 'closed';
     case Completed              = 'completed';
     case ForVerification        = 'for verification';
-    case Verified = 'verified';
-
     case ForAppraisal           = 'for appraisal';
     case PreHauling             = 'pre-hauling';
     case InProgress             = 'in-progress';
+    case ForCheckup             = 'for check up';
+    case ForFinalService        = 'for final service';
 
     public function getLabel(): string
     {
@@ -35,9 +35,9 @@ enum JobOrderStatus: string
             self::ForVerification   => 'For Verification',
             self::ForAppraisal      => 'For Appraisal',
             self::PreHauling        => 'Pre-Hauling',
-            self::ForCheckUP        => 'For Check Up',
-            self::Verified          => 'Verified',
             self::InProgress        => 'In-progress',
+            self::ForCheckup        => 'For Checkup',
+            self::ForFinalService   => 'For Final Service',
         };
     }
 
@@ -81,6 +81,15 @@ enum JobOrderStatus: string
             self::InProgress,
             self::OnHold,
             self::Closed,
+            self::Completed,
+        ];
+    }
+
+    public static function getITServiceStatus(): array
+    {
+        return [
+            self::ForCheckup,
+            self::ForFinalService,
             self::Completed,
         ];
     }

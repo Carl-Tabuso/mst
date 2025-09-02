@@ -1,5 +1,6 @@
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { HaulingStatusType } from '@/constants/hauling-statuses'
+import { ItServiceStatus } from '@/constants/it-service-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { UserRoleType } from '@/constants/user-role'
 import type { PageProps } from '@inertiajs/core'
@@ -98,10 +99,21 @@ export interface JobOrder {
   createdAt: string
   updatedAt: string
   creator: Employee
-  serviceable: Form4 // add it services and others here
+  serviceable: Form4 | ITService // add it services and others here
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
-  itServiceStatus?: string | { value: string; label: string }
+}
+
+export interface ITService {
+  id: number
+  status: ItServiceStatus
+  technicianId: number
+  machineType: string
+  model: string
+  serialNo: string | number
+  tagNo: string | number
+  machineProblem: string
+  jobOrder: JobOrder
 }
 
 export interface Form4 {

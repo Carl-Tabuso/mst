@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Enums\ITServiceStatus;
@@ -34,7 +35,7 @@ class ITServicesController extends Controller
 
         $hasDateOfServiceRange =
         isset($filters->fromDateOfService, $filters->toDateOfService) &&
-        $filters?->fromDateOfService && $filters?->toDateOfService;
+        $filters?->fromDateOfService                                  && $filters?->toDateOfService;
 
         $jobOrders = JobOrder::query()
             ->where('serviceable_type', 'it_service')
@@ -43,21 +44,27 @@ class ITServicesController extends Controller
                     $itServiceQuery->byStatus($filters->itServiceStatuses);
                 });
             })
-            ->when($hasDateOfServiceRange, fn($q) => $q->whereBetween('date_time', [
+            ->when($hasDateOfServiceRange, fn ($q) => $q->whereBetween('date_time', [
                 Carbon::parse($filters->fromDateOfService)->startOfDay(),
                 Carbon::parse($filters->toDateOfService)->endOfDay(),
             ]))
-            ->when($search, fn($q) => $q->where(function ($sq) use ($search) {
+            ->when($search, fn ($q) => $q->where(function ($sq) use ($search) {
                 $sq->whereLike('client', $search)
                     ->orWhereLike('address', $search)
                     ->orWhereLike('contact_no', $search)
                     ->orWhereLike('contact_person', $search)
-                    ->orWhereHas('creator', fn($subQuery) => $subQuery->whereLike('first_name', $search)
-                            ->orWhereLike('middle_name', $search)
-                            ->orWhereLike('last_name', $search)
-                            ->orWhereLike('suffix', $search));
+                    ->orWhereHas('creator', fn ($subQuery) => $subQuery->whereLike('first_name', $search)
+                        ->orWhereLike('middle_name', $search)
+                        ->orWhereLike('last_name', $search)
+                        ->orWhereLike('suffix', $search));
             }))
-            ->with(['creator', 'serviceable.reports'])
+            ->with([
+                'creator',
+                'serviceable' => [
+                    'reports',
+                ],
+                // 'serviceable.reports'
+            ])
             ->latest()
             ->paginate($perPage)
             ->withQueryString()
@@ -74,12 +81,12 @@ class ITServicesController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $technicians = Employee::whereHas('position', fn($q) => $q->where('name', 'Technician'))
+        $technicians = Employee::whereHas('position', fn ($q) => $q->where('name', 'Technician'))
             ->get(['id', 'first_name', 'middle_name', 'last_name', 'suffix']);
 
         $machineTypes = ['Printer', 'Laptop', 'Desktop', 'Server', 'Other'];
 
-        $machineStatuses = collect(MachineStatus::cases())->map(fn($status) => [
+        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
             'value' => $status->value,
             'label' => $status->getLabel(),
         ])->values();
@@ -109,7 +116,7 @@ class ITServicesController extends Controller
             'machine_problem' => 'nullable|string',
         ]);
 
-        $dateTime = $validated['date'] . ' ' . $validated['time'];
+        $dateTime = $validated['date'].' '.$validated['time'];
 
         $itServiceStatus = ITServiceStatus::ForCheckUp;
 
@@ -124,9 +131,9 @@ class ITServicesController extends Controller
         ]);
 
         $jobOrderStatus = match ($itServiceStatus) {
-            ITServiceStatus::ForCheckUp => JobOrderStatus::InProgress,
+            ITServiceStatus::ForCheckUp      => JobOrderStatus::InProgress,
             ITServiceStatus::ForFinalService => JobOrderStatus::InProgress,
-            ITServiceStatus::Completed => JobOrderStatus::Completed,
+            ITServiceStatus::Completed       => JobOrderStatus::Completed,
         };
 
         $jobOrder = new JobOrder([
@@ -159,12 +166,12 @@ class ITServicesController extends Controller
             abort(404, 'Not an IT Service job order');
         }
 
-        $technicians = Employee::whereHas('position', fn($q) => $q->where('name', 'Technician'))
+        $technicians = Employee::whereHas('position', fn ($q) => $q->where('name', 'Technician'))
             ->get(['id', 'first_name', 'middle_name', 'last_name', 'suffix']);
 
         $machineTypes = ['Printer', 'Laptop', 'Desktop', 'Server', 'Other'];
 
-        $machineStatuses = collect(MachineStatus::cases())->map(fn($status) => [
+        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
             'value' => $status->value,
             'label' => $status->getLabel(),
         ])->values();
@@ -214,7 +221,7 @@ class ITServicesController extends Controller
     {
         $itService = ITService::findOrFail($request->service_id);
 
-        $machineStatuses = collect(MachineStatus::cases())->map(fn($status) => [
+        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
             'label' => $status->getLabel(),
             'value' => $status->value,
         ]);
@@ -316,12 +323,12 @@ class ITServicesController extends Controller
             abort(404, 'Not a first onsite report');
         }
 
-        $technicians = Employee::whereHas('position', fn($q) => $q->where('name', 'Technician'))
+        $technicians = Employee::whereHas('position', fn ($q) => $q->where('name', 'Technician'))
             ->get(['id', 'first_name', 'middle_name', 'last_name', 'suffix']);
 
         $machineTypes = ['Printer', 'Laptop', 'Desktop', 'Server', 'Other'];
 
-        $machineStatuses = collect(MachineStatus::cases())->map(fn($status) => [
+        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
             'label' => $status->getLabel(),
             'value' => $status->value,
         ]);
@@ -398,91 +405,91 @@ class ITServicesController extends Controller
 
     public function downloadAttachment(JobOrder $jobOrder, $reportId)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             Log::error('Download attempt without authentication', ['report_id' => $reportId]);
             abort(401, 'Authentication required');
         }
 
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             Log::error('User not found in downloadAttachment');
             abort(401, 'User not found');
         }
 
         $employee = $user->employee()->with('position')->first();
-        if (!$employee) {
+        if (! $employee) {
             Log::error('Employee not found for user', ['user_id' => $user->id]);
             abort(403, 'Employee record not found');
         }
 
-        if (!$employee->position) {
+        if (! $employee->position) {
             Log::error('Position not found for employee', ['employee_id' => $employee->id]);
             abort(403, 'Employee position not found');
         }
-        
+
         $allowedPositions = ['frontliner', 'dispatcher', 'technician', 'admin'];
-        if (!in_array(strtolower($employee->position->name ?? ''), $allowedPositions)) {
+        if (! in_array(strtolower($employee->position->name ?? ''), $allowedPositions)) {
             Log::warning('Unauthorized file access attempt', [
-                'user_id' => $user->id,
+                'user_id'     => $user->id,
                 'employee_id' => $employee->id,
-                'position' => $employee->position->name ?? 'null',
-                'report_id' => $reportId
+                'position'    => $employee->position->name ?? 'null',
+                'report_id'   => $reportId,
             ]);
             abort(403, 'Unauthorized to access this file');
         }
 
         $itService = $jobOrder->serviceable;
-        if (!$itService) {
+        if (! $itService) {
             Log::error('IT Service not found for job order', ['job_order_id' => $jobOrder->id]);
             abort(404, 'IT Service not found for this job order');
         }
-        
+
         $report = ITServiceReport::where('id', $reportId)
             ->where('it_service_id', $itService->id)
             ->whereIn('onsite_type', ['initial', 'final'])
             ->first();
 
-        if (!$report) {
+        if (! $report) {
             Log::error('Report not found', [
-                'report_id' => $reportId,
+                'report_id'     => $reportId,
                 'it_service_id' => $itService->id,
-                'job_order_id' => $jobOrder->id
+                'job_order_id'  => $jobOrder->id,
             ]);
             abort(404, 'Report not found');
         }
 
-        if (!$report->attached_file) {
+        if (! $report->attached_file) {
             Log::warning('No file attached to report', ['report_id' => $reportId]);
             abort(404, 'No file attached to this report');
         }
 
-        if (!Storage::disk('private')->exists($report->attached_file)) {
+        if (! Storage::disk('private')->exists($report->attached_file)) {
             Log::error('File not found in storage', [
                 'file_path' => $report->attached_file,
-                'report_id' => $reportId
+                'report_id' => $reportId,
             ]);
             abort(404, 'File not found in storage');
         }
 
         $originalName = $this->getOriginalFileName($report, $jobOrder);
-        
+
         Log::info('File download initiated', [
-            'user_id' => $user->id,
-            'employee_id' => $employee->id,
-            'report_id' => $reportId,
+            'user_id'      => $user->id,
+            'employee_id'  => $employee->id,
+            'report_id'    => $reportId,
             'job_order_id' => $jobOrder->id,
-            'file_path' => $report->attached_file
+            'file_path'    => $report->attached_file,
         ]);
-        
+
         return Storage::disk('private')->download($report->attached_file, $originalName);
     }
 
     private function getOriginalFileName($report, $jobOrder)
     {
-        $extension = pathinfo($report->attached_file, PATHINFO_EXTENSION);
+        $extension  = pathinfo($report->attached_file, PATHINFO_EXTENSION);
         $reportType = ucfirst(strtolower($report->onsite_type));
         $jobOrderNo = $jobOrder->job_order_no ?? 'Unknown';
-        
+
         return "{$reportType}_Report_{$jobOrderNo}.{$extension}";
     }
 
@@ -490,7 +497,7 @@ class ITServicesController extends Controller
     {
         $itService = ITService::findOrFail($request->service_id);
 
-        $machineStatuses = collect(MachineStatus::cases())->map(fn($status) => [
+        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
             'label' => $status->getLabel(),
             'value' => $status->value,
         ]);
@@ -552,7 +559,7 @@ class ITServicesController extends Controller
             abort(404, 'Final onsite report not found');
         }
 
-        $technicians = Employee::whereHas('position', fn($q) => $q->where('name', 'Technician'))
+        $technicians = Employee::whereHas('position', fn ($q) => $q->where('name', 'Technician'))
             ->get(['id', 'first_name', 'middle_name', 'last_name', 'suffix']);
 
         $machineTypes = ['Printer', 'Laptop', 'Desktop', 'Server', 'Other'];
@@ -618,7 +625,7 @@ class ITServicesController extends Controller
             }
 
             return [
-                 ...$report->toArray(),
+                ...$report->toArray(),
                 'machineStatusLabel' => $status?->getLabel() ?? 'N/A',
             ];
         };
@@ -639,6 +646,7 @@ class ITServicesController extends Controller
             Log::error('No IT Service found for this Job Order.', [
                 'job_order_id' => $jobOrder->id,
             ]);
+
             return back()->withErrors(['error' => 'No IT Service record found.']);
         }
 
@@ -697,8 +705,8 @@ class ITServicesController extends Controller
 
             $currentValue = $currentData[$key] ?? null;
 
-            $currentValueStr = $currentValue instanceof \BackedEnum  ? $currentValue->value : (string) $currentValue;
-            $newValueStr     = $newValue instanceof \BackedEnum  ? $newValue->value : (string) $newValue;
+            $currentValueStr = $currentValue instanceof \BackedEnum ? $currentValue->value : (string) $currentValue;
+            $newValueStr     = $newValue instanceof \BackedEnum ? $newValue->value : (string) $newValue;
 
             if ($currentValueStr !== $newValueStr) {
                 $before[$key] = $currentValue;
@@ -707,7 +715,7 @@ class ITServicesController extends Controller
         }
 
         if (isset($fields['date'], $fields['time'])) {
-            $newDateTime     = $fields['date'] . ' ' . $fields['time'];
+            $newDateTime     = $fields['date'].' '.$fields['time'];
             $currentDateTime = $jobOrder->date_time ? Carbon::parse($jobOrder->date_time)->format('Y-m-d H:i') : null;
 
             if ($currentDateTime !== $newDateTime) {
@@ -721,6 +729,7 @@ class ITServicesController extends Controller
                 'it_service_id' => $itService->id,
                 'user_id'       => auth()->id(),
             ]);
+
             return back()->with('message', 'No changes detected.');
         }
 
@@ -794,7 +803,7 @@ class ITServicesController extends Controller
         Log::info('Built comprehensive current data', [
             'it_service_id'     => $itService->id,
             'has_first_onsite'  => $firstOnsiteReport !== null,
-            'has_last_onsite'   => $lastOnsiteReport !== null,
+            'has_last_onsite'   => $lastOnsiteReport  !== null,
             'current_data_keys' => array_keys($currentData),
         ]);
 

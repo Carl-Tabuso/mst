@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Enums\MachineStatus;
@@ -15,9 +16,9 @@ class ITServiceReport extends Model
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $casts = [
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
-        'machine_status' => MachineStatus::class,
+        'created_at'           => 'datetime',
+        'updated_at'           => 'datetime',
+        'machine_status'       => MachineStatus::class,
         'final_machine_status' => MachineStatus::class,
     ];
 
