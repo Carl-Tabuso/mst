@@ -1,28 +1,28 @@
-import { useForm, router } from '@inertiajs/vue3'
-import { computed, ref, Ref } from 'vue'
+import { router, useForm } from '@inertiajs/vue3'
+import { ref, Ref } from 'vue'
 
 interface FormComponentInstance {
-  validateForm(): boolean;
-  isValidForm: boolean;
-  errors: { [key: string]: string };
-  showValidation: Ref<boolean>;
+  validateForm(): boolean
+  isValidForm: boolean
+  errors: { [key: string]: string }
+  showValidation: Ref<boolean>
 }
 
 interface ExistingFinalReport {
-  id?: number;
-  service_performed?: string;
-  parts_replaced?: string;
-  final_remark?: string;
-  machine_status?: string; // This is the key field for final_machine_status
-  attached_file?: string;
+  id?: number
+  service_performed?: string
+  parts_replaced?: string
+  final_remark?: string
+  machine_status?: string // This is the key field for final_machine_status
+  attached_file?: string
 }
 
 export const useLastOnsiteForm = (
-  jobOrderId: number, 
-  serviceId: number, 
-  existingFinalReport?: ExistingFinalReport
+  jobOrderId: number,
+  serviceId: number,
+  existingFinalReport?: ExistingFinalReport,
 ) => {
-  const formComponent = ref<FormComponentInstance | null>(null);
+  const formComponent = ref<FormComponentInstance | null>(null)
 
   const form = useForm({
     onsite_type: 'final',
@@ -37,16 +37,21 @@ export const useLastOnsiteForm = (
   const submitForm = () => {
     if (formComponent.value?.validateForm) {
       const isValid = formComponent.value.validateForm()
-      
+
       if (!isValid) {
         setTimeout(() => {
-          const firstError = document.querySelector('.border-red-500') as HTMLElement
+          const firstError = document.querySelector(
+            '.border-red-500',
+          ) as HTMLElement
           if (firstError) {
-            firstError.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
+            firstError.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
             })
-            if (firstError.tagName === 'TEXTAREA' || firstError.tagName === 'SELECT') {
+            if (
+              firstError.tagName === 'TEXTAREA' ||
+              firstError.tagName === 'SELECT'
+            ) {
               firstError.focus()
             }
           }
@@ -66,15 +71,14 @@ export const useLastOnsiteForm = (
           if (formComponent.value?.showValidation) {
             formComponent.value.showValidation.value = false
           }
-          
         },
-      }
+      },
     )
   }
 
-  return { 
-    form, 
+  return {
+    form,
     formComponent,
-    submitForm 
+    submitForm,
   }
 }

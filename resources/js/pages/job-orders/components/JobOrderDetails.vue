@@ -3,7 +3,14 @@ import AppCalendar from '@/components/AppCalendar.vue'
 import InputError from '@/components/InputError.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -241,85 +248,99 @@ const handleDateOfServiceChange = (value: any) => {
         />
       </div>
     </div>
-    <div v-if="serviceType === 'it_service'" class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex flex-row items-center gap-x-4">
-            <Label class="w-44 shrink-0">
-                Technician
-            </Label>
-            <div class="flex w-full flex-col">
-                <Popover>
-                    <PopoverTrigger
-                        as-child
-                        class="w-[400px]"
-                        :class="{ 'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive': errors?.technician_id }"
+    <div
+      v-if="serviceType === 'it_service'"
+      class="col-span-2 grid grid-cols-2 gap-x-10"
+    >
+      <div class="flex flex-row items-center gap-x-4">
+        <Label class="w-44 shrink-0"> Technician </Label>
+        <div class="flex w-full flex-col">
+          <Popover>
+            <PopoverTrigger
+              as-child
+              class="w-[400px]"
+              :class="{
+                'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+                  errors?.technician_id,
+              }"
+            >
+              <Button variant="outline">
+                <template v-if="technician">
+                  <Avatar class="h-7 w-7 shrink-0">
+                    <AvatarImage
+                      v-if="technician?.account?.avatar"
+                      :src="technician.account.avatar"
+                      :alt="technician.fullName"
+                    />
+                    <AvatarFallback>
+                      {{ getInitials(technician?.fullName) }}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span
+                    class="flex items-center justify-between gap-2 rounded-md text-xs"
+                  >
+                    {{ technician.fullName }}
+                  </span>
+                </template>
+                <span
+                  v-else
+                  class="font-normal text-muted-foreground"
+                >
+                  Select a technician
+                </span>
+                <ChevronsUpDown class="ml-auto h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              class="w-full p-0"
+              align="start"
+            >
+              <Command>
+                <CommandInput placeholder="Search a technician" />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    <CommandItem
+                      v-for="availableTechnician in technicians"
+                      :key="availableTechnician.id"
+                      :value="availableTechnician"
+                      class="cursor-pointer"
+                      @select="technician = availableTechnician"
                     >
-                        <Button variant="outline">
-                            <template v-if="technician">
-                                <Avatar class="h-7 w-7 shrink-0">
-                                    <AvatarImage
-                                        v-if="technician?.account?.avatar"
-                                        :src="technician.account.avatar"
-                                        :alt="technician.fullName"
-                                    />
-                                    <AvatarFallback>
-                                        {{ getInitials(technician?.fullName) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <span class="flex items-center justify-between gap-2 rounded-md text-xs">
-                                    {{ technician.fullName }}
-                                </span>
-                            </template>
-                            <span v-else class="font-normal text-muted-foreground">
-                                Select a technician
-                            </span>
-                            <ChevronsUpDown class="ml-auto h-4 w-4" />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent class="p-0 w-full" align="start">
-                        <Command>
-                            <CommandInput placeholder="Search a technician" />
-                            <CommandList>
-                                <CommandEmpty>No results found.</CommandEmpty>
-                                <CommandGroup>
-                                    <CommandItem
-                                        v-for="availableTechnician in technicians"
-                                        :key="availableTechnician.id"
-                                        :value="availableTechnician"
-                                        class="cursor-pointer"
-                                        @select="technician = availableTechnician"
-                                    >
-                                        <Avatar class="h-7 w-7 overflow-hidden rounded-full">
-                                            <AvatarImage
-                                                v-if="availableTechnician?.account?.avatar"
-                                                :src="availableTechnician.account.avatar"
-                                                :alt="availableTechnician.fullName"
-                                            />
-                                            <AvatarFallback class="rounded-full">
-                                                {{ getInitials(availableTechnician.fullName) }}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div class="grid flex-1 text-left text-[13px] leading-tight">
-                                            <span class="truncate">
-                                                {{ availableTechnician.fullName }}
-                                            </span>
-                                        </div>
-                                        <Check
-                                            :class="[
-                                            'ml-auto h-4 w-4',
-                                            availableTechnician === technician
-                                                ? 'opacity-100'
-                                                : 'opacity-0',
-                                            ]"
-                                        />
-                                    </CommandItem>
-                                </CommandGroup>
-                            </CommandList>
-                        </Command>
-                    </PopoverContent>
-                </Popover>
-                <InputError :message="errors?.technician_id" />           
-            </div>
-        </div>        
+                      <Avatar class="h-7 w-7 overflow-hidden rounded-full">
+                        <AvatarImage
+                          v-if="availableTechnician?.account?.avatar"
+                          :src="availableTechnician.account.avatar"
+                          :alt="availableTechnician.fullName"
+                        />
+                        <AvatarFallback class="rounded-full">
+                          {{ getInitials(availableTechnician.fullName) }}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div
+                        class="grid flex-1 text-left text-[13px] leading-tight"
+                      >
+                        <span class="truncate">
+                          {{ availableTechnician.fullName }}
+                        </span>
+                      </div>
+                      <Check
+                        :class="[
+                          'ml-auto h-4 w-4',
+                          availableTechnician === technician
+                            ? 'opacity-100'
+                            : 'opacity-0',
+                        ]"
+                      />
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <InputError :message="errors?.technician_id" />
+        </div>
+      </div>
     </div>
   </div>
 </template>

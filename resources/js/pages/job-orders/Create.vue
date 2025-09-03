@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, type BreadcrumbItem } from '@/types'
@@ -8,7 +9,6 @@ import { LoaderCircle } from 'lucide-vue-next'
 import { ref } from 'vue'
 import FirstSection from './components/JobOrderDetails.vue'
 import MachineDetails from './components/MachineDetails.vue'
-import { Separator } from '@/components/ui/separator'
 
 interface CreateProps {
   technicians: Employee[]
@@ -26,7 +26,7 @@ const form = useForm({
   contact_person: '',
   contact_no: '',
   status: 'for check up',
-  technician: null as any, 
+  technician: null as any,
   machine_type: '',
   model: '',
   serial_no: '',
@@ -51,7 +51,7 @@ const onSubmit = () => {
   const path = jobOrderRouteNames.find((j) => j.id === form.service_type)
 
   form.post(route(`job_order.${path?.route}.store`), {
-    onStart: () => form.clearErrors()
+    onStart: () => form.clearErrors(),
   })
 }
 
@@ -106,7 +106,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
               <Separator class="col-[1/-1] w-full" />
 
-              <div v-if="form.service_type === 'it_service'" class="col-[1/1]">
+              <div
+                v-if="form.service_type === 'it_service'"
+                class="col-[1/1]"
+              >
                 <MachineDetails
                   v-model:machine-type="form.machine_type"
                   v-model:machine-model="form.model"
@@ -116,7 +119,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                   :errors="form.errors"
                 />
               </div>
-          
+
               <div class="col-[1/-1] flex w-full items-center">
                 <div class="ml-auto space-x-3">
                   <Button

@@ -1,5 +1,4 @@
 import { correctionStatuses } from '@/constants/correction-statuses'
-import { ItServiceStatuses } from '@/constants/it-service-statuses'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import { userRoles } from '@/constants/user-role'

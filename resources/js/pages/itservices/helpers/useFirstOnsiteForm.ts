@@ -1,15 +1,15 @@
-import { useForm, router } from '@inertiajs/vue3'
+import { router, useForm } from '@inertiajs/vue3'
 import { ref, Ref } from 'vue'
 
 interface FormComponentInstance {
-  validateForm(): boolean;
-  isValidForm: boolean;
-  errors: { [key: string]: string };
-  showValidation: Ref<boolean>;
+  validateForm(): boolean
+  isValidForm: boolean
+  errors: { [key: string]: string }
+  showValidation: Ref<boolean>
 }
 
 export const useFirstOnsiteForm = (jobOrderId: number, serviceId: number) => {
-  const formComponent = ref<FormComponentInstance | null>(null);
+  const formComponent = ref<FormComponentInstance | null>(null)
 
   const form = useForm({
     onsite_type: 'initial',
@@ -24,18 +24,22 @@ export const useFirstOnsiteForm = (jobOrderId: number, serviceId: number) => {
   const submitForm = () => {
     if (formComponent.value?.validateForm) {
       const isValid = formComponent.value.validateForm()
-      
+
       if (!isValid) {
         setTimeout(() => {
-          const firstError = document.querySelector('.border-red-500') as HTMLElement
+          const firstError = document.querySelector(
+            '.border-red-500',
+          ) as HTMLElement
           if (firstError) {
-            firstError.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
+            firstError.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
             })
-            if (firstError.tagName === 'INPUT' || 
-                firstError.tagName === 'SELECT' || 
-                firstError.tagName === 'TEXTAREA') {
+            if (
+              firstError.tagName === 'INPUT' ||
+              firstError.tagName === 'SELECT' ||
+              firstError.tagName === 'TEXTAREA'
+            ) {
               firstError.focus()
             }
           }
@@ -57,15 +61,14 @@ export const useFirstOnsiteForm = (jobOrderId: number, serviceId: number) => {
           if (formComponent.value?.showValidation) {
             formComponent.value.showValidation.value = false
           }
-          
         },
-      }
+      },
     )
   }
 
-  return { 
-    form, 
+  return {
+    form,
     formComponent,
-    submitForm 
+    submitForm,
   }
 }

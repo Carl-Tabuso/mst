@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EmployeePopoverSelection from '@/components/EmployeePopoverSelection.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,7 +21,6 @@ import { getInitials } from '@/composables/useInitials'
 import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
-import EmployeePopoverSelection from '@/components/EmployeePopoverSelection.vue'
 import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
 interface HaulersSelectionProps {

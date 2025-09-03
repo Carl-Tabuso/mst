@@ -10,7 +10,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
-import { ItServiceStatuses, type ItServiceStatus } from '@/constants/it-service-statuses'
+import {
+  ItServiceStatuses,
+  type ItServiceStatus,
+} from '@/constants/it-service-statuses'
 import { router } from '@inertiajs/vue3'
 import { Calendar, Filter } from 'lucide-vue-next'
 import { DateValue } from 'reka-ui'
@@ -84,28 +87,55 @@ const sendFilterRequest = (filterValues: any, options: object) => {
 <template>
   <Popover>
     <PopoverTrigger as-child>
-      <Button variant="ghost" class="ml-1">
-        <Filter class="mr-2" :stroke-width="1" />
+      <Button
+        variant="ghost"
+        class="ml-1"
+      >
+        <Filter
+          class="mr-2"
+          :stroke-width="1"
+        />
         Filter
         <template v-if="selectedStatuses.size > 0">
           <div class="hidden lg:flex">
-            <Badge variant="secondary" class="rounded-full font-normal">
+            <Badge
+              variant="secondary"
+              class="rounded-full font-normal"
+            >
               {{ selectedStatuses.size }}
             </Badge>
           </div>
         </template>
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-full" align="start">
+    <PopoverContent
+      class="w-full"
+      align="start"
+    >
       <div class="mb-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">IT Service Status</div>
         <div class="grid grid-cols-2 gap-x-6 gap-y-4">
-          <div v-for="status in ItServiceStatuses" :key="status.id" class="flex items-center gap-x-2">
-            <Checkbox :id="status.id" :checked="selectedStatuses.has(status.id)" @update:checked="
-              (event) => handleStatusSelection(status.id, event)
-            " class="border-gray-400 dark:border-white" />
-            <Label :for="status.id" class="font-normal text-sm">
-              <Badge :variant="status.badge" class="text-xs">
+          <div
+            v-for="status in ItServiceStatuses"
+            :key="status.id"
+            class="flex items-center gap-x-2"
+          >
+            <Checkbox
+              :id="status.id"
+              :checked="selectedStatuses.has(status.id)"
+              @update:checked="
+                (event) => handleStatusSelection(status.id, event)
+              "
+              class="border-gray-400 dark:border-white"
+            />
+            <Label
+              :for="status.id"
+              class="text-sm font-normal"
+            >
+              <Badge
+                :variant="status.badge"
+                class="text-xs"
+              >
                 {{ status.label }}
               </Badge>
             </Label>
@@ -118,24 +148,27 @@ const sendFilterRequest = (filterValues: any, options: object) => {
         <div class="grid grid-cols-1 gap-4">
           <!--From-->
           <div class="flex items-center">
-            <span class="pr-4 text-sm min-w-[50px]"> From </span>
+            <span class="min-w-[50px] pr-4 text-sm"> From </span>
             <Popover>
               <PopoverTrigger as-child>
-                <Button variant="outline" :class="[
-                  'w-full ps-3 text-start font-normal',
-                  { 'text-muted-foreground': !fromDateOfServiceValue },
-                ]">
+                <Button
+                  variant="outline"
+                  :class="[
+                    'w-full ps-3 text-start font-normal',
+                    { 'text-muted-foreground': !fromDateOfServiceValue },
+                  ]"
+                >
                   <span>
                     {{
                       fromDateOfServiceValue
                         ? new Date(fromDateOfServiceValue).toLocaleDateString(
-                          'en-ph',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          },
-                        )
+                            'en-ph',
+                            {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            },
+                          )
                         : 'Pick start date'
                     }}
                   </span>
@@ -143,32 +176,38 @@ const sendFilterRequest = (filterValues: any, options: object) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-auto p-0">
-                <AppCalendar :model-value="props.value?.fromDateOfService" @update:model-value="
-                  (value) => handleFromDateOfServiceChange(value)
-                " />
+                <AppCalendar
+                  :model-value="props.value?.fromDateOfService"
+                  @update:model-value="
+                    (value) => handleFromDateOfServiceChange(value)
+                  "
+                />
               </PopoverContent>
             </Popover>
           </div>
           <!--To-->
           <div class="flex items-center">
-            <span class="pr-4 text-sm min-w-[50px]"> To </span>
+            <span class="min-w-[50px] pr-4 text-sm"> To </span>
             <Popover>
               <PopoverTrigger as-child>
-                <Button variant="outline" :class="[
-                  'w-full ps-3 text-start font-normal',
-                  { 'text-muted-foreground': !toDateOfServiceValue },
-                ]">
+                <Button
+                  variant="outline"
+                  :class="[
+                    'w-full ps-3 text-start font-normal',
+                    { 'text-muted-foreground': !toDateOfServiceValue },
+                  ]"
+                >
                   <span>
                     {{
                       toDateOfServiceValue
                         ? new Date(toDateOfServiceValue).toLocaleDateString(
-                          'en-ph',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          },
-                        )
+                            'en-ph',
+                            {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            },
+                          )
                         : 'Pick end date'
                     }}
                   </span>
@@ -176,17 +215,30 @@ const sendFilterRequest = (filterValues: any, options: object) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-auto p-0">
-                <AppCalendar :model-value="props.value?.toDateOfService" @update:model-value="
-                  (value) => handleToDateOfServiceChange(value)
-                " />
+                <AppCalendar
+                  :model-value="props.value?.toDateOfService"
+                  @update:model-value="
+                    (value) => handleToDateOfServiceChange(value)
+                  "
+                />
               </PopoverContent>
             </Popover>
           </div>
         </div>
       </div>
       <div class="flex items-center justify-end space-x-2 pt-4">
-        <Button @click="clearFilters" variant="outline" size="sm">Clear Filters</Button>
-        <Button @click="applyFilters" variant="default" size="sm">Apply Filters</Button>
+        <Button
+          @click="clearFilters"
+          variant="outline"
+          size="sm"
+          >Clear Filters</Button
+        >
+        <Button
+          @click="applyFilters"
+          variant="default"
+          size="sm"
+          >Apply Filters</Button
+        >
       </div>
     </PopoverContent>
   </Popover>

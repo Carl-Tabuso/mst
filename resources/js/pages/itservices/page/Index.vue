@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import JobOrderDataTable from '@/components/main-job-orders/DataTable.vue'
-import Button from '@/components/ui/button/Button.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
-import { Link } from '@inertiajs/vue3'
-import { Plus } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
-import { columns } from '../types/columns'
 import JobOrderServiceTypeTabs from '@/pages/job-orders/components/JobOrderServiceTypeTabs.vue'
 import PageHeader from '@/pages/job-orders/components/PageHeader.vue'
+import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
+import { ref, watch } from 'vue'
+import { columns } from '../types/columns'
 
 const props = defineProps<{
   jobOrders: { data: JobOrder[]; meta: EloquentCollection }
@@ -40,21 +37,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
   <Head title="IT Services" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
-            <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
-              <PageHeader
-                title="IT Service List"
-                sub-title="You can manage the list of recent IT service job orders here!"
-              />
-              <JobOrderServiceTypeTabs />
-              <JobOrderDataTable
-                  :columns="columns"
-                  :data="data"
-                  :meta="meta"
-                  route-name="job_order.it_service.index"
-              />
-            </div>
-        </div>
-    </AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
+        <PageHeader
+          title="IT Service List"
+          sub-title="You can manage the list of recent IT service job orders here!"
+        />
+        <JobOrderServiceTypeTabs />
+        <JobOrderDataTable
+          :columns="columns"
+          :data="data"
+          :meta="meta"
+          route-name="job_order.it_service.index"
+        />
+      </div>
+    </div>
+  </AppLayout>
 </template>

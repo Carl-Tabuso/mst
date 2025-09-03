@@ -7,7 +7,13 @@ import { useWasteManagementStages } from '@/composables/useWasteManagementStages
 import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
-import { Form4, JobOrder, SharedData, Truck, type BreadcrumbItem } from '@/types'
+import {
+  Form4,
+  JobOrder,
+  SharedData,
+  Truck,
+  type BreadcrumbItem,
+} from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
 import { computed, onMounted, provide, readonly, ref, watch } from 'vue'
