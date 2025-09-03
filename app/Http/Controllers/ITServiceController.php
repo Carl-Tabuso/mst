@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreITServiceRequest;
+use App\Models\Employee;
 use App\Models\ITService;
 use App\Models\JobOrder;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -95,8 +97,23 @@ class ITServiceController extends Controller
         return redirect()->route('job_order.it_service.index');
     }
 
-    public function update()
+    public function edit(JobOrder $jobOrder)
     {
-        //
+        $data = $jobOrder->load([
+            'creator'     => ['account'],
+            'serviceable' => [
+                'technician',
+                'initialOnsiteReport',
+                'finalOnsiteReport',
+            ],
+        ])->toResource();
+
+        $technicians = Employee::query()
+            ->with('account')
+            ->where('position_id', Position::firstWhere(['name' => 'Technician'])->id)
+            ->get()
+            ->toResourceCollection();
+
+        return Inertia::render('itservices/page/Edit', compact('data', 'technicians'));
     }
 }

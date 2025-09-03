@@ -13,6 +13,10 @@ class TechnicianSeeder extends Seeder
 {
     public function run(): void
     {
+        activity()->disableLogging();
+
+        DB::disableQueryLog();
+
         DB::transaction(function () {
             $employees = Employee::factory(5)->create([
                 'position_id' => Position::firstWhere(['name' => 'Technician'])->id,
@@ -26,5 +30,7 @@ class TechnicianSeeder extends Seeder
                 $user->assignRole(UserRole::Regular);
             });
         });
+
+        DB::enableQueryLog();
     }
 }

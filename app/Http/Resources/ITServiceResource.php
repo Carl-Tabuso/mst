@@ -21,6 +21,7 @@ class ITServiceResource extends JsonResource
             'jobOrder'            => JobOrderResource::make($this->whenLoaded('jobOrder')),
             'initialOnsiteReport' => InitialOnsiteReportResource::make($this->whenLoaded('initialOnsiteReport')),
             'finalOnsiteReport'   => FinalOnsiteReportResource::make($this->whenLoaded('finalOnsiteReport')),
+            'technician'          => EmployeeResource::make($this->whenLoaded('technician')),
         ];
     }
 }

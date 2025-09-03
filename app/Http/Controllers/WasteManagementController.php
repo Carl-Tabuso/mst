@@ -37,7 +37,7 @@ class WasteManagementController extends Controller
     public function store(StoreWasteManagementRequest $request): RedirectResponse
     {
         $validated = $request->safe()->merge([
-            'created_by' => $request->user()->id,
+            'created_by' => $request->user()->employee_id,
         ])->toArray();
 
         $data = $this->service->storeWasteManagement($validated);

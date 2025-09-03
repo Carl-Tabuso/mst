@@ -155,6 +155,11 @@ class JobOrder extends Model
         ];
     }
 
+    public function markAsCompleted()
+    {
+        $this->update(['status' => JobOrderStatus::Completed]);
+    }
+
     public function serviceable(): MorphTo
     {
         return $this->morphTo();

@@ -32,38 +32,6 @@ class JobOrderResource extends JsonResource
             'corrections'           => JobOrderCorrectionResource::collection($this->whenLoaded('corrections')),
             'cancel'                => CancelledJobOrderResource::make($this->whenLoaded('cancel')),
             'serviceable'           => $this->whenLoaded('serviceable', fn () => $this->serviceable->toResource()),
-            // 'itServiceStatus' => $this->whenLoaded('serviceable', function () {
-            //     if ($this->serviceable instanceof \App\Models\ITService) {
-            //         return $this->serviceable->status;
-            //     }
-
-            //     return null;
-            // }),
-            // 'itServiceStatusLabel' => $this->whenLoaded('serviceable', function () {
-            //     if ($this->serviceable instanceof \App\Models\ITService  && $this->serviceable->status instanceof \App\Enums\ITServiceStatus) {
-            //         return $this->serviceable->status->getLabel();
-            //     }
-            //     return null;
-            // }),
-            // 'serviceable' => $this->whenLoaded('serviceable', function () {
-            //     $serviceable = $this->serviceable;
-
-            //     return array_merge(
-            //         $serviceable->asResource()->toArray(request()),
-            //         [
-            //             'status' => [
-            //                 'value' => $serviceable?->status->value ?? null,
-            //             ],
-            //             'reportInitial' => $serviceable instanceof \App\Models\ITService
-            //                 ? $serviceable->reports()->where('onsite_type', 'initial')->latest()->first()
-            //                 : null,
-            //             'reportFinal' => $serviceable instanceof \App\Models\ITService
-            //                 ? $serviceable->reports()->where('onsite_type', 'final')->latest()->first()
-            //                 : null,
-            //         ]
-            //     );
-            // }),
-
         ];
     }
 }

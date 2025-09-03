@@ -21,8 +21,8 @@ return new class extends Migration
             $table->longText('service_performed');
             $table->longText('recommendation');
             $table->string('machine_status');
-            $table->string('file_name');
-            $table->string('file_hash');
+            $table->string('file_name')->nullable();
+            $table->string('file_hash')->nullable();
             $table->timestamps();
         });
     }

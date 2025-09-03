@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { JobOrder } from '@/types'
+import { Link } from '@inertiajs/vue3'
 import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { h } from 'vue'
@@ -15,7 +16,7 @@ declare module '@tanstack/vue-table' {
   }
 }
 
-const { statusMap } = useJobOrderDicts()
+const { statusMap, routeMap } = useJobOrderDicts()
 
 export const columns: ColumnDef<JobOrder>[] = [
   {
@@ -43,26 +44,19 @@ export const columns: ColumnDef<JobOrder>[] = [
     meta: { label: 'Ticket' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
+      const serviceType = row.original.serviceableType
       return h(
-        'div',
+        Link,
         {
+          href: route(
+            `job_order.${routeMap[serviceType]}.edit`,
+            row.getValue('ticket'),
+          ),
           class:
             'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
         },
-        row.getValue('ticket'),
+        () => row.getValue('ticket'),
       )
-      // return h(
-      //     Link,
-      //     {
-      //     href: route(
-      //         `job_order.${routeMap[serviceType]}.edit`,
-      //         row.getValue('ticket'),
-      //     ),
-      //     class:
-      //         'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
-      //     },
-      //     () => row.getValue('ticket'),
-      // )
     },
     enableHiding: false,
   },

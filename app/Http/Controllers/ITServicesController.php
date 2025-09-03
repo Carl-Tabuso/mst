@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ITServiceStatus;
-use App\Enums\JobOrderStatus;
 use App\Enums\MachineStatus;
 use App\Models\Employee;
 use App\Models\ITService;
@@ -15,144 +13,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class ITServicesController extends Controller
 {
-    public function index(Request $request): Response
-    {
-        $perPage = $request->input('per_page', 10);
-
-        $search = "%{$request->input('search')}%";
-
-        $filters = null;
-
-        if ($request->has('filters')) {
-            $filters = (object) $request->array('filters');
-        }
-
-        $hasItServiceStatuses = isset($filters->itServiceStatuses) && count($filters->itServiceStatuses) > 0;
-
-        $hasDateOfServiceRange =
-        isset($filters->fromDateOfService, $filters->toDateOfService) &&
-        $filters?->fromDateOfService                                  && $filters?->toDateOfService;
-
-        $jobOrders = JobOrder::query()
-            ->where('serviceable_type', 'it_service')
-            ->when($hasItServiceStatuses, function ($q) use ($filters) {
-                $q->whereHasMorph('serviceable', [ITService::class], function ($itServiceQuery) use ($filters) {
-                    $itServiceQuery->byStatus($filters->itServiceStatuses);
-                });
-            })
-            ->when($hasDateOfServiceRange, fn ($q) => $q->whereBetween('date_time', [
-                Carbon::parse($filters->fromDateOfService)->startOfDay(),
-                Carbon::parse($filters->toDateOfService)->endOfDay(),
-            ]))
-            ->when($search, fn ($q) => $q->where(function ($sq) use ($search) {
-                $sq->whereLike('client', $search)
-                    ->orWhereLike('address', $search)
-                    ->orWhereLike('contact_no', $search)
-                    ->orWhereLike('contact_person', $search)
-                    ->orWhereHas('creator', fn ($subQuery) => $subQuery->whereLike('first_name', $search)
-                        ->orWhereLike('middle_name', $search)
-                        ->orWhereLike('last_name', $search)
-                        ->orWhereLike('suffix', $search));
-            }))
-            ->with([
-                'creator',
-                'serviceable' => [
-                    'reports',
-                ],
-                // 'serviceable.reports'
-            ])
-            ->latest()
-            ->paginate($perPage)
-            ->withQueryString()
-            ->toResourceCollection();
-
-        return Inertia::render('itservices/page/Index', compact('jobOrders'));
-    }
-
-    public function createInitial()
-    {
-        $employee = auth()->user()->employee()->with('position')->first();
-
-        if (! in_array(strtolower($employee->position->name ?? ''), ['frontliner', 'dispatcher'])) {
-            abort(403, 'Unauthorized');
-        }
-
-        $technicians = Employee::whereHas('position', fn ($q) => $q->where('name', 'Technician'))
-            ->get(['id', 'first_name', 'middle_name', 'last_name', 'suffix']);
-
-        $machineTypes = ['Printer', 'Laptop', 'Desktop', 'Server', 'Other'];
-
-        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
-            'value' => $status->value,
-            'label' => $status->getLabel(),
-        ])->values();
-
-        return Inertia::render('itservices/page/Form', [
-            'technicians'     => $technicians,
-            'machineTypes'    => $machineTypes,
-            'machineStatuses' => $machineStatuses,
-        ]);
-    }
-
-    public function storeInitial(Request $request)
-    {
-        $validated = $request->validate([
-            'client'          => 'required|string|max:255',
-            'address'         => 'required|string|max:255',
-            'department'      => 'required|string|max:255',
-            'contact_no'      => 'required|string|max:255',
-            'contact_person'  => 'required|string|max:255',
-            'date'            => 'required|date',
-            'time'            => 'required',
-            'technician_id'   => 'required|exists:employees,id',
-            'machine_type'    => 'required|string|max:255',
-            'model'           => 'required|string|max:255',
-            'serial_no'       => 'required|string|max:255',
-            'tag_no'          => 'required|string|max:255',
-            'machine_problem' => 'nullable|string',
-        ]);
-
-        $dateTime = $validated['date'].' '.$validated['time'];
-
-        $itServiceStatus = ITServiceStatus::ForCheckUp;
-
-        $itService = ITService::create([
-            'technician_id'   => $validated['technician_id'],
-            'machine_type'    => $validated['machine_type'],
-            'model'           => $validated['model'],
-            'serial_no'       => $validated['serial_no'],
-            'tag_no'          => $validated['tag_no'],
-            'machine_problem' => $validated['machine_problem'] ?? null,
-            'status'          => $itServiceStatus,
-        ]);
-
-        $jobOrderStatus = match ($itServiceStatus) {
-            ITServiceStatus::ForCheckUp      => JobOrderStatus::InProgress,
-            ITServiceStatus::ForFinalService => JobOrderStatus::InProgress,
-            ITServiceStatus::Completed       => JobOrderStatus::Completed,
-        };
-
-        $jobOrder = new JobOrder([
-            'client'         => $validated['client'],
-            'address'        => $validated['address'],
-            'department'     => $validated['department'],
-            'contact_no'     => $validated['contact_no'],
-            'contact_person' => $validated['contact_person'],
-            'date_time'      => $dateTime,
-            'status'         => $jobOrderStatus->value,
-            'created_by'     => auth()->id(),
-        ]);
-
-        $jobOrder->serviceable()->associate($itService);
-        $jobOrder->save();
-
-        return redirect()->route('job_order.it_service.index')->with('success', 'IT Service created successfully!');
-    }
-
     public function editInitial(JobOrder $jobOrder)
     {
         $employee = auth()->user()->employee()->with('position')->first();
@@ -215,59 +78,6 @@ class ITServicesController extends Controller
             'jobOrder'  => $jobOrder,
             'itService' => $itService,
         ]);
-    }
-
-    public function createFirstOnsite(Request $request, JobOrder $jobOrder)
-    {
-        $itService = ITService::findOrFail($request->service_id);
-
-        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
-            'label' => $status->getLabel(),
-            'value' => $status->value,
-        ]);
-
-        return Inertia::render('itservices/page/FirstOnsiteForm', [
-            'jobOrderId'      => $jobOrder->id,
-            'serviceId'       => $itService->id,
-            'jobOrderNumber'  => $jobOrder->job_order_no,
-            'machineStatuses' => $machineStatuses,
-        ]);
-    }
-
-    public function storeFirstOnsite(Request $request)
-    {
-
-        Log::info('Request data:', $request->all());
-
-        if ($request->hasFile('attached_file')) {
-            Log::info('File info:', [
-                'name' => $request->file('attached_file')->getClientOriginalName(),
-                'size' => $request->file('attached_file')->getSize(),
-            ]);
-        }
-
-        $validated = $request->validate([
-            'job_order_id'      => 'required|exists:job_orders,id',
-            'it_service_id'     => 'required|exists:it_services,id',
-            'onsite_type'       => 'required|in:initial',
-            'service_performed' => 'required|string',
-            'recommendation'    => 'required|string',
-            'machine_status'    => 'required|string',
-            'attached_file'     => 'nullable|file|mimes:pdf,jpg,png,doc,docx|max:5120',
-        ]);
-
-        if ($request->hasFile('attached_file')) {
-            $validated['attached_file'] = $request->file('attached_file')->store('it_service_reports', 'private');
-        }
-
-        ITServiceReport::create($validated);
-
-        $itService = ITService::findOrFail($validated['it_service_id']);
-        $itService->update([
-            'status' => ITServiceStatus::ForFinalService,
-        ]);
-
-        return redirect()->route('job_order.it_service.index')->with('success', 'First Onsite Report submitted!');
     }
 
     public function editFirstOnsite(JobOrder $jobOrder, $reportId)
@@ -491,52 +301,6 @@ class ITServicesController extends Controller
         $jobOrderNo = $jobOrder->job_order_no ?? 'Unknown';
 
         return "{$reportType}_Report_{$jobOrderNo}.{$extension}";
-    }
-
-    public function createLastOnsite(Request $request, JobOrder $jobOrder)
-    {
-        $itService = ITService::findOrFail($request->service_id);
-
-        $machineStatuses = collect(MachineStatus::cases())->map(fn ($status) => [
-            'label' => $status->getLabel(),
-            'value' => $status->value,
-        ]);
-
-        return Inertia::render('itservices/page/LastOnsiteForm', [
-            'jobOrderId'      => $jobOrder->id,
-            'serviceId'       => $itService->id,
-            'machineStatuses' => $machineStatuses,
-        ]);
-    }
-
-    public function storeLastOnsite(Request $request)
-    {
-        $validated = $request->validate([
-            'job_order_id'         => 'required|exists:job_orders,id',
-            'it_service_id'        => 'required|exists:it_services,id',
-            'onsite_type'          => 'required|in:final',
-            'service_performed'    => 'required|string',
-            'parts_replaced'       => 'required|string',
-            'final_remark'         => 'required|string',
-            'final_machine_status' => 'required|string',
-
-        ]);
-
-        logger()->info('Final Onsite:', [
-            'job_order_id'  => $request->input('job_order_id'),
-            'it_service_id' => $request->input('it_service_id'),
-        ]);
-
-        ITServiceReport::create($validated);
-
-        $itService = ITService::findOrFail($validated['it_service_id']);
-        $itService->update([
-            'status' => ITServiceStatus::Completed,
-        ]);
-
-        return redirect()
-            ->route('job_order.it_service.index')
-            ->with('success', 'Final Onsite Report submitted successfully!');
     }
 
     public function editLastOnsite(JobOrder $jobOrder)

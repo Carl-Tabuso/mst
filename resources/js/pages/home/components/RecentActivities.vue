@@ -30,9 +30,7 @@ defineProps<RecentActivitiesProps>()
       </div>
     </CardHeader>
     <Separator />
-    <CardContent
-      class="my-2 max-h-[403px] divide-y divide-border overflow-y-auto"
-    >
+    <CardContent class="my-2 h-[403px] divide-y divide-border overflow-y-auto">
       <div
         v-for="activity in data"
         :key="activity.id"

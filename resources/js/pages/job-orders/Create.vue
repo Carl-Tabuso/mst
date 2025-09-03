@@ -7,7 +7,7 @@ import { Employee, type BreadcrumbItem } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
 import { ref } from 'vue'
-import FirstSection from './components/JobOrderDetails.vue'
+import JobOrderDetails from './components/JobOrderDetails.vue'
 import MachineDetails from './components/MachineDetails.vue'
 
 interface CreateProps {
@@ -75,19 +75,19 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Create Job Order" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="m-3">
-      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+    <div class="mt-3">
+      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl px-6">
         <div class="mb-3 flex items-center">
           <div class="flex flex-col">
-            <!-- <h3 class="mb-8 scroll-m-20 text-3xl font-semibold tracking-tight">
-              Add Job Order
-            </h3> -->
+            <h3 class="mb-8 scroll-m-20 text-3xl font-semibold tracking-tight">
+              Create Job Order
+            </h3>
             <form
               @submit.prevent="onSubmit"
               class="grid grid-cols-[auto,1fr] gap-y-6"
             >
               <div>
-                <FirstSection
+                <JobOrderDetails
                   is-editing
                   v-model:serviceType="form.service_type"
                   v-model:serviceDate="form.date_time"
@@ -103,13 +103,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                   :errors="form.errors"
                 />
               </div>
-
-              <Separator class="col-[1/-1] w-full" />
-
               <div
                 v-if="form.service_type === 'it_service'"
                 class="col-[1/1]"
               >
+                <Separator class="mb-3" />
                 <MachineDetails
                   v-model:machine-type="form.machine_type"
                   v-model:machine-model="form.model"

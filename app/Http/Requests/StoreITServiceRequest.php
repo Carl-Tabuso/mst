@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\JobOrderServiceType;
 use App\Models\Employee;
+use App\Models\JobOrder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -11,7 +12,7 @@ class StoreITServiceRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', JobOrder::class);
     }
 
     public function rules(): array

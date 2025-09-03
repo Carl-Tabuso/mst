@@ -2,6 +2,7 @@ import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { HaulingStatusType } from '@/constants/hauling-statuses'
 import { ItServiceStatus } from '@/constants/it-service-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { MachineStatusType } from '@/constants/machine-statuses'
 import { UserRoleType } from '@/constants/user-role'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
@@ -113,7 +114,33 @@ export interface ITService {
   serialNo: string | number
   tagNo: string | number
   machineProblem: string
-  jobOrder: JobOrder
+  jobOrder?: JobOrder
+  initialOnsiteReport?: InitialOnsiteReport
+  finalOnsiteReport?: FinalOnsiteReport
+  technician?: Employee
+}
+
+export interface InitialOnsiteReport {
+  id: number
+  servicePerformed: string
+  recommendation: string
+  machineStatus: MachineStatusType
+  fileName: string | null
+  fileHashed: string | null
+  createdAt: string
+  updatedAt: string
+  itService: ITService
+}
+
+export interface FinalOnsiteReport {
+  id: number
+  servicePerformed: string
+  partsReplaced: string
+  remarks: string
+  machineStatus: MachineStatusType
+  createdAt: string
+  updatedAt: string
+  itService: ITService
 }
 
 export interface Form4 {

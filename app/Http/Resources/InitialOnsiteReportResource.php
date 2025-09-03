@@ -16,6 +16,8 @@ class InitialOnsiteReportResource extends JsonResource
             'machineStatus'    => $this->machine_status,
             'fileName'         => $this->file_name,
             'fileHashed'       => $this->file_hashed,
+            'createdAt'        => $this->created_at,
+            'updatedAt'        => $this->updated_at,
             'itService'        => ITServiceResource::make($this->whenLoaded('itService')),
         ];
     }

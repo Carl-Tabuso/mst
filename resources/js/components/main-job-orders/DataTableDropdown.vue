@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -8,8 +7,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { JobOrder } from '@/types'
-import { MoreVertical } from 'lucide-vue-next'
 import { router } from '@inertiajs/vue3'
+import { MoreVertical } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 const props = defineProps<{ jobOrder: JobOrder }>()
 
@@ -38,10 +38,10 @@ const actions = computed(() => {
 })
 
 function handleAction(action: string) {
-  const jobOrderId = props.jobOrder.id;
-  const serviceableId = props.jobOrder.serviceableId;
-  const status = props.jobOrder.status;
-  const reportInitialId = props.jobOrder.serviceable?.reportInitial?.id;
+  const jobOrderId = props.jobOrder.id
+  const serviceableId = props.jobOrder.serviceableId
+  const status = props.jobOrder.status
+  const reportInitialId = props.jobOrder.serviceable?.reportInitial?.id
 
   switch (action) {
     // case 'View':
@@ -58,40 +58,54 @@ function handleAction(action: string) {
 
     case 'Edit Request':
       if (status === 'for check up') {
-        router.visit(`/job-orders/it-services/${jobOrderId}/edit`);
+        router.visit(`/job-orders/it-services/${jobOrderId}/edit`)
       } else if (status === 'for final service') {
-        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/initial/${reportInitialId}/edit`);
+        router.visit(
+          `/job-orders/it-services/${jobOrderId}/onsite/initial/${reportInitialId}/edit`,
+        )
       } else if (status === 'completed') {
-        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final/edit`);
+        router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final/edit`)
       } else {
-        router.visit(`/job-orders/it-services/${jobOrderId}/edit`);
+        router.visit(`/job-orders/it-services/${jobOrderId}/edit`)
       }
-      break;
+      break
 
     case 'Proceed to First Onsite':
-      router.visit(route('job_order.it_service.onsite.create', {
-        itService: props.jobOrder.serviceableId,
-      }));
-      break;
+      router.visit(
+        route('job_order.it_service.onsite.initial.create', {
+          iTService: props.jobOrder.serviceableId,
+        }),
+      )
+      break
 
     case 'Proceed to Final Onsite':
-      router.visit(`/job-orders/it-services/${jobOrderId}/onsite/final?service_id=${serviceableId}`);
-      break;
+      router.visit(
+        route('job_order.it_service.onsite.final.create', {
+          iTService: props.jobOrder.serviceableId,
+        }),
+      )
+      break
   }
 }
-
 </script>
 
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" class="h-8 w-8 p-0">
+      <Button
+        variant="ghost"
+        class="h-8 w-8 p-0"
+      >
         <span class="sr-only">Open menu</span>
         <MoreVertical class="h-4 w-4" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem v-for="action in actions" :key="action" @click="handleAction(action)">
+      <DropdownMenuItem
+        v-for="action in actions"
+        :key="action"
+        @click="handleAction(action)"
+      >
         {{ action }}
       </DropdownMenuItem>
     </DropdownMenuContent>
