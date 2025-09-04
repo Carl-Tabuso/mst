@@ -259,7 +259,6 @@ const handleDateOfServiceChange = (value: any) => {
             <Popover>
               <PopoverTrigger
                 as-child
-                class="w-[400px]"
                 :disabled="!isEditing"
                 :class="{
                   'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':

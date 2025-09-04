@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import AppLayout from '@/layouts/AppLayout.vue'
+import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
+import CorrectionReason from '@/pages/job-orders/components/CorrectionReason.vue'
 import JobOrderDetails from '@/pages/job-orders/components/JobOrderDetails.vue'
 import MachineDetails from '@/pages/job-orders/components/MachineDetails.vue'
+import RequestCorrectionButton from '@/pages/job-orders/components/RequestCorrectionButton.vue'
 import TicketHeader from '@/pages/job-orders/components/TicketHeader.vue'
 import { BreadcrumbItem, Employee, ITService, JobOrder } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { format } from 'date-fns'
 import { LoaderCircle } from 'lucide-vue-next'
 import { ref } from 'vue'
+import FinalOnsiteDetails from '../components/FinalOnsiteDetails.vue'
 import InitialOnsiteDetails from '../components/InitialOnsiteDetails.vue'
 
 interface ShowProps {
   data: Omit<JobOrder, 'serviceable'> & { serviceable: ITService }
-  technicians: Employee[]
+  regulars: Employee[]
 }
 
 const props = defineProps<ShowProps>()
@@ -54,27 +59,49 @@ const form = useForm({
   remarks: props.data.serviceable?.finalOnsiteReport?.remarks,
   final_machine_status:
     props.data.serviceable?.finalOnsiteReport?.machineStatus,
+  reason: '',
 })
+
+const isEditing = ref<boolean>(false)
 
 const onSubmit = () => {
   //
 }
 
+const { statusMap } = useJobOrderDicts()
+
+const forFinalService = (props.data.status = statusMap['for final service'].id)
+const completed = (props.data.status = statusMap['completed'].id)
+
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Job Order',
+    title: 'Job Orders',
     href: '/job-orders',
+  },
+  {
+    title: 'IT Services',
+    href: '/job-orders/it-services',
+  },
+  {
+    title: props.data.ticket,
+    href: '#',
   },
 ]
 </script>
 
 <template>
-  <Head title="" />
+  <Head :title="data.ticket" />
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
       <div class="border-b border-border bg-background shadow-sm">
         <div class="mb-3 flex flex-row items-center justify-between">
           <TicketHeader :job-order="data" />
+          <div class="flex h-8 flex-row items-center gap-2">
+            <div class="flex gap-5">
+              <RequestCorrectionButton v-model:is-editing="isEditing" />
+              <ArchiveJobOrder :job-order="data" />
+            </div>
+          </div>
         </div>
       </div>
       <div class="mt-4">
@@ -86,6 +113,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           <div>
             <JobOrderDetails
               is-service-type-disabled
+              :is-editing="isEditing"
               v-model:service-type="data.serviceableType"
               v-model:service-date="form.date_time"
               v-model:service-time="form.time"
@@ -96,13 +124,14 @@ const breadcrumbs: BreadcrumbItem[] = [
               v-model:contact-person="form.contact_person"
               v-model:contact-number="form.contact_no"
               v-model:technician="technician"
-              :technicians="technicians"
+              :technicians="regulars"
               :errors="form.errors"
             />
           </div>
           <div>
             <Separator class="mb-3" />
             <MachineDetails
+              :is-editing="isEditing"
               v-model:machine-type="form.machine_type"
               v-model:machine-model="form.model"
               v-model:serial-number="form.serial_no"
@@ -111,14 +140,33 @@ const breadcrumbs: BreadcrumbItem[] = [
               :errors="form.errors"
             />
           </div>
-          <div>
+          <div v-if="forFinalService || completed">
             <Separator class="mb-3" />
             <InitialOnsiteDetails
+              :is-editing="isEditing"
               v-model:service-performed="form.initial_service_performed"
               v-model:machine-status="form.initial_machine_status"
               v-model:recommendation="form.recommendation"
               v-model:report-file="form.report_file"
               :errors="form.errors"
+            />
+          </div>
+          <div v-if="completed">
+            <Separator class="mb-3" />
+            <FinalOnsiteDetails
+              :is-editing="isEditing"
+              v-model:service-performed="form.final_service_performed"
+              v-model:parts-replaced="form.parts_replaced"
+              v-model:remarks="form.remarks"
+              v-model:machine-status="form.final_machine_status"
+              :errors="form.errors"
+            />
+          </div>
+          <div v-show="isEditing">
+            <Separator class="mb-3" />
+            <CorrectionReason
+              v-model:reason="form.reason"
+              :error="form.errors?.reason"
             />
           </div>
           <div class="col-span-2 flex flex-row items-center justify-end gap-3">

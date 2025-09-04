@@ -1,6 +1,5 @@
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { HaulingStatusType } from '@/constants/hauling-statuses'
-import { ItServiceStatus } from '@/constants/it-service-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { MachineStatusType } from '@/constants/machine-statuses'
 import { UserRoleType } from '@/constants/user-role'
@@ -50,7 +49,6 @@ export interface NavItem {
 
 export interface SharedData extends PageProps {
   name: string
-  quote: { message: string; author: string }
   auth: Auth
   ziggy: Config & { location: string }
   flash: { message: any }
@@ -107,7 +105,6 @@ export interface JobOrder {
 
 export interface ITService {
   id: number
-  status: ItServiceStatus
   technicianId: number
   machineType: string
   model: string

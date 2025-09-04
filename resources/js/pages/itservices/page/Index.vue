@@ -4,23 +4,11 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import JobOrderServiceTypeTabs from '@/pages/job-orders/components/JobOrderServiceTypeTabs.vue'
 import PageHeader from '@/pages/job-orders/components/PageHeader.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
-import { ref, watch } from 'vue'
 import { columns } from '../types/columns'
 
-const props = defineProps<{
+defineProps<{
   jobOrders: { data: JobOrder[]; meta: EloquentCollection }
 }>()
-
-const data = ref<JobOrder[]>(props.jobOrders.data)
-const meta = ref(props.jobOrders.meta)
-
-watch(
-  () => props.jobOrders,
-  (update) => {
-    data.value = update.data
-    meta.value = update.meta
-  },
-)
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -47,8 +35,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         <JobOrderServiceTypeTabs />
         <JobOrderDataTable
           :columns="columns"
-          :data="data"
-          :meta="meta"
+          :data="jobOrders.data"
+          :meta="jobOrders.meta"
           route-name="job_order.it_service.index"
         />
       </div>

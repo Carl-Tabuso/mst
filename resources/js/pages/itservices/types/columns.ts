@@ -99,7 +99,7 @@ export const columns: ColumnDef<JobOrder>[] = [
       const status: JobOrderStatus = row.getValue('status')
       return h(
         Badge,
-        { variant: statusMap[status].badge ?? 'default', class: 'truncate' },
+        { variant: statusMap[status].badge },
         () => statusMap[status].label,
       )
     },

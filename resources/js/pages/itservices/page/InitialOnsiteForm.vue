@@ -57,48 +57,38 @@ const breadcrumbs: BreadcrumbItem[] = [
           <TicketHeader :job-order="iTService.jobOrder" />
         </div>
       </div>
-      <div class="mt-4">
-        <div class="mb-6">
-          <div>
-            <div class="text-xl font-semibold leading-6 text-foreground">
-              First Onsite Visit
-            </div>
-            <p class="text-sm text-muted-foreground">
-              The initial onsite report details.
-            </p>
-          </div>
+      <form
+        @submit.prevent="onSubmit"
+        enctype="multipart/form-data"
+        class="mt-4"
+      >
+        <InitialOnsiteDetails
+          is-editing
+          v-model:service-performed="form.service_performed"
+          v-model:recommendation="form.recommendation"
+          v-model:machine-status="form.machine_status"
+          v-model:report-file="form.report_file"
+          :errors="form.errors"
+        />
+        <div class="col-span-2 flex flex-row items-center justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            :disabled="form.processing"
+          >
+            <LoaderCircle
+              v-if="form.processing"
+              class="animate-spin"
+            />
+            Submit Report
+          </Button>
         </div>
-        <form
-          @submit.prevent="onSubmit"
-          enctype="multipart/form-data"
-        >
-          <InitialOnsiteDetails
-            v-model:service-performed="form.service_performed"
-            v-model:recommendation="form.recommendation"
-            v-model:machine-status="form.machine_status"
-            v-model:report-file="form.report_file"
-            :errors="form.errors"
-          />
-          <div class="col-span-2 flex flex-row items-center justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              :disabled="form.processing"
-            >
-              <LoaderCircle
-                v-if="form.processing"
-                class="animate-spin"
-              />
-              Submit Report
-            </Button>
-          </div>
-        </form>
-      </div>
+      </form>
     </div>
   </AppLayout>
 </template>

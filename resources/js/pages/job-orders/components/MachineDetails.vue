@@ -13,9 +13,12 @@ import { Textarea } from '@/components/ui/textarea'
 
 interface MachineDetailsProps {
   errors?: any
+  isEditing?: boolean
 }
 
-defineProps<MachineDetailsProps>()
+withDefaults(defineProps<MachineDetailsProps>(), {
+  isEditing: false,
+})
 
 const machineType = defineModel<string>('machineType')
 const machineModel = defineModel<string>('machineModel')
@@ -45,6 +48,7 @@ const machineProblem = defineModel<string>('machineProblem')
             <Select v-model="machineType">
               <SelectTrigger
                 id="machineType"
+                :disabled="!isEditing"
                 :class="{
                   'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                     errors?.machine_type,
@@ -83,6 +87,7 @@ const machineProblem = defineModel<string>('machineProblem')
               id="machineModel"
               type="text"
               placeholder="Enter machine model"
+              :disabled="!isEditing"
               :class="{
                 'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                   errors?.model,
@@ -106,6 +111,7 @@ const machineProblem = defineModel<string>('machineProblem')
               id="serialNumber"
               type="text"
               placeholder="Enter machine serial number"
+              :disabled="!isEditing"
               :class="{
                 'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                   errors?.serial_no,
@@ -127,6 +133,7 @@ const machineProblem = defineModel<string>('machineProblem')
               id="tagNumber"
               type="text"
               placeholder="Enter machine tag number"
+              :disabled="!isEditing"
               :class="{
                 'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                   errors?.tag_no,
@@ -147,6 +154,7 @@ const machineProblem = defineModel<string>('machineProblem')
             <Textarea
               id="problem"
               placeholder="Describe the machine problem"
+              :disabled="!isEditing"
               :class="[
                 'w-full',
                 {

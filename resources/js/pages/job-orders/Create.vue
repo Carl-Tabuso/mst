@@ -11,7 +11,7 @@ import JobOrderDetails from './components/JobOrderDetails.vue'
 import MachineDetails from './components/MachineDetails.vue'
 
 interface CreateProps {
-  technicians: Employee[]
+  regulars: Employee[]
 }
 
 defineProps<CreateProps>()
@@ -99,7 +99,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                   v-model:contactPerson="form.contact_person"
                   v-model:contactNumber="form.contact_no"
                   v-model:technician="form.technician"
-                  :technicians="technicians"
+                  :technicians="regulars"
                   :errors="form.errors"
                 />
               </div>
@@ -109,6 +109,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               >
                 <Separator class="mb-3" />
                 <MachineDetails
+                  is-editing
                   v-model:machine-type="form.machine_type"
                   v-model:machine-model="form.model"
                   v-model:serial-number="form.serial_no"

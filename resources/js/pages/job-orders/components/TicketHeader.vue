@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { getInitials } from '@/composables/useInitials'
-import { JobOrderStatuses } from '@/constants/job-order-statuses'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { JobOrder } from '@/types'
 import { compareDesc, format } from 'date-fns'
 import { Calendar } from 'lucide-vue-next'
@@ -24,11 +24,9 @@ interface TicketHeaderProps {
 
 const props = defineProps<TicketHeaderProps>()
 
-const jobOrderStatus = computed(() => {
-  return JobOrderStatuses.find((status) => {
-    return props.jobOrder.status === status.id
-  })
-})
+const { statusMap } = useJobOrderDicts()
+
+const status = statusMap[props.jobOrder.status]
 
 const createdAt = computed(() => new Date(props.jobOrder.createdAt))
 const updatedAt = computed(() => new Date(props.jobOrder.updatedAt))
@@ -54,10 +52,10 @@ const isJobOrderUpdated = computed(() => {
             class="rounded-full p-1"
           >
             <Badge
-              :variant="jobOrderStatus?.badge"
+              :variant="status.badge"
               class="overflow-hidden truncate text-ellipsis"
             >
-              {{ jobOrderStatus?.label }}
+              {{ status.label }}
             </Badge>
           </Button>
         </DialogTrigger>
@@ -65,7 +63,7 @@ const isJobOrderUpdated = computed(() => {
           <DialogHeader>
             <DialogTitle>
               <span class="font-bold text-destructive">
-                {{ jobOrderStatus?.label }}
+                {{ status.label }}
               </span>
             </DialogTitle>
             <DialogDescription>
@@ -84,10 +82,10 @@ const isJobOrderUpdated = computed(() => {
       </Dialog>
       <template v-else>
         <Badge
-          :variant="jobOrderStatus?.badge"
+          :variant="status.badge"
           class="overflow-hidden truncate text-ellipsis"
         >
-          {{ jobOrderStatus?.label }}
+          {{ status.label }}
         </Badge>
       </template>
     </div>

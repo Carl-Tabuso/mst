@@ -14,9 +14,12 @@ import { machineStatuses } from '@/constants/machine-statuses'
 
 interface InitialOnsiteFormProps {
   errors: any
+  isEditing?: boolean
 }
 
-defineProps<InitialOnsiteFormProps>()
+withDefaults(defineProps<InitialOnsiteFormProps>(), {
+  isEditing: false,
+})
 
 const servicePerformed = defineModel<string>('servicePerformed')
 const recommendation = defineModel<string>('recommendation')
@@ -50,6 +53,7 @@ const reportFile = defineModel<any>('reportFile')
               id="servicesPerformed"
               v-model="servicePerformed"
               placeholder="Describe the services performed in detail"
+              :disabled="!isEditing"
               :class="{
                 'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                   errors.service_performed,
@@ -71,6 +75,7 @@ const reportFile = defineModel<any>('reportFile')
             id="recommendation"
             v-model="recommendation"
             placeholder="Provide technician's recommendation"
+            :disabled="!isEditing"
             :class="{
               'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                 errors.recommendation,
@@ -90,6 +95,7 @@ const reportFile = defineModel<any>('reportFile')
           <div class="flex w-full flex-col gap-1">
             <Input
               type="file"
+              :disabled="!isEditing"
               :class="{
                 'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                   errors.report_file,
@@ -118,6 +124,7 @@ const reportFile = defineModel<any>('reportFile')
             <Select v-model="machineStatus">
               <SelectTrigger
                 id="machineStatus"
+                :disabled="!isEditing"
                 :class="{
                   'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
                     errors.machine_status,
