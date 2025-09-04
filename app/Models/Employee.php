@@ -85,7 +85,7 @@ class Employee extends Model
             Form3Hauling::class,
             'form3_haulers',
             'hauler',
-            'form3_id'
+            'form3_hauling_id'
         );
     }
 

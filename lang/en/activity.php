@@ -1,6 +1,11 @@
 <?php
 
 return [
+
+    'archive' => [
+        'accessed' => ':causer accessed the archive page showing :total archived job orders',
+    ],
+
     'job_order' => [
         'created'  => ':causer created a new job order of ticket :ticket.',
         'updated'  => ':causer updated the job order information of ticket :ticket.',

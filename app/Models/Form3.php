@@ -44,4 +44,42 @@ class Form3 extends Model
     {
         return $this->hasMany(Form3Hauling::class);
     }
+    public function haulers()
+    {
+        return $this->belongsToMany(
+            Employee::class,
+            'form3_haulers',
+            'form3_hauling_id',
+            'hauler'           
+        );
+    }
+
+    public function assignedPersonnel()
+{
+    return $this->hasOne(Form3AssignedPersonnel::class, 'form3_hauling_id');
+}
+
+public function teamLeader()
+{
+    return $this->hasOneThrough(
+        Employee::class,
+        Form3AssignedPersonnel::class,
+        'form3_hauling_id', // FK on form3_assigned_personnels
+        'id',               // PK on employees
+        'id',               // local key on form3
+        'team_leader'       // FK column in form3_assigned_personnels
+    );
+}
+
+public function driver()
+{
+    return $this->hasOneThrough(
+        Employee::class,
+        Form3AssignedPersonnel::class,
+        'form3_hauling_id',
+        'id',
+        'id',
+        'team_driver'
+    );
+}
 }

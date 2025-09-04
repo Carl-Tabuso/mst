@@ -127,6 +127,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/archives', [ArchiveController::class, 'index'])->name('archives.index');
     Route::post('/archives/restore', [ArchiveController::class, 'restore'])->name('archives.restore');
     Route::post('/archives/force-delete', [ArchiveController::class, 'forceDelete'])->name('archives.force-delete');
+    Route::get('/archives/export', [App\Http\Controllers\ArchiveController::class, 'export'])->name('archives.export');
 
     /*
     |--------------------------------------------------------------------------
