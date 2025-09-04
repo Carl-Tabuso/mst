@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
-import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
+import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
 import CreatorAndTimestamp from '@/pages/job-orders/components/CreatorAndTimestamp.vue'
 import DataTableHeader from '@/pages/job-orders/components/DataTableHeader.vue'
 import { JobOrder } from '@/types'
@@ -130,7 +130,7 @@ export const columns: ColumnDef<JobOrder>[] = [
   },
   {
     id: 'archive',
-    cell: ({ row }) => h(ArchiveColumn, { jobOrder: row.original }),
+    cell: ({ row }) => h(ArchiveJobOrder, { jobOrder: row.original }),
     enableHiding: false,
   },
 ]

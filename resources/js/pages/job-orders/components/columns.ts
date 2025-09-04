@@ -7,7 +7,7 @@ import { Link } from '@inertiajs/vue3'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
 import { h } from 'vue'
-import ArchiveColumn from './ArchiveColumn.vue'
+import ArchiveJobOrder from './ArchiveJobOrder.vue'
 import CreatorAndTimestamp from './CreatorAndTimestamp.vue'
 import DataTableHeader from './DataTableHeader.vue'
 
@@ -170,7 +170,7 @@ export const columns: ColumnDef<JobOrder>[] = [
   },
   {
     id: 'archive',
-    cell: ({ row }) => h(ArchiveColumn, { jobOrder: row.original }),
+    cell: ({ row }) => h(ArchiveJobOrder, { jobOrder: row.original }),
     enableHiding: false,
   },
 ]
