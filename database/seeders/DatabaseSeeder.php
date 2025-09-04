@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
             Form3HaulingChecklistSeeder::class,
             Form3AssignedPersonnelSeeder::class,
             Form5Seeder::class,
-            TechnicianSeeder::class,
             ITServiceSeeder::class,
             IncidentSeeder::class,
             DroppedJobOrderSeeder::class,
