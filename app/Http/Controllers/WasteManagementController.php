@@ -42,13 +42,9 @@ class WasteManagementController extends Controller
 
         $data = $this->service->storeWasteManagement($validated);
 
-        [$title, $description] = explode('|', __('responses.job_order.create', [
-            'ticket' => $data->ticket,
-        ]));
-
         return redirect()->route('job_order.waste_management.edit', [
             'ticket' => $data->ticket,
-        ])->with(['message' => compact('title', 'description')]);
+        ]);
     }
 
     public function edit(JobOrder $ticket): Response

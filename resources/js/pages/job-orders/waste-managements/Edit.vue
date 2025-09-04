@@ -6,7 +6,7 @@ import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
-import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
+import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
 import {
   Form4,
   JobOrder,
@@ -15,10 +15,11 @@ import {
   type BreadcrumbItem,
 } from '@/types'
 import { router, useForm, usePage } from '@inertiajs/vue3'
-import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
-import { computed, onMounted, provide, readonly, ref, watch } from 'vue'
+import { LoaderCircle } from 'lucide-vue-next'
+import { computed, provide, readonly, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { GroupedEmployeesByAccountRole } from '.'
+import RequestCorrectionButton from '../components/RequestCorrectionButton.vue'
 import TicketHeader from '../components/TicketHeader.vue'
 import CorrectionRequestBanner from './components/CorrectionRequestBanner.vue'
 import FifthSection from './components/sections/FifthSection.vue'
@@ -174,17 +175,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const page = usePage<SharedData>()
 
-onMounted(() => {
-  const message = page.props.flash.message
-
-  if (message) {
-    toast.success(message.title, {
-      description: message.description,
-      position: 'top-center',
-    })
-  }
-})
-
 const unapprovedCorrections = computed(() => {
   return props.data.corrections?.find((correction) => !correction.approvedAt)
 })
@@ -232,24 +222,9 @@ const isNotHeadFrontliner = computed(() => {
                 v-if="!unapprovedCorrections"
                 class="flex gap-5"
               >
-                <Button
-                  v-show="!isEditing"
-                  variant="outline"
-                  @click="() => (isEditing = !isEditing)"
-                >
-                  <Pencil class="mr-2" />
-                  Request Correction
-                </Button>
-                <Button
-                  v-show="isEditing"
-                  variant="outline"
-                  @click="() => (isEditing = !isEditing)"
-                >
-                  <X class="mr-2" />
-                  Cancel Correction
-                </Button>
+                <RequestCorrectionButton v-model:is-editing="isEditing" />
               </div>
-              <ArchiveColumn :jobOrder="data" />
+              <ArchiveJobOrder :jobOrder="data" />
             </div>
           </div>
         </div>
