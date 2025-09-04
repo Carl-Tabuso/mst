@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import {
-  ItServiceStatuses,
-  type ItServiceStatus,
-} from '@/constants/it-service-statuses'
+  JobOrderStatus,
+  JobOrderStatuses,
+} from '@/constants/job-order-statuses'
 import { router } from '@inertiajs/vue3'
 import { Calendar, Filter } from 'lucide-vue-next'
 import { DateValue } from 'reka-ui'
@@ -24,7 +24,7 @@ const { routeName } = defineProps<{
 }>()
 
 interface DataTableFacetedFilterProps {
-  itServiceStatuses: ItServiceStatus[]
+  itServiceStatuses: JobOrderStatus[]
   fromDateOfService: string
   toDateOfService: string
 }
@@ -34,6 +34,15 @@ const props = ref<DataTableFacetedFilterProps>({
   fromDateOfService: '',
   toDateOfService: '',
 }) as Ref
+
+const iTServiceStatuses: Array<JobOrderStatus> = [
+  'for check up',
+  'for final service',
+  'completed',
+]
+const validStatuses = JobOrderStatuses.filter((status) =>
+  iTServiceStatuses.includes(status.id),
+)
 
 const selectedStatuses = computed(() => new Set(props.value.itServiceStatuses))
 const fromDateOfServiceValue = computed(() => props.value.fromDateOfService)
@@ -116,7 +125,7 @@ const sendFilterRequest = (filterValues: any, options: object) => {
         <div class="text-sm font-semibold leading-none">IT Service Status</div>
         <div class="grid grid-cols-2 gap-x-6 gap-y-4">
           <div
-            v-for="status in ItServiceStatuses"
+            v-for="status in validStatuses"
             :key="status.id"
             class="flex items-center gap-x-2"
           >

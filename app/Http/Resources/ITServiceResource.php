@@ -11,7 +11,6 @@ class ITServiceResource extends JsonResource
     {
         return [
             'id'                  => $this->id,
-            'status'              => $this->status,
             'technicianId'        => $this->technician_id,
             'machineType'         => $this->machine_type,
             'model'               => $this->model,
