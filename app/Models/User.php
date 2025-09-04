@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'employee_id',
         'email',
         'password',
+        'avatar', // Add avatar to fillable
     ];
 
     protected $hidden = [
@@ -35,11 +37,18 @@ class User extends Authenticatable
         'password'          => 'hashed',
     ];
 
+    protected $appends = ['avatar_url'];
+
     protected $guard_name = 'web';
 
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class)->withTrashed();
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar ? Storage::url($this->avatar) : null;
     }
 
     public function getActivitylogOptions(): LogOptions

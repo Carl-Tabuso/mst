@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -38,7 +37,7 @@ class Employee extends Model
     public function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => implode(' ',
+            get: fn(mixed $value, array $attributes) => implode(' ',
                 array_filter([
                     $attributes['first_name'],
                     $attributes['middle_name'],
@@ -85,7 +84,7 @@ class Employee extends Model
             Form3Hauling::class,
             'form3_haulers',
             'hauler',
-            'form3_id'
+            'form3_hauling_id'
         );
     }
 
@@ -95,7 +94,7 @@ class Employee extends Model
             ITService::class,
             'it_services_technicians',
             'technicians',
-            'i_t_service_id'
+            'it_service_id'
         );
     }
 
@@ -143,4 +142,34 @@ class Employee extends Model
     {
         return $this->hasMany(TeamLeaderPerformance::class, 'evaluatee_id');
     }
+
+    public function getAvatarUrlAttribute()
+    {
+        if (!$this->account || !$this->account->avatar) {
+            return null;
+        }
+
+        return route('employees.profile.avatar', $this->id);
+    }
+
+    public function assignedPersonnelAsTeamLeader(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'team_leader');
+    }
+
+    public function assignedPersonnelAsDriver(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'team_driver');
+    }
+
+    public function assignedPersonnelAsSafetyOfficer(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'safety_officer');
+    }
+
+    public function assignedPersonnelAsMechanic(): HasMany
+    {
+        return $this->hasMany(Form3AssignedPersonnel::class, 'team_mechanic');
+    }
+    
 }

@@ -18,34 +18,32 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { getInitials } = useInitials()
 
-// Compute whether we should show the avatar image
-const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '')
+const avatarSrc = computed(() => props.user.avatar_url || props.user.avatar || '')
+
+const fallbackInitials = computed(() =>
+  getInitials(props.user.employee?.full_name || props.user.email || 'User')
+)
+
+const fullName = computed(() => props.user.employee?.full_name || props.user.email || 'User')
 </script>
 
 <template>
-  <Avatar class="h-8 w-8 overflow-hidden">
-    <AvatarImage
-      v-if="showAvatar"
-      :src="user.avatar"
-      :alt="user.employee.full_name"
-    />
-    <AvatarFallback class="text-black dark:text-white">
-      {{ getInitials(user.employee.full_name) }}
-    </AvatarFallback>
-  </Avatar>
+  <div class="flex items-center gap-2">
+    <Avatar class="h-8 w-8 overflow-hidden rounded-full">
+      <AvatarImage v-if="avatarSrc" :src="avatarSrc" :alt="fullName" />
+      <AvatarFallback class="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+        {{ fallbackInitials }}
+      </AvatarFallback>
+    </Avatar>
 
-  <div class="grid flex-1 text-left text-sm leading-tight">
-    <span class="truncate font-medium">{{ user.employee.full_name }}</span>
-    <span
-      v-if="showEmail"
-      class="truncate text-xs text-muted-foreground"
-      >{{ user.email }}</span
-    >
-    <div
-      v-if="showRole"
-      class="text truncate text-muted-foreground"
-    >
-      <UserRoleBadge use-auth-user />
+    <div class="grid flex-1 text-left text-sm leading-tight">
+      <span class="truncate font-medium">{{ fullName }}</span>
+      <span v-if="showEmail" class="truncate text-xs text-muted-foreground">
+        {{ user.email }}
+      </span>
+      <div v-if="showRole" class="truncate text-muted-foreground">
+        <UserRoleBadge use-auth-user />
+      </div>
     </div>
   </div>
 </template>
