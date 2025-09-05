@@ -6,6 +6,7 @@ use App\Enums\ActivityLogName;
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\UpdateJobOrderRequest;
 use App\Models\JobOrder;
+use App\Services\EmployeeService;
 use App\Services\JobOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ class JobOrderController extends Controller
 {
     private const PER_PAGE = 10;
 
-    public function __construct(private JobOrderService $service) {}
+    public function __construct(private JobOrderService $service,
+    private EmployeeService $employeeService) {}
 
     public function index(Request $request): Response
     {
@@ -38,7 +40,10 @@ class JobOrderController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('job-orders/Create');
+           $employees = $this->employeeService->getEmployeesForDropdown();
+       return Inertia::render('job-orders/Create', [
+            'employees' => $employees
+        ]);
     }
 
     public function update(UpdateJobOrderRequest $request, JobOrder $jobOrder): RedirectResponse
