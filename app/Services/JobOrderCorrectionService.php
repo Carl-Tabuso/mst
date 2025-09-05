@@ -13,9 +13,11 @@ use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
+use Illuminate\Support\Facades\Storage;
 
 class JobOrderCorrectionService
 {
@@ -56,35 +58,122 @@ class JobOrderCorrectionService
             'contact_no'       => $validated->contact_no,
         ]);
 
+        match ($jobOrder->serviceable_type) {
+            JobOrderServiceType::Form4     => $this->storeWasteManagement($jobOrder, $validated),
+            JobOrderServiceType::ITService => $this->storeITService($jobOrder, $validated),
+        };
+    }
+
+    private function storeWasteManagement(JobOrder $jobOrder, object $data)
+    {
         $updateableModels = [$jobOrder];
 
         if ($this->canUpdateProposal($jobOrder->status)) {
             $jobOrder->serviceable->fill([
-                'payment_date' => Carbon::parse($validated->payment_date),
-                'or_number'    => $validated->or_number,
-                'bid_bond'     => $validated->bid_bond,
+                'payment_date' => Carbon::parse($data->payment_date),
+                'or_number'    => $data->or_number,
+                'bid_bond'     => $data->bid_bond,
             ]);
 
             $jobOrder->serviceable->form3->fill([
-                'payment_type'  => $validated->payment_type,
-                'approved_date' => Carbon::parse($validated->approved_date),
+                'payment_type'  => $data->payment_type,
+                'approved_date' => Carbon::parse($data->approved_date),
             ]);
 
             array_push($updateableModels, $jobOrder->serviceable, $jobOrder->serviceable->form3);
         }
 
-        $data = [];
-
+        $mappedData = [];
         foreach ($updateableModels as $model) {
             foreach ($model->getDirty() as $key => $value) {
-                $data['properties']['before'][$key] = $model->getOriginal($key);
-                $data['properties']['after'][$key]  = $value;
+                $mappedData['properties']['before'][$key] = $model->getOriginal($key);
+                $mappedData['properties']['after'][$key]  = $value;
             }
         }
 
-        $data['reason'] = $validated->reason;
+        $mappedData['reason'] = $data->reason;
 
-        $jobOrder->corrections()->create($data);
+        $jobOrder->corrections()->create($mappedData);
+    }
+
+    private function storeITService(JobOrder $jobOrder, object $data)
+    {
+        $jobOrder->serviceable->fill([
+            'machine_type'    => $data->machine_type,
+            'model'           => $data->model,
+            'technician_id'   => $data->technician,
+            'serial_no'       => $data->serial_no,
+            'tag_no'          => $data->tag_no,
+            'machine_problem' => $data?->machine_problem,
+        ]);
+
+        $updateableModels = [
+            $jobOrder,
+            $jobOrder->serviceable,
+        ];
+
+        $forFinalService = $jobOrder->status === JobOrderStatus::ForFinalService;
+        $completed       = $jobOrder->status === JobOrderStatus::Completed;
+
+        if ($forFinalService || $completed) {
+            $initialOnsite = $jobOrder->serviceable->initialOnsiteReport;
+
+            $attributes = [
+                'service_performed' => $data->initial_service_performed,
+                'recommendation'    => $data->recommendation,
+                'machine_status'    => $data->initial_machine_status,
+                ...(! is_string($data->report_file) ? [
+                    'file_name' => $data?->report_file?->getClientOriginalName(),
+                    'file_hash' => $data?->report_file?->hashName(),
+                ] : []),
+            ];
+
+            $initialOnsite->fill($attributes);
+
+            $updateableModels[] = $initialOnsite;
+        }
+
+        if ($completed) {
+            $finalOnsite = $jobOrder->serviceable->finalOnsiteReport;
+
+            $finalOnsite->fill([
+                'service_performed' => $data->final_service_performed,
+                'parts_replaced'    => $data->parts_replaced,
+                'remarks'           => $data->remarks,
+                'machine_status'    => $data->machine_status,
+            ]);
+
+            $updateableModels[] = $finalOnsite;
+        }
+
+        $mappedData            = [];
+        $conflictingAttributes = ['service_performed', 'machine_status'];
+        foreach ($updateableModels as $model) {
+            foreach ($model->getDirty() as $key => $value) {
+                if (in_array($key, $conflictingAttributes)) {
+                    $alias = $model->getMorphClass();
+                    $key   = "{$alias}.{$key}";
+                }
+
+                $mappedData['properties']['before'][$key] = $model->getOriginal($key);
+                $mappedData['properties']['after'][$key]  = $value;
+            }
+        }
+
+        $mappedData['reason'] = $data->reason;
+
+        // dd($data->report_file);
+
+        $jobOrder->corrections()->create($mappedData);
+
+        if ($data?->report_file instanceof UploadedFile) {
+            Storage::put('it_services/temp', $data->report_file);
+        }
+
+        // dd(
+        //     $updateableModels,
+        //     $mappedData,
+        // );
     }
 
     public function updateJobOrderCorrection(array $data, JobOrderCorrection $correction)
@@ -105,8 +194,8 @@ class JobOrderCorrectionService
 
             match ($serviceType) {
                 JobOrderServiceType::Form4     => $this->updateWasteManagement($newValues, $correction->jobOrder),
-                JobOrderServiceType::ITService => $this->updateItService($newValues),
-                JobOrderServiceType::Form5     => $this->updateOtherService($newValues),
+                JobOrderServiceType::ITService => $this->updateItService($newValues, $correction->jobOrder),
+                JobOrderServiceType::Form5     => $this->updateOtherService($newValues, $correction->jobOrder),
             };
 
             $correction->approved_at = now();
@@ -150,12 +239,12 @@ class JobOrderCorrectionService
         return in_array($status, JobOrderStatus::getCanRequestCorrectionStages());
     }
 
-    private function updateItService(array $data)
+    private function updateItService(array $data, JobOrder $jobOrder)
     {
         //
     }
 
-    private function updateOtherService(array $data)
+    private function updateOtherService(array $data, JobOrder $jobOrder)
     {
         //
     }

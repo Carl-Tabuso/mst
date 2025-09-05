@@ -123,7 +123,7 @@ export interface InitialOnsiteReport {
   recommendation: string
   machineStatus: MachineStatusType
   fileName: string | null
-  fileHashed: string | null
+  fileHash: string | null
   createdAt: string
   updatedAt: string
   itService: ITService

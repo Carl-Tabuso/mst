@@ -61,7 +61,7 @@ const breadcrumbs: BreadcrumbItem[] = [
       <form
         @submit.prevent="onSubmit"
         enctype="multipart/form-data"
-        class="mt-4"
+        class="mt-4 space-y-6"
       >
         <InitialOnsiteDetails
           is-editing

@@ -83,14 +83,15 @@ class ITServiceController extends Controller
             ]);
 
             $jobOrder = new JobOrder([
-                'client'         => $validated->client,
-                'address'        => $validated->address,
-                'department'     => $validated->department,
-                'contact_no'     => $validated->contact_no,
-                'contact_person' => $validated->contact_person,
-                'date_time'      => $validated->date_time,
-                'status'         => JobOrderStatus::ForCheckup,
-                'created_by'     => $validated->created_by,
+                'client'           => $validated->client,
+                'address'          => $validated->address,
+                'department'       => $validated->department,
+                'contact_no'       => $validated->contact_no,
+                'contact_position' => $validated?->contact_position,
+                'contact_person'   => $validated->contact_person,
+                'date_time'        => $validated->date_time,
+                'status'           => JobOrderStatus::ForCheckup,
+                'created_by'       => $validated->created_by,
             ]);
 
             $jobOrder->serviceable()->associate($itService);
@@ -103,6 +104,7 @@ class ITServiceController extends Controller
     public function edit(JobOrder $jobOrder): Response
     {
         $data = $jobOrder->load([
+            'corrections',
             'creator'     => ['account'],
             'serviceable' => [
                 'technician',
@@ -110,7 +112,7 @@ class ITServiceController extends Controller
                 'finalOnsiteReport',
             ],
         ])->toResource();
-        // dd($data);
+
         $regulars = Employee::query()
             ->with('account.roles')
             ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Regular))

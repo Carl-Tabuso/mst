@@ -48,11 +48,32 @@ class JobOrderCorrectionController extends Controller
             'jobOrder' => [
                 'creator' => ['account:avatar'],
                 'cancel',
-                'serviceable' => ['form3'],
             ],
         ]);
 
-        $subFolder = match ($correction->jobOrder->serviceable_type) {
+        $serviceType = $correction->jobOrder->serviceable_type;
+
+        if ($serviceType === JobOrderServiceType::Form4) {
+            $correction->loadMissing([
+                'jobOrder' => [
+                    'serviceable' => ['form3'],
+                ],
+            ]);
+        }
+
+        if ($serviceType === JobOrderServiceType::ITService) {
+            $correction->loadMissing([
+                'jobOrder' => [
+                    'serviceable' => [
+                        'technician',
+                        'initialOnsiteReport',
+                        'finalOnsiteReport',
+                    ],
+                ],
+            ]);
+        }
+
+        $subFolder = match ($serviceType) {
             JobOrderServiceType::Form4     => 'waste-managements',
             JobOrderServiceType::ITService => 'it-services',
             JobOrderServiceType::Form5     => 'other-services',
