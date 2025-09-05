@@ -11,7 +11,9 @@ interface PageHeaderProps {
 
 defineProps<PageHeaderProps>()
 
-const { can } = usePermissions()
+const { cannot } = usePermissions()
+
+const cannotCreateJobOrder = cannot('create:job_order')
 </script>
 
 <template>
@@ -24,19 +26,19 @@ const { can } = usePermissions()
         {{ subTitle }}
       </p>
     </div>
-    <div
-      v-if="can('create:job_order')"
+    <Link
+      :href="route('job_order.create')"
+      preserve-state
       class="ml-auto"
+      :class="{ 'pointer-events-none': cannotCreateJobOrder }"
     >
-      <Link
-        :href="route('job_order.create')"
-        preserve-state
+      <Button
+        variant="default"
+        :disabled="cannotCreateJobOrder"
       >
-        <Button variant="default">
-          <Plus class="mr-2" />
-          Create Job Order
-        </Button>
-      </Link>
-    </div>
+        <Plus class="mr-2" />
+        Create Job Order
+      </Button>
+    </Link>
   </div>
 </template>
