@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useCorrections } from '@/composables/useCorrections'
@@ -188,7 +189,7 @@ const isNotHeadFrontliner = computed(() => {
   <Head :title="data.ticket" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div
         :class="[
           'sticky top-0 z-10 border-b border-border bg-background shadow-sm',
@@ -339,6 +340,6 @@ const isNotHeadFrontliner = computed(() => {
           </div>
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

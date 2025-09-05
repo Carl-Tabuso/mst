@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import { Badge } from '@/components/ui/badge'
 import AppLayout from '@/layouts/AppLayout.vue'
 import {
@@ -52,7 +53,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
   <Head title="Truck Inventory" />
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex flex-row items-center justify-between">
         <div class="flex flex-col">
           <h3 class="scroll-m-20 text-3xl font-bold text-primary">
@@ -101,6 +102,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

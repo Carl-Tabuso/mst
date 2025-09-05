@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import { Button } from '@/components/ui/button'
 import AppLayout from '@/layouts/AppLayout.vue'
 import TicketHeader from '@/pages/job-orders/components/TicketHeader.vue'
@@ -51,7 +52,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
   <Head :title="iTService.jobOrder.ticket" />
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="border-b border-border bg-background shadow-sm">
         <div class="mb-3 flex flex-row items-center justify-between">
           <TicketHeader :job-order="iTService.jobOrder" />
@@ -89,6 +90,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           </Button>
         </div>
       </form>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

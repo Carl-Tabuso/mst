@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import JobOrderDataTable from '@/components/main-job-orders/DataTable.vue'
+import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import JobOrderServiceTypeTabs from '@/pages/job-orders/components/JobOrderServiceTypeTabs.vue'
 import PageHeader from '@/pages/job-orders/components/PageHeader.vue'
@@ -26,7 +27,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="IT Services" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
         <PageHeader
           title="IT Service List"
@@ -40,6 +41,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           route-name="job_order.it_service.index"
         />
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>
