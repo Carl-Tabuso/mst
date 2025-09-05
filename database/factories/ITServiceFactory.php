@@ -13,12 +13,8 @@ class ITServiceFactory extends Factory
 
     public function definition(): array
     {
-        $technician = Employee::whereHas('position', fn ($q) => $q->where('name', 'Technician'))
-            ->inRandomOrder()
-            ->first();
-
         return [
-            'technician_id'   => $technician?->id,
+            'technician_id'   => Employee::inRandomOrder()->first()->id ?? Employee::factory(),
             'machine_type'    => $this->faker->randomElement(['Printer', 'Laptop', 'Desktop']),
             'model'           => $this->faker->bothify('Model-###'),
             'serial_no'       => strtoupper(Str::random(10)),
