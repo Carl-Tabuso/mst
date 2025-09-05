@@ -42,28 +42,31 @@ class JobOrderCorrectionController extends Controller
         return back()->with(['message' => __('responses.correction')]);
     }
 
-    public function show(JobOrderCorrection $correction)
-    {
-        $correction->load([
-            'jobOrder' => [
-                'creator' => ['account:avatar'],
-                'cancel',
-                'serviceable' => ['form3'],
-            ],
-        ]);
-
-        $subFolder = match ($correction->jobOrder->serviceable_type) {
-            JobOrderServiceType::Form4     => 'waste-managements',
-            JobOrderServiceType::ITService => 'it-services',
-            JobOrderServiceType::Form5     => 'other-services',
-        };
-
-        $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
-
-        return Inertia::render($component, [
-            'data' => JobOrderCorrectionResource::make($correction),
-        ]);
+public function show(JobOrderCorrection $correction)
+{
+    $correction->load(['jobOrder' => function ($query) {
+        $query->with(['creator' => ['account:avatar'], 'cancel', 'serviceable']);
+    }]);
+    
+    $serviceable = $correction->jobOrder->serviceable;
+    
+    if ($correction->jobOrder->serviceable_type === JobOrderServiceType::Form4 && 
+        method_exists($serviceable, 'form3')) {
+        $serviceable->load('form3');
     }
+
+    $subFolder = match ($correction->jobOrder->serviceable_type) {
+        JobOrderServiceType::Form4     => 'waste-managements',
+        JobOrderServiceType::ITService => 'it-services',
+        JobOrderServiceType::Form5     => 'other-services',
+    };
+
+    $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
+
+    return Inertia::render($component, [
+        'data' => JobOrderCorrectionResource::make($correction),
+    ]);
+}
 
     public function update(UpdateJobOrderCorrectionRequest $request, JobOrderCorrection $correction): RedirectResponse
     {
