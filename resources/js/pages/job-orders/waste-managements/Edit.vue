@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import CorrectionRequestBanner from '@/components/CorrectionRequestBanner.vue'
 import MainContainer from '@/components/MainContainer.vue'
+import StickyPageHeader from '@/components/StickyPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useCorrections } from '@/composables/useCorrections'
@@ -8,21 +10,14 @@ import { useWasteManagementStages } from '@/composables/useWasteManagementStages
 import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
-import {
-  Form4,
-  JobOrder,
-  SharedData,
-  Truck,
-  type BreadcrumbItem,
-} from '@/types'
-import { router, useForm, usePage } from '@inertiajs/vue3'
+import { BreadcrumbItem, Form4, JobOrder, Truck } from '@/types'
+import { router, useForm } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
 import { computed, provide, readonly, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { GroupedEmployeesByAccountRole } from '.'
 import RequestCorrectionButton from '../components/RequestCorrectionButton.vue'
 import TicketHeader from '../components/TicketHeader.vue'
-import CorrectionRequestBanner from './components/CorrectionRequestBanner.vue'
 import FifthSection from './components/sections/FifthSection.vue'
 import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
@@ -174,14 +169,8 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-const page = usePage<SharedData>()
-
 const unapprovedCorrections = computed(() => {
   return props.data.corrections?.find((correction) => !correction.approvedAt)
-})
-
-const isNotHeadFrontliner = computed(() => {
-  return page.props.auth.user.roles[0].name !== 'head frontliner'
 })
 </script>
 
@@ -190,14 +179,7 @@ const isNotHeadFrontliner = computed(() => {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
-      <div
-        :class="[
-          'sticky top-0 z-10 border-b border-border bg-background shadow-sm',
-          {
-            'top-[57px]': isNotHeadFrontliner,
-          },
-        ]"
-      >
+      <StickyPageHeader>
         <CorrectionRequestBanner :correction="unapprovedCorrections" />
         <div class="mb-3 flex items-center justify-between">
           <TicketHeader :job-order="data" />
@@ -229,7 +211,7 @@ const isNotHeadFrontliner = computed(() => {
             </div>
           </div>
         </div>
-      </div>
+      </StickyPageHeader>
       <div class="my-4 flex flex-col gap-4 rounded-xl">
         <div class="mb-3 flex items-center">
           <div class="flex w-full flex-col">

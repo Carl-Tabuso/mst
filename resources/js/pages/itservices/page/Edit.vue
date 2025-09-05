@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import CorrectionRequestBanner from '@/components/CorrectionRequestBanner.vue'
+import MainContainer from '@/components/MainContainer.vue'
+import StickyPageHeader from '@/components/StickyPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { formatToDateTime } from '@/composables/useDateFormatter'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
+import { usePermissions } from '@/composables/usePermissions'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
 import CorrectionReason from '@/pages/job-orders/components/CorrectionReason.vue'
@@ -13,23 +18,22 @@ import { BreadcrumbItem, Employee, ITService, JobOrder } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { format } from 'date-fns'
 import { LoaderCircle } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import FinalOnsiteDetails from '../components/FinalOnsiteDetails.vue'
 import InitialOnsiteDetails from '../components/InitialOnsiteDetails.vue'
 
-interface ShowProps {
+interface EditProps {
   data: Omit<JobOrder, 'serviceable'> & { serviceable: ITService }
   regulars: Employee[]
 }
 
-const props = defineProps<ShowProps>()
-console.log(props.data)
-
-const serviceDate = new Date(props.data.dateTime)
+const props = defineProps<EditProps>()
 
 const technician = ref<Employee | null>(
   props.data.serviceable?.technician ?? null,
 )
+
+const serviceDate = new Date(props.data.dateTime)
 
 const form = useForm({
   service_type: props.data.serviceableType,
@@ -65,13 +69,27 @@ const form = useForm({
 const isEditing = ref<boolean>(false)
 
 const onSubmit = () => {
-  //
+  form
+    .transform((data) => ({
+      ...data,
+      date_time: formatToDateTime(data.date_time, data.time).toLocaleString(),
+    }))
+    .post(route('job_order.correction.store', props.data.ticket), {
+      onStart: () => form.clearErrors,
+    })
 }
 
 const { statusMap } = useJobOrderDicts()
 
-const forFinalService = (props.data.status = statusMap['for final service'].id)
-const completed = (props.data.status = statusMap['completed'].id)
+const forFinalService: boolean =
+  props.data.status === statusMap['for final service'].id
+const completed: boolean = props.data.status === statusMap['completed'].id
+
+const unapprovedCorrections = computed(() => {
+  return props.data.corrections?.find((correction) => !correction.approvedAt)
+})
+
+const { can } = usePermissions()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -92,18 +110,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
   <Head :title="data.ticket" />
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
-      <div class="border-b border-border bg-background shadow-sm">
+    <MainContainer>
+      <StickyPageHeader>
+        <CorrectionRequestBanner :correction="unapprovedCorrections" />
         <div class="mb-3 flex flex-row items-center justify-between">
           <TicketHeader :job-order="data" />
-          <div class="flex h-8 flex-row items-center gap-2">
+          <div
+            v-if="can('create:job_order_correction')"
+            class="flex h-8 flex-row items-center gap-2"
+          >
             <div class="flex gap-5">
-              <RequestCorrectionButton v-model:is-editing="isEditing" />
+              <RequestCorrectionButton
+                v-if="!unapprovedCorrections"
+                v-model:is-editing="isEditing"
+              />
               <ArchiveJobOrder :job-order="data" />
             </div>
           </div>
         </div>
-      </div>
+      </StickyPageHeader>
       <div class="mt-4">
         <form
           @submit.prevent="onSubmit"
@@ -144,11 +169,13 @@ const breadcrumbs: BreadcrumbItem[] = [
             <Separator class="mb-3" />
             <InitialOnsiteDetails
               :is-editing="isEditing"
+              is-clickable-file
               v-model:service-performed="form.initial_service_performed"
               v-model:machine-status="form.initial_machine_status"
               v-model:recommendation="form.recommendation"
               v-model:report-file="form.report_file"
               :errors="form.errors"
+              :iTService="data.serviceable"
             />
           </div>
           <div v-if="completed">
@@ -169,8 +196,12 @@ const breadcrumbs: BreadcrumbItem[] = [
               :error="form.errors?.reason"
             />
           </div>
-          <div class="col-span-2 flex flex-row items-center justify-end gap-3">
+          <div
+            v-if="isEditing"
+            class="col-span-2 flex flex-row items-center justify-end gap-3"
+          >
             <Button
+              v-show="form.processing"
               type="button"
               variant="outline"
             >
@@ -181,7 +212,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               :disabled="form.processing"
             >
               <LoaderCircle
-                v-if="form.processing"
+                v-show="form.processing"
                 class="animate-spin"
               />
               Submit Report
@@ -189,6 +220,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </form>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>
