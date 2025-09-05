@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             PositionSeeder::class,
             RolesAndPermissionsSeeder::class,
             EmployeeSeeder::class,
+            TruckSeeder::class,
             // Form4Seeder::class,
             Form3HaulingSeeder::class,
             Form3HaulingChecklistSeeder::class,

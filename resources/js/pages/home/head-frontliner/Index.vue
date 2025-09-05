@@ -8,21 +8,23 @@ import { onMounted, onUpdated, ref } from 'vue'
 import {
   AgingJobOrderOrdersCard,
   AwaitingCorrectionReviewsCard,
-  EmployeeStatistics,
-  JobOrderServiceTypeCards,
-  RecentActivitiesCard,
   RecentJobOrders as RecentJobOrdersType,
 } from '.'
-import { GreetingKey } from '..'
+import {
+  EmployeeStatistics,
+  GreetingKey,
+  JobOrderServiceTypeCards,
+  RecentActivities as RecentActivitiesCard,
+} from '..'
+import EmployeeMetrics from '../components/EmployeeMetrics.vue'
 import GreetingIllustration from '../components/GreetingIllustration.vue'
+import LatestJobOrders from '../components/LatestJobOrders.vue'
+import RecentActivities from '../components/RecentActivities.vue'
 import AgingJobOrderTickets from './components/AgingJobOrderTickets.vue'
 import AwaitingCorrectionReviews from './components/AwaitingCorrectionReviews.vue'
-import EmployeeMetrics from './components/EmployeeMetrics.vue'
-import LatestJobOrders from './components/LatestJobOrders.vue'
-import RecentActivities from './components/RecentActivities.vue'
 import RecentJobOrders from './components/RecentJobOrders.vue'
 
-interface Home1Props {
+interface HeadFrontlinerHomeProps {
   dayPart: GreetingKey
   illustration: string
   data?: {
@@ -35,7 +37,7 @@ interface Home1Props {
   }
 }
 
-const props = defineProps<Home1Props>()
+const props = defineProps<HeadFrontlinerHomeProps>()
 
 const isLoading = ref<boolean>(true)
 

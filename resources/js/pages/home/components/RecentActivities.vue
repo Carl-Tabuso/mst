@@ -6,10 +6,10 @@ import { Separator } from '@/components/ui/separator'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
 import { getInitials } from '@/composables/useInitials'
 import { Link } from '@inertiajs/vue3'
-import { RecentActivitiesCard } from '..'
+import { RecentActivities } from '..'
 
 interface RecentActivitiesProps {
-  data?: RecentActivitiesCard[]
+  data?: RecentActivities[]
 }
 
 defineProps<RecentActivitiesProps>()
@@ -17,7 +17,7 @@ defineProps<RecentActivitiesProps>()
 
 <template>
   <Card class="w-full shadow">
-    <CardHeader class="py-4">
+    <CardHeader class="py-3">
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <CardTitle class="text-lg font-semibold text-primary">
@@ -25,13 +25,13 @@ defineProps<RecentActivitiesProps>()
           </CardTitle>
         </div>
         <Link :href="route('activity.index')">
-          <Button variant="outline"> View </Button>
+          <Button variant="outline"> View All </Button>
         </Link>
       </div>
     </CardHeader>
     <Separator />
     <CardContent
-      class="my-2 max-h-[394px] divide-y divide-border overflow-y-auto"
+      class="my-2 max-h-[403px] divide-y divide-border overflow-y-auto"
     >
       <div
         v-for="activity in data"

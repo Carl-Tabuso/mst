@@ -43,6 +43,7 @@ import {
   Home,
   Menu,
   Pencil,
+  Truck,
   UserRoundCog,
   UsersRound,
 } from 'lucide-vue-next'
@@ -106,12 +107,6 @@ const mainNavItems: NavItem[] = [
     can: can('manage:employees'),
   },
   {
-    title: 'Activity Logs',
-    href: '/activities',
-    icon: History,
-    can: can('view:activity_logs'),
-  },
-  {
     title: 'Incident Reports',
     href: '/incidents/report',
     icon: FilePenLine,
@@ -134,6 +129,18 @@ const mainNavItems: NavItem[] = [
     href: '/archives',
     icon: Archive,
     can: can('update:job_order'),
+  },
+  {
+    title: 'Activity Logs',
+    href: '/activities',
+    icon: History,
+    can: can('view:activity_logs'),
+  },
+  {
+    title: 'Truck Inventory',
+    href: '/trucks',
+    icon: Truck,
+    can: can('assign:hauling_personnel'),
   },
 ]
 
@@ -222,41 +229,42 @@ const rightNavItems: NavItem[] = [
           :href="route('home')"
           class="flex items-center gap-x-2"
         >
-          <AppLogo class="size-10" />
+          <AppLogo />
         </Link>
 
         <!-- Desktop Menu -->
         <div class="hidden h-full lg:flex lg:flex-1">
           <NavigationMenu class="ml-10 flex h-full items-stretch">
             <NavigationMenuList class="flex h-full items-stretch">
-              <NavigationMenuItem
+              <template
                 v-for="(item, index) in mainNavItems"
                 :key="index"
-                class="relative flex h-full items-center"
               >
-                <Link
+                <NavigationMenuItem
                   v-if="item?.can"
-                  :href="item.href"
+                  class="relative flex h-full items-center"
                 >
-                  <NavigationMenuLink
-                    :class="[
-                      navigationMenuTriggerStyle(),
-                      activeItemStyles(item.href),
-                    ]"
-                  >
-                    <component
-                      v-if="item.icon"
-                      :is="item.icon"
-                      class="mr-2 h-4 w-4"
-                    />
-                    {{ item.title }}
-                  </NavigationMenuLink>
-                </Link>
-                <div
-                  v-if="isCurrentRoute(item.href)"
-                  class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary"
-                ></div>
-              </NavigationMenuItem>
+                  <Link :href="item.href">
+                    <NavigationMenuLink
+                      :class="[
+                        navigationMenuTriggerStyle(),
+                        activeItemStyles(item.href),
+                      ]"
+                    >
+                      <!-- <component
+                        v-if="item.icon"
+                        :is="item.icon"
+                        class="mr-2 h-4 w-4"
+                      /> -->
+                      {{ item.title }}
+                    </NavigationMenuLink>
+                  </Link>
+                  <div
+                    v-if="isCurrentRoute(item.href)"
+                    class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary"
+                  />
+                </NavigationMenuItem>
+              </template>
             </NavigationMenuList>
           </NavigationMenu>
         </div>

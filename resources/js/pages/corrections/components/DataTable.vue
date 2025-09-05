@@ -161,7 +161,16 @@ const table = useVueTable({
             </TableCell>
           </TableRow>
         </template>
-        <template v-else> None. </template>
+        <template v-else>
+          <TableRow>
+            <TableCell
+              :colspan="columns.length"
+              class="h-24 text-center"
+            >
+              No results found.
+            </TableCell>
+          </TableRow>
+        </template>
       </TableBody>
     </Table>
   </div>

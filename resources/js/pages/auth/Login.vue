@@ -48,7 +48,7 @@ const submit = () => {
       <div class="grid gap-6">
         <div class="grid gap-2">
           <Label for="email">
-            Email Address <span class="text-red-500">*</span>
+            Email Address <span class="text-red-500 dark:text-white">*</span>
           </Label>
           <Input
             id="email"
@@ -65,7 +65,7 @@ const submit = () => {
         <div class="grid gap-2">
           <div class="flex items-center justify-between">
             <Label for="password">
-              Password <span class="text-red-500">*</span>
+              Password <span class="text-red-500 dark:text-white">*</span>
             </Label>
             <TextLink
               v-if="canResetPassword"

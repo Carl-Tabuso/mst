@@ -63,7 +63,7 @@ const page = usePage<SharedData>()
                 >
                   <SidebarMenuSubButton
                     as-child
-                    :class="{ 'font-medium': subItem.href === page.url }"
+                    :class="{ 'font-semibold': subItem.href === page.url }"
                   >
                     <Link
                       :href="subItem.href"

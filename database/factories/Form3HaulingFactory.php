@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\HaulingStatus;
 use App\Models\Form3;
+use App\Models\Truck;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,16 +12,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class Form3HaulingFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'form3_id' => Form3::factory(),
-            'truck_no' => strtoupper(fake()->bothify('???-####')),
+            'truck_id' => Truck::inRandomOrder()->first()->id,
             'status'   => fake()->randomElement(HaulingStatus::cases()),
         ];
     }

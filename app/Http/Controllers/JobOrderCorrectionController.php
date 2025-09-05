@@ -42,6 +42,7 @@ class JobOrderCorrectionController extends Controller
         return back()->with(['message' => __('responses.correction')]);
     }
 
+
 public function show(JobOrderCorrection $correction)
 {
     $correction->load(['jobOrder' => function ($query) {
@@ -53,6 +54,7 @@ public function show(JobOrderCorrection $correction)
     if ($correction->jobOrder->serviceable_type === JobOrderServiceType::Form4 && 
         method_exists($serviceable, 'form3')) {
         $serviceable->load('form3');
+
     }
 
     $subFolder = match ($correction->jobOrder->serviceable_type) {

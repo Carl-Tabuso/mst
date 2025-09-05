@@ -12,12 +12,12 @@ class Form3HaulingResource extends JsonResource
         return [
             'id'                => $this->id,
             'form3Id'           => $this->form3_id,
-            'truckNo'           => $this->truck_no,
             'date'              => $this->date,
             'form3'             => Form3Resource::make($this->whenLoaded('form3')),
             'assignedPersonnel' => Form3AssignedPersonnelResource::make($this->whenLoaded('assignedPersonnel')),
             'haulers'           => EmployeeResource::collection($this->whenLoaded('haulers')),
             'checklist'         => Form3HaulingChecklistResource::make($this->whenLoaded('checklist')),
+            'truck'             => TruckResource::make($this->whenLoaded('truck')),
             'status'            => $this->status,
             'isOpen'            => $this->isOpen(),
         ];
