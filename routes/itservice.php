@@ -30,6 +30,9 @@ Route::middleware('auth')->prefix('job-orders/it-services')->name('job_order.it_
         Route::post('initial', [InitialOnsiteReportController::class, 'store'])
             ->name('initial.store');
 
+        Route::get('initial/{initialOnsite}', [InitialOnsiteReportController::class, 'showFile'])
+            ->name('initial.show_file');
+
         Route::get('final/create', [FinalOnsiteReportController::class, 'create'])
             ->name('final.create')
             ->can('create', [FinalOnsiteReport::class, 'iTService']);

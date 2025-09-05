@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreInitialOnsiteReportRequest;
+use App\Models\InitialOnsiteReport;
 use App\Models\ITService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\Response as InertiaResponse;
 
 class InitialOnsiteReportController extends Controller
 {
-    public function create(ITService $iTService): Response
+    public function create(ITService $iTService): InertiaResponse
     {
         return Inertia::render('itservices/page/InitialOnsiteForm', [
             'iTService' => $iTService->load('jobOrder.creator')->toResource(),
@@ -43,5 +45,14 @@ class InitialOnsiteReportController extends Controller
         }
 
         return redirect()->route('job_order.it_service.index');
+    }
+
+    public function showFile(ITService $iTService, InitialOnsiteReport $initialOnsite)
+    {
+        $filePath = sprintf('it_services/reports/%s', $initialOnsite->file_hash);
+
+        $fileUrl = Storage::temporaryUrl($filePath, now()->addMinutes(5));
+
+        return redirect()->to($fileUrl);
     }
 }
