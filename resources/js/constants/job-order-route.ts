@@ -9,7 +9,7 @@ export const jobOrderRouteNames = [
   },
   {
     id: 'form5',
-    route: 'other',
+    route: 'other_services',
   },
 ] as const
 
