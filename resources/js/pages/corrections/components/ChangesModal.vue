@@ -17,7 +17,7 @@ import {
 import { formatToDateDisplay } from '@/composables/useDateFormatter'
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { CircleArrowRight, FileClock } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import ConfirmStatus from './ConfirmStatus.vue'
 
 interface ChangesModalProps {
@@ -45,9 +45,7 @@ const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map(
   }),
 )
 
-const isApprovable = computed(() => {
-  return props.status === 'pending'
-})
+const isApprovable = props.status === 'pending'
 </script>
 
 <template>
@@ -82,12 +80,12 @@ const isApprovable = computed(() => {
           </div>
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div
-              class="rounded-md bg-red-50 px-3 py-1 text-red-700 dark:bg-red-950/30 dark:text-red-300"
+              class="break-words rounded-md bg-red-50 px-3 py-1 text-red-700 dark:bg-red-950/30 dark:text-red-300"
             >
-              {{ oldValue }}
+              {{ oldValue ?? 'None provided' }}
             </div>
             <div
-              class="rounded-md bg-green-50 px-3 py-1 text-green-700 dark:bg-green-950/30 dark:text-green-300"
+              class="break-words rounded-md bg-green-50 px-3 py-1 text-green-700 dark:bg-green-950/30 dark:text-green-300"
             >
               {{ newValue }}
             </div>
