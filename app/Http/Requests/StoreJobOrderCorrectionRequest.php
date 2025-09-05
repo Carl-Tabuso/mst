@@ -14,7 +14,7 @@ class StoreJobOrderCorrectionRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'date_time'        => ['required', 'date'],
             'client'           => ['required', 'string'],
             'address'          => ['required', 'string'],
@@ -22,13 +22,22 @@ class StoreJobOrderCorrectionRequest extends FormRequest
             'contact_position' => ['required', 'string'],
             'contact_person'   => ['required', 'string'],
             'contact_no'       => ['required', 'digits:11'],
+            'reason'           => ['required', 'string'],
+            
             'payment_date'     => ['sometimes', 'required', 'date'],
             'or_number'        => ['sometimes', 'required', 'string'],
             'bid_bond'         => ['sometimes', 'required'],
             'payment_type'     => ['sometimes', 'required', 'string'],
             'approved_date'    => ['sometimes', 'required', 'date'],
-            'reason'           => ['required', 'string'],
+            
+            'assigned_person'  => ['sometimes', 'required', 'integer', 'exists:employees,id'],
+            'purpose'          => ['sometimes', 'required', 'string'],
+            'items'            => ['sometimes', 'required', 'array', 'min:1'],
+            'items.*.item_name' => ['sometimes', 'required', 'string'],
+            'items.*.quantity' => ['sometimes', 'required', 'integer', 'min:1'],
         ];
+
+        return $rules;
     }
 
     protected function prepareForValidation(): void
