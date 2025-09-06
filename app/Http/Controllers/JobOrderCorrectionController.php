@@ -42,12 +42,13 @@ class JobOrderCorrectionController extends Controller
         return back()->with(['message' => __('responses.correction')]);
     }
 
-    public function show(JobOrderCorrection $correction): Response
+  public function show(JobOrderCorrection $correction): Response
     {
         $correction->load([
             'jobOrder' => [
                 'creator' => ['account:avatar'],
                 'cancel',
+                'serviceable',
             ],
         ]);
 
@@ -73,18 +74,29 @@ class JobOrderCorrectionController extends Controller
             ]);
         }
 
+        if ($serviceType === JobOrderServiceType::Form5) {
+            $correction->loadMissing([
+                'jobOrder' => [
+                    'serviceable' => [
+                        'items',
+                        'assignedPerson'
+                    ],
+                ],
+            ]);
+        }
+
         $subFolder = match ($serviceType) {
             JobOrderServiceType::Form4     => 'waste-managements',
             JobOrderServiceType::ITService => 'it-services',
             JobOrderServiceType::Form5     => 'other-services',
         };
 
-    $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
+        $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
 
-    return Inertia::render($component, [
-        'data' => JobOrderCorrectionResource::make($correction),
-    ]);
-}
+        return Inertia::render($component, [
+            'data' => JobOrderCorrectionResource::make($correction),
+        ]);
+    }
 
     public function update(UpdateJobOrderCorrectionRequest $request, JobOrderCorrection $correction): RedirectResponse
     {

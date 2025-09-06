@@ -1,54 +1,24 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { type Employee } from '@/types'
 
 interface Form5Item {
   item_name: string
   quantity: number
 }
 
-interface Employee {
-  id: number
-  name: string
-}
-
 interface Props {
-  assignedPerson?: number | Employee | null
-  items?: Form5Item[]
   employees?: Employee[] 
-  purpose?: string | null 
   isEditing?: boolean 
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  assignedPerson: null,
-  items: () => [],
   employees: () => [],
-  purpose: null,
   isEditing: false 
 })
 
-const emit = defineEmits<{
-  'update:assignedPerson': [value: number | null]
-  'update:items': [value: Form5Item[]]
-  'update:purpose': [value: string | null] 
-}>()
-
-const assignedPersonId = computed({
-  get: () => {
-    if (!props.assignedPerson) return null
-    return typeof props.assignedPerson === 'object' 
-      ? props.assignedPerson.id 
-      : props.assignedPerson
-  },
-  set: (value) => emit('update:assignedPerson', value)
-})
-
-const purpose = computed({
-  get: () => props.purpose,
-  set: (value) => emit('update:purpose', value)
-})
-
-const localItems = ref<Form5Item[]>([...props.items])
+const assignedPerson = defineModel<number | null>('assignedPerson', { required: true })
+const items = defineModel<Form5Item[]>('items', { required: true, default: () => [] })
+const purpose = defineModel<string>('purpose', { required: true, default: '' })
 
 const purposeOptions = [
   'Payment',
@@ -61,24 +31,20 @@ const purposeOptions = [
   'Bid Bond Submission'
 ]
 
-watch(localItems, (newItems) => {
-  emit('update:items', newItems)
-}, { deep: true })
-
-if (localItems.value.length === 0) {
-  localItems.value.push({ item_name: '', quantity: 1 })
-}
-
 const addItem = () => {
-  localItems.value.push({ item_name: '', quantity: 1 })
+  items.value = [...items.value, { item_name: '', quantity: 1 }]
 }
 
 const removeItem = (index: number) => {
-  if (localItems.value.length > 1) {
-    localItems.value.splice(index, 1)
-  } else {
-    localItems.value[0] = { item_name: '', quantity: 1 }
+  if (items.value.length > 1) {
+    items.value = items.value.filter((_, i) => i !== index)
+  } else if (props.isEditing) {
+    items.value = [{ item_name: '', quantity: 1 }]
   }
+}
+
+if (items.value.length === 0 && props.isEditing) {
+  addItem()
 }
 </script>
 
@@ -98,7 +64,7 @@ const removeItem = (index: number) => {
         <label class="text-sm font-medium">Assigned Person</label>
         <div class="w-full">
           <select 
-            v-model="assignedPersonId" 
+            v-model="assignedPerson" 
             :disabled="!isEditing"
             class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
           >
@@ -123,7 +89,7 @@ const removeItem = (index: number) => {
             :disabled="!isEditing"
             class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
           >
-            <option :value="null">Select purpose</option>
+            <option value="">Select purpose</option>
             <option 
               v-for="option in purposeOptions" 
               :key="option" 
@@ -140,8 +106,9 @@ const removeItem = (index: number) => {
     <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
       <label class="text-sm font-medium self-start pt-2">Items</label>
       <div class="space-y-3">
+        <!-- Editable items -->
         <div 
-          v-for="(item, index) in localItems" 
+          v-for="(item, index) in items" 
           :key="index" 
           class="flex items-center gap-3"
         >
@@ -150,7 +117,7 @@ const removeItem = (index: number) => {
             :disabled="!isEditing"
             placeholder="Item name"
             class="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-            required
+            :required="isEditing"
           />
           <input
             v-model.number="item.quantity"
@@ -159,15 +126,15 @@ const removeItem = (index: number) => {
             :disabled="!isEditing"
             placeholder="Qty"
             class="w-20 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-            required
+            :required="isEditing"
           />
           <button
             v-if="isEditing"
             type="button"
             @click="removeItem(index)"
             class="px-3 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
-            :class="{ 'opacity-50 cursor-not-allowed': localItems.length <= 1 }"
-            :disabled="localItems.length <= 1"
+            :class="{ 'opacity-50 cursor-not-allowed': items.length <= 1 }"
+            :disabled="items.length <= 1"
           >
             Remove
           </button>
@@ -182,16 +149,27 @@ const removeItem = (index: number) => {
           + Add Another Item
         </button>
 
-        <!-- Display items in read-only mode -->
-        <div v-if="!isEditing && localItems.length > 0" class="mt-4">
-          <div v-for="(item, index) in localItems" :key="index" class="flex justify-between py-2 border-b">
-            <span class="font-medium">{{ item.item_name || 'Unnamed item' }}</span>
-            <span class="text-gray-600">Qty: {{ item.quantity }}</span>
+        <!-- Read-only display -->
+        <div v-if="!isEditing" class="mt-4">
+          <div 
+            v-if="items.length > 0" 
+            class="space-y-2"
+          >
+            <div 
+              v-for="(item, index) in items" 
+              :key="index" 
+              class="flex justify-between py-2 border-b"
+            >
+              <span class="font-medium">{{ item.item_name || 'Unnamed item' }}</span>
+              <span class="text-gray-600">Qty: {{ item.quantity }}</span>
+            </div>
           </div>
-        </div>
-
-        <div v-if="!isEditing && localItems.length === 0" class="text-gray-500 italic">
-          No items added
+          <div 
+            v-else 
+            class="text-gray-500 italic py-2"
+          >
+            No items added
+          </div>
         </div>
       </div>
     </div>
