@@ -37,9 +37,11 @@ class JobOrderCorrectionController extends Controller
     {
         $data = $request->validated();
 
-        $this->service->storeJobOrderCorrection($data, $ticket);
+        $correction = $this->service->storeJobOrderCorrection($data, $ticket);
 
-        return back()->with(['message' => __('responses.correction')]);
+        return redirect()->route('job_order.correction.show', [
+            'correction' => $correction->id,
+        ]);
     }
 
   public function show(JobOrderCorrection $correction): Response

@@ -19,6 +19,7 @@ import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { CircleArrowRight, FileClock } from 'lucide-vue-next'
 import { ref } from 'vue'
 import ConfirmStatus from './ConfirmStatus.vue'
+import { usePermissions } from '@/composables/usePermissions'
 
 interface ChangesModalProps {
   changes: any
@@ -45,7 +46,9 @@ const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map(
   }),
 )
 
-const isApprovable = props.status === 'pending'
+const { can } = usePermissions()
+
+const isApprovable = props.status === 'pending' && can('update:job_order_correction')
 </script>
 
 <template>

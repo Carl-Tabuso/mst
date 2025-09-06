@@ -44,11 +44,21 @@ class JobOrderCorrectionService
             });
     }
 
-    public function storeJobOrderCorrection(array $data, JobOrder $jobOrder): void
+    public function storeJobOrderCorrection(array $data, JobOrder $jobOrder)
     {
         $validated = (object) $data;
 
-        match ($jobOrder->serviceable_type) {
+        $jobOrder->fill([
+            'date_time'        => Carbon::parse($validated->date_time),
+            'client'           => $validated->client,
+            'address'          => $validated->address,
+            'department'       => $validated->department,
+            'contact_position' => $validated->contact_position,
+            'contact_person'   => $validated->contact_person,
+            'contact_no'       => $validated->contact_no,
+        ]);
+
+        return match ($jobOrder->serviceable_type) {
             JobOrderServiceType::Form4     => $this->storeWasteManagement($jobOrder, $validated),
             JobOrderServiceType::ITService => $this->storeITService($jobOrder, $validated),
             JobOrderServiceType::Form5     => $this->storeOtherService($jobOrder, $validated),
@@ -97,7 +107,7 @@ class JobOrderCorrectionService
 
         $mappedData['reason'] = $data->reason;
 
-        $jobOrder->corrections()->create($mappedData);
+        return $jobOrder->corrections()->create($mappedData);
     }
 
     private function storeITService(JobOrder $jobOrder, object $data)
@@ -137,6 +147,10 @@ class JobOrderCorrectionService
             $initialOnsite->fill($attributes);
 
             $updateableModels[] = $initialOnsite;
+
+            if ($data?->report_file instanceof UploadedFile) {
+                Storage::put('it_services/temp', $data->report_file);
+            }
         }
 
         if ($completed) {
@@ -170,91 +184,10 @@ class JobOrderCorrectionService
 
         $jobOrder->corrections()->create($mappedData);
 
-        if ($data?->report_file instanceof UploadedFile) {
-            Storage::put('it_services/temp', $data->report_file);
-        }
-    }
-
-    private function storeOtherService(JobOrder $jobOrder, object $data)
-    {
-        $jobOrder->load(['serviceable', 'serviceable.items']);
-
-        $jobOrder->fill([
-            'date_time'        => Carbon::parse($data->date_time),
-            'client'           => $data->client,
-            'address'          => $data->address,
-            'department'       => $data->department,
-            'contact_position' => $data->contact_position,
-            'contact_person'   => $data->contact_person,
-            'contact_no'       => $data->contact_no,
-        ]);
-
-        $updateableModels = [$jobOrder];
-        $correctionData = ['properties' => ['before' => [], 'after' => []]];
-
-        if ($this->canUpdateProposal($jobOrder->status)) {
-            $form5 = $jobOrder->serviceable;
-            
-            $originalValues = [
-                'assigned_person' => $form5->assigned_person,
-                'purpose' => $form5->purpose,
-                'items' => $form5->items->toArray()
-            ];
-            
-            $form5->fill([
-                'assigned_person' => $data->assigned_person ?? $form5->assigned_person,
-                'purpose' => $data->purpose ?? $form5->purpose,
-            ]);
-            
-            $newItems = isset($data->items) ? $data->items : $form5->items->toArray();
-
-            $newValues = [
-                'assigned_person' => $form5->assigned_person,
-                'purpose' => $form5->purpose,
-                'items' => $newItems
-            ];
-
-            foreach ($originalValues as $key => $originalValue) {
-                $newValue = $newValues[$key];
-                
-                if ($key === 'items') {
-                    $originalJson = json_encode($originalValue);
-                    $newJson = json_encode($newValue);
-                    
-                    if ($originalJson !== $newJson) {
-                        $correctionData['properties']['before']['serviceable'][$key] = $originalValue;
-                        $correctionData['properties']['after']['serviceable'][$key] = $newValue;
-                    }
-                } else {
-                    if ($originalValue != $newValue) {
-                        $correctionData['properties']['before']['serviceable'][$key] = $originalValue;
-                        $correctionData['properties']['after']['serviceable'][$key] = $newValue;
-                    }
-                }
-            }
-
-            array_push($updateableModels, $form5);
-        }
-
-        foreach ($updateableModels as $model) {
-            $dirty = $model->getDirty();
-            
-            foreach ($dirty as $key => $value) {
-                if ($model === $jobOrder->serviceable && 
-                    $jobOrder->serviceable_type === JobOrderServiceType::Form5 &&
-                    isset($correctionData['properties']['before']['serviceable'][$key])) {
-                    continue;
-                }
-                
-                $originalValue = $model->getOriginal($key);
-                $correctionData['properties']['before'][$key] = $originalValue;
-                $correctionData['properties']['after'][$key] = $value;
-            }
-        }
-
-        $correctionData['reason'] = $data->reason;
-
-        $jobOrder->corrections()->create($correctionData);
+        // dd(
+        //     $updateableModels,
+        //     $mappedData,
+        // );
     }
 
     public function updateJobOrderCorrection(array $data, JobOrderCorrection $correction)
