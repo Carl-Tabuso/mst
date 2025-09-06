@@ -12,7 +12,6 @@ class DatabaseSeeder extends Seeder
         DB::disableQueryLog();
 
         $this->call([
-            DepartmentSeeder::class,
             PositionSeeder::class,
             RolesAndPermissionsSeeder::class,
             EmployeeSeeder::class,
@@ -33,7 +32,7 @@ class DatabaseSeeder extends Seeder
             EmployeePerformanceSeeder::class,
             JobOrderCorrectionSeeder::class,
             UserSeeder::class,
-            AdminPrivilegesUserSeeder::class,
+            // AdminPrivilegesUserSeeder::class,
             PerformanceSummarySeeder::class,
             EmployeeRatingSeeder::class,
             // AnnualReportSeeder::class,
