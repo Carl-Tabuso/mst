@@ -133,9 +133,6 @@ const onSubmitCorrection = () => {
       onSuccess: (page: any) => {
         form.reset()
         isEditing.value = false
-        toast.success(page.props.flash.message, {
-          position: 'top-right',
-        })
       },
     })
 }

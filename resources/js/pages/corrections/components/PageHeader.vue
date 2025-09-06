@@ -14,7 +14,6 @@ const props = defineProps<PageHeaderProps>()
 const { correctionStatusMap } = useJobOrderDicts()
 
 const correctionStatus = correctionStatusMap[props.correction.status]
-console.log(correctionStatus, props.correction)
 </script>
 
 <template>

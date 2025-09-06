@@ -44,7 +44,7 @@ class JobOrderCorrectionService
             });
     }
 
-    public function storeJobOrderCorrection(array $data, JobOrder $jobOrder): void
+    public function storeJobOrderCorrection(array $data, JobOrder $jobOrder)
     {
         $validated = (object) $data;
 
@@ -58,7 +58,7 @@ class JobOrderCorrectionService
             'contact_no'       => $validated->contact_no,
         ]);
 
-        match ($jobOrder->serviceable_type) {
+        return match ($jobOrder->serviceable_type) {
             JobOrderServiceType::Form4     => $this->storeWasteManagement($jobOrder, $validated),
             JobOrderServiceType::ITService => $this->storeITService($jobOrder, $validated),
         };
@@ -93,7 +93,7 @@ class JobOrderCorrectionService
 
         $mappedData['reason'] = $data->reason;
 
-        $jobOrder->corrections()->create($mappedData);
+        return $jobOrder->corrections()->create($mappedData);
     }
 
     private function storeITService(JobOrder $jobOrder, object $data)
@@ -131,6 +131,10 @@ class JobOrderCorrectionService
             $initialOnsite->fill($attributes);
 
             $updateableModels[] = $initialOnsite;
+
+            if ($data?->report_file instanceof UploadedFile) {
+                Storage::put('it_services/temp', $data->report_file);
+            }
         }
 
         if ($completed) {
@@ -162,13 +166,7 @@ class JobOrderCorrectionService
 
         $mappedData['reason'] = $data->reason;
 
-        // dd($data->report_file);
-
         $jobOrder->corrections()->create($mappedData);
-
-        if ($data?->report_file instanceof UploadedFile) {
-            Storage::put('it_services/temp', $data->report_file);
-        }
 
         // dd(
         //     $updateableModels,
