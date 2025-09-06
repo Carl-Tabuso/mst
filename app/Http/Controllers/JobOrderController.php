@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\ActivityLogName;
 use App\Enums\JobOrderStatus;
+use App\Enums\UserRole;
 use App\Http\Requests\UpdateJobOrderRequest;
+use App\Models\Employee;
 use App\Models\JobOrder;
 use App\Services\EmployeeService;
 use App\Services\JobOrderService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,10 +43,13 @@ class JobOrderController extends Controller
 
     public function create(): Response
     {
-           $employees = $this->employeeService->getEmployeesForDropdown();
-       return Inertia::render('job-orders/Create', [
-            'employees' => $employees
-        ]);
+        $regulars = Employee::query()
+            ->with('account.roles')
+            ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Regular))
+            ->get()
+            ->toResourceCollection();
+
+        return Inertia::render('job-orders/Create', compact('regulars'));
     }
 
     public function update(UpdateJobOrderRequest $request, JobOrder $jobOrder): RedirectResponse

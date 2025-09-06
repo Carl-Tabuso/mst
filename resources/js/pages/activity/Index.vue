@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -74,7 +75,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Activity Logs" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex items-start justify-between">
         <div>
           <h1 class="scroll-m-20 text-3xl font-bold text-primary">
@@ -205,6 +206,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           {{ isFetchingLogs ? 'Fetching more logs...' : 'Load More' }}
         </Button>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

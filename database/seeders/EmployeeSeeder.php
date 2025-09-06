@@ -18,10 +18,9 @@ class EmployeeSeeder extends Seeder
         $this->seedFrontliners();
         $this->seedDispatchers();
         $this->seedTeamLeaders();
-        $this->seedHeadFrontliners();
         $this->seedHaulers();
-        $this->seedItAdmins();
         $this->seedConsultants();
+        $this->seedHumanResources();
     }
 
     private function seedDepartments()
@@ -44,21 +43,14 @@ class EmployeeSeeder extends Seeder
     private function seedFrontliners()
     {
         Employee::factory(10)->create([
-            'position_id' => $this->getPositionId('Frontliner'),
-            'department_id' => $this->getRandomDepartmentId(),
-        ]);
-    }
-     private function seedHaulers(): void
-    {
-        Employee::factory(30)->create([
-            'position_id' => $this->getPositionId('Hauler'),
+            'position_id' => $this->getPositionId('Team Leader'),
         ]);
     }
 
-    private function seedItAdmins(): void
+    private function seedHaulers(): void
     {
-        Employee::factory(5)->create([
-            'position_id' => $this->getPositionId('IT Admin'),
+        Employee::factory(15)->create([
+            'position_id' => $this->getPositionId('Hauler'),
         ]);
     }
 
@@ -69,29 +61,10 @@ class EmployeeSeeder extends Seeder
         ]);
     }
 
-
-
-    private function seedDispatchers(): void
+    private function seedHumanResources(): void
     {
-        Employee::factory(10)->create([
-            'position_id' => $this->getPositionId('Dispatcher'),
-            'department_id' => $this->getRandomDepartmentId(),
-        ]);
-    }
-
-    private function seedTeamLeaders(): void
-    {
-        Employee::factory(10)->create([
-            'position_id' => $this->getPositionId('Team Leader'),
-            'department_id' => $this->getRandomDepartmentId(),
-        ]);
-    }
-
-    private function seedHeadFrontliners()
-    {
-        Employee::factory(5)->create([
-            'position_id' => $this->getPositionId('Head Frontliner'),
-            'department_id' => $this->getRandomDepartmentId(),
+        Employee::factory(3)->create([
+            'position_id' => $this->getPositionId('Human Resource'),
         ]);
     }
 

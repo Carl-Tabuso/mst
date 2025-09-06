@@ -44,7 +44,7 @@ test('password can be reset with valid token', function () {
 
     $this->post('/forgot-password', ['email' => $user->email]);
 
-    $strongPassword = Str::password(8);
+    $strongPassword = Str::password();
 
     Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user, $strongPassword) {
         $response = $this->post('/reset-password', [

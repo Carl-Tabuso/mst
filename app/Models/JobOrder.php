@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -86,7 +87,13 @@ class JobOrder extends Model
     {
         $modelId = (int) str_replace($this->ticketPrefix, '', $value);
 
-        return parent::resolveRouteBinding($modelId, $field);
+        $jobOrder = static::where($field ?? $this->getRouteKeyName(), $modelId)->first();
+
+        if (! $jobOrder) {
+            throw (new ModelNotFoundException)->setModel(static::class, [$value]);
+        }
+
+        return $jobOrder;
     }
 
     #[Scope]
@@ -146,6 +153,11 @@ class JobOrder extends Model
             'contact_person',
             'contact_position',
         ];
+    }
+
+    public function markAsCompleted()
+    {
+        $this->update(['status' => JobOrderStatus::Completed]);
     }
 
     public function serviceable(): MorphTo

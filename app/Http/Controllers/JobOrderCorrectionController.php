@@ -42,24 +42,42 @@ class JobOrderCorrectionController extends Controller
         return back()->with(['message' => __('responses.correction')]);
     }
 
-public function show(JobOrderCorrection $correction)
-{
-    $correction->load(['jobOrder' => function ($query) {
-        $query->with(['creator' => ['account:avatar'], 'cancel', 'serviceable']);
-    }]);
-    
-    $serviceable = $correction->jobOrder->serviceable;
-    
-    if ($correction->jobOrder->serviceable_type === JobOrderServiceType::Form4 && 
-        method_exists($serviceable, 'form3')) {
-        $serviceable->load('form3');
-    }
+    public function show(JobOrderCorrection $correction): Response
+    {
+        $correction->load([
+            'jobOrder' => [
+                'creator' => ['account:avatar'],
+                'cancel',
+            ],
+        ]);
 
-    $subFolder = match ($correction->jobOrder->serviceable_type) {
-        JobOrderServiceType::Form4     => 'waste-managements',
-        JobOrderServiceType::ITService => 'it-services',
-        JobOrderServiceType::Form5     => 'other-services',
-    };
+        $serviceType = $correction->jobOrder->serviceable_type;
+
+        if ($serviceType === JobOrderServiceType::Form4) {
+            $correction->loadMissing([
+                'jobOrder' => [
+                    'serviceable' => ['form3'],
+                ],
+            ]);
+        }
+
+        if ($serviceType === JobOrderServiceType::ITService) {
+            $correction->loadMissing([
+                'jobOrder' => [
+                    'serviceable' => [
+                        'technician',
+                        'initialOnsiteReport',
+                        'finalOnsiteReport',
+                    ],
+                ],
+            ]);
+        }
+
+        $subFolder = match ($serviceType) {
+            JobOrderServiceType::Form4     => 'waste-managements',
+            JobOrderServiceType::ITService => 'it-services',
+            JobOrderServiceType::Form5     => 'other-services',
+        };
 
     $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
 

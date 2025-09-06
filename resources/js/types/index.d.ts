@@ -1,6 +1,7 @@
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { HaulingStatusType } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { MachineStatusType } from '@/constants/machine-statuses'
 import { UserRoleType } from '@/constants/user-role'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
@@ -48,7 +49,6 @@ export interface NavItem {
 
 export interface SharedData extends PageProps {
   name: string
-  quote: { message: string; author: string }
   auth: Auth
   ziggy: Config & { location: string }
   flash: { message: any }
@@ -98,9 +98,46 @@ export interface JobOrder {
   createdAt: string
   updatedAt: string
   creator: Employee
-  serviceable: Form4 // add it services and others here
+  serviceable: Form4 | ITService // add it services and others here
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
+}
+
+export interface ITService {
+  id: number
+  technicianId: number
+  machineType: string
+  model: string
+  serialNo: string | number
+  tagNo: string | number
+  machineProblem: string
+  jobOrder?: JobOrder
+  initialOnsiteReport?: InitialOnsiteReport
+  finalOnsiteReport?: FinalOnsiteReport
+  technician?: Employee
+}
+
+export interface InitialOnsiteReport {
+  id: number
+  servicePerformed: string
+  recommendation: string
+  machineStatus: MachineStatusType
+  fileName: string | null
+  fileHash: string | null
+  createdAt: string
+  updatedAt: string
+  itService: ITService
+}
+
+export interface FinalOnsiteReport {
+  id: number
+  servicePerformed: string
+  partsReplaced: string
+  remarks: string
+  machineStatus: MachineStatusType
+  createdAt: string
+  updatedAt: string
+  itService: ITService
 }
 
 export interface Form4 {
@@ -133,12 +170,12 @@ export interface Form3 {
 export interface Form3Hauling {
   id: number
   form3Id: number
-  truckNo: string
   date: string
   form3: Form3
   assignedPersonnel: Form3AssignedPersonnel
   haulers: Employee[]
   checklist: Form3HaulingChecklist
+  truck: Truck
   status: HaulingStatusType
   isOpen: boolean
 }
@@ -207,6 +244,30 @@ export interface EloquentCollection {
   from: number
   to: number
   total: number
+  links: MetaPaginationLinks[]
+}
+
+export interface MetaPaginationLinks {
+  url: string | null
+  label: string
+  active: boolean
+  length: number
+}
+
+export interface PaginationLinks {
+  first: string
+  last: string
+  next: string | null
+  prev: string | null
+}
+
+export interface Truck {
+  id: number
+  model: string
+  plateNo: string
+  creator?: Employee | null
+  createdAt: string
+  updatedAt: string
 }
 
 export type ServiceType = 'Waste Management' | 'IT Service' | 'Other Services'

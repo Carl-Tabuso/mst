@@ -134,7 +134,7 @@ class Employee extends Model
             ITService::class,
             'it_services_technicians',
             'technicians',
-            'i_t_service_id'
+            'it_service_id'
         );
     }
 

@@ -7,8 +7,6 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Tooltip,
   TooltipContent,
@@ -19,21 +17,24 @@ import { useWasteManagementStages } from '@/composables/useWasteManagementStages
 import { haulingRoles, HaulingRoleType } from '@/constants/hauling-role'
 import { haulingStatuses } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { UserRoleType } from '@/constants/user-role'
 import { Employee, Form3Hauling } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { format, isToday } from 'date-fns'
 import { FilePenLine } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
+import { GroupedEmployeesByAccountRole } from '../..'
 import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 import SafetyInspectionChecklist from '../SafetyInspectionChecklist.vue'
 import SectionButton from '../SectionButton.vue'
+import TruckSelection from '../TruckSelection.vue'
 
 interface FifthSectionProps {
   status: JobOrderStatus
-  employees?: Employee[]
+  groupedEmployees?: GroupedEmployeesByAccountRole[]
   haulings: Form3Hauling[]
   serviceableId: number
 }
@@ -110,7 +111,7 @@ const isPopoverOpen = ref<Record<string, number | null>>({
 })
 
 const loadEmployeesIfMissing = () => {
-  if (props.employees === undefined) {
+  if (props.groupedEmployees === undefined) {
     emit('loadEmployees')
   }
 }
@@ -144,6 +145,17 @@ const onSubmit = () => {
         toast.success(page.props.flash.message)
       },
     })
+}
+
+const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
+  return props.groupedEmployees
+    ?.filter((group) => {
+      if (Array.isArray(roles)) {
+        return roles.includes(group.role)
+      }
+      return group.role === roles
+    })
+    .flatMap((filtered) => filtered.items)
 }
 </script>
 
@@ -228,7 +240,7 @@ const onSubmit = () => {
               v-for="haulingRole in haulingRoles"
               :key="`${hauling.id}-${haulingRole.id}`"
               :can-edit="isAuthorize && hauling.isOpen"
-              :employees="employees"
+              :employees="filterByUserRole(haulingRole.type)"
               :hauling="hauling"
               :role="haulingRole.id"
               :index="index"
@@ -243,13 +255,13 @@ const onSubmit = () => {
             <HaulersSelection
               :is-authorize="isAuthorize"
               :hauling="hauling"
-              :employees="employees"
+              :employees="filterByUserRole('regular')"
               :index="index"
               @on-hauler-select="handleHaulerMultiSelection"
               @on-remove-existing-haulers="removeExistingHaulers"
               @on-hauler-toggle="loadEmployeesIfMissing"
             />
-            <div class="flex items-center gap-x-10">
+            <!-- <div class="flex items-center gap-x-10">
               <Label
                 :for="'truckNo-' + hauling.id"
                 class="w-28 shrink-0"
@@ -263,7 +275,11 @@ const onSubmit = () => {
                 v-model="hauling.truckNo"
                 class="w-[400px]"
               />
-            </div>
+            </div> -->
+            <TruckSelection
+              v-model:truck="hauling.truck"
+              :can-edit="isAuthorize && hauling.isOpen"
+            />
           </div>
         </AccordionContent>
       </AccordionItem>

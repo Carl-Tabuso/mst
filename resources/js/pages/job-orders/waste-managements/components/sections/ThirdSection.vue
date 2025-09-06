@@ -19,7 +19,6 @@ import {
 import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
-import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
 import { format } from 'date-fns'
 import { Calendar } from 'lucide-vue-next'
@@ -31,7 +30,6 @@ interface ThirdSectionProps {
   isEditing?: boolean
   status: JobOrderStatus
   errors: any
-  employees?: Employee[]
   isSubmitBtnDisabled?: boolean
 }
 
@@ -53,7 +51,8 @@ const orNumber = defineModel<string>('orNumber')
 const paymentDate = defineModel<any>('paymentDate', {
   get(value) {
     if (value) {
-      const formatted = format(value, 'yyyy-MM-d')
+      const formatted = format(value, 'yyyy-MM-dd')
+      // console.log(formatted, value)
       return parseDate(formatted)
     }
   },
@@ -65,7 +64,7 @@ const paymentDate = defineModel<any>('paymentDate', {
 const approvedDate = defineModel<any>('approvedDate', {
   get(value) {
     if (value) {
-      const formatted = format(value, 'yyyy-MM-d')
+      const formatted = format(value, 'yyyy-MM-dd')
       return parseDate(formatted)
     }
   },

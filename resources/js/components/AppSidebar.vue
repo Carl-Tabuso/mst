@@ -22,6 +22,7 @@ import {
   FilePenLine,
   History,
   Home,
+  Truck,
   UserRoundCog,
   UsersRound,
 } from 'lucide-vue-next'
@@ -47,6 +48,11 @@ const mainNavItems: NavItem[] = [
         href: '/job-orders/corrections',
       },
     ],
+  },
+  {
+    title: 'Truck Inventory',
+    href: '/trucks',
+    icon: Truck,
   },
   {
     title: 'User Management',
@@ -80,7 +86,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Archives',
-    href: '#',
+    href: '/archives',
     icon: Archive,
   },
 ]
@@ -97,7 +103,7 @@ const footerNavItems: NavItem[] = [
 <template>
   <Sidebar
     collapsible="icon"
-    variant="sidebar"
+    variant="floating"
   >
     <SidebarHeader>
       <SidebarMenu>

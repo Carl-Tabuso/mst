@@ -37,25 +37,25 @@ class WasteManagementController extends Controller
     public function store(StoreWasteManagementRequest $request): RedirectResponse
     {
         $validated = $request->safe()->merge([
-            'created_by' => $request->user()->id,
+            'created_by' => $request->user()->employee_id,
         ])->toArray();
 
         $data = $this->service->storeWasteManagement($validated);
 
-        [$title, $description] = explode('|', __('responses.job_order.create', [
-            'ticket' => $data->ticket,
-        ]));
-
         return redirect()->route('job_order.waste_management.edit', [
             'ticket' => $data->ticket,
-        ])->with(['message' => compact('title', 'description')]);
+        ]);
     }
 
     public function edit(JobOrder $ticket): Response
     {
         $data = $this->service->getWasteManagementData($ticket);
 
-        return Inertia::render('job-orders/waste-managements/Edit', compact('data'));
+        $employees = Inertia::optional(fn () => $this->service->getEmployeesMappedByAccountRole());
+
+        $trucks = Inertia::optional(fn () => $this->service->getAllTrucks());
+
+        return Inertia::render('job-orders/waste-managements/Edit', compact('data', 'employees', 'trucks'));
     }
 
     public function update(UpdateWasteManagementRequest $request, Form4 $form4): RedirectResponse

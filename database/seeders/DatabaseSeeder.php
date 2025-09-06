@@ -3,19 +3,20 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
+        DB::disableQueryLog();
+
         $this->call([
             DepartmentSeeder::class,
             PositionSeeder::class,
             RolesAndPermissionsSeeder::class,
             EmployeeSeeder::class,
+            TruckSeeder::class,
             // Form4Seeder::class,
             Form3HaulingSeeder::class,
             Form3HaulingChecklistSeeder::class,
@@ -32,9 +33,12 @@ class DatabaseSeeder extends Seeder
             EmployeePerformanceSeeder::class,
             JobOrderCorrectionSeeder::class,
             UserSeeder::class,
+            AdminPrivilegesUserSeeder::class,
             PerformanceSummarySeeder::class,
             EmployeeRatingSeeder::class,
             // AnnualReportSeeder::class,
         ]);
+
+        DB::enableQueryLog();
     }
 }

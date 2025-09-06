@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem } from '@/types'
-import { useForm, usePage } from '@inertiajs/vue3' 
+import { Employee, type BreadcrumbItem } from '@/types'
+import { useForm } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
-import FirstSection from './waste-managements/components/sections/FirstSection.vue'
-import Form5Section from './other-services/components/Form5Section.vue' 
+import { ref } from 'vue'
+import JobOrderDetails from './components/JobOrderDetails.vue'
+import MachineDetails from './components/MachineDetails.vue'
 
-const page = usePage()
-const employees = computed(() => page.props.employees || [])
+interface CreateProps {
+  regulars: Employee[]
+}
+
+defineProps<CreateProps>()
 
 const form = useForm({
   service_type: 'form4',
@@ -21,9 +25,13 @@ const form = useForm({
   contact_position: '',
   contact_person: '',
   contact_no: '',
-  assigned_person: null,
-  items: [],
-  purpose: '', 
+  status: 'for check up',
+  technician: null as any,
+  machine_type: '',
+  model: '',
+  serial_no: '',
+  tag_no: '',
+  machine_problem: '',
 })
 
 const timeOfService = ref('')
@@ -36,33 +44,17 @@ const onSubmit = () => {
   const epoch = new Date(form.date_time).setHours(Number(hours), Number(min))
   const formatted = new Date(epoch).toJSON().split('.')[0].split('T').join(' ')
 
-  form.transform((data) => {
-    const base = {
-      ...data,
-      date_time: formatted,
-    }
-
-    if (isForm5.value) {
-      
-      return {
-        ...base,
-        assigned_person: data.assigned_person,
-        items: data.items,
-        purpose: data.purpose,
-      }
-    }
-
-    
-    return {
-      ...base,
-      assigned_person: null,
-      items: [],
-    }
-  })
+  form.transform((data) => ({
+    ...data,
+    technician_id: data.technician?.id,
+    date_time: formatted,
+  }))
 
   const path = jobOrderRouteNames.find((j) => j.id === form.service_type)
 
-  form.post(route(`job_order.${path?.route}.store`))
+  form.post(route(`job_order.${path?.route}.store`), {
+    onStart: () => form.clearErrors(),
+  })
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -76,19 +68,19 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Create Job Order" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="m-3">
-      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+    <div class="mt-3">
+      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl px-6">
         <div class="mb-3 flex items-center">
           <div class="flex flex-col">
             <h3 class="mb-8 scroll-m-20 text-3xl font-semibold tracking-tight">
-              Add Job Order
+              Create Job Order
             </h3>
             <form
               @submit.prevent="onSubmit"
               class="grid grid-cols-[auto,1fr] gap-y-6"
             >
               <div>
-                <FirstSection
+                <JobOrderDetails
                   is-editing
                   v-model:serviceType="form.service_type"
                   v-model:serviceDate="form.date_time"
@@ -99,15 +91,24 @@ const breadcrumbs: BreadcrumbItem[] = [
                   v-model:contactPosition="form.contact_position"
                   v-model:contactPerson="form.contact_person"
                   v-model:contactNumber="form.contact_no"
+                  v-model:technician="form.technician"
+                  :technicians="regulars"
+                  :errors="form.errors"
                 />
-
-                <Form5Section
-                  v-if="isForm5"
-                  v-model:assignedPerson="form.assigned_person"
-                  v-model:items="form.items"
-                  v-model:purpose="form.purpose"
-                  :employees="employees"
-                  :isEditing="true"
+              </div>
+              <div
+                v-if="form.service_type === 'it_service'"
+                class="col-[1/1]"
+              >
+                <Separator class="mb-3" />
+                <MachineDetails
+                  is-editing
+                  v-model:machine-type="form.machine_type"
+                  v-model:machine-model="form.model"
+                  v-model:serial-number="form.serial_no"
+                  v-model:tag-number="form.tag_no"
+                  v-model:machine-problem="form.machine_problem"
+                  :errors="form.errors"
                 />
               </div>
 

@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Enums\JobOrderCorrectionRequestStatus;
 use App\Enums\UserPermission;
 use App\Enums\UserRole;
+use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -32,9 +33,14 @@ class JobOrderCorrectionPolicy
             : Response::deny();
     }
 
-    public function create(User $user): Response
+    public function create(User $user, JobOrder $jobOrder): Response
     {
-        return $user->hasPermissionTo(UserPermission::CreateJobOrderCorrection)
+        $hasPermission     = $user->hasPermissionTo(UserPermission::CreateJobOrderCorrection);
+        $isJobOrderCreator = $user->employee->createdJobOrders->contains($jobOrder);
+
+        $canCreateJobOrderCorrection = $hasPermission && $isJobOrderCreator;
+
+        return $canCreateJobOrderCorrection
             ? Response::allow()
             : Response::deny();
     }

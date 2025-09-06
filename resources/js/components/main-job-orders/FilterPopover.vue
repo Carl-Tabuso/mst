@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import {
+  JobOrderStatus,
   JobOrderStatuses,
-  type JobOrderStatus,
 } from '@/constants/job-order-statuses'
 import { router } from '@inertiajs/vue3'
 import { Calendar, Filter } from 'lucide-vue-next'
@@ -24,18 +24,27 @@ const { routeName } = defineProps<{
 }>()
 
 interface DataTableFacetedFilterProps {
-  statuses: JobOrderStatus[]
+  itServiceStatuses: JobOrderStatus[]
   fromDateOfService: string
   toDateOfService: string
 }
 
 const props = ref<DataTableFacetedFilterProps>({
-  statuses: [],
+  itServiceStatuses: [],
   fromDateOfService: '',
   toDateOfService: '',
 }) as Ref
 
-const selectedStatuses = computed(() => new Set(props.value.statuses))
+const iTServiceStatuses: Array<JobOrderStatus> = [
+  'for check up',
+  'for final service',
+  'completed',
+]
+const validStatuses = JobOrderStatuses.filter((status) =>
+  iTServiceStatuses.includes(status.id),
+)
+
+const selectedStatuses = computed(() => new Set(props.value.itServiceStatuses))
 const fromDateOfServiceValue = computed(() => props.value.fromDateOfService)
 const toDateOfServiceValue = computed(() => props.value.toDateOfService)
 
@@ -48,7 +57,7 @@ const applyFilters = () => {
 }
 
 const clearFilters = () => {
-  props.value.statuses = []
+  props.value.itServiceStatuses = []
   props.value.fromDateOfService = ''
   props.value.toDateOfService = ''
 
@@ -61,11 +70,11 @@ const clearFilters = () => {
 
 const handleStatusSelection = (statusId: string, event: boolean) => {
   if (event) {
-    if (!props.value.statuses.includes(statusId)) {
-      props.value.statuses.push(statusId)
+    if (!props.value.itServiceStatuses.includes(statusId)) {
+      props.value.itServiceStatuses.push(statusId)
     }
   } else {
-    props.value.statuses = props.value.statuses.filter(
+    props.value.itServiceStatuses = props.value.itServiceStatuses.filter(
       (id: string) => id !== statusId,
     )
   }
@@ -113,10 +122,10 @@ const sendFilterRequest = (filterValues: any, options: object) => {
       align="start"
     >
       <div class="mb-5 flex flex-col space-y-5">
-        <div class="text-sm font-semibold leading-none">Status</div>
-        <div class="grid grid-cols-3 gap-x-10 gap-y-6">
+        <div class="text-sm font-semibold leading-none">IT Service Status</div>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-4">
           <div
-            v-for="status in JobOrderStatuses"
+            v-for="status in validStatuses"
             :key="status.id"
             class="flex items-center gap-x-2"
           >
@@ -130,9 +139,14 @@ const sendFilterRequest = (filterValues: any, options: object) => {
             />
             <Label
               :for="status.id"
-              class="font-normal"
+              class="text-sm font-normal"
             >
-              {{ status.label }}
+              <Badge
+                :variant="status.badge"
+                class="text-xs"
+              >
+                {{ status.label }}
+              </Badge>
             </Label>
           </div>
         </div>
@@ -140,16 +154,16 @@ const sendFilterRequest = (filterValues: any, options: object) => {
       <Separator />
       <div class="my-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">Date of Service</div>
-        <div class="grid grid-cols-2 gap-10">
+        <div class="grid grid-cols-1 gap-4">
           <!--From-->
           <div class="flex items-center">
-            <span class="pr-4 text-sm"> From </span>
+            <span class="min-w-[50px] pr-4 text-sm"> From </span>
             <Popover>
               <PopoverTrigger as-child>
                 <Button
                   variant="outline"
                   :class="[
-                    'w-[240px] ps-3 text-start font-normal',
+                    'w-full ps-3 text-start font-normal',
                     { 'text-muted-foreground': !fromDateOfServiceValue },
                   ]"
                 >
@@ -164,7 +178,7 @@ const sendFilterRequest = (filterValues: any, options: object) => {
                               day: 'numeric',
                             },
                           )
-                        : 'Pick a date'
+                        : 'Pick start date'
                     }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
@@ -182,13 +196,13 @@ const sendFilterRequest = (filterValues: any, options: object) => {
           </div>
           <!--To-->
           <div class="flex items-center">
-            <span class="pr-4 text-sm"> To </span>
+            <span class="min-w-[50px] pr-4 text-sm"> To </span>
             <Popover>
               <PopoverTrigger as-child>
                 <Button
                   variant="outline"
                   :class="[
-                    'w-[240px] ps-3 text-start font-normal',
+                    'w-full ps-3 text-start font-normal',
                     { 'text-muted-foreground': !toDateOfServiceValue },
                   ]"
                 >
@@ -203,7 +217,7 @@ const sendFilterRequest = (filterValues: any, options: object) => {
                               day: 'numeric',
                             },
                           )
-                        : 'Pick a date'
+                        : 'Pick end date'
                     }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
@@ -221,16 +235,18 @@ const sendFilterRequest = (filterValues: any, options: object) => {
           </div>
         </div>
       </div>
-      <div class="flex items-center justify-end space-x-2">
+      <div class="flex items-center justify-end space-x-2 pt-4">
         <Button
           @click="clearFilters"
           variant="outline"
-          >Clear</Button
+          size="sm"
+          >Clear Filters</Button
         >
         <Button
           @click="applyFilters"
           variant="default"
-          >Apply Filter</Button
+          size="sm"
+          >Apply Filters</Button
         >
       </div>
     </PopoverContent>

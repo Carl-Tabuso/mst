@@ -2,7 +2,10 @@ import DropdownAction from '@/components/main-job-orders/DataTableDropdown.vue'
 import DataTableHeader from '@/components/main-job-orders/DataTableHeader.vue'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { JobOrder } from '@/types'
+import { Link } from '@inertiajs/vue3'
 import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { h } from 'vue'
@@ -13,16 +16,7 @@ declare module '@tanstack/vue-table' {
   }
 }
 
-const badgeMap = {
-  'for verification': 'continuous',
-  'for personnel assignment': 'continuous',
-  'for safety inspection': 'continuous',
-  'on-hold': 'continuous',
-  closed: 'secondary',
-  completed: 'success',
-  dropped: 'destructive',
-  default: 'default',
-} as const
+const { statusMap, routeMap } = useJobOrderDicts()
 
 export const columns: ColumnDef<JobOrder>[] = [
   {
@@ -43,6 +37,27 @@ export const columns: ColumnDef<JobOrder>[] = [
         class: 'border-gray-400 dark:border-white',
       }),
     enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: 'ticket',
+    meta: { label: 'Ticket' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const serviceType = row.original.serviceableType
+      return h(
+        Link,
+        {
+          href: route(
+            `job_order.${routeMap[serviceType]}.edit`,
+            row.getValue('ticket'),
+          ),
+          class:
+            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+        },
+        () => row.getValue('ticket'),
+      )
+    },
     enableHiding: false,
   },
   {
@@ -79,19 +94,13 @@ export const columns: ColumnDef<JobOrder>[] = [
   {
     accessorKey: 'status',
     meta: { label: 'Status' },
-    header: ({ column }) => h(DataTableHeader, { column: column }),
+    header: ({ column }) => h(DataTableHeader, { column }),
     cell: ({ row }) => {
-      const status: string = row.getValue('status')
-      const variant =
-        badgeMap[status as keyof typeof badgeMap] ?? badgeMap.default
-      const formatted = () =>
-        status
-          .split(' ')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ')
+      const status: JobOrderStatus = row.getValue('status')
       return h(
-        'div',
-        h(Badge, { variant: variant, class: 'truncate' }, formatted),
+        Badge,
+        { variant: statusMap[status].badge },
+        () => statusMap[status].label,
       )
     },
   },
@@ -143,18 +152,6 @@ export const columns: ColumnDef<JobOrder>[] = [
       ])
     },
   },
-  // {
-  //     accessorKey: 'machineInfos',
-  //     meta: { label: 'Machines' },
-  //     header: ({ column }) => h(DataTableHeader, { column: column }),
-  //     cell: ({ row }) => {
-  //         const machines = row.original.machineInfos || []
-  //         if (!machines.length) return h('span', { class: 'text-xs text-muted-foreground' }, '—')
-  //         return h('ul', { class: 'text-xs list-disc ml-4' }, machines.map((m: any) =>
-  //             h('li', {}, `${m.machine_type} (${m.model})`)
-  //         ))
-  //     }
-  // },
   {
     id: 'actions',
     cell: ({ row }) => {
@@ -163,5 +160,4 @@ export const columns: ColumnDef<JobOrder>[] = [
     },
     enableHiding: false,
   },
-  //add more if needed(wait for the ligma)
 ]

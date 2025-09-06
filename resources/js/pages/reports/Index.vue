@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import ReportsAnalyticsPlaholder from '@/components/placeholders/ReportsAnalyticsPlaholder.vue'
 import { Button } from '@/components/ui/button'
 import {
@@ -109,7 +110,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
   <Head title="Reports and Analytics" />
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex items-start justify-between">
         <div class="flex flex-col">
           <h1 class="scroll-m-20 text-3xl font-bold text-primary">
@@ -173,6 +174,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           <ServiceTypeCompletion :data="data!.completion" />
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>
