@@ -44,12 +44,13 @@ class JobOrderCorrectionController extends Controller
         ]);
     }
 
-    public function show(JobOrderCorrection $correction): Response
+  public function show(JobOrderCorrection $correction): Response
     {
         $correction->load([
             'jobOrder' => [
                 'creator' => ['account:avatar'],
                 'cancel',
+                'serviceable',
             ],
         ]);
 
@@ -70,6 +71,17 @@ class JobOrderCorrectionController extends Controller
                         'technician',
                         'initialOnsiteReport',
                         'finalOnsiteReport',
+                    ],
+                ],
+            ]);
+        }
+
+        if ($serviceType === JobOrderServiceType::Form5) {
+            $correction->loadMissing([
+                'jobOrder' => [
+                    'serviceable' => [
+                        'items',
+                        'assignedPerson'
                     ],
                 ],
             ]);

@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             EmployeePerformanceSeeder::class,
             JobOrderCorrectionSeeder::class,
             UserSeeder::class,
-            AdminPrivilegesUserSeeder::class,
+            // AdminPrivilegesUserSeeder::class,
             PerformanceSummarySeeder::class,
             EmployeeRatingSeeder::class,
             // AnnualReportSeeder::class,

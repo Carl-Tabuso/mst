@@ -17,14 +17,9 @@ const props = defineProps<{
   isLoading?: boolean
 }>()
 onMounted(() => {
-  console.log('DataTable mounted with:')
-  console.log('Table instance:', props.table)
-  console.log('Columns:', props.columns)
-  console.log('Is loading:', props.isLoading)
 
   if (props.table) {
-    console.log('Table state:')('Row model:', props.table.getRowModel())
-    console.log('First row data:', props.table.getRowModel().rows[0]?.original)
+
   }
 })
 </script>

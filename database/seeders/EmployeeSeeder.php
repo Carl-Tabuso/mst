@@ -21,7 +21,8 @@ class EmployeeSeeder extends Seeder
         $this->seedHumanResources();
     }
 
-    private function seedFrontliners(): void
+
+    private function seedFrontliners()
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Frontliner'),
@@ -41,6 +42,8 @@ class EmployeeSeeder extends Seeder
             'position_id' => $this->getPositionId('Team Leader'),
         ]);
     }
+
+
 
     private function seedHaulers(): void
     {
@@ -67,4 +70,6 @@ class EmployeeSeeder extends Seeder
     {
         return Position::firstWhere(['name' => $positionName])->id;
     }
+
+
 }
