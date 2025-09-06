@@ -28,11 +28,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::enforceMorphMap([
-            'user'       => 'App\Models\User',
-            'form4'      => 'App\Models\Form4',
-            'form5'      => 'App\Models\Form5',
-            'it_service' => 'App\Models\ITService',
-            'job_order'  => 'App\Models\JobOrder',
+            'user'                  => 'App\Models\User',
+            'form4'                 => 'App\Models\Form4',
+            'form5'                 => 'App\Models\Form5',
+            'it_service'            => 'App\Models\ITService',
+            'job_order'             => 'App\Models\JobOrder',
+            'initial_onsite_report' => 'App\Models\InitialOnsiteReport',
+            'final_onsite_report'   => 'App\Models\FinalOnsiteReport',
         ]);
 
         JsonResource::withoutWrapping();

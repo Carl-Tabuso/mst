@@ -14,7 +14,6 @@ import { router } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
 import { Archive, Download, Search, Settings2 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { route } from 'ziggy-js'
 import FilterPopover from './FilterPopover.vue'
 
@@ -25,14 +24,23 @@ interface DataTableToolbarProps {
 }
 
 const props = defineProps<DataTableToolbarProps>()
-const vueRouter = useRouter()
 
 const handleOnSearch = (value: string | number) => {
   props.table.setGlobalFilter(value)
-  vueRouter.replace({
-    name: props.routeName,
-    query: { search: value },
-  })
+
+  router.get(
+    route(props.routeName),
+    { search: value },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+    },
+  )
+}
+
+const handleExport = () => {
+  console.log('export')
 }
 
 const hasRowSelection = computed(
@@ -50,11 +58,20 @@ const handleArchive = () => {
   const selectedIds = props.table
     .getSelectedRowModel()
     .rows.map((row) => row.original.id)
-  if (!selectedIds.length) return
+  console.log('Archiving Job Order IDs:', selectedIds)
+
+  if (!selectedIds.length) {
+    console.log('No rows selected for archiving.')
+    return
+  }
 
   const archiveRoute = props.routeName.endsWith('.index')
     ? props.routeName.replace('.index', '.archive')
     : props.routeName + '.archive'
+
+  // 🪵 Log for debugging
+  console.log('Archiving Job Orders:', selectedIds)
+  console.log('Using route:', archiveRoute)
 
   router.post(
     route(archiveRoute),
@@ -63,6 +80,8 @@ const handleArchive = () => {
       preserveState: true,
       preserveScroll: true,
       replace: true,
+      onSuccess: () => console.log('Archive successful!'),
+      onError: () => console.error('Archive failed!'),
     },
   )
 }
@@ -86,7 +105,7 @@ const handleArchive = () => {
       </span>
     </div>
 
-    <FilterPopover :routeName="routeName" />
+    <FilterPopover :route-name="props.routeName" />
 
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
@@ -123,7 +142,10 @@ const handleArchive = () => {
       </DropdownMenuContent>
     </DropdownMenu>
 
-    <Button variant="ghost">
+    <Button
+      @click="handleExport"
+      variant="ghost"
+    >
       <Download
         class="mr-2"
         :stroke-width="1"
@@ -136,13 +158,14 @@ const handleArchive = () => {
         :disabled="!hasRowSelection"
         :variant="hasRowSelection ? 'destructive' : 'secondary'"
         class="mx-3"
+        @click="handleArchive"
       >
         <Archive class="mr-2" />
         Archive
         <template v-if="hasRowSelection">
           <div class="hidden lg:flex">
             <Badge
-              variant="secondary"
+              variant="destructive"
               class="rounded-full font-normal"
               >{{ table.getSelectedRowModel().rows.length }}
             </Badge>

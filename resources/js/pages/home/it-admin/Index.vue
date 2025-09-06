@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
@@ -35,7 +36,7 @@ onMounted(() => {
   <Head title="Home" />
 
   <AppLayout>
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div
         v-if="!isDataLoaded"
         class="flex h-full justify-center"
@@ -62,6 +63,6 @@ onMounted(() => {
           <RecentActivities :data="data?.recentActivities" />
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

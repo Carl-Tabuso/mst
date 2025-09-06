@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
-use App\Enums\MachineStatus;
+use App\Policies\ITServicePolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
+#[UsePolicy(ITServicePolicy::class)]
 class ITService extends Model
 {
     use HasFactory;
@@ -20,29 +23,23 @@ class ITService extends Model
         'updated_at',
     ];
 
-    protected $casts = [
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
-        'machine_status' => MachineStatus::class,
-    ];
-
     public function jobOrder(): MorphOne
     {
         return $this->morphOne(JobOrder::class, 'serviceable');
     }
 
-    public function technicians(): BelongsToMany
+    public function technician(): BelongsTo
     {
-        return $this->belongsToMany(
-            Employee::class,
-            'it_services_technicians',
-            'i_t_service_id',
-            'technicians'
-        );
+        return $this->belongsTo(Employee::class, 'technician_id');
     }
 
-    public function machineInfos()
+    public function initialOnsiteReport(): HasOne
     {
-        return $this->hasMany(MachineInfo::class, 'it_service_id');
+        return $this->hasOne(InitialOnsiteReport::class, 'it_service_id');
+    }
+
+    public function finalOnsiteReport(): HasOne
+    {
+        return $this->hasOne(FinalOnsiteReport::class, 'it_service_id');
     }
 }

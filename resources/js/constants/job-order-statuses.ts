@@ -69,6 +69,11 @@ export const JobOrderStatuses = [
     label: 'For Checkup',
     badge: 'continuous',
   },
+  {
+    id: 'for final service',
+    label: 'For Final Service',
+    badge: 'continuous',
+  },
 ] as const
 
 type manualStatusUpdaterType = {

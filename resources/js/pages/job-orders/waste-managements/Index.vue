@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
 import JobOrderServiceTypeTabs from '../components/JobOrderServiceTypeTabs.vue'
@@ -32,7 +33,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Waste Management" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
         <PageHeader
           title="Waste Management"
@@ -46,6 +47,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           :empty-img-uri="emptySearchImg"
         />
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

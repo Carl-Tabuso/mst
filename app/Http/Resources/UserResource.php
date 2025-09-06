@@ -15,7 +15,6 @@ class UserResource extends JsonResource
             'employeeId'      => $this->employeeId,
             'email'           => $this->email,
             'emailVerifiedAt' => $this->whenNotNull($this->email_verified_at),
-            'password'        => $this->password,
             'rememberToken'   => $this->whenNotNull($this->remember_token),
             'createdAt'       => $this->created_at,
             'updatedAt'       => $this->updated_at,

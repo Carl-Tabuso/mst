@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EmployeePopoverSelection from '@/components/EmployeePopoverSelection.vue'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -18,14 +20,12 @@ import { Employee } from '@/types'
 import { UserRoundSearch } from 'lucide-vue-next'
 import { inject } from 'vue'
 import { useTruckTable } from '../composables/useTruckTable'
-import EmployeePopoverSelection from '@/components/EmployeePopoverSelection.vue'
-import { Badge } from '@/components/ui/badge'
 
 const {
   table,
   onDispatcherFilterSelect,
   onClearDispatcherFilter,
-  isProcessing
+  isProcessing,
 } = useTruckTable()
 
 const dispatchers = inject<Employee[]>('dispatchers', [])
@@ -76,7 +76,7 @@ const dispatchers = inject<Employee[]>('dispatchers', [])
             <CommandGroup>
               <CommandItem
                 value="clear"
-                class="justify-center text-center cursor-pointer"
+                class="cursor-pointer justify-center text-center"
                 @select="onClearDispatcherFilter"
               >
                 Clear Filters

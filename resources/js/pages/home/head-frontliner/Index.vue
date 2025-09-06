@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import Home1Placeholder from '@/components/placeholders/Home1Placeholder.vue'
 import { Separator } from '@/components/ui/separator'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -69,7 +70,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Home" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <Home1Placeholder v-if="isLoading" />
       <div v-else>
         <div class="grid items-start gap-4 md:grid-cols-1 lg:grid-cols-3">
@@ -108,6 +109,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

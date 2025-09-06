@@ -1,6 +1,7 @@
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { HaulingStatusType } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { MachineStatusType } from '@/constants/machine-statuses'
 import { UserRoleType } from '@/constants/user-role'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
@@ -48,7 +49,6 @@ export interface NavItem {
 
 export interface SharedData extends PageProps {
   name: string
-  quote: { message: string; author: string }
   auth: Auth
   ziggy: Config & { location: string }
   flash: { message: any }
@@ -98,9 +98,46 @@ export interface JobOrder {
   createdAt: string
   updatedAt: string
   creator: Employee
-  serviceable: Form4 // add it services and others here
+  serviceable: Form4 | ITService // add it services and others here
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
+}
+
+export interface ITService {
+  id: number
+  technicianId: number
+  machineType: string
+  model: string
+  serialNo: string | number
+  tagNo: string | number
+  machineProblem: string
+  jobOrder?: JobOrder
+  initialOnsiteReport?: InitialOnsiteReport
+  finalOnsiteReport?: FinalOnsiteReport
+  technician?: Employee
+}
+
+export interface InitialOnsiteReport {
+  id: number
+  servicePerformed: string
+  recommendation: string
+  machineStatus: MachineStatusType
+  fileName: string | null
+  fileHash: string | null
+  createdAt: string
+  updatedAt: string
+  itService: ITService
+}
+
+export interface FinalOnsiteReport {
+  id: number
+  servicePerformed: string
+  partsReplaced: string
+  remarks: string
+  machineStatus: MachineStatusType
+  createdAt: string
+  updatedAt: string
+  itService: ITService
 }
 
 export interface Form4 {

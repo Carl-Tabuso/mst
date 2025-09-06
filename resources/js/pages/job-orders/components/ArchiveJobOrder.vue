@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import { JobOrder } from '@/types'
-import { router } from '@inertiajs/vue3'
-import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
-import { VisuallyHidden } from 'radix-vue'
-import { ref } from 'vue'
-import { toast } from 'vue-sonner'
-import { Button } from '../../../components/ui/button'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogClose,
@@ -13,13 +7,19 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from '../../../components/ui/dialog'
+} from '@/components/ui/dialog'
+import { JobOrder } from '@/types'
+import { router } from '@inertiajs/vue3'
+import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
+import { VisuallyHidden } from 'radix-vue'
+import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 
-interface ArchiveColumnProps {
+interface ArchiveJobOrderProps {
   jobOrder: JobOrder
 }
 
-const props = defineProps<ArchiveColumnProps>()
+const props = defineProps<ArchiveJobOrderProps>()
 
 const isArchiveModalOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)

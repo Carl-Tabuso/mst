@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Employee;
 use App\Models\ITService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,15 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('it_services_technicians', function (Blueprint $table) {
-            $table->foreignIdFor(ITService::class)
+        Schema::create('final_onsite_reports', function (Blueprint $table) {
+            $table->id();
+            $table->foreignIdFor(ITService::class, 'it_service_id')
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->foreignIdFor(Employee::class, 'technicians')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
+            $table->longText('service_performed');
+            $table->longText('parts_replaced');
+            $table->string('remarks');
+            $table->string('machine_status');
+            $table->timestamps();
         });
     }
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('it_services_technicians');
+        Schema::dropIfExists('final_onsite_reports');
     }
 };
