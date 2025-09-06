@@ -36,7 +36,7 @@ class Form5Controller extends Controller
     public function store(StoreForm5Request $request): RedirectResponse
     {
         $validated = $request->safe()->merge([
-            'created_by' => $request->user()->id,
+            'created_by' => $request->user()->employee_id,
         ])->toArray();
 
         $data = $this->service->storeForm5($validated);
