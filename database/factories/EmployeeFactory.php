@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Department;
 use App\Models\Position;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -27,7 +26,6 @@ class EmployeeFactory extends Factory
             'email' => fake()->unique()->companyEmail(),
             'contact_number' => fake()->phoneNumber(),
             'position_id' => Position::inRandomOrder()->first()->id,
-            'department_id' => Department::inRandomOrder()->first()->id,
             'job_assignment' => fake()->randomElement(['Main Office', 'Field Operation', 'Headquarters', 'Regional Office']),
         ];
     }

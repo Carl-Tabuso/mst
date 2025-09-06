@@ -29,7 +29,6 @@ class Employee extends Model
         'date_of_birth',
         'email',
         'contact_number',
-        'department_id',
         'position_id',
         'job_assignment'
     ];
@@ -82,12 +81,7 @@ class Employee extends Model
     }
 
 
-   public function department()
-    {
-        return $this->belongsTo(Department::class);
-    }
-
-
+ 
     public function account(): HasOne
     {
         return $this->hasOne(User::class)->withTrashed();

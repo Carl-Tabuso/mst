@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Traits\RandomEmployee;
@@ -14,7 +13,6 @@ class EmployeeSeeder extends Seeder
 
     public function run(): void
     {
-        $this->seedDepartments();
         $this->seedFrontliners();
         $this->seedDispatchers();
         $this->seedTeamLeaders();
@@ -23,29 +21,29 @@ class EmployeeSeeder extends Seeder
         $this->seedHumanResources();
     }
 
-    private function seedDepartments()
-    {
-        $departments = [
-            ['name' => 'Operations', 'code' => 'OPS'],
-            ['name' => 'Logistics', 'code' => 'LOG'],
-            ['name' => 'Human Resources', 'code' => 'HR'],
-            ['name' => 'Field Services', 'code' => 'FLD'],
-        ];
-
-        foreach ($departments as $department) {
-            Department::firstOrCreate(
-                ['name' => $department['name']],
-                $department
-            );
-        }
-    }
 
     private function seedFrontliners()
+    {
+        Employee::factory(10)->create([
+            'position_id' => $this->getPositionId('Frontliner'),
+        ]);
+    }
+
+    private function seedDispatchers(): void
+    {
+        Employee::factory(10)->create([
+            'position_id' => $this->getPositionId('Dispatcher'),
+        ]);
+    }
+
+    private function seedTeamLeaders(): void
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Team Leader'),
         ]);
     }
+
+
 
     private function seedHaulers(): void
     {
@@ -73,8 +71,5 @@ class EmployeeSeeder extends Seeder
         return Position::firstWhere(['name' => $positionName])->id;
     }
 
-    private function getRandomDepartmentId(): int
-    {
-        return Department::inRandomOrder()->first()->id;
-    }
+
 }

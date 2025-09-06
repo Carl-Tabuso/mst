@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Department;
 use App\Models\Position;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,10 +16,7 @@ return new class extends Migration
             $table->date('date_of_birth')->after('suffix');
             $table->string('email')->after('date_of_birth');
             $table->string('contact_number')->after('email');
-            $table->foreignIdFor(Department::class)->after('position_id')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
+       
             $table->string('job_assignment')->after('department_id');
 
             if (! $this->isSqlite()) {
