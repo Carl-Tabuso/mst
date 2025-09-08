@@ -9,7 +9,7 @@ class EmployeeCompensation extends Model
     protected $fillable = [
         'employee_id',
         'salary',
-        'allowance'
+        'allowance',
     ];
 
     public function employee()

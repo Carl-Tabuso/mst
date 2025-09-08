@@ -50,21 +50,22 @@ class Form5Service
     {
         return DB::transaction(function () use ($validated) {
             $form5 = Form5::create([
-                'assigned_person' => $validated['assigned_person'] ?? null,
-                'purpose'          => $validated['purpose'] ?? null,
+                'assigned_person'  => $validated['assigned_person'] ?? null,
+                'purpose'          => $validated['purpose']         ?? null,
             ]);
 
             if (isset($validated['items']) && is_array($validated['items'])) {
                 foreach ($validated['items'] as $itemData) {
                     Form5Item::create([
-                        'form5_id' => $form5->id,
+                        'form5_id'  => $form5->id,
                         'item_name' => $itemData['item_name'],
-                        'quantity' => $itemData['quantity'],
+                        'quantity'  => $itemData['quantity'],
                     ]);
                 }
             }
 
             $jobOrderData = array_merge($validated, ['status' => JobOrderStatus::InProgress]);
+
             return $form5->jobOrder()->create($jobOrderData);
         });
     }
@@ -75,12 +76,11 @@ class Form5Service
             'creator' => ['account:avatar'],
             'cancel',
             'corrections',
-            'serviceable' => [ 
+            'serviceable' => [
                 'assignedPerson' => ['account:avatar'],
-                'items'
+                'items',
             ],
         ]);
-
 
         $jobOrder = JobOrderResource::make($loads);
 
@@ -90,7 +90,7 @@ class Form5Service
 
         return compact('jobOrder', 'employees');
     }
-    
+
     public function updateForm5(array $validated, Form5 $form5): string
     {
         return DB::transaction(function () use ($validated, $form5) {
@@ -100,12 +100,12 @@ class Form5Service
 
             if (isset($validated['items']) && is_array($validated['items'])) {
                 $form5->items()->delete();
-                
+
                 foreach ($validated['items'] as $itemData) {
                     Form5Item::create([
-                        'form5_id' => $form5->id,
+                        'form5_id'  => $form5->id,
                         'item_name' => $itemData['item_name'],
-                        'quantity' => $itemData['quantity'],
+                        'quantity'  => $itemData['quantity'],
                     ]);
                 }
             }
@@ -122,6 +122,7 @@ class Form5Service
     {
         return DB::transaction(function () use ($form5) {
             $form5->jobOrder()->update(['status' => JobOrderStatus::Completed]);
+
             return JobOrderStatus::Completed->value;
         });
     }
@@ -130,6 +131,7 @@ class Form5Service
     {
         return DB::transaction(function () use ($form5) {
             $form5->jobOrder()->update(['status' => JobOrderStatus::InProgress]);
+
             return JobOrderStatus::InProgress->value;
         });
     }

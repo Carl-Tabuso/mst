@@ -21,7 +21,7 @@ class Employee extends Model
         'updated_at',
     ];
 
-     protected $fillable = [
+    protected $fillable = [
         'last_name',
         'first_name',
         'middle_name',
@@ -30,12 +30,12 @@ class Employee extends Model
         'email',
         'contact_number',
         'position_id',
-        'job_assignment'
+        'job_assignment',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'created_at'    => 'datetime',
+        'updated_at'    => 'datetime',
         'date_of_birth' => 'date',
     ];
 
@@ -61,7 +61,8 @@ class Employee extends Model
             )
         );
     }
-     public function address()
+
+    public function address()
     {
         return $this->hasOne(EmployeeAddress::class);
     }
@@ -71,17 +72,16 @@ class Employee extends Model
         return $this->hasOne(EmployeeEmergencyContact::class);
     }
 
-   public function employmentDetails()
+    public function employmentDetails()
     {
         return $this->hasOne(EmployeeEmploymentDetail::class);
     }
-       public function compensation()
+
+    public function compensation()
     {
         return $this->hasOne(EmployeeCompensation::class);
     }
 
-
- 
     public function account(): HasOne
     {
         return $this->hasOne(User::class)->withTrashed();
@@ -131,7 +131,6 @@ class Employee extends Model
             'it_service_id'
         );
     }
-
 
     public function createdJobOrders(): HasMany
     {

@@ -47,14 +47,14 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{jobOrder}', [JobOrderController::class, 'destroy'])
             ->name('destroy')
             ->can('update', 'jobOrder');
-     Route::prefix('other-services')->name('other_services.')->group(function () {
+        Route::prefix('other-services')->name('other_services.')->group(function () {
             Route::get('/', [Form5Controller::class, 'index'])->name('index');
-            Route::get('{ticket}/edit', [   Form5Controller::class, 'edit'])
+            Route::get('{ticket}/edit', [Form5Controller::class, 'edit'])
                 ->name('edit')
                 ->can('view', 'ticket');
             Route::post('/', [Form5Controller::class, 'store'])->name('store');
             Route::patch('{form5}', [Form5Controller::class, 'update'])->name('update');
-       
+
         });
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])->name('index');

@@ -10,15 +10,15 @@ class Form5Resource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id'              => $this->id,
             'assigned_person' => $this->assigned_person,
-            'purpose' => $this->purpose,
-            'items' => $this->whenLoaded('items', function () {
+            'purpose'         => $this->purpose,
+            'items'           => $this->whenLoaded('items', function () {
                 return $this->items->map(function ($item) {
                     return [
-                        'id' => $item->id,
+                        'id'        => $item->id,
                         'item_name' => $item->item_name,
-                        'quantity' => $item->quantity,
+                        'quantity'  => $item->quantity,
                     ];
                 });
             }),

@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('form5_items', function (Blueprint $table) {
             $table->id();
-             $table->foreignId('form5_id')
+            $table->foreignId('form5_id')
                 ->constrained('form5')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-                   $table->string('item_name');      
-                     $table->integer('quantity');      
+            $table->string('item_name');
+            $table->integer('quantity');
             $table->timestamps();
-    
 
         });
     }

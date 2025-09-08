@@ -10,7 +10,6 @@ const props = defineProps<{
   isLoading?: boolean
 }>()
 
-
 const table = useVueTable({
   get data() {
     return props.data || []

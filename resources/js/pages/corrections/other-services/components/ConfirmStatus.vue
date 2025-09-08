@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useForm } from '@inertiajs/vue3'
 import { CircleCheck, LoaderCircle } from 'lucide-vue-next'
-import { inject, computed } from 'vue'
+import { inject } from 'vue'
 import { toast } from 'vue-sonner'
 
 interface ConfirmStatusProps {
@@ -35,15 +35,15 @@ const selections = [
 
 // Prepare the data for the patch request
 const prepareFormData = () => {
-  const data: any = { ...newValues };
-  
+  const data: any = { ...newValues }
+
   // If we have serviceable data, we need to structure it properly
   if (newValues.serviceable) {
     // The backend expects serviceable data to be nested under 'serviceable' key
-    data.serviceable = { ...newValues.serviceable };
+    data.serviceable = { ...newValues.serviceable }
   }
-  
-  return data;
+
+  return data
 }
 
 const form = useForm({

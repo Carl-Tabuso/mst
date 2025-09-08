@@ -80,8 +80,22 @@ onMounted(() => fetchEmployees())
         }"
         :isLoading="isLoading"
         @page-change="(page: any) => fetchEmployees({ page })"
-        @per-page-change="(per_page: any) => fetchEmployees({ per_page, page: 1 })"
-        @filter-change="(filters: { page?: number; per_page?: number; search?: string; status?: string; sort?: string } | undefined) => fetchEmployees({ ...filters, page: 1 })"
+        @per-page-change="
+          (per_page: any) => fetchEmployees({ per_page, page: 1 })
+        "
+        @filter-change="
+          (
+            filters:
+              | {
+                  page?: number
+                  per_page?: number
+                  search?: string
+                  status?: string
+                  sort?: string
+                }
+              | undefined,
+          ) => fetchEmployees({ ...filters, page: 1 })
+        "
       />
     </div>
   </AppLayout>

@@ -36,10 +36,7 @@ export const columns: ColumnDef<JobOrder>[] = [
       return h(
         Link,
         {
-          href: route(
-            'job_order.other_services.edit',
-            row.getValue('ticket'),
-          ),
+          href: route('job_order.other_services.edit', row.getValue('ticket')),
           class:
             'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
         },

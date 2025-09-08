@@ -44,7 +44,7 @@ class JobOrderCorrectionController extends Controller
         ]);
     }
 
-  public function show(JobOrderCorrection $correction): Response
+    public function show(JobOrderCorrection $correction): Response
     {
         $correction->load([
             'jobOrder' => [
@@ -81,7 +81,7 @@ class JobOrderCorrectionController extends Controller
                 'jobOrder' => [
                     'serviceable' => [
                         'items',
-                        'assignedPerson'
+                        'assignedPerson',
                     ],
                 ],
             ]);

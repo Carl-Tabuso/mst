@@ -14,13 +14,13 @@ class EmployeeEmploymentDetail extends Model
         'tin',
         'date_hired',
         'regularization_date',
-        'end_of_contract'
+        'end_of_contract',
     ];
 
     protected $casts = [
-        'date_hired' => 'date',
+        'date_hired'          => 'date',
         'regularization_date' => 'date',
-        'end_of_contract' => 'date'
+        'end_of_contract'     => 'date',
     ];
 
     public function employee()

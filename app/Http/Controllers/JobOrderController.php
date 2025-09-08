@@ -22,7 +22,7 @@ class JobOrderController extends Controller
     private const PER_PAGE = 10;
 
     public function __construct(private JobOrderService $service,
-    private EmployeeService $employeeService) {}
+        private EmployeeService $employeeService) {}
 
     public function index(Request $request): Response
     {

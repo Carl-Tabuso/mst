@@ -118,22 +118,22 @@ class EmployeeController extends Controller
         //
     }
 
-public function dropdown()
-{
-    $employees = Employee::select('id', 'first_name', 'last_name')
-        ->orderBy('last_name')
-        ->get()
-        ->map(fn ($e) => [
-            'id'   => $e->id,
-            'name' => "{$e->first_name} {$e->last_name}",
-        ]);
+    public function dropdown()
+    {
+        $employees = Employee::select('id', 'first_name', 'last_name')
+            ->orderBy('last_name')
+            ->get()
+            ->map(fn ($e) => [
+                'id'   => $e->id,
+                'name' => "{$e->first_name} {$e->last_name}",
+            ]);
 
-    if (request()->inertia()) {
-        return inertia('Data/Employees', [
-            'employees' => $employees
-        ]);
+        if (request()->inertia()) {
+            return inertia('Data/Employees', [
+                'employees' => $employees,
+            ]);
+        }
+
+        return response()->json(['employees' => $employees]);
     }
-
-    return response()->json(['employees' => $employees]);
-}
 }

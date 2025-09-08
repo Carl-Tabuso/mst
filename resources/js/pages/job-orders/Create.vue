@@ -6,7 +6,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, type BreadcrumbItem } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import JobOrderDetails from './components/JobOrderDetails.vue'
 import MachineDetails from './components/MachineDetails.vue'
 import Form5Section from './other-services/components/Form5Section.vue'
@@ -112,10 +112,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                   :errors="form.errors"
                 />
               </div>
-              
+
               <div class="col-[1/1]">
                 <Separator class="mb-3" />
-                
+
                 <!-- Machine Details for IT Service -->
                 <div v-if="form.service_type === 'it_service'">
                   <MachineDetails

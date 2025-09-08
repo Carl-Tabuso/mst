@@ -13,6 +13,7 @@ class Form5 extends Model
     use HasFactory;
 
     protected $resourceClass = Form5Resource::class;
+
     protected $table = 'form5';
 
     protected $guarded = [
@@ -20,6 +21,7 @@ class Form5 extends Model
         'created_at',
         'updated_at',
     ];
+
     protected $fillable = [
         'assigned_person',
         'purpose',
@@ -44,28 +46,30 @@ class Form5 extends Model
     {
         return $this->hasMany(Form5Item::class);
     }
-        public function getItemsAttribute()
-{
-    return $this->items()->get(); 
-}
-public function updateItems(array $items)
-{
-    $this->items()->delete();
-    
-    foreach ($items as $item) {
-        $this->items()->create([
-            'item_name' => $item['item_name'],
-            'quantity' => $item['quantity'],
-        ]);
-    }
-}
-    public function attributesForCorrection(): array
-{
-    return [
-        'assigned_person',
-        'purpose',
-        'items',
-    ];
-}
 
+    public function getItemsAttribute()
+    {
+        return $this->items()->get();
+    }
+
+    public function updateItems(array $items)
+    {
+        $this->items()->delete();
+
+        foreach ($items as $item) {
+            $this->items()->create([
+                'item_name' => $item['item_name'],
+                'quantity'  => $item['quantity'],
+            ]);
+        }
+    }
+
+    public function attributesForCorrection(): array
+    {
+        return [
+            'assigned_person',
+            'purpose',
+            'items',
+        ];
+    }
 }

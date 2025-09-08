@@ -17,9 +17,7 @@ const props = defineProps<{
   isLoading?: boolean
 }>()
 onMounted(() => {
-
   if (props.table) {
-
   }
 })
 </script>

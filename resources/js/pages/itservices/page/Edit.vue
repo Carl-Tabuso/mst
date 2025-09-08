@@ -76,8 +76,8 @@ const onSubmit = () => {
     }))
     .post(route('job_order.correction.store', props.data.ticket), {
       onStart: () => form.clearErrors,
-      onSuccess: () => isEditing.value = false,
-      onFinish: () => isEditing.value = false,
+      onSuccess: () => (isEditing.value = false),
+      onFinish: () => (isEditing.value = false),
     })
 }
 

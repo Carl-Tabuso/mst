@@ -80,7 +80,7 @@ class JobOrderCorrectionService
         ]);
 
         $updateableModels = [$jobOrder];
-        $correctionData = ['properties' => ['before' => [], 'after' => []]];
+        $correctionData   = ['properties' => ['before' => [], 'after' => []]];
 
         if ($this->canUpdateProposal($jobOrder->status)) {
             $jobOrder->serviceable->fill([
@@ -200,45 +200,45 @@ class JobOrderCorrectionService
         ]);
 
         $updateableModels = [$jobOrder];
-        $correctionData = ['properties' => ['before' => [], 'after' => []]];
+        $correctionData   = ['properties' => ['before' => [], 'after' => []]];
 
         if ($this->canUpdateProposal($jobOrder->status)) {
             $form5 = $jobOrder->serviceable;
-            
+
             $originalValues = [
                 'assigned_person' => $form5->assigned_person,
-                'purpose' => $form5->purpose,
-                'items' => $form5->items->toArray()
+                'purpose'         => $form5->purpose,
+                'items'           => $form5->items->toArray(),
             ];
-            
+
             $form5->fill([
                 'assigned_person' => $data->assigned_person ?? $form5->assigned_person,
-                'purpose' => $data->purpose ?? $form5->purpose,
+                'purpose'         => $data->purpose         ?? $form5->purpose,
             ]);
-            
+
             $newItems = isset($data->items) ? $data->items : $form5->items->toArray();
 
             $newValues = [
                 'assigned_person' => $form5->assigned_person,
-                'purpose' => $form5->purpose,
-                'items' => $newItems
+                'purpose'         => $form5->purpose,
+                'items'           => $newItems,
             ];
 
             foreach ($originalValues as $key => $originalValue) {
                 $newValue = $newValues[$key];
-                
+
                 if ($key === 'items') {
                     $originalJson = json_encode($originalValue);
-                    $newJson = json_encode($newValue);
-                    
+                    $newJson      = json_encode($newValue);
+
                     if ($originalJson !== $newJson) {
                         $correctionData['properties']['before']['serviceable'][$key] = $originalValue;
-                        $correctionData['properties']['after']['serviceable'][$key] = $newValue;
+                        $correctionData['properties']['after']['serviceable'][$key]  = $newValue;
                     }
                 } else {
                     if ($originalValue != $newValue) {
                         $correctionData['properties']['before']['serviceable'][$key] = $originalValue;
-                        $correctionData['properties']['after']['serviceable'][$key] = $newValue;
+                        $correctionData['properties']['after']['serviceable'][$key]  = $newValue;
                     }
                 }
             }
@@ -248,17 +248,17 @@ class JobOrderCorrectionService
 
         foreach ($updateableModels as $model) {
             $dirty = $model->getDirty();
-            
+
             foreach ($dirty as $key => $value) {
-                if ($model === $jobOrder->serviceable && 
+                if ($model                      === $jobOrder->serviceable     &&
                     $jobOrder->serviceable_type === JobOrderServiceType::Form5 &&
                     isset($correctionData['properties']['before']['serviceable'][$key])) {
                     continue;
                 }
-                
-                $originalValue = $model->getOriginal($key);
+
+                $originalValue                                = $model->getOriginal($key);
                 $correctionData['properties']['before'][$key] = $originalValue;
-                $correctionData['properties']['after'][$key] = $value;
+                $correctionData['properties']['after'][$key]  = $value;
             }
         }
 
@@ -349,26 +349,26 @@ class JobOrderCorrectionService
         }
 
         $form5 = $jobOrder->serviceable;
-        
+
         if (isset($data['serviceable'])) {
             foreach ($data['serviceable'] as $key => $value) {
-                if ($key !== 'items') { 
+                if ($key !== 'items') {
                     $form5->fill([$key => $value]);
                 }
             }
         }
-        
+
         if (isset($data['serviceable']['items'])) {
             $form5->items()->delete();
-            
+
             foreach ($data['serviceable']['items'] as $itemData) {
                 $form5->items()->create([
                     'item_name' => $itemData['item_name'],
-                    'quantity' => $itemData['quantity'],
+                    'quantity'  => $itemData['quantity'],
                 ]);
             }
         }
-        
+
         $form5->save();
     }
 

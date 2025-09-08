@@ -96,11 +96,11 @@ class StoreJobOrderCorrectionRequest extends FormRequest
     private function pushOtherServicesRules()
     {
         $otherServicesRules = [
-            'assigned_person'  => ['sometimes', 'required', 'integer', 'exists:employees,id'],
-            'purpose'          => ['sometimes', 'required', 'string'],
-            'items'            => ['sometimes', 'required', 'array', 'min:1'],
+            'assigned_person'   => ['sometimes', 'required', 'integer', 'exists:employees,id'],
+            'purpose'           => ['sometimes', 'required', 'string'],
+            'items'             => ['sometimes', 'required', 'array', 'min:1'],
             'items.*.item_name' => ['sometimes', 'required', 'string'],
-            'items.*.quantity' => ['sometimes', 'required', 'integer', 'min:1'],
+            'items.*.quantity'  => ['sometimes', 'required', 'integer', 'min:1'],
         ];
 
         $this->rules = array_merge($this->rules, $otherServicesRules);

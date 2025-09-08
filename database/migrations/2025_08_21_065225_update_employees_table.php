@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Position;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +15,7 @@ return new class extends Migration
             $table->date('date_of_birth')->after('suffix');
             $table->string('email')->after('date_of_birth');
             $table->string('contact_number')->after('email');
-       
+
             $table->string('job_assignment')->after('department_id');
 
             if (! $this->isSqlite()) {
@@ -47,7 +46,7 @@ return new class extends Migration
                 'email',
                 'contact_number',
                 'department_id',
-                'job_assignment'
+                'job_assignment',
             ]);
 
             if (! $this->isSqlite()) {
