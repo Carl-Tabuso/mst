@@ -32,19 +32,25 @@ const isDialogOpen = ref<boolean>(false)
 
 const { before, after } = props.changes
 
-const { fieldMap, isDateString } = useCorrections()
+const { fieldMap, isDateString, isEmployee } = useCorrections()
 
-const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map(
-  (b) => ({
+function formatValue(key: CorrectionFieldKey, value: any) {
+  if (isDateString(key)) {
+    return formatToDateDisplay(value, 'MMMM d, yyyy')
+  }
+  if (isEmployee(key)) {
+    return value?.fullName ?? null
+  }
+  return value
+}
+
+const mappedChanges = (Object.keys(before) as CorrectionFieldKey[])
+  .filter((b) => !fieldMap[b]?.ignore)
+  .map((b) => ({
     field: fieldMap[b].label,
-    oldValue: isDateString(b)
-      ? formatToDateDisplay(before[b], 'MMMM d, yyyy')
-      : before[b],
-    newValue: isDateString(b)
-      ? formatToDateDisplay(after[b], 'MMMM d, yyyy')
-      : after[b],
-  }),
-)
+    oldValue: formatValue(b, before[b]),
+    newValue: formatValue(b, after[b]),
+  }))
 
 const { can } = usePermissions()
 

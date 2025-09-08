@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\JobOrderStatus;
 use App\Policies\ITServicePolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +23,31 @@ class ITService extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function attributesForCorrection(): array
+    {
+        return [
+            'machine_type',
+            'model',
+            'serial_no',
+            'tag_no',
+            'machine_problem',
+            'technician_id',
+        ];
+    }
+
+    public function isForFinalServiceOrCompleted(): bool
+    {
+        return in_array($this->jobOrder->status, [
+            JobOrderStatus::ForFinalService,
+            JobOrderStatus::Completed,
+        ]);
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->jobOrder->status === JobOrderStatus::Completed;
+    }
 
     public function jobOrder(): MorphOne
     {

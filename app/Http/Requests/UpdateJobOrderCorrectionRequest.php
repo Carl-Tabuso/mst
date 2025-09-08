@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\JobOrderCorrectionRequestStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateJobOrderCorrectionRequest extends FormRequest
 {
@@ -14,8 +16,7 @@ class UpdateJobOrderCorrectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'     => ['required', 'in:approved,rejected'],
-            'new_values' => ['required'],
+            'status' => ['required', Rule::in(JobOrderCorrectionRequestStatus::cases())],
         ];
     }
 }

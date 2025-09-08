@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\FilePath;
 use App\Enums\JobOrderCorrectionRequestStatus;
 use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
@@ -9,6 +10,8 @@ use App\Filters\JobOrderCorrection\FilterDistinctByJobOrderId;
 use App\Filters\JobOrderCorrection\FilterOnlyCreated;
 use App\Filters\JobOrderCorrection\FilterStatuses;
 use App\Filters\JobOrderCorrection\SearchDetails;
+use App\Models\Employee;
+use App\Models\InitialOnsiteReport;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use Illuminate\Database\Eloquent\Builder;
@@ -149,7 +152,7 @@ class JobOrderCorrectionService
             $updateableModels[] = $initialOnsite;
 
             if ($data?->report_file instanceof UploadedFile) {
-                Storage::put('it_services/temp', $data->report_file);
+                Storage::put(FilePath::ITServiceReportsTemp->value, $data->report_file);
             }
         }
 
@@ -160,7 +163,7 @@ class JobOrderCorrectionService
                 'service_performed' => $data->final_service_performed,
                 'parts_replaced'    => $data->parts_replaced,
                 'remarks'           => $data->remarks,
-                'machine_status'    => $data->machine_status,
+                'machine_status'    => $data->final_machine_status,
             ]);
 
             $updateableModels[] = $finalOnsite;
@@ -170,13 +173,35 @@ class JobOrderCorrectionService
         $conflictingAttributes = ['service_performed', 'machine_status'];
         foreach ($updateableModels as $model) {
             foreach ($model->getDirty() as $key => $value) {
+                $beforeValue = $model->getOriginal($key);
+                $afterValue  = $value;
+
                 if (in_array($key, $conflictingAttributes)) {
-                    $alias = $model->getMorphClass();
-                    $key   = "{$alias}.{$key}";
+                    $alias = $model instanceof InitialOnsiteReport ? 'initial' : 'final';
+                    $key   = "{$alias}_{$key}";
                 }
 
-                $mappedData['properties']['before'][$key] = $model->getOriginal($key);
-                $mappedData['properties']['after'][$key]  = $value;
+                if ($key === 'technician_id') {
+                    $key = 'technician';
+
+                    $oldTechnicianModel = Employee::find($beforeValue);
+                    $oldTechnician      = [
+                        'id'       => $oldTechnicianModel->id,
+                        'fullName' => $oldTechnicianModel->full_name,
+                    ];
+
+                    $newTechnicianModel = Employee::find($afterValue);
+                    $newTechnician      = [
+                        'id'       => $newTechnicianModel->id,
+                        'fullName' => $newTechnicianModel->full_name,
+                    ];
+
+                    $beforeValue = $oldTechnician;
+                    $afterValue  = $newTechnician;
+                }
+
+                $mappedData['properties']['before'][$key] = $beforeValue;
+                $mappedData['properties']['after'][$key]  = $afterValue;
             }
         }
 
@@ -277,11 +302,11 @@ class JobOrderCorrectionService
             $correction->status = $status;
             $correction->jobOrder->increment('error_count');
 
-            if ($status !== JobOrderCorrectionRequestStatus::Approved) {
+            if ($status === JobOrderCorrectionRequestStatus::Rejected) {
                 return $correction->save();
             }
 
-            $newValues = $data['new_values'];
+            $newValues = $correction->properties['after'];
 
             match ($serviceType) {
                 JobOrderServiceType::Form4     => $this->updateWasteManagement($newValues, $correction->jobOrder),
@@ -332,7 +357,89 @@ class JobOrderCorrectionService
 
     private function updateItService(array $data, JobOrder $jobOrder)
     {
-        // IT Service update logic
+        foreach ($jobOrder->attributesForCorrection() as $key) {
+            if (array_key_exists($key, $data)) {
+                $jobOrder->fill([$key => $data[$key]]);
+            }
+        }
+        $jobOrder->save();
+
+        $iTService = $jobOrder->serviceable;
+        foreach ($iTService->attributesForCorrection() as $key) {
+            if ($key === 'technician_id' && array_key_exists('technician', $data)) {
+                $iTService->fill([$key => $data['technician']['id']]);
+            }
+
+            if (array_key_exists($key, $data)) {
+                $iTService->fill([$key => $data[$key]]);
+            }
+        }
+        $iTService->save();
+
+        if (! $jobOrder->serviceable->isForFinalServiceOrCompleted()) {
+            return;
+        }
+
+        $initialOnsiteReport = $jobOrder->serviceable->initialOnsiteReport;
+        foreach ($initialOnsiteReport->attributesForCorrection() as $key) {
+            if (array_key_exists($key, $data)) {
+                $initialOnsiteReport->fill([
+                    $key => $data[$key],
+                ]);
+            }
+
+            if ($key === 'machine_status' && array_key_exists('initial_machine_status', $data)) {
+                $initialOnsiteReport->fill([
+                    $key => $data['initial_machine_status'],
+                ]);
+            }
+
+            if ($key === 'service_performed' && array_key_exists('initial_service_performed', $data)) {
+                $initialOnsiteReport->fill([
+                    $key => $data['initial_service_performed'],
+                ]);
+            }
+
+            if ($key === 'file_hash' && ! empty($data['file_hash'])) {
+                $newReportFileHash = $data[$key];
+
+                $newReportFile = sprintf('%s/%s', FilePath::ITServiceReportsTemp->value, $newReportFileHash);
+                $reportFile    = sprintf('%s/%s', FilePath::ITServiceReports->value, $newReportFileHash);
+
+                Storage::move($newReportFile, $reportFile);
+
+                $currentReportFileHash = $initialOnsiteReport->getOriginal('file_hash');
+                if ($currentReportFileHash) {
+                    $currentReportFile = sprintf('%s/%s', FilePath::ITServiceReports->value, $currentReportFileHash);
+                    Storage::delete($currentReportFile);
+                }
+            }
+        }
+        $initialOnsiteReport->save();
+
+        if (! $jobOrder->serviceable->isCompleted()) {
+            return;
+        }
+
+        $finalOnsiteReport = $jobOrder->serviceable->finalOnsiteReport;
+        foreach ($finalOnsiteReport->attributesForCorrection() as $key) {
+            if (array_key_exists($key, $data)) {
+                $finalOnsiteReport->fill([$key => $data[$key]]);
+            }
+
+            if ($key === 'machine_status' && array_key_exists('final_machine_status', $data)) {
+                $finalOnsiteReport->fill([
+                    $key => $data['final_machine_status'],
+                ]);
+            }
+
+            if ($key === 'service_performed' && array_key_exists('final_service_performed', $data)) {
+                $finalOnsiteReport->fill([
+                    $key => $data['final_service_performed'],
+                ]);
+            }
+        }
+        $finalOnsiteReport->save();
     }
 
     private function updateOtherService(array $data, JobOrder $jobOrder)

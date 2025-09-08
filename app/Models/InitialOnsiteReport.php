@@ -24,6 +24,17 @@ class InitialOnsiteReport extends Model
         'machine_status' => MachineStatus::class,
     ];
 
+    public function attributesForCorrection(): array
+    {
+        return [
+            'service_performed',
+            'recommendation',
+            'machine_status',
+            'file_name',
+            'file_hash',
+        ];
+    }
+
     public function itService(): BelongsTo
     {
         return $this->belongsTo(ITService::class, 'it_service_id');

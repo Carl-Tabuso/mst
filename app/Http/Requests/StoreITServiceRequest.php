@@ -40,8 +40,9 @@ class StoreITServiceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'serial_no' => 'The serial number field is required.',
-            'tag_no'    => 'The tag number field is required.',
+            'serial_no.required'     => 'The serial number field is required.',
+            'tag_no.required'        => 'The tag number field is required.',
+            'technician_id.required' => 'The technician field is required.',
         ];
     }
 }

@@ -3,16 +3,20 @@ import MainContainer from '@/components/MainContainer.vue'
 import { Separator } from '@/components/ui/separator'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, JobOrderCorrection } from '@/types'
-import { provide } from 'vue'
 import CorrectionPageHeader from '../components/PageHeader.vue'
 import FirstSection from './components/FirstSection.vue'
 import SecondSection from './components/SecondSection.vue'
+import { useCorrections } from '@/composables/useCorrections'
 
 interface ShowProps {
   data: JobOrderCorrection
 }
 
 const props = defineProps<ShowProps>()
+
+const changes = props.data.properties.after
+
+const { canCorrectProposalInformation } = useCorrections()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -24,8 +28,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '#',
   },
 ]
-
-provide<number, string>('correctionId', props.data.id)
 </script>
 
 <template>
@@ -37,14 +39,16 @@ provide<number, string>('correctionId', props.data.id)
     <MainContainer>
       <CorrectionPageHeader :correction="data" />
       <FirstSection
-        :changes="data.properties"
+        :changes="changes"
         :job-order="data.jobOrder"
       />
-      <Separator class="mb-3 w-full" />
-      <SecondSection
-        :changes="data.properties"
-        :job-order="data.jobOrder"
-      />
+      <div v-if="canCorrectProposalInformation(data.jobOrder.status)">
+        <Separator class="mb-3 w-full" />
+        <SecondSection
+          :changes="changes"
+          :job-order="data.jobOrder"
+        />
+      </div>
     </MainContainer>
   </AppLayout>
 </template>
