@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import JobOrderDataTable from '@/components/main-job-orders/DataTable.vue'
+import ITServiceDataTable from '../components/DataTable.vue'
 import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import JobOrderServiceTypeTabs from '@/pages/job-orders/components/JobOrderServiceTypeTabs.vue'
@@ -34,7 +34,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           sub-title="You can manage the list of recent IT service job orders here!"
         />
         <JobOrderServiceTypeTabs />
-        <JobOrderDataTable
+        <ITServiceDataTable
           :columns="columns"
           :data="jobOrders.data"
           :meta="jobOrders.meta"
