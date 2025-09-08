@@ -2,8 +2,8 @@
 import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, JobOrderCorrection } from '@/types'
-import CorrectionPageHeader from '../components/PageHeader.vue'
 import JobOrderDetails from '../components/JobOrderDetails.vue'
+import CorrectionPageHeader from '../components/PageHeader.vue'
 
 interface ShowProps {
   data: JobOrderCorrection

@@ -33,9 +33,9 @@ import { Link } from '@inertiajs/vue3'
           IT Services
         </TabsTrigger>
       </Link>
-      <Link :href="route('job_order.other.index')">
+      <Link :href="route('job_order.other_services.index')">
         <TabsTrigger
-          value="job_order.others"
+          value="job_order.other_services.index"
           class="px-7"
         >
           Other Services

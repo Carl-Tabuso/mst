@@ -8,6 +8,7 @@ use App\Enums\UserRole;
 use App\Http\Requests\UpdateJobOrderRequest;
 use App\Models\Employee;
 use App\Models\JobOrder;
+use App\Services\EmployeeService;
 use App\Services\JobOrderService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +21,8 @@ class JobOrderController extends Controller
 {
     private const PER_PAGE = 10;
 
-    public function __construct(private JobOrderService $service) {}
+    public function __construct(private JobOrderService $service,
+        private EmployeeService $employeeService) {}
 
     public function index(Request $request): Response
     {

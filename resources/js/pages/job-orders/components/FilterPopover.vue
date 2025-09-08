@@ -16,71 +16,76 @@ import {
 } from '@/constants/job-order-statuses'
 import { router } from '@inertiajs/vue3'
 import { Calendar, Filter } from 'lucide-vue-next'
-import { DateValue } from 'reka-ui'
-import { computed, ref, Ref } from 'vue'
+import type { DateValue } from 'reka-ui'
+import { computed, ref } from 'vue'
 
 interface DataTableFacetedFilterProps {
-  statuses: JobOrderStatus[]
-  fromDateOfService: string
-  toDateOfService: string
+  routeName?: string
 }
 
-const props = ref<DataTableFacetedFilterProps>({
-  statuses: [],
-  fromDateOfService: '',
-  toDateOfService: '',
-}) as Ref
+const props = withDefaults(defineProps<DataTableFacetedFilterProps>(), {
+  routeName: 'job_order.index',
+})
 
-const selectedStatuses = computed(() => new Set(props.value.statuses))
-const fromDateOfServiceValue = computed(() => props.value.fromDateOfService)
-const toDateOfServiceValue = computed(() => props.value.toDateOfService)
+const statuses = ref<JobOrderStatus[]>([])
+const fromDateOfService = ref<DateValue | undefined>(undefined)
+const toDateOfService = ref<DateValue | undefined>(undefined)
 
-const url = route('job_order.index')
+const selectedStatuses = computed(() => new Set(statuses.value))
 
-const isParentPopoverOpen = ref<boolean>(false)
+const url = computed(() => route(props.routeName))
 
+const isParentPopoverOpen = ref(false)
 const isCalendarOpen = ref<Record<string, boolean>>({
   from: false,
   to: false,
 })
 
-const handleStatusSelection = (statusId: string, event: boolean) => {
-  if (event) {
-    if (!props.value.statuses.includes(statusId)) {
-      props.value.statuses.push(statusId)
+const handleStatusSelection = (statusId: string, checked: boolean) => {
+  if (checked) {
+    if (!statuses.value.includes(statusId)) {
+      statuses.value.push(statusId)
     }
   } else {
-    props.value.statuses = props.value.statuses.filter(
-      (id: string) => id !== statusId,
-    )
+    statuses.value = statuses.value.filter((id) => id !== statusId)
   }
 }
 
-const handleFromDateOfServiceChange = (newValue: DateValue | undefined) => {
-  props.value.fromDateOfService = newValue?.toString()
-  isCalendarOpen.value.from = false
-}
-
-const handleToDateOfServiceChange = (newValue: DateValue | undefined) => {
-  props.value.toDateOfService = newValue?.toString()
-  isCalendarOpen.value.to = false
-}
-
-const formatToDateString = (date: string) => {
-  return new Date(date).toLocaleDateString('en-ph', {
+const formatToDateString = (date: DateValue | undefined) => {
+  if (!date) return ''
+  if (typeof (date as any).toDate === 'function') {
+    return (date as any).toDate().toLocaleDateString('en-PH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+  return new Date(String(date)).toLocaleDateString('en-PH', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
 }
 
+const serializeDate = (date: DateValue | undefined) => {
+  if (!date) return ''
+  if (typeof (date as any).toDate === 'function') {
+    return (date as any).toDate().toISOString()
+  }
+  return new Date(String(date)).toISOString()
+}
+
 const applyFilters = () => {
   isParentPopoverOpen.value = false
 
   router.get(
-    url,
+    url.value,
     {
-      filters: props.value,
+      filters: {
+        statuses: statuses.value,
+        fromDateOfService: serializeDate(fromDateOfService.value),
+        toDateOfService: serializeDate(toDateOfService.value),
+      },
     },
     {
       preserveState: true,
@@ -91,14 +96,14 @@ const applyFilters = () => {
 }
 
 const clearFilters = () => {
-  props.value.statuses = []
-  props.value.fromDateOfService = ''
-  props.value.toDateOfService = ''
+  statuses.value = []
+  fromDateOfService.value = undefined
+  toDateOfService.value = undefined
 
   isParentPopoverOpen.value = false
 
   router.get(
-    url,
+    url.value,
     {},
     {
       preserveState: true,
@@ -146,7 +151,7 @@ const clearFilters = () => {
               :id="status.id"
               :checked="selectedStatuses.has(status.id)"
               @update:checked="
-                (event) => handleStatusSelection(status.id, event)
+                (checked) => handleStatusSelection(status.id, checked)
               "
               class="border-gray-400 dark:border-white"
             />
@@ -163,7 +168,6 @@ const clearFilters = () => {
       <div class="my-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">Date of Service</div>
         <div class="grid grid-cols-2 gap-10">
-          <!--From-->
           <div class="flex items-center">
             <span class="pr-4 text-sm"> From </span>
             <Popover v-model:open="isCalendarOpen.from">
@@ -172,30 +176,20 @@ const clearFilters = () => {
                   variant="outline"
                   :class="[
                     'w-[240px] ps-3 text-start font-normal',
-                    { 'text-muted-foreground': !fromDateOfServiceValue },
+                    { 'text-muted-foreground': !fromDateOfService },
                   ]"
                 >
                   <span>
-                    {{
-                      fromDateOfServiceValue
-                        ? formatToDateString(fromDateOfServiceValue)
-                        : 'Pick a date'
-                    }}
+                    {{ formatToDateString(fromDateOfService) || 'Pick a date' }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-auto p-0">
-                <AppCalendar
-                  :model-value="props.value?.fromDateOfService"
-                  @update:model-value="
-                    (value) => handleFromDateOfServiceChange(value)
-                  "
-                />
+                <AppCalendar v-model="fromDateOfService" />
               </PopoverContent>
             </Popover>
           </div>
-          <!--To-->
           <div class="flex items-center">
             <span class="pr-4 text-sm"> To </span>
             <Popover v-model:open="isCalendarOpen.to">
@@ -204,26 +198,17 @@ const clearFilters = () => {
                   variant="outline"
                   :class="[
                     'w-[240px] ps-3 text-start font-normal',
-                    { 'text-muted-foreground': !toDateOfServiceValue },
+                    { 'text-muted-foreground': !toDateOfService },
                   ]"
                 >
                   <span>
-                    {{
-                      toDateOfServiceValue
-                        ? formatToDateString(toDateOfServiceValue)
-                        : 'Pick a date'
-                    }}
+                    {{ formatToDateString(toDateOfService) || 'Pick a date' }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-auto p-0">
-                <AppCalendar
-                  :model-value="props.value?.toDateOfService"
-                  @update:model-value="
-                    (value) => handleToDateOfServiceChange(value)
-                  "
-                />
+                <AppCalendar v-model="toDateOfService" />
               </PopoverContent>
             </Popover>
           </div>

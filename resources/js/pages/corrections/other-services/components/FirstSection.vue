@@ -100,6 +100,7 @@ const wasChanged = (field: keyof typeof fieldMap) => {
                 <RadioGroupItem
                   id="os"
                   value="form5"
+                  checked
                 />
                 <Label> Other Services (specify) </Label>
               </div>
@@ -176,21 +177,6 @@ const wasChanged = (field: keyof typeof fieldMap) => {
                   v-bind="wasChanged('contact_no')"
                   class="pointer-events-none w-full"
                 />
-              </div>
-            </div>
-            <div
-              v-if="jobOrder.serviceableType === 'it_service'"
-              class="col-span-2 grid grid-cols-2 gap-x-10"
-            >
-              <div class="flex flex-row items-center gap-x-4">
-                <Label class="w-44 shrink-0"> Technician </Label>
-                <Button variant="outline">
-                  <!-- <Avatar>
-                    <AvatarImage
-                      v-if=""
-                    />
-                  </Avatar> -->
-                </Button>
               </div>
             </div>
           </div>

@@ -21,7 +21,7 @@ class EmployeeSeeder extends Seeder
         $this->seedHumanResources();
     }
 
-    private function seedFrontliners(): void
+    private function seedFrontliners()
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Frontliner'),

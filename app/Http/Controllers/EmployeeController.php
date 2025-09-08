@@ -31,7 +31,6 @@ class EmployeeController extends Controller
     public function storeWithAccount(Request $request)
     {
         $validated = $request->validate([
-            // Employee fields
             'first_name'  => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name'   => 'required|string|max:255',
@@ -44,7 +43,6 @@ class EmployeeController extends Controller
         try {
             DB::beginTransaction();
 
-            // Create employee
             $employee = Employee::create([
                 'first_name'  => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
@@ -53,10 +51,8 @@ class EmployeeController extends Controller
                 'position_id' => $validated['position_id'],
             ]);
 
-            // Generate random password
             $password = \Illuminate\Support\Str::random(12);
 
-            // Create user account
             $user = User::create([
                 'employee_id' => $employee->id,
                 'email'       => $validated['email'],
@@ -124,12 +120,20 @@ class EmployeeController extends Controller
 
     public function dropdown()
     {
-        return Employee::select('id', 'first_name', 'last_name')
+        $employees = Employee::select('id', 'first_name', 'last_name')
             ->orderBy('last_name')
             ->get()
             ->map(fn ($e) => [
                 'id'   => $e->id,
                 'name' => "{$e->first_name} {$e->last_name}",
             ]);
+
+        if (request()->inertia()) {
+            return inertia('Data/Employees', [
+                'employees' => $employees,
+            ]);
+        }
+
+        return response()->json(['employees' => $employees]);
     }
 }

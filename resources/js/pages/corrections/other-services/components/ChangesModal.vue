@@ -15,10 +15,9 @@ import {
   useCorrections,
 } from '@/composables/useCorrections'
 import { formatToDateDisplay } from '@/composables/useDateFormatter'
-import { usePermissions } from '@/composables/usePermissions'
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { CircleArrowRight, FileClock } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import ConfirmStatus from './ConfirmStatus.vue'
 
 interface ChangesModalProps {
@@ -34,22 +33,85 @@ const { before, after } = props.changes
 
 const { fieldMap, isDateString } = useCorrections()
 
-const mappedChanges = (Object.keys(before) as CorrectionFieldKey[]).map(
-  (b) => ({
-    field: fieldMap[b].label,
-    oldValue: isDateString(b)
-      ? formatToDateDisplay(before[b], 'MMMM d, yyyy')
-      : before[b],
-    newValue: isDateString(b)
-      ? formatToDateDisplay(after[b], 'MMMM d, yyyy')
-      : after[b],
-  }),
-)
+// Handle regular changes (non-serviceable)
+const regularChanges = computed(() => {
+  const changes = []
 
-const { can } = usePermissions()
+  for (const key in before) {
+    // Skip serviceable changes as they're handled separately
+    if (key === 'serviceable') continue
 
-const isApprovable =
-  props.status === 'pending' && can('update:job_order_correction')
+    // Check if this is a regular field that exists in fieldMap
+    if (fieldMap[key as CorrectionFieldKey]) {
+      changes.push({
+        field: fieldMap[key as CorrectionFieldKey].label,
+        oldValue: isDateString(key as CorrectionFieldKey)
+          ? formatToDateDisplay(before[key], 'MMMM d, yyyy')
+          : before[key],
+        newValue: isDateString(key as CorrectionFieldKey)
+          ? formatToDateDisplay(after[key], 'MMMM d, yyyy')
+          : after[key],
+      })
+    } else {
+      // Fallback for any unexpected fields
+      changes.push({
+        field: key.replace(/_/g, ' ').toUpperCase(),
+        oldValue: before[key] ?? 'N/A',
+        newValue: after[key] ?? 'N/A',
+      })
+    }
+  }
+
+  return changes
+})
+
+// Handle Form5 serviceable changes
+const serviceableChanges = computed(() => {
+  const changes = []
+
+  if (after?.serviceable) {
+    for (const field in after.serviceable) {
+      if (field === 'items') {
+        // Special handling for items array
+        const oldItems = before?.serviceable?.items || []
+        const newItems = after?.serviceable?.items || []
+
+        changes.push({
+          field: 'Service Items',
+          oldValue:
+            oldItems.length > 0
+              ? oldItems
+                  .map((item) => `${item.item_name} (Qty: ${item.quantity})`)
+                  .join(', ')
+              : 'No items',
+          newValue:
+            newItems.length > 0
+              ? newItems
+                  .map((item) => `${item.item_name} (Qty: ${item.quantity})`)
+                  .join(', ')
+              : 'No items',
+        })
+      } else {
+        changes.push({
+          field: `Service - ${field.replace('_', ' ').toUpperCase()}`,
+          oldValue: before?.serviceable?.[field] || 'N/A',
+          newValue: after?.serviceable?.[field] || 'N/A',
+        })
+      }
+    }
+  }
+
+  return changes
+})
+
+const allChanges = computed(() => [
+  ...regularChanges.value,
+  ...serviceableChanges.value,
+])
+
+const isApprovable = computed(() => {
+  return props.status === 'pending'
+})
 </script>
 
 <template>
@@ -75,7 +137,7 @@ const isApprovable =
       </DialogHeader>
       <div class="my-2 flex max-h-[60dvh] flex-col overflow-y-auto">
         <div
-          v-for="{ field, oldValue, newValue } in mappedChanges"
+          v-for="{ field, oldValue, newValue } in allChanges"
           :key="field"
           class="py-1"
         >
@@ -84,12 +146,12 @@ const isApprovable =
           </div>
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div
-              class="break-words rounded-md bg-red-50 px-3 py-1 text-red-700 dark:bg-red-950/30 dark:text-red-300"
+              class="rounded-md bg-red-50 px-3 py-1 text-red-700 dark:bg-red-950/30 dark:text-red-300"
             >
-              {{ oldValue ?? 'None provided' }}
+              {{ oldValue }}
             </div>
             <div
-              class="break-words rounded-md bg-green-50 px-3 py-1 text-green-700 dark:bg-green-950/30 dark:text-green-300"
+              class="rounded-md bg-green-50 px-3 py-1 text-green-700 dark:bg-green-950/30 dark:text-green-300"
             >
               {{ newValue }}
             </div>

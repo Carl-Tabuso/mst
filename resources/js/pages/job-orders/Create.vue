@@ -6,9 +6,10 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, type BreadcrumbItem } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { LoaderCircle } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import JobOrderDetails from './components/JobOrderDetails.vue'
 import MachineDetails from './components/MachineDetails.vue'
+import Form5Section from './other-services/components/Form5Section.vue'
 
 interface CreateProps {
   regulars: Employee[]
@@ -32,21 +33,38 @@ const form = useForm({
   serial_no: '',
   tag_no: '',
   machine_problem: '',
+  assigned_person: null,
+  items: [],
+  purpose: '',
 })
 
 const timeOfService = ref('')
 
+const isForm5 = computed(() => form.service_type === 'form5')
+
 const onSubmit = () => {
   const [hours, min] = timeOfService.value.split(':')
   const epoch = new Date(form.date_time).setHours(Number(hours), Number(min))
-  // found this abomination online. I need to format the date to Y-m-d H:i:s
   const formatted = new Date(epoch).toJSON().split('.')[0].split('T').join(' ')
 
-  form.transform((data) => ({
-    ...data,
-    technician_id: data.technician?.id,
-    date_time: formatted,
-  }))
+  form.transform((data) => {
+    const base = {
+      ...data,
+      date_time: formatted,
+      technician_id: data.technician?.id,
+    }
+
+    if (isForm5.value) {
+      return {
+        ...base,
+        assigned_person: data.assigned_person,
+        items: data.items,
+        purpose: data.purpose,
+      }
+    }
+
+    return base
+  })
 
   const path = jobOrderRouteNames.find((j) => j.id === form.service_type)
 
@@ -56,18 +74,9 @@ const onSubmit = () => {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Job Orders',
-    href: '/job-orders',
-  },
-  {
-    title: 'List',
-    href: '/job-orders',
-  },
-  {
-    title: 'Create',
-    href: '#',
-  },
+  { title: 'Job Orders', href: '/job-orders' },
+  { title: 'List', href: '/job-orders' },
+  { title: 'Create', href: '#' },
 ]
 </script>
 
@@ -103,20 +112,32 @@ const breadcrumbs: BreadcrumbItem[] = [
                   :errors="form.errors"
                 />
               </div>
-              <div
-                v-if="form.service_type === 'it_service'"
-                class="col-[1/1]"
-              >
+
+              <div class="col-[1/1]">
                 <Separator class="mb-3" />
-                <MachineDetails
-                  is-editing
-                  v-model:machine-type="form.machine_type"
-                  v-model:machine-model="form.model"
-                  v-model:serial-number="form.serial_no"
-                  v-model:tag-number="form.tag_no"
-                  v-model:machine-problem="form.machine_problem"
-                  :errors="form.errors"
-                />
+
+                <!-- Machine Details for IT Service -->
+                <div v-if="form.service_type === 'it_service'">
+                  <MachineDetails
+                    is-editing
+                    v-model:machine-type="form.machine_type"
+                    v-model:machine-model="form.model"
+                    v-model:serial-number="form.serial_no"
+                    v-model:tag-number="form.tag_no"
+                    v-model:machine-problem="form.machine_problem"
+                    :errors="form.errors"
+                  />
+                </div>
+
+                <div v-if="isForm5">
+                  <Form5Section
+                    is-editing
+                    v-model:assignedPerson="form.assigned_person"
+                    v-model:items="form.items"
+                    v-model:purpose="form.purpose"
+                    :employees="regulars"
+                  />
+                </div>
               </div>
 
               <div class="col-[1/-1] flex w-full items-center">

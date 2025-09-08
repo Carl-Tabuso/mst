@@ -50,6 +50,7 @@ class JobOrderCorrectionController extends Controller
             'jobOrder' => [
                 'creator' => ['account:avatar'],
                 'cancel',
+                'serviceable',
             ],
         ]);
 
@@ -70,6 +71,17 @@ class JobOrderCorrectionController extends Controller
                         'technician',
                         'initialOnsiteReport',
                         'finalOnsiteReport',
+                    ],
+                ],
+            ]);
+        }
+
+        if ($serviceType === JobOrderServiceType::Form5) {
+            $correction->loadMissing([
+                'jobOrder' => [
+                    'serviceable' => [
+                        'items',
+                        'assignedPerson',
                     ],
                 ],
             ]);
