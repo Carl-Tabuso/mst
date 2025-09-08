@@ -12,7 +12,6 @@ use App\Http\Controllers\ExportReportsController;
 use App\Http\Controllers\Form5Controller;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidentController;
-use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SafetyInspectionController;
@@ -65,41 +64,6 @@ Route::middleware(['auth'])->group(function () {
             Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
             Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
                 ->name('safety_inspection.update');
-        });
-
-        // Route::prefix('it-services')->name('it_service.')->group(function () {
-        //     Route::get('/', [ITServicesController::class, 'index'])->name('index');
-
-        //     // Initial
-        //     Route::get('/create', [ITServicesController::class, 'createInitial'])->name('create');
-        //     Route::post('/', [ITServicesController::class, 'storeInitial'])->name('store');
-        //     Route::get('{jobOrder}/edit', [ITServicesController::class, 'editInitial'])->name('edit');
-        //     Route::get('{jobOrder}', [ITServicesController::class, 'viewInitial'])->name('view');
-
-        //     // First Onsite
-        //     Route::get('{jobOrder}/onsite/initial', [ITServicesController::class, 'createFirstOnsite'])->name('onsite.first.create');
-        //     Route::post('{jobOrder}/onsite/initial', [ITServicesController::class, 'storeFirstOnsite'])->name(name: 'onsite.first.store');
-        //     Route::get('{jobOrder}/onsite/initial/{report}/view', [ITServicesController::class, 'viewFirstOnsite'])->name('onsite.first.view');
-        //     Route::get('{jobOrder}/onsite/initial/{reportId}/edit', [ITServicesController::class, 'editFirstOnsite'])->name('onsite.first.edit');
-
-        //     Route::get('{jobOrder}/reports/{reportId}/download', [ITServicesController::class, 'downloadAttachment'])->name('report.download');
-
-        //     // Final Onsite
-        //     Route::get('{jobOrder}/onsite/final', [ITServicesController::class, 'createLastOnsite'])->name('onsite.last.create');
-        //     Route::post('{jobOrder}/onsite/final', [ITServicesController::class, 'storeLastOnsite'])->name('onsite.last.store');
-        //     Route::get('{jobOrder}/onsite/final/view', [ItServicesController::class, 'viewLastOnsite'])->name('onsite.last.view');
-        //     Route::get('{jobOrder}/onsite/final/edit', [ITServicesController::class, 'editLastOnsite'])->name('onsite.last.edit');
-
-        //     // Archive
-        //     Route::post('/archive', [ITServicesController::class, 'archive'])->name('archive');
-
-        //     Route::post('{jobOrder}/corrections', [ITServicesController::class, 'requestCorrection'])->name('corrections.store');
-
-        // });
-
-        Route::prefix('others')->name('other.')->group(function () {
-            Route::get('/', fn () => dd('os'))->name('index');
-            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
         });
 
         Route::prefix('cancels')->name('cancel.')->group(function () {
