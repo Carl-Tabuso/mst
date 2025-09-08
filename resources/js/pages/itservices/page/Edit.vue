@@ -33,6 +33,8 @@ const technician = ref<Employee | null>(
   props.data.serviceable?.technician ?? null,
 )
 
+const technicianId = computed(() => technician.value?.id)
+
 const serviceDate = new Date(props.data.dateTime)
 
 const form = useForm({
@@ -45,7 +47,7 @@ const form = useForm({
   contact_position: props.data.contactPosition,
   contact_person: props.data.contactPerson,
   contact_no: props.data.contactNo,
-  technician: technician?.value?.id,
+  technician: technicianId as any,
   machine_type: props.data.serviceable.machineType,
   model: props.data.serviceable.model,
   serial_no: props.data.serviceable.serialNo,
