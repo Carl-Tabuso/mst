@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('email')->after('date_of_birth');
             $table->string('contact_number')->after('email');
 
-            $table->string('job_assignment')->after('department_id');
+            $table->string('job_assignment');
 
             if (! $this->isSqlite()) {
                 $table->dropIndex('employees_first_name_middle_name_last_name_suffix_fulltext');
@@ -40,12 +40,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->dropForeign(['department_id']);
             $table->dropColumn([
                 'date_of_birth',
                 'email',
                 'contact_number',
-                'department_id',
                 'job_assignment',
             ]);
 

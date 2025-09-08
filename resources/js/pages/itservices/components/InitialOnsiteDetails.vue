@@ -105,7 +105,7 @@ const canRedirectToNewTab = computed(() => {
           </Label>
           <div
             v-if="reportFile"
-            class="flex w-full flex-col gap-1"
+            class="flex min-w-0 flex-1 flex-col gap-1"
           >
             <div
               class="flex h-10 w-full flex-row items-center gap-1 rounded-md border px-3 py-2"

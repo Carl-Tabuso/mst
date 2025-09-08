@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
 use App\Enums\UserRole;
+use App\Filters\JobOrder\ApplyDateOfServiceRange;
+use App\Filters\JobOrder\FilterOnlyCreated;
+use App\Filters\JobOrder\FilterServiceType;
+use App\Filters\JobOrder\FilterStatuses;
+use App\Filters\JobOrder\SearchDetails;
 use App\Http\Requests\StoreITServiceRequest;
 use App\Models\Employee;
 use App\Models\ITService;
@@ -11,57 +17,40 @@ use App\Models\JobOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Pipeline;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ITServiceController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $perPage = $request->input('per_page', 10);
 
-        $search = "%{$request->input('search')}%";
+        $search = $request->input('search', '');
 
-        $filters = null;
+        $filters = $request->input('filters', []);
 
-        if ($request->has('filters')) {
-            $filters = (object) $request->array('filters');
-        }
+        $user = $request->user();
 
-        $hasItServiceStatuses = isset($filters->itServiceStatuses) && count($filters->itServiceStatuses) > 0;
+        $pipes = [
+            new FilterServiceType(JobOrderServiceType::ITService),
+            new FilterOnlyCreated($user),
+            new FilterStatuses($filters),
+            new ApplyDateOfServiceRange($filters),
+            new SearchDetails($search),
+        ];
 
-        $hasDateOfServiceRange =
-        isset($filters->fromDateOfService, $filters->toDateOfService) &&
-        $filters?->fromDateOfService                                  && $filters?->toDateOfService;
-
-        $jobOrders = JobOrder::query()
-            ->where('serviceable_type', 'it_service')
-            ->when($hasItServiceStatuses, function ($q) use ($filters) {
-                $q->whereHasMorph('serviceable', [ITService::class], function ($itServiceQuery) use ($filters) {
-                    $itServiceQuery->byStatus($filters->itServiceStatuses);
-                });
-            })
-            ->when($hasDateOfServiceRange, fn ($q) => $q->whereBetween('date_time', [
-                Carbon::parse($filters->fromDateOfService)->startOfDay(),
-                Carbon::parse($filters->toDateOfService)->endOfDay(),
-            ]))
-            ->when($search, fn ($q) => $q->where(function ($sq) use ($search) {
-                $sq->whereLike('client', $search)
-                    ->orWhereLike('address', $search)
-                    ->orWhereLike('contact_no', $search)
-                    ->orWhereLike('contact_person', $search)
-                    ->orWhereHas('creator', fn ($subQuery) => $subQuery->whereLike('first_name', $search)
-                        ->orWhereLike('middle_name', $search)
-                        ->orWhereLike('last_name', $search)
-                        ->orWhereLike('suffix', $search));
-            }))
-            ->with(['creator', 'serviceable'])
-            ->latest()
-            ->paginate($perPage)
-            ->withQueryString()
-            ->toResourceCollection();
+        $jobOrders = Pipeline::send(JobOrder::query())
+            ->through($pipes)
+            ->then(function (Builder $query) use ($perPage) {
+                return $query->with('creator')
+                    ->latest()
+                    ->paginate($perPage)
+                    ->withQueryString()
+                    ->toResourceCollection();
+            });
 
         return Inertia::render('itservices/page/Index', compact('jobOrders'));
     }

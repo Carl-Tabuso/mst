@@ -9,7 +9,8 @@ interface ReasonCardProps {
   correction: JobOrderCorrection
 }
 
-defineProps<ReasonCardProps>()
+const props = defineProps<ReasonCardProps>()
+// console.log(props.correction)
 </script>
 
 <template>
@@ -18,7 +19,7 @@ defineProps<ReasonCardProps>()
       <div class="flex items-start gap-3">
         <Avatar size="sm">
           <AvatarImage
-            v-if="correction.jobOrder.creator.account?.avatar"
+            v-if="correction.jobOrder.creator?.account?.avatar"
             :src="correction.jobOrder.creator.account.avatar"
             :alt="correction.jobOrder.creator.fullName"
           />
@@ -29,7 +30,7 @@ defineProps<ReasonCardProps>()
         <div class="flex flex-col">
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <span>
-              {{ correction.jobOrder.creator?.fullName }}
+              {{ correction.jobOrder.creator.fullName }}
             </span>
             <span>•</span>
             <span>

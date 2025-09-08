@@ -74,7 +74,10 @@ class StoreJobOrderCorrectionRequest extends FormRequest
             'machine_problem' => ['nullable', 'string', 'max:255'],
         ]);
 
-        if ($this->ticket->status === JobOrderStatus::ForFinalService) {
+        $forFinalService = $this->ticket->status === JobOrderStatus::ForFinalService;
+        $completed       = $this->ticket->status === JobOrderStatus::Completed;
+
+        if ($forFinalService || $completed) {
             $this->rules = array_merge($this->rules, [
                 'initial_service_performed' => ['required', 'string'],
                 'recommendation'            => ['required', 'string'],
@@ -83,7 +86,7 @@ class StoreJobOrderCorrectionRequest extends FormRequest
             ]);
         }
 
-        if ($this->ticket->status === JobOrderStatus::Completed) {
+        if ($completed) {
             $this->rules = array_merge($this->rules, [
                 'final_service_performed' => ['required', 'string'],
                 'parts_replaced'          => ['required', 'string'],

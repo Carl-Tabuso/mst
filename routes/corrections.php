@@ -22,6 +22,9 @@ Route::middleware(['auth'])->group(function () {
             ->name('show')
             ->can('view', 'correction');
 
+        Route::get('file/{correction}', [JobOrderCorrectionController::class, 'showInitialOnsiteReportTempFile'])
+            ->name('initial_onsite_report_tempfile');
+
         Route::post('{ticket}', [JobOrderCorrectionController::class, 'store'])
             ->name('store');
 

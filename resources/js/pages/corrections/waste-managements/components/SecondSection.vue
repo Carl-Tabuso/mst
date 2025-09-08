@@ -12,48 +12,13 @@ interface SecondSectionProps {
   changes: any
 }
 
-const props = defineProps<SecondSectionProps>()
+const { changes, jobOrder } = defineProps<SecondSectionProps>()
 
-const { canCorrectProposalInformation, fieldMap, getNestedObject } =
-  useCorrections()
-
-const formatDateToMDY = (date: Date | string) => {
-  const d = typeof date === 'string' ? new Date(date) : date
-  return format(d, 'MMMM d, yyyy')
-}
-
-const fieldFormatters: Partial<
-  Record<keyof typeof fieldMap, (val: any) => string>
-> = {
-  payment_date: formatDateToMDY,
-  approved_date: formatDateToMDY,
-}
-
-const changedFields = Object.keys(props.changes.after)
-
-const wasChanged = (field: keyof typeof fieldMap) => {
-  const formatter = fieldFormatters[field]
-
-  if (changedFields.includes(field)) {
-    const value = props.changes.after[field]
-    return {
-      defaultValue: formatter ? formatter(value) : value,
-      class: 'bg-amber-50 border-warning dark:bg-transparent',
-    }
-  } else {
-    const value = getNestedObject(props.jobOrder, fieldMap[field].path)
-    return {
-      defaultValue: formatter && value ? formatter(value) : value,
-    }
-  }
-}
+const { getChangedOrCurrentValue } = useCorrections(changes, jobOrder)
 </script>
 
 <template>
-  <div
-    v-if="canCorrectProposalInformation(props.jobOrder.status)"
-    class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6"
-  >
+  <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
     <div>
       <div class="text-xl font-semibold leading-6 text-foreground">
         Proposal Information
@@ -74,7 +39,7 @@ const wasChanged = (field: keyof typeof fieldMap) => {
           <div class="flex w-full flex-col gap-1">
             <Input
               id="paymentType"
-              v-bind="wasChanged('payment_type')"
+              v-bind="getChangedOrCurrentValue('payment_type')"
               class="pointer-events-none w-full"
             />
           </div>
@@ -89,7 +54,7 @@ const wasChanged = (field: keyof typeof fieldMap) => {
           <div class="flex w-full flex-col gap-1">
             <Input
               id="bidBond"
-              v-bind="wasChanged('bid_bond')"
+              v-bind="getChangedOrCurrentValue('bid_bond')"
               class="pointer-events-none w-full"
             />
           </div>
@@ -107,7 +72,7 @@ const wasChanged = (field: keyof typeof fieldMap) => {
           <div class="flex w-full flex-col gap-1">
             <Input
               id="orNumber"
-              v-bind="wasChanged('or_number')"
+              v-bind="getChangedOrCurrentValue('or_number')"
               class="pointer-events-none w-full"
             />
           </div>
@@ -123,10 +88,10 @@ const wasChanged = (field: keyof typeof fieldMap) => {
             <Button
               type="button"
               variant="outline"
-              v-bind="wasChanged('payment_date')"
+              v-bind="getChangedOrCurrentValue('payment_date')"
               class="pointer-events-none w-full ps-3 text-start font-normal"
             >
-              {{ wasChanged('payment_date').defaultValue }}
+              {{ getChangedOrCurrentValue('payment_date').defaultValue }}
               <Calendar class="ms-auto h-4 w-4 opacity-50" />
             </Button>
           </div>
@@ -145,10 +110,10 @@ const wasChanged = (field: keyof typeof fieldMap) => {
             <Button
               type="button"
               variant="outline"
-              v-bind="wasChanged('approved_date')"
+              v-bind="getChangedOrCurrentValue('approved_date')"
               class="pointer-events-none w-full ps-3 text-start font-normal"
             >
-              {{ wasChanged('approved_date').defaultValue }}
+              {{ getChangedOrCurrentValue('approved_date').defaultValue }}
               <Calendar class="ms-auto h-4 w-4 opacity-50" />
             </Button>
           </div>

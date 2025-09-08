@@ -24,6 +24,16 @@ class FinalOnsiteReport extends Model
         'machine_status' => MachineStatus::class,
     ];
 
+    public function attributesForCorrection(): array
+    {
+        return [
+            'service_performed',
+            'parts_replaced',
+            'remarks',
+            'machine_status',
+        ];
+    }
+
     public function itService(): BelongsTo
     {
         return $this->belongsTo(ITService::class, 'it_service_id');

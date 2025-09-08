@@ -24,27 +24,27 @@ const { routeName } = defineProps<{
 }>()
 
 interface DataTableFacetedFilterProps {
-  itServiceStatuses: JobOrderStatus[]
+  statuses: JobOrderStatus[]
   fromDateOfService: string
   toDateOfService: string
 }
 
 const props = ref<DataTableFacetedFilterProps>({
-  itServiceStatuses: [],
+  statuses: [],
   fromDateOfService: '',
   toDateOfService: '',
 }) as Ref
 
-const iTServiceStatuses: Array<JobOrderStatus> = [
+const statuses: Array<JobOrderStatus> = [
   'for check up',
   'for final service',
   'completed',
 ]
 const validStatuses = JobOrderStatuses.filter((status) =>
-  iTServiceStatuses.includes(status.id),
+  statuses.includes(status.id),
 )
 
-const selectedStatuses = computed(() => new Set(props.value.itServiceStatuses))
+const selectedStatuses = computed(() => new Set(props.value.statuses))
 const fromDateOfServiceValue = computed(() => props.value.fromDateOfService)
 const toDateOfServiceValue = computed(() => props.value.toDateOfService)
 
@@ -57,7 +57,7 @@ const applyFilters = () => {
 }
 
 const clearFilters = () => {
-  props.value.itServiceStatuses = []
+  props.value.statuses = []
   props.value.fromDateOfService = ''
   props.value.toDateOfService = ''
 
@@ -70,11 +70,11 @@ const clearFilters = () => {
 
 const handleStatusSelection = (statusId: string, event: boolean) => {
   if (event) {
-    if (!props.value.itServiceStatuses.includes(statusId)) {
-      props.value.itServiceStatuses.push(statusId)
+    if (!props.value.statuses.includes(statusId)) {
+      props.value.statuses.push(statusId)
     }
   } else {
-    props.value.itServiceStatuses = props.value.itServiceStatuses.filter(
+    props.value.statuses = props.value.statuses.filter(
       (id: string) => id !== statusId,
     )
   }
