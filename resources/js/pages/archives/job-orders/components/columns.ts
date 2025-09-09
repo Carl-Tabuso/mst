@@ -1,0 +1,163 @@
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import { jobOrderRouteNames } from '@/constants/job-order-route'
+import { JobOrderStatuses } from '@/constants/job-order-statuses'
+import { JobOrder } from '@/types'
+import { Link } from '@inertiajs/vue3'
+import { ColumnDef, RowData } from '@tanstack/vue-table'
+import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
+import { h } from 'vue'
+import DataTableHeader from './DataTableHeader.vue'
+import CreatorAndTimestamp from '@/components/CreatorAndTimestamp.vue'
+import { format } from 'date-fns'
+import RestoreJobOrder from './RestoreJobOrder.vue'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
+
+declare module '@tanstack/vue-table' {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    label?: string
+  }
+}
+
+type IconType = keyof typeof iconMap
+const iconMap = {
+  form4: Truck,
+  form5: Wrench,
+  it_service: MonitorCog,
+}
+
+type ServiceType = keyof typeof serviceTypeMap
+const serviceTypeMap = {
+  it_service: 'IT Services',
+  form4: 'Waste Management',
+  form5: 'Other Services',
+}
+
+export const columns: ColumnDef<JobOrder>[] = [
+  {
+    id: 'select',
+    header: ({ table }) =>
+      h(Checkbox, {
+        checked: table.getIsAllPageRowsSelected(),
+        'onUpdate:checked': (value: boolean) =>
+          table.toggleAllPageRowsSelected(!!value),
+        ariaLabel: 'Select all',
+      }),
+    cell: ({ row }) =>
+      h(Checkbox, {
+        checked: row.getIsSelected(),
+        'onUpdate:checked': (value: boolean) => row.toggleSelected(!!value),
+        ariaLabel: 'Select row',
+      }),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: 'ticket',
+    meta: { label: 'Ticket' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const serviceableType: string = row.getValue('serviceableType')
+      return h(
+        Link,
+        {
+          href: route(
+            `job_order.${useJobOrderDicts().routeMap[serviceableType]}.edit`,
+            row.getValue('ticket'),
+          ),
+          class:
+            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+        },
+        () => row.getValue('ticket'),
+      )
+    },
+    enableHiding: false,
+  },
+  {
+    accessorKey: 'client',
+    meta: { label: 'Client' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) =>
+      h(
+        'div',
+        { class: 'text-[13px] font-medium truncate' },
+        row.getValue('client'),
+      ),
+  },
+  {
+    accessorKey: 'serviceableType',
+    meta: { label: 'Type of Service' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const serviceType = row.getValue('serviceableType')
+      const formatted = serviceTypeMap[serviceType as ServiceType]
+      const icon = iconMap[serviceType as IconType]
+
+      return h('div', { class: 'flex items-center' }, [
+        h(icon, { size: 20, strokeWidth: 0.75, class: 'mr-2.5' }),
+        h('span', { class: 'text-[13px] font-medium truncate' }, formatted),
+      ])
+    },
+  },
+  {
+    accessorKey: 'contactNo',
+    meta: { label: 'Contact Person' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const contactNo = String(row.getValue('contactNo'))
+      const contactPerson = row.original.contactPerson
+
+      return h('div', [
+        h('div', { class: 'text-xs font-semibold' }, contactPerson),
+        h('div', { class: 'text-[11px] text-muted-foreground' }, contactNo),
+      ])
+    },
+  },
+  {
+    accessorKey: 'address',
+    meta: { label: 'Address' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => h('div', { class: 'text-xs' }, row.getValue('address')),
+  },
+  {
+    accessorKey: 'status',
+    meta: { label: 'Status' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const status: string = row.getValue('status')
+      const variant = JobOrderStatuses.find((j) => j.id === status)?.badge
+      const formatted = () =>
+        status
+          .split(' ')
+          .map((word) => {
+            return word.charAt(0).toUpperCase() + word.slice(1)
+          })
+          .join(' ')
+
+      return h(
+        'div',
+        h(Badge, { variant: variant, class: 'truncate' }, formatted),
+      )
+    },
+  },
+  {
+    accessorKey: 'creator',
+    meta: { label: 'Frontliner' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => h(CreatorAndTimestamp, { row: row }),
+  },
+  {
+    accessorKey: 'archivedAt',
+    meta: { label: 'Archival Date' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+        const archivedAt = format(row.getValue('archivedAt'), 'MMMM dd yyyy h:mm a')
+        return h('p', { class: 'text-[13px] font-medium' }, archivedAt)
+    },
+  },
+  {
+    id: 'restore',
+    cell: ({ row }) => h(RestoreJobOrder, { jobOrder: row.original }),
+    enableHiding: false,
+  },
+]

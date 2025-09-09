@@ -66,7 +66,7 @@ const handleRowArchival = () => {
       </VisuallyHidden>
       <div class="flex flex-col items-center justify-center gap-2">
         <TriangleAlert
-          class="h- h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
+          class="h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
         />
         <div class="text-3xl font-bold text-amber-500 dark:text-white">
           Archiving Job Order

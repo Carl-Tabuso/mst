@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { usePermissions } from '@/composables/usePermissions'
 import { valueUpdater } from '@/lib/utils'
 import { EloquentCollection, JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
@@ -24,26 +25,29 @@ import {
   useVueTable,
 } from '@tanstack/vue-table'
 import { ref } from 'vue'
-import DataTablePagination from './DataTablePagination.vue'
-import DataTableToolbar from './DataTableToolbar.vue'
+import DataTablePagination from '@/components/DataTablePagination.vue'
+// import DataTableToolbar from './DataTableToolbar.vue'
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   meta: EloquentCollection
-  routeName: string
 }
 
 const props = defineProps<DataTableProps<JobOrder>>()
 
+const { can } = usePermissions()
+
 const sorting = ref<SortingState>([])
 const columnVisibility = ref<VisibilityState>({
-  client: true,
+  id: true,
+  client: false,
   contactNo: false,
   address: false,
   status: true,
   creator: true,
   dateTime: false,
+//   restore: can('update:job_order'),
 })
 const rowSelection = ref({})
 const pagination = ref<PaginationState>({
@@ -73,11 +77,9 @@ const table = useVueTable({
   onRowSelectionChange: (updater) => valueUpdater(updater, rowSelection),
   onGlobalFilterChange: (updater) => {
     valueUpdater(updater, globalFilter)
-
     table.setPageIndex(0)
-
     router.get(
-      route(props.routeName),
+      route('job_order.index'),
       {
         search: globalFilter.value,
       },
@@ -90,24 +92,18 @@ const table = useVueTable({
   },
   onPaginationChange: (updater) => {
     valueUpdater(updater, pagination)
-
     const { pageIndex, pageSize } = pagination.value
-
     const data = {
       page: pageIndex + 1,
       per_page: pageSize,
       ...(globalFilter.value ? { search: globalFilter.value } : {}),
     }
-
-    router.get(route(props.routeName), data, {
+    router.get(route('job_order.index'), data, {
       preserveState: true,
       preserveScroll: true,
       replace: true,
     })
   },
-  getRowId: (row) =>
-    (row as { id?: string | number; serviceableId?: string | number }).id ??
-    (row as any).serviceableId,
   state: {
     get sorting() {
       return sorting.value
@@ -129,11 +125,10 @@ const table = useVueTable({
 </script>
 
 <template>
-  <DataTableToolbar
+  <!-- <DataTableToolbar
     :table="table"
     :globalFilter="globalFilter"
-    :routeName="props.routeName"
-  />
+  /> -->
   <div class="rounded-md border">
     <Table>
       <TableHeader>
@@ -155,26 +150,23 @@ const table = useVueTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-if="table.getRowModel().rows?.length">
-          <template
-            v-for="row in table.getRowModel().rows"
-            :key="row.id"
-          >
-            <TableRow
-              :data-state="row.getIsSelected() ? 'selected' : undefined"
+        <template
+          v-if="table.getRowModel().rows?.length"
+          v-for="row in table.getRowModel().rows"
+          :key="row.id"
+        >
+          <TableRow :data-state="row.getIsSelected() ? 'selected' : undefined">
+            <TableCell
+              v-for="cell in row.getVisibleCells()"
+              :key="cell.id"
+              class="py-3"
             >
-              <TableCell
-                v-for="cell in row.getVisibleCells()"
-                :key="cell.id"
-                class="py-3"
-              >
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()"
-                />
-              </TableCell>
-            </TableRow>
-          </template>
+              <FlexRender
+                :render="cell.column.columnDef.cell"
+                :props="cell.getContext()"
+              />
+            </TableCell>
+          </TableRow>
         </template>
         <template v-else>
           <TableRow>
@@ -182,7 +174,7 @@ const table = useVueTable({
               :colspan="columns.length"
               class="h-24 text-center"
             >
-              No results.
+              No results found.
             </TableCell>
           </TableRow>
         </template>

@@ -83,17 +83,11 @@ class JobOrder extends Model
         return $this->ticketPrefix.str_pad($this->id, 7, 0, STR_PAD_LEFT);
     }
 
-    public function resolveRouteBinding($value, $field = null): Model
+    public function resolveRouteBinding($value, $field = null): mixed
     {
         $modelId = (int) str_replace($this->ticketPrefix, '', $value);
 
-        $jobOrder = static::where($field ?? $this->getRouteKeyName(), $modelId)->first();
-
-        if (! $jobOrder) {
-            throw (new ModelNotFoundException)->setModel(static::class, [$value]);
-        }
-
-        return $jobOrder;
+        return parent::resolveRouteBinding($modelId, $field);
     }
 
     #[Scope]
@@ -221,7 +215,8 @@ class JobOrder extends Model
                     'updated' => __('activity.job_order.updated', $placeholderValues),
                     'deleted' => $this->archived_at
                         ? __('activity.job_order.archived.single', $placeholderValues)
-                        : __('activity.job_order.deleted.single', $placeholderValues)
+                        : __('activity.job_order.deleted.single', $placeholderValues),
+                    'restored' => __('activity.job_order.restored.single', $placeholderValues),
                 };
             });
     }

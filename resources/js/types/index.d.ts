@@ -97,6 +97,7 @@ export interface JobOrder {
   errorCount: number
   createdAt: string
   updatedAt: string
+  archivedAt: string
   creator: Employee
   serviceable: Form4 | ITService // add it services and others here
   cancel: CancelledJobOrder

@@ -21,4 +21,7 @@ return [
         'create' => 'Saved new truck information.',
         'update' => 'Saved changes :model: :plate_no.',
     ],
+    'restore' => [
+        'ticket' => 'Successfully restored ticket :ticket.',
+    ],
 ];
