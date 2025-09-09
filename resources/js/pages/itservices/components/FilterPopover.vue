@@ -100,10 +100,7 @@ const sendFilterRequest = (filterValues: any, options: object) => {
         variant="ghost"
         class="ml-1"
       >
-        <Filter
-          class="mr-2"
-          :stroke-width="1"
-        />
+        <Filter class="mr-2" />
         Filter
         <template v-if="selectedStatuses.size > 0">
           <div class="hidden lg:flex">

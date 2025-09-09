@@ -18,10 +18,8 @@ const props = defineProps<ShowProps>()
 
 const changes = props.data.properties.after
 
-const {
-  canCorrectInitialOnsiteReport,
-  canCorrectFinalOnsiteReport,
-} = useCorrections()
+const { canCorrectInitialOnsiteReport, canCorrectFinalOnsiteReport } =
+  useCorrections()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -53,22 +51,22 @@ const breadcrumbs: BreadcrumbItem[] = [
         <MachineDetails
           :changes="changes"
           :job-order="data.jobOrder"
-        />          
+        />
       </div>
       <div v-if="canCorrectInitialOnsiteReport(data.jobOrder.status)">
-        <Separator class="mt-6 mb-3 w-full" />
+        <Separator class="mb-3 mt-6 w-full" />
         <InitialOnsiteDetails
           :changes="changes"
           :correction="data"
         />
       </div>
       <div v-if="canCorrectFinalOnsiteReport(data.jobOrder.status)">
-        <Separator class="mt-6 mb-3 w-full" />
+        <Separator class="mb-3 mt-6 w-full" />
         <FinalOnsiteDetails
           :changes="changes"
           :job-order="data.jobOrder"
         />
-      </div>        
+      </div>
     </MainContainer>
   </AppLayout>
 </template>

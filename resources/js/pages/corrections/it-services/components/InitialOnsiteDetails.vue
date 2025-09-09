@@ -20,11 +20,12 @@ const { getChangedOrCurrentValue } = useCorrections(
 const reportFile = getChangedOrCurrentValue('file_name')
 
 const fileViewingUrl = reportFile.hasOwnProperty('class')
-    ? route('job_order.correction.initial_onsite_report_tempfile', correction.id)
-    : route('job_order.it_service.onsite.initial.show_file', {
-        iTService: correction.jobOrder.serviceable.id,
-        initialOnsite: (correction.jobOrder.serviceable as ITService)!.initialOnsiteReport!.id,
-      })
+  ? route('job_order.correction.initial_onsite_report_tempfile', correction.id)
+  : route('job_order.it_service.onsite.initial.show_file', {
+      iTService: correction.jobOrder.serviceable.id,
+      initialOnsite: (correction.jobOrder.serviceable as ITService)!
+        .initialOnsiteReport!.id,
+    })
 </script>
 
 <template>

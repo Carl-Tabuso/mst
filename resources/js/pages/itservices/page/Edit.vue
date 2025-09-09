@@ -128,7 +128,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                 v-if="!unapprovedCorrections"
                 v-model:is-editing="isEditing"
               />
-              <ArchiveJobOrder :job-order="data" />
+              <ArchiveJobOrder
+                :job-order="data"
+                redirect-url-after-archive="job_order.it_service.index"
+              />
             </div>
           </div>
         </div>

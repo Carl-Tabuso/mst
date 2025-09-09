@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import ITServiceDataTable from '../components/DataTable.vue'
 import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import JobOrderServiceTypeTabs from '@/pages/job-orders/components/JobOrderServiceTypeTabs.vue'
 import PageHeader from '@/pages/job-orders/components/PageHeader.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
+import ITServiceDataTable from '../components/DataTable.vue'
 import { columns } from '../types/columns'
 
 defineProps<{

@@ -17,15 +17,21 @@ import { toast } from 'vue-sonner'
 
 interface ArchiveJobOrderProps {
   jobOrder: JobOrder
+  redirectUrlAfterArchive?: string
 }
 
-const props = defineProps<ArchiveJobOrderProps>()
+const props = withDefaults(defineProps<ArchiveJobOrderProps>(), {
+  redirectUrlAfterArchive: 'job_order.index',
+})
 
 const isArchiveModalOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
 
 const handleRowArchival = () => {
   router.delete(route('job_order.destroy', props.jobOrder.ticket), {
+    data: {
+      redirectRouteAfterSuccess: props.redirectUrlAfterArchive,
+    },
     replace: true,
     showProgress: false,
     onStart: () => (isLoading.value = true),

@@ -6,7 +6,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { useCorrections } from '@/composables/useCorrections'
 import { JobOrder } from '@/types'
-import { format } from 'date-fns'
 import { Calendar } from 'lucide-vue-next'
 
 interface FirstSectionProps {
@@ -78,7 +77,9 @@ const { getChangedOrCurrentValue } = useCorrections(changes, jobOrder)
               <Input
                 id="time"
                 type="time"
-                :default-value="getChangedOrCurrentValue('date_time').defaultValue.time"
+                :default-value="
+                  getChangedOrCurrentValue('date_time').defaultValue.time
+                "
                 :class="getChangedOrCurrentValue('date_time').class"
                 class="pointer-events-none w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"
               />

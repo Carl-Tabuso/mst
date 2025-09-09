@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import MainContainer from '@/components/MainContainer.vue'
 import { Separator } from '@/components/ui/separator'
+import { useCorrections } from '@/composables/useCorrections'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, JobOrderCorrection } from '@/types'
 import CorrectionPageHeader from '../components/PageHeader.vue'
 import FirstSection from './components/FirstSection.vue'
 import SecondSection from './components/SecondSection.vue'
-import { useCorrections } from '@/composables/useCorrections'
 
 interface ShowProps {
   data: JobOrderCorrection
