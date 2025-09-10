@@ -15,76 +15,69 @@ import {
 } from '@/components/ui/tooltip'
 import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
-import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
+import { ArchiveRestore, CircleAlert, LoaderCircle } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 
-interface ArchiveJobOrderProps {
+interface RestoreJobOrderProps {
   jobOrder: JobOrder
-  redirectUrlAfterArchive?: string
 }
 
-const props = withDefaults(defineProps<ArchiveJobOrderProps>(), {
-  redirectUrlAfterArchive: 'job_order.index',
-})
+const props = defineProps<RestoreJobOrderProps>()
 
-const isArchiveModalOpen = ref<boolean>(false)
-const isLoading = ref<boolean>(false)
+const isForceDestroyModalOpen = ref<boolean>(false)
+const isSubmitting = ref<boolean>(false)
 
-const handleRowArchival = () => {
-  router.delete(route('job_order.destroy', props.jobOrder.ticket), {
-    data: {
-      redirectRouteAfterSuccess: props.redirectUrlAfterArchive,
-    },
+const onForceDelete = () => {
+  router.delete(route('archive.job_order.destroy', props.jobOrder.id), {
+    onStart: () => (isSubmitting.value = true),
     replace: true,
     showProgress: false,
-    onStart: () => (isLoading.value = true),
     onSuccess: (page: any) => {
-      isArchiveModalOpen.value = false
-      isLoading.value = false
       toast.success(page.props.flash.message, {
         position: 'top-center',
       })
+    },
+    onFinish: () => {
+      isSubmitting.value = false
+      isForceDestroyModalOpen.value = false
     },
   })
 }
 </script>
 
 <template>
-  <Dialog v-model:open="isArchiveModalOpen">
+  <Dialog v-model:open="isForceDestroyModalOpen">
     <Tooltip>
       <TooltipTrigger as-child>
         <DialogTrigger as-child>
           <Button
-            variant="warning"
+            variant="destructive"
             type="icon"
-            class="rounded-full p-2"
+            class="rounded-full p-[10px]"
           >
-            <Archive />
+            <ArchiveRestore />
           </Button>
         </DialogTrigger>
       </TooltipTrigger>
-      <TooltipContent> Archive </TooltipContent>
+      <TooltipContent> Delete Permanently </TooltipContent>
     </Tooltip>
     <DialogContent class="w-fit">
       <VisuallyHidden as-child>
-        <DialogTitle> Archiving Job Order </DialogTitle>
+        <DialogTitle> Deleting Job Order </DialogTitle>
         <DialogDescription>
           <!---->
         </DialogDescription>
       </VisuallyHidden>
       <div class="flex flex-col items-center justify-center gap-2">
-        <TriangleAlert
-          class="h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
-        />
-        <div class="text-3xl font-bold text-amber-500 dark:text-white">
-          Archiving Job Order
+        <CircleAlert class="h-28 w-28 fill-destructive stroke-white" />
+        <div class="text-3xl font-bold text-destructive">
+          Deleting Job Order
         </div>
         <div class="text-sm text-muted-foreground">
-          Are you sure you want to archive
-          <span class="font-bold">{{ jobOrder.ticket }}</span>
-          ?
+          Are you sure you want to permanently delete
+          <span class="font-bold">{{ jobOrder.ticket }}?</span>
         </div>
         <div class="mt-6 flex items-center gap-4">
           <DialogClose>
@@ -96,16 +89,16 @@ const handleRowArchival = () => {
             </Button>
           </DialogClose>
           <Button
-            variant="warning"
-            :disabled="isLoading"
+            variant="destructive"
+            :disabled="isSubmitting"
             class="px-10"
-            @click="handleRowArchival"
+            @click="onForceDelete"
           >
             <LoaderCircle
-              v-show="isLoading"
-              class="mr-2 animate-spin"
+              v-if="isSubmitting"
+              class="animate-spin"
             />
-            Archive
+            Confirm
           </Button>
         </div>
       </div>

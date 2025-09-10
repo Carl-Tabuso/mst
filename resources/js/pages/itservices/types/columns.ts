@@ -1,8 +1,8 @@
+import TextLink from '@/components/TextLink.vue'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
 import { JobOrder } from '@/types'
-import { Link } from '@inertiajs/vue3'
 import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { h } from 'vue'
@@ -43,14 +43,13 @@ export const columns: ColumnDef<JobOrder>[] = [
     cell: ({ row }) => {
       const serviceType = row.original.serviceableType
       return h(
-        Link,
+        TextLink,
         {
           href: route(
             `job_order.${useJobOrderDicts().routeMap[serviceType]}.edit`,
             row.getValue('ticket'),
           ),
-          class:
-            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+          class: 'text-[13px] font-medium truncate tracking-tighter',
         },
         () => row.getValue('ticket'),
       )

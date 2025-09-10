@@ -24,4 +24,10 @@ return [
     'restore' => [
         'ticket' => 'Successfully restored ticket :ticket.',
     ],
+    'batch_restore' => [
+        'ticket' => 'Successfully restored :count ticket(s).',
+    ],
+    'permanent_delete' => [
+        'ticket' => 'Ticket :ticket was permanently deleted.',
+    ],
 ];

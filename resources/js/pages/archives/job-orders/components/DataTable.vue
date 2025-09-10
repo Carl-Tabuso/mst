@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="TValue">
+import DataTablePagination from '@/components/DataTablePagination.vue'
 import {
   Table,
   TableBody,
@@ -7,16 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { usePermissions } from '@/composables/usePermissions'
 import { valueUpdater } from '@/lib/utils'
 import { EloquentCollection, JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
-import type {
-  ColumnDef,
-  PaginationState,
-  SortingState,
-  VisibilityState,
-} from '@tanstack/vue-table'
+import type { ColumnDef } from '@tanstack/vue-table'
 import {
   FlexRender,
   getCoreRowModel,
@@ -24,9 +19,8 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { ref } from 'vue'
-import DataTablePagination from '@/components/DataTablePagination.vue'
-// import DataTableToolbar from './DataTableToolbar.vue'
+import { useArchivedJobOrderTable } from '../../composables/useArchivedJobOrderTable'
+import DataTableToolbar from './DataTableToolbar.vue'
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData, TValue>[]
@@ -36,27 +30,8 @@ interface DataTableProps<TData> {
 
 const props = defineProps<DataTableProps<JobOrder>>()
 
-const { can } = usePermissions()
-
-const sorting = ref<SortingState>([])
-const columnVisibility = ref<VisibilityState>({
-  id: true,
-  client: false,
-  contactNo: false,
-  address: false,
-  status: true,
-  creator: true,
-  dateTime: false,
-//   restore: can('update:job_order'),
-})
-const rowSelection = ref({})
-const pagination = ref<PaginationState>({
-  pageIndex: props.meta.current_page - 1,
-  pageSize: props.meta.per_page,
-})
-const searchQuery =
-  new URLSearchParams(window.location.search).get('search') || ''
-const globalFilter = ref<string | number>(searchQuery)
+const { dataTable, dataTableStateRequestPayload, applyFilters } =
+  useArchivedJobOrderTable()
 
 const table = useVueTable({
   get data() {
@@ -71,18 +46,21 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
-  onSortingChange: (updater) => valueUpdater(updater, sorting),
+  onSortingChange: (updater) => valueUpdater(updater, dataTable.sorting),
   onColumnVisibilityChange: (updater) =>
-    valueUpdater(updater, columnVisibility),
-  onRowSelectionChange: (updater) => valueUpdater(updater, rowSelection),
+    valueUpdater(updater, dataTable.columnVisibility),
+  onRowSelectionChange: (updater) =>
+    valueUpdater(updater, dataTable.rowSelection),
   onGlobalFilterChange: (updater) => {
-    valueUpdater(updater, globalFilter)
+    valueUpdater(updater, dataTable.globalFilter)
     table.setPageIndex(0)
+    applyFilters()
+  },
+  onPaginationChange: (updater) => {
+    valueUpdater(updater, dataTable.pagination)
     router.get(
-      route('job_order.index'),
-      {
-        search: globalFilter.value,
-      },
+      route('archive.job_order.index'),
+      dataTableStateRequestPayload.value,
       {
         preserveState: true,
         preserveScroll: true,
@@ -90,45 +68,31 @@ const table = useVueTable({
       },
     )
   },
-  onPaginationChange: (updater) => {
-    valueUpdater(updater, pagination)
-    const { pageIndex, pageSize } = pagination.value
-    const data = {
-      page: pageIndex + 1,
-      per_page: pageSize,
-      ...(globalFilter.value ? { search: globalFilter.value } : {}),
-    }
-    router.get(route('job_order.index'), data, {
-      preserveState: true,
-      preserveScroll: true,
-      replace: true,
-    })
-  },
   state: {
     get sorting() {
-      return sorting.value
+      return dataTable.sorting.value
     },
     get columnVisibility() {
-      return columnVisibility.value
+      return dataTable.columnVisibility.value
     },
     get rowSelection() {
-      return rowSelection.value
+      return dataTable.rowSelection.value
     },
     get pagination() {
-      return pagination.value
+      return dataTable.pagination.value
     },
     get globalFilter() {
-      return globalFilter.value
+      return dataTable.globalFilter.value
     },
   },
 })
 </script>
 
 <template>
-  <!-- <DataTableToolbar
+  <DataTableToolbar
     :table="table"
-    :globalFilter="globalFilter"
-  /> -->
+    :globalFilter="dataTable.globalFilter.value"
+  />
   <div class="rounded-md border">
     <Table>
       <TableHeader>

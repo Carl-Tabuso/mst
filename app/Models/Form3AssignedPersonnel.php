@@ -28,21 +28,25 @@ class Form3AssignedPersonnel extends Model
 
     public function teamLeader(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'team_leader');
+        return $this->belongsTo(Employee::class, 'team_leader')
+            ->withTrashed();
     }
 
     public function teamDriver(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'team_driver');
+        return $this->belongsTo(Employee::class, 'team_driver')
+            ->withTrashed();
     }
 
     public function safetyOfficer(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'safety_officer');
+        return $this->belongsTo(Employee::class, 'safety_officer')
+            ->withTrashed();
     }
 
     public function teamMechanic(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'team_mechanic');
+        return $this->belongsTo(Employee::class, 'team_mechanic')
+            ->withTrashed();
     }
 }

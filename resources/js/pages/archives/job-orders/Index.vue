@@ -2,6 +2,8 @@
 import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
+import ArchivedTabs from '../components/ArchivedTabs.vue'
+import PageHeader from '../components/PageHeader.vue'
 import { columns } from './components/columns'
 import ArchivedJobOrderDataTable from './components/DataTable.vue'
 
@@ -16,30 +18,29 @@ defineProps<IndexProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Job Orders',
-    href: '/job-orders',
+    title: 'Archives',
+    href: '#',
   },
   {
-    title: 'List',
-    href: '/job-orders',
+    title: 'Job Orders',
+    href: '/archives/job-orders',
   },
 ]
 </script>
 
 <template>
-  <Head title="Job Orders" />
+  <Head title="Archived Job Orders" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="flex flex-col">
-        <h3 class="scroll-m-20 text-3xl font-bold text-primary">
-            Archived • Job Orders
-        </h3>
-        <p class="text-muted-foreground">
-            Archived job orders here.
-        </p>
+        <div class="mb-1">
+          <PageHeader
+            archive-type="Job Orders"
+            sub-title="You can manage and restore the archived job orders here!"
+          />
         </div>
+        <ArchivedTabs />
         <ArchivedJobOrderDataTable
           :columns="columns"
           :data="data.data"

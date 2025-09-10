@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getInitials } from '@/composables/useInitials'
 import { JobOrder } from '@/types'
 import { Row } from '@tanstack/vue-table'
-import { format } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 
 interface CreatorAndTimestampProps {
   row: Row<JobOrder>
@@ -26,11 +26,13 @@ defineProps<CreatorAndTimestampProps>()
         </AvatarFallback>
       </Avatar>
       <div>
-        <div class="text-xs font-semibold">
+        <div class="text-xs font-medium">
           {{ row.original.creator?.fullName }}
         </div>
         <div class="text-[11px] text-muted-foreground">
-          {{ format(row.original.createdAt, 'MMM dd, yyyy h:mm a') }}
+          {{
+            `created ${formatDistanceToNow(row.original.createdAt, { addSuffix: true })}`
+          }}
         </div>
       </div>
     </div>

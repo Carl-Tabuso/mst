@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
@@ -58,10 +57,9 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])
                 ->name('index');
-                
+
             Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])
                 ->name('edit')
-                // ->withTrashed()
                 ->can('view', 'ticket');
 
             Route::post('/', [WasteManagementController::class, 'store'])

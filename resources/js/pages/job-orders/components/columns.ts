@@ -1,14 +1,14 @@
+import CreatorAndTimestamp from '@/components/CreatorAndTimestamp.vue'
+import TextLink from '@/components/TextLink.vue'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { jobOrderRouteNames } from '@/constants/job-order-route'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import { JobOrder } from '@/types'
-import { Link } from '@inertiajs/vue3'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
 import { h } from 'vue'
 import ArchiveJobOrder from './ArchiveJobOrder.vue'
-import CreatorAndTimestamp from './CreatorAndTimestamp.vue'
 import DataTableHeader from './DataTableHeader.vue'
 
 declare module '@tanstack/vue-table' {
@@ -55,18 +55,15 @@ export const columns: ColumnDef<JobOrder>[] = [
     meta: { label: 'Ticket' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      const subPath = jobOrderRouteNames.find(
-        (jor) => jor.id === row.getValue('serviceableType'),
-      )
+      const serviceType: string = row.getValue('serviceableType')
       return h(
-        Link,
+        TextLink,
         {
+          class: 'text-[13px] font-medium tracking-tighter',
           href: route(
-            `job_order.${subPath?.route}.edit`,
+            `job_order.${useJobOrderDicts().routeMap[serviceType]}.edit`,
             row.getValue('ticket'),
           ),
-          class:
-            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
         },
         () => row.getValue('ticket'),
       )

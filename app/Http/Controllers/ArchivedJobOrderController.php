@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Inertia\Response;
+use App\Enums\ActivityLogName;
 use App\Models\JobOrder;
-use Illuminate\Http\Request;
 use App\Services\JobOrderService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ArchivedJobOrderController extends Controller
 {
@@ -28,10 +29,46 @@ class ArchivedJobOrderController extends Controller
 
     public function update(JobOrder $jobOrder): RedirectResponse
     {
-        // dd($jobOrder);
         $this->service->restoreArchivedJobOrder($jobOrder);
 
         $message = __('responses.restore.ticket', ['ticket' => $jobOrder->ticket]);
+
+        return back()->with(compact('message'));
+    }
+
+    public function bulkRestore(Request $request): RedirectResponse
+    {
+        $archivedJobOrderIds = $request->input('jobOrderIds', []);
+
+        $this->service->restoreArchivedJobOrders($archivedJobOrderIds);
+
+        $user = $request->user();
+
+        $archivedJobOrderIdCount = count($archivedJobOrderIds);
+
+        activity()
+            ->useLog(ActivityLogName::TicketBatchArchive->value)
+            ->causedBy($user)
+            ->event('deleted')
+            ->withProperties([
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ])
+            ->log(__('activity.job_order.restored.batch', [
+                'causer'       => $user->employee->full_name,
+                'ticket_count' => $archivedJobOrderIdCount,
+            ]));
+
+        $message = __('responses.batch_restore.ticket', ['count' => $archivedJobOrderIdCount]);
+
+        return back()->with(compact('message'));
+    }
+
+    public function destroy(JobOrder $jobOrder): RedirectResponse
+    {
+        $this->service->permanentlyDeleteJobOrder($jobOrder);
+
+        $message = __('responses.permanent_delete.ticket', ['ticket' => $jobOrder->ticket]);
 
         return back()->with(compact('message'));
     }
