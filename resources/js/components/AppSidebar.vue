@@ -86,7 +86,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Archives',
-    href: '/archives',
+    href: '/archives/job-orders',
     icon: Archive,
   },
 ]

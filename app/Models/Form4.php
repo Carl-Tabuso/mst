@@ -39,7 +39,8 @@ class Form4 extends Model
 
     public function jobOrder(): MorphOne
     {
-        return $this->morphOne(JobOrder::class, 'serviceable');
+        return $this->morphOne(JobOrder::class, 'serviceable')
+            ->withTrashed();
     }
 
     public function form3(): HasOne
@@ -49,11 +50,13 @@ class Form4 extends Model
 
     public function appraisers(): BelongsToMany
     {
-        return $this->belongsToMany(Employee::class, 'form4_appraisers');
+        return $this->belongsToMany(Employee::class, 'form4_appraisers')
+            ->withTrashed();
     }
 
     public function dispatcher(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'form_dispatcher');
+        return $this->belongsTo(Employee::class, 'form_dispatcher')
+            ->withTrashed();
     }
 }

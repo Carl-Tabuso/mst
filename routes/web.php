@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
@@ -56,12 +55,19 @@ Route::middleware(['auth'])->group(function () {
 
         });
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
-            Route::get('/', [WasteManagementController::class, 'index'])->name('index');
+            Route::get('/', [WasteManagementController::class, 'index'])
+                ->name('index');
+
             Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])
                 ->name('edit')
                 ->can('view', 'ticket');
-            Route::post('/', [WasteManagementController::class, 'store'])->name('store');
-            Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
+
+            Route::post('/', [WasteManagementController::class, 'store'])
+                ->name('store');
+
+            Route::patch('{form4}', [WasteManagementController::class, 'update'])
+                ->name('update');
+
             Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
                 ->name('safety_inspection.update');
         });
@@ -110,16 +116,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('ratings/table', [EmployeeRatingController::class, 'ratingsTable'])->name('table');
     Route::get('/employee-ratings/{employee}/history', [EmployeeRatingController::class, 'ratingHistory'])->name('employee_ratings.history');
     Route::get('/employee-ratings/{employee}/history-page', [EmployeeRatingController::class, 'historyPage'])->name('employee.ratings.history.page');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Archive
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/archives', [ArchiveController::class, 'index'])->name('archives.index');
-    Route::post('/archives/restore', [ArchiveController::class, 'restore'])->name('archives.restore');
-    Route::post('/archives/force-delete', [ArchiveController::class, 'forceDelete'])->name('archives.force-delete');
 
     /*
     |--------------------------------------------------------------------------
@@ -175,3 +171,4 @@ require __DIR__.'/auth.php';
 require __DIR__.'/corrections.php';
 require __DIR__.'/trucks.php';
 require __DIR__.'/itservice.php';
+require __DIR__.'/archives.php';

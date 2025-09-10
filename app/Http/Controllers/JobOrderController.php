@@ -13,7 +13,6 @@ use App\Services\JobOrderService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -78,7 +77,7 @@ class JobOrderController extends Controller
     {
         $jobOrderIds = $request->array('jobOrderIds');
 
-        activity()->withoutLogs(fn () => DB::transaction(fn () => JobOrder::destroy($jobOrderIds)));
+        activity()->withoutLogs(fn () => $this->service->archiveJobOrders($jobOrderIds));
 
         $user = $request->user();
 

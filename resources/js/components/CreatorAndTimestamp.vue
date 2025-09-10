@@ -3,23 +3,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getInitials } from '@/composables/useInitials'
 import { JobOrder } from '@/types'
 import { Row } from '@tanstack/vue-table'
-import { computed } from 'vue'
+import { formatDistanceToNow } from 'date-fns'
 
 interface CreatorAndTimestampProps {
   row: Row<JobOrder>
 }
 
-const props = defineProps<CreatorAndTimestampProps>()
-
-const formattedDateTime = computed(() => {
-  return new Date(props.row.original.createdAt).toLocaleString('en-ph', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-})
+defineProps<CreatorAndTimestampProps>()
 </script>
 
 <template>
@@ -36,11 +26,13 @@ const formattedDateTime = computed(() => {
         </AvatarFallback>
       </Avatar>
       <div>
-        <div class="text-xs font-semibold">
+        <div class="text-xs font-medium">
           {{ row.original.creator?.fullName }}
         </div>
         <div class="text-[11px] text-muted-foreground">
-          {{ formattedDateTime }}
+          {{
+            `created ${formatDistanceToNow(row.original.createdAt, { addSuffix: true })}`
+          }}
         </div>
       </div>
     </div>

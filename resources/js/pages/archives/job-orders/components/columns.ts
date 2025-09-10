@@ -1,15 +1,15 @@
 import CreatorAndTimestamp from '@/components/CreatorAndTimestamp.vue'
-import TextLink from '@/components/TextLink.vue'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
-import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import { JobOrder } from '@/types'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
+import { format } from 'date-fns'
 import { MonitorCog, Truck, Wrench } from 'lucide-vue-next'
 import { h } from 'vue'
-import ArchiveJobOrder from './ArchiveJobOrder.vue'
 import DataTableHeader from './DataTableHeader.vue'
+import ForceDeleteJobOrder from './ForceDeleteJobOrder.vue'
+import RestoreJobOrder from './RestoreJobOrder.vue'
 
 declare module '@tanstack/vue-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -55,17 +55,13 @@ export const columns: ColumnDef<JobOrder>[] = [
     meta: { label: 'Ticket' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      const serviceType: string = row.getValue('serviceableType')
       return h(
-        TextLink,
+        'div',
         {
-          class: 'text-[13px] font-medium tracking-tighter',
-          href: route(
-            `job_order.${useJobOrderDicts().routeMap[serviceType]}.edit`,
-            row.getValue('ticket'),
-          ),
+          class:
+            'text-muted-foreground text-[13px] font-medium truncate tracking-tighter',
         },
-        () => row.getValue('ticket'),
+        row.getValue('ticket'),
       )
     },
     enableHiding: false,
@@ -91,49 +87,25 @@ export const columns: ColumnDef<JobOrder>[] = [
       const icon = iconMap[serviceType as IconType]
 
       return h('div', { class: 'flex items-center' }, [
-        h(icon, { size: 20, strokeWidth: 0.75, class: 'mr-2.5' }),
-        h('span', { class: 'text-[13px] font-medium truncate' }, formatted),
+        h(icon, { size: 20, strokeWidth: 0.75, class: 'mr-2' }),
+        h('span', { class: 'text-[13px] font-medium' }, formatted),
       ])
     },
-  },
-  {
-    accessorKey: 'contactNo',
-    meta: { label: 'Contact Person' },
-    header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) => {
-      const contactNo = String(row.getValue('contactNo'))
-      const contactPerson = row.original.contactPerson
-
-      return h('div', [
-        h('div', { class: 'text-xs font-semibold' }, contactPerson),
-        h('div', { class: 'text-[11px] text-muted-foreground' }, contactNo),
-      ])
-    },
-  },
-  {
-    accessorKey: 'address',
-    meta: { label: 'Address' },
-    header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) => h('div', { class: 'text-xs' }, row.getValue('address')),
   },
   {
     accessorKey: 'status',
     meta: { label: 'Status' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      const status: string = row.getValue('status')
-      const variant = JobOrderStatuses.find((j) => j.id === status)?.badge
-      const formatted = () =>
-        status
-          .split(' ')
-          .map((word) => {
-            return word.charAt(0).toUpperCase() + word.slice(1)
-          })
-          .join(' ')
-
+      const status =
+        useJobOrderDicts().statusMap[row.getValue('status') as string]
       return h(
         'div',
-        h(Badge, { variant: variant, class: 'truncate' }, formatted),
+        h(
+          Badge,
+          { variant: status.badge, class: 'truncate' },
+          () => status.label,
+        ),
       )
     },
   },
@@ -149,25 +121,38 @@ export const columns: ColumnDef<JobOrder>[] = [
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
       const dateTime = new Date(row.getValue('dateTime'))
-      const formattedDate = dateTime.toLocaleString('en-ph', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-      const formattedTime = dateTime.toLocaleTimeString('en-ph', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+      const formattedDate = format(dateTime, 'MMMM dd, yyyy')
+      const formattedTime = format(dateTime, 'hh:mm a')
 
       return h('div', { class: 'text-xs' }, [
-        h('div', { class: 'font-semibold' }, formattedDate),
+        h('div', { class: 'font-medium' }, formattedDate),
         h('div', { class: 'text-[11px] text-muted-foreground' }, formattedTime),
       ])
     },
   },
   {
-    id: 'archive',
-    cell: ({ row }) => h(ArchiveJobOrder, { jobOrder: row.original }),
+    accessorKey: 'archivedAt',
+    meta: { label: 'Date Archived' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const archivedAt = new Date(row.getValue('archivedAt'))
+      const formattedDate = format(archivedAt, 'MMMM dd, yyyy')
+      const formattedTime = format(archivedAt, 'hh:mm a')
+
+      return h('div', { class: 'text-xs' }, [
+        h('div', { class: 'font-medium' }, formattedDate),
+        h('div', { class: 'text-[11px] text-muted-foreground' }, formattedTime),
+      ])
+    },
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      return h('div', { class: 'flex flex-row items-center gap-3' }, [
+        h(RestoreJobOrder, { jobOrder: row.original }),
+        h(ForceDeleteJobOrder, { jobOrder: row.original }),
+      ])
+    },
     enableHiding: false,
   },
 ]

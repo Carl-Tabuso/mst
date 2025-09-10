@@ -26,6 +26,7 @@ class JobOrderResource extends JsonResource
             'errorCount'            => $this->error_count,
             'createdAt'             => $this->created_at,
             'updatedAt'             => $this->updated_at,
+            'archivedAt'            => $this->archived_at,
             'creator'               => EmployeeResource::make($this->whenLoaded('creator')),
             'teamLeaderPerformance' => TeamLeaderPerformanceResource::make($this->whenLoaded('teamLeaderPerformance')),
             'employeePerformance'   => EmployeePerformanceResource::make($this->whenLoaded('employeePerformance')),
