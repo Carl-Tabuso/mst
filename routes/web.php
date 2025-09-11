@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
@@ -12,7 +11,6 @@ use App\Http\Controllers\ExportReportsController;
 use App\Http\Controllers\Form5Controller;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidentController;
-use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SafetyInspectionController;
@@ -47,59 +45,31 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{jobOrder}', [JobOrderController::class, 'destroy'])
             ->name('destroy')
             ->can('update', 'jobOrder');
-     Route::prefix('other-services')->name('other_services.')->group(function () {
+        Route::prefix('other-services')->name('other_services.')->group(function () {
             Route::get('/', [Form5Controller::class, 'index'])->name('index');
-            Route::get('{ticket}/edit', [   Form5Controller::class, 'edit'])
+            Route::get('{ticket}/edit', [Form5Controller::class, 'edit'])
                 ->name('edit')
                 ->can('view', 'ticket');
             Route::post('/', [Form5Controller::class, 'store'])->name('store');
             Route::patch('{form5}', [Form5Controller::class, 'update'])->name('update');
-       
+
         });
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
-            Route::get('/', [WasteManagementController::class, 'index'])->name('index');
+            Route::get('/', [WasteManagementController::class, 'index'])
+                ->name('index');
+
             Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])
                 ->name('edit')
                 ->can('view', 'ticket');
-            Route::post('/', [WasteManagementController::class, 'store'])->name('store');
-            Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
+
+            Route::post('/', [WasteManagementController::class, 'store'])
+                ->name('store');
+
+            Route::patch('{form4}', [WasteManagementController::class, 'update'])
+                ->name('update');
+
             Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
                 ->name('safety_inspection.update');
-        });
-
-        // Route::prefix('it-services')->name('it_service.')->group(function () {
-        //     Route::get('/', [ITServicesController::class, 'index'])->name('index');
-
-        //     // Initial
-        //     Route::get('/create', [ITServicesController::class, 'createInitial'])->name('create');
-        //     Route::post('/', [ITServicesController::class, 'storeInitial'])->name('store');
-        //     Route::get('{jobOrder}/edit', [ITServicesController::class, 'editInitial'])->name('edit');
-        //     Route::get('{jobOrder}', [ITServicesController::class, 'viewInitial'])->name('view');
-
-        //     // First Onsite
-        //     Route::get('{jobOrder}/onsite/initial', [ITServicesController::class, 'createFirstOnsite'])->name('onsite.first.create');
-        //     Route::post('{jobOrder}/onsite/initial', [ITServicesController::class, 'storeFirstOnsite'])->name(name: 'onsite.first.store');
-        //     Route::get('{jobOrder}/onsite/initial/{report}/view', [ITServicesController::class, 'viewFirstOnsite'])->name('onsite.first.view');
-        //     Route::get('{jobOrder}/onsite/initial/{reportId}/edit', [ITServicesController::class, 'editFirstOnsite'])->name('onsite.first.edit');
-
-        //     Route::get('{jobOrder}/reports/{reportId}/download', [ITServicesController::class, 'downloadAttachment'])->name('report.download');
-
-        //     // Final Onsite
-        //     Route::get('{jobOrder}/onsite/final', [ITServicesController::class, 'createLastOnsite'])->name('onsite.last.create');
-        //     Route::post('{jobOrder}/onsite/final', [ITServicesController::class, 'storeLastOnsite'])->name('onsite.last.store');
-        //     Route::get('{jobOrder}/onsite/final/view', [ItServicesController::class, 'viewLastOnsite'])->name('onsite.last.view');
-        //     Route::get('{jobOrder}/onsite/final/edit', [ITServicesController::class, 'editLastOnsite'])->name('onsite.last.edit');
-
-        //     // Archive
-        //     Route::post('/archive', [ITServicesController::class, 'archive'])->name('archive');
-
-        //     Route::post('{jobOrder}/corrections', [ITServicesController::class, 'requestCorrection'])->name('corrections.store');
-
-        // });
-
-        Route::prefix('others')->name('other.')->group(function () {
-            Route::get('/', fn () => dd('os'))->name('index');
-            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
         });
 
         Route::prefix('cancels')->name('cancel.')->group(function () {
@@ -146,16 +116,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('ratings/table', [EmployeeRatingController::class, 'ratingsTable'])->name('table');
     Route::get('/employee-ratings/{employee}/history', [EmployeeRatingController::class, 'ratingHistory'])->name('employee_ratings.history');
     Route::get('/employee-ratings/{employee}/history-page', [EmployeeRatingController::class, 'historyPage'])->name('employee.ratings.history.page');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Archive
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/archives', [ArchiveController::class, 'index'])->name('archives.index');
-    Route::post('/archives/restore', [ArchiveController::class, 'restore'])->name('archives.restore');
-    Route::post('/archives/force-delete', [ArchiveController::class, 'forceDelete'])->name('archives.force-delete');
 
     /*
     |--------------------------------------------------------------------------
@@ -215,3 +175,4 @@ require __DIR__.'/auth.php';
 require __DIR__.'/corrections.php';
 require __DIR__.'/trucks.php';
 require __DIR__.'/itservice.php';
+require __DIR__.'/archives.php';

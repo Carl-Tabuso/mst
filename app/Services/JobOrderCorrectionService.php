@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\FilePath;
 use App\Enums\JobOrderCorrectionRequestStatus;
 use App\Enums\JobOrderServiceType;
 use App\Enums\JobOrderStatus;
@@ -9,6 +10,8 @@ use App\Filters\JobOrderCorrection\FilterDistinctByJobOrderId;
 use App\Filters\JobOrderCorrection\FilterOnlyCreated;
 use App\Filters\JobOrderCorrection\FilterStatuses;
 use App\Filters\JobOrderCorrection\SearchDetails;
+use App\Models\Employee;
+use App\Models\InitialOnsiteReport;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use Illuminate\Database\Eloquent\Builder;
@@ -80,7 +83,7 @@ class JobOrderCorrectionService
         ]);
 
         $updateableModels = [$jobOrder];
-        $correctionData = ['properties' => ['before' => [], 'after' => []]];
+        $correctionData   = ['properties' => ['before' => [], 'after' => []]];
 
         if ($this->canUpdateProposal($jobOrder->status)) {
             $jobOrder->serviceable->fill([
@@ -149,7 +152,7 @@ class JobOrderCorrectionService
             $updateableModels[] = $initialOnsite;
 
             if ($data?->report_file instanceof UploadedFile) {
-                Storage::put('it_services/temp', $data->report_file);
+                Storage::put(FilePath::ITServiceReportsTemp->value, $data->report_file);
             }
         }
 
@@ -160,7 +163,7 @@ class JobOrderCorrectionService
                 'service_performed' => $data->final_service_performed,
                 'parts_replaced'    => $data->parts_replaced,
                 'remarks'           => $data->remarks,
-                'machine_status'    => $data->machine_status,
+                'machine_status'    => $data->final_machine_status,
             ]);
 
             $updateableModels[] = $finalOnsite;
@@ -170,13 +173,35 @@ class JobOrderCorrectionService
         $conflictingAttributes = ['service_performed', 'machine_status'];
         foreach ($updateableModels as $model) {
             foreach ($model->getDirty() as $key => $value) {
+                $beforeValue = $model->getOriginal($key);
+                $afterValue  = $value;
+
                 if (in_array($key, $conflictingAttributes)) {
-                    $alias = $model->getMorphClass();
-                    $key   = "{$alias}.{$key}";
+                    $alias = $model instanceof InitialOnsiteReport ? 'initial' : 'final';
+                    $key   = "{$alias}_{$key}";
                 }
 
-                $mappedData['properties']['before'][$key] = $model->getOriginal($key);
-                $mappedData['properties']['after'][$key]  = $value;
+                if ($key === 'technician_id') {
+                    $key = 'technician';
+
+                    $oldTechnicianModel = Employee::find($beforeValue);
+                    $oldTechnician      = [
+                        'id'       => $oldTechnicianModel->id,
+                        'fullName' => $oldTechnicianModel->full_name,
+                    ];
+
+                    $newTechnicianModel = Employee::find($afterValue);
+                    $newTechnician      = [
+                        'id'       => $newTechnicianModel->id,
+                        'fullName' => $newTechnicianModel->full_name,
+                    ];
+
+                    $beforeValue = $oldTechnician;
+                    $afterValue  = $newTechnician;
+                }
+
+                $mappedData['properties']['before'][$key] = $beforeValue;
+                $mappedData['properties']['after'][$key]  = $afterValue;
             }
         }
 
@@ -200,45 +225,45 @@ class JobOrderCorrectionService
         ]);
 
         $updateableModels = [$jobOrder];
-        $correctionData = ['properties' => ['before' => [], 'after' => []]];
+        $correctionData   = ['properties' => ['before' => [], 'after' => []]];
 
         if ($this->canUpdateProposal($jobOrder->status)) {
             $form5 = $jobOrder->serviceable;
-            
+
             $originalValues = [
                 'assigned_person' => $form5->assigned_person,
-                'purpose' => $form5->purpose,
-                'items' => $form5->items->toArray()
+                'purpose'         => $form5->purpose,
+                'items'           => $form5->items->toArray(),
             ];
-            
+
             $form5->fill([
                 'assigned_person' => $data->assigned_person ?? $form5->assigned_person,
-                'purpose' => $data->purpose ?? $form5->purpose,
+                'purpose'         => $data->purpose         ?? $form5->purpose,
             ]);
-            
+
             $newItems = isset($data->items) ? $data->items : $form5->items->toArray();
 
             $newValues = [
                 'assigned_person' => $form5->assigned_person,
-                'purpose' => $form5->purpose,
-                'items' => $newItems
+                'purpose'         => $form5->purpose,
+                'items'           => $newItems,
             ];
 
             foreach ($originalValues as $key => $originalValue) {
                 $newValue = $newValues[$key];
-                
+
                 if ($key === 'items') {
                     $originalJson = json_encode($originalValue);
-                    $newJson = json_encode($newValue);
-                    
+                    $newJson      = json_encode($newValue);
+
                     if ($originalJson !== $newJson) {
                         $correctionData['properties']['before']['serviceable'][$key] = $originalValue;
-                        $correctionData['properties']['after']['serviceable'][$key] = $newValue;
+                        $correctionData['properties']['after']['serviceable'][$key]  = $newValue;
                     }
                 } else {
                     if ($originalValue != $newValue) {
                         $correctionData['properties']['before']['serviceable'][$key] = $originalValue;
-                        $correctionData['properties']['after']['serviceable'][$key] = $newValue;
+                        $correctionData['properties']['after']['serviceable'][$key]  = $newValue;
                     }
                 }
             }
@@ -248,17 +273,17 @@ class JobOrderCorrectionService
 
         foreach ($updateableModels as $model) {
             $dirty = $model->getDirty();
-            
+
             foreach ($dirty as $key => $value) {
-                if ($model === $jobOrder->serviceable && 
+                if ($model                      === $jobOrder->serviceable     &&
                     $jobOrder->serviceable_type === JobOrderServiceType::Form5 &&
                     isset($correctionData['properties']['before']['serviceable'][$key])) {
                     continue;
                 }
-                
-                $originalValue = $model->getOriginal($key);
+
+                $originalValue                                = $model->getOriginal($key);
                 $correctionData['properties']['before'][$key] = $originalValue;
-                $correctionData['properties']['after'][$key] = $value;
+                $correctionData['properties']['after'][$key]  = $value;
             }
         }
 
@@ -277,11 +302,11 @@ class JobOrderCorrectionService
             $correction->status = $status;
             $correction->jobOrder->increment('error_count');
 
-            if ($status !== JobOrderCorrectionRequestStatus::Approved) {
+            if ($status === JobOrderCorrectionRequestStatus::Rejected) {
                 return $correction->save();
             }
 
-            $newValues = $data['new_values'];
+            $newValues = $correction->properties['after'];
 
             match ($serviceType) {
                 JobOrderServiceType::Form4     => $this->updateWasteManagement($newValues, $correction->jobOrder),
@@ -332,7 +357,89 @@ class JobOrderCorrectionService
 
     private function updateItService(array $data, JobOrder $jobOrder)
     {
-        // IT Service update logic
+        foreach ($jobOrder->attributesForCorrection() as $key) {
+            if (array_key_exists($key, $data)) {
+                $jobOrder->fill([$key => $data[$key]]);
+            }
+        }
+        $jobOrder->save();
+
+        $iTService = $jobOrder->serviceable;
+        foreach ($iTService->attributesForCorrection() as $key) {
+            if ($key === 'technician_id' && array_key_exists('technician', $data)) {
+                $iTService->fill([$key => $data['technician']['id']]);
+            }
+
+            if (array_key_exists($key, $data)) {
+                $iTService->fill([$key => $data[$key]]);
+            }
+        }
+        $iTService->save();
+
+        if (! $jobOrder->serviceable->isForFinalServiceOrCompleted()) {
+            return;
+        }
+
+        $initialOnsiteReport = $jobOrder->serviceable->initialOnsiteReport;
+        foreach ($initialOnsiteReport->attributesForCorrection() as $key) {
+            if (array_key_exists($key, $data)) {
+                $initialOnsiteReport->fill([
+                    $key => $data[$key],
+                ]);
+            }
+
+            if ($key === 'machine_status' && array_key_exists('initial_machine_status', $data)) {
+                $initialOnsiteReport->fill([
+                    $key => $data['initial_machine_status'],
+                ]);
+            }
+
+            if ($key === 'service_performed' && array_key_exists('initial_service_performed', $data)) {
+                $initialOnsiteReport->fill([
+                    $key => $data['initial_service_performed'],
+                ]);
+            }
+
+            if ($key === 'file_hash' && ! empty($data['file_hash'])) {
+                $newReportFileHash = $data[$key];
+
+                $newReportFile = sprintf('%s/%s', FilePath::ITServiceReportsTemp->value, $newReportFileHash);
+                $reportFile    = sprintf('%s/%s', FilePath::ITServiceReports->value, $newReportFileHash);
+
+                Storage::move($newReportFile, $reportFile);
+
+                $currentReportFileHash = $initialOnsiteReport->getOriginal('file_hash');
+                if ($currentReportFileHash) {
+                    $currentReportFile = sprintf('%s/%s', FilePath::ITServiceReports->value, $currentReportFileHash);
+                    Storage::delete($currentReportFile);
+                }
+            }
+        }
+        $initialOnsiteReport->save();
+
+        if (! $jobOrder->serviceable->isCompleted()) {
+            return;
+        }
+
+        $finalOnsiteReport = $jobOrder->serviceable->finalOnsiteReport;
+        foreach ($finalOnsiteReport->attributesForCorrection() as $key) {
+            if (array_key_exists($key, $data)) {
+                $finalOnsiteReport->fill([$key => $data[$key]]);
+            }
+
+            if ($key === 'machine_status' && array_key_exists('final_machine_status', $data)) {
+                $finalOnsiteReport->fill([
+                    $key => $data['final_machine_status'],
+                ]);
+            }
+
+            if ($key === 'service_performed' && array_key_exists('final_service_performed', $data)) {
+                $finalOnsiteReport->fill([
+                    $key => $data['final_service_performed'],
+                ]);
+            }
+        }
+        $finalOnsiteReport->save();
     }
 
     private function updateOtherService(array $data, JobOrder $jobOrder)
@@ -349,26 +456,26 @@ class JobOrderCorrectionService
         }
 
         $form5 = $jobOrder->serviceable;
-        
+
         if (isset($data['serviceable'])) {
             foreach ($data['serviceable'] as $key => $value) {
-                if ($key !== 'items') { 
+                if ($key !== 'items') {
                     $form5->fill([$key => $value]);
                 }
             }
         }
-        
+
         if (isset($data['serviceable']['items'])) {
             $form5->items()->delete();
-            
+
             foreach ($data['serviceable']['items'] as $itemData) {
                 $form5->items()->create([
                     'item_name' => $itemData['item_name'],
-                    'quantity' => $itemData['quantity'],
+                    'quantity'  => $itemData['quantity'],
                 ]);
             }
         }
-        
+
         $form5->save();
     }
 

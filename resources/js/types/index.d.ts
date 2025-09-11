@@ -130,7 +130,7 @@ export interface JobOrder {
   id: number
   ticket: string
   serviceableId: number
-  serviceableType: string
+  serviceableType: 'form4' | 'it_service' | 'form5'
   dateTime: string
   client: string
   address: string
@@ -143,6 +143,7 @@ export interface JobOrder {
   errorCount: number
   createdAt: string
   updatedAt: string
+  archivedAt: string
   creator: Employee
   serviceable: Form4 | ITService
   cancel: CancelledJobOrder

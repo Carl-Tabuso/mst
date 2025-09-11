@@ -12,7 +12,7 @@ class EmployeeAddress extends Model
         'province',
         'city',
         'zip_code',
-        'detailed_address'
+        'detailed_address',
     ];
 
     public function employee()

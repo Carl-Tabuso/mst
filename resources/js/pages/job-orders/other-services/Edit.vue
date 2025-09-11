@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CorrectionRequestBanner from '@/components/CorrectionRequestBanner.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { usePermissions } from '@/composables/usePermissions'
@@ -6,14 +7,13 @@ import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveJobOrder.vue'
 import { Employee, JobOrder, SharedData, type BreadcrumbItem } from '@/types'
-import {  useForm, usePage } from '@inertiajs/vue3'
-import { LoaderCircle, Pencil, X,   } from 'lucide-vue-next'
+import { useForm, usePage } from '@inertiajs/vue3'
+import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import TicketHeader from '../components/TicketHeader.vue'
-import CorrectionRequestBanner from '@/components/CorrectionRequestBanner.vue'
-import FirstSection from '../waste-managements/components/sections/FirstSection.vue'
 import Form5Section from '../other-services/components/Form5Section.vue'
+import FirstSection from '../waste-managements/components/sections/FirstSection.vue'
 import StatusUpdater from '../waste-managements/components/StatusUpdater.vue'
 
 interface Form5EditProps {
@@ -53,9 +53,9 @@ const form = useForm<Record<string, any>>({
 const assignedPersonId = computed(() => {
   const assignedPerson = props.data.jobOrder.serviceable?.assigned_person
   if (!assignedPerson) return null
-  
-  return typeof assignedPerson === 'string' 
-    ? parseInt(assignedPerson, 10) 
+
+  return typeof assignedPerson === 'string'
+    ? parseInt(assignedPerson, 10)
     : assignedPerson
 })
 
@@ -81,7 +81,7 @@ const resetFormToOriginal = () => {
 const onSubmitCorrection = () => {
   const [hours, min] = form.time.split(':')
   const epoch = new Date(form.date_time).setHours(Number(hours), Number(min))
-  
+
   const submissionData = {
     date_time: new Date(epoch).toLocaleString(),
     client: form.client,
@@ -94,8 +94,8 @@ const onSubmitCorrection = () => {
     purpose: form.purpose,
     items: form.items,
     reason: reason.value,
-  };
-  
+  }
+
   form
     .transform(() => submissionData)
     .post(route('job_order.correction.store', props.data.jobOrder.ticket), {
@@ -230,7 +230,7 @@ const toggleEditMode = () => {
           </div>
         </div>
       </div>
-      
+
       <div class="my-4 flex flex-col gap-4 rounded-xl">
         <div class="mb-3 flex items-center">
           <div class="flex w-full flex-col">
@@ -249,7 +249,7 @@ const toggleEditMode = () => {
                 v-model:contact-person="form.contact_person"
                 v-model:contact-number="form.contact_no"
               />
-              
+
               <!-- Form5 Section -->
               <div v-if="data.jobOrder.serviceable">
                 <Separator class="mb-3 w-full" />
@@ -262,27 +262,32 @@ const toggleEditMode = () => {
                   :initial-assigned-person="assignedPersonId"
                 />
               </div>
-              
+
               <!-- Correction Reason (only shown when editing) -->
               <div v-if="isEditing">
                 <Separator class="col-[1/-1] mb-3 w-full" />
-                <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3 items-center">
+                <div
+                  class="grid grid-cols-[auto,1fr] items-center gap-x-7 gap-y-3"
+                >
                   <label class="text-sm font-medium">Correction Reason</label>
                   <div class="w-full">
                     <textarea
                       v-model="reason"
                       placeholder="Please explain why this correction is needed"
-                      class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      class="w-full rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                       rows="3"
                       required
                     />
-                    <p v-if="form.errors?.reason" class="text-red-500 text-xs mt-1">
+                    <p
+                      v-if="form.errors?.reason"
+                      class="mt-1 text-xs text-red-500"
+                    >
                       {{ form.errors.reason }}
                     </p>
                   </div>
                 </div>
               </div>
-              
+
               <!-- Submit Button (only shown when editing) -->
               <div
                 v-if="isEditing && can('update:job_order')"

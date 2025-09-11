@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator'
 import { correctionStatuses } from '@/constants/correction-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, JobOrderCorrection } from '@/types'
-import { computed, provide, onMounted, ref } from 'vue'
+import { computed, onMounted, provide } from 'vue'
 import ChangesModal from './components/ChangesModal.vue'
 import FirstSection from './components/FirstSection.vue'
 import ReasonCard from './components/ReasonCard.vue'
@@ -15,7 +15,6 @@ interface ShowProps {
 }
 
 const props = defineProps<ShowProps>()
-
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -32,15 +31,13 @@ const correctionStatus = computed(() => {
   return correctionStatuses.find((status) => status.id === props.data.status)
 })
 
-
 const form5Changes = computed(() => {
-  
   const beforeServiceable = props.data.properties.before?.serviceable || {}
   const afterServiceable = props.data.properties.after?.serviceable || {}
-  
+
   return {
     before: beforeServiceable,
-    after: afterServiceable
+    after: afterServiceable,
   }
 })
 

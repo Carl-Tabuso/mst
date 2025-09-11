@@ -1,8 +1,8 @@
+import CreatorAndTimestamp from '@/components/CreatorAndTimestamp.vue'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveJobOrder.vue'
-import CreatorAndTimestamp from '@/pages/job-orders/components/CreatorAndTimestamp.vue'
 import DataTableHeader from '@/pages/job-orders/components/DataTableHeader.vue'
 import { JobOrder } from '@/types'
 import { Link } from '@inertiajs/vue3'
@@ -36,10 +36,7 @@ export const columns: ColumnDef<JobOrder>[] = [
       return h(
         Link,
         {
-          href: route(
-            'job_order.other_services.edit',
-            row.getValue('ticket'),
-          ),
+          href: route('job_order.other_services.edit', row.getValue('ticket')),
           class:
             'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
         },

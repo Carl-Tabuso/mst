@@ -13,20 +13,19 @@ use App\Services\JobOrderService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class JobOrderController extends Controller
 {
-    private const PER_PAGE = 10;
-
-    public function __construct(private JobOrderService $service,
-    private EmployeeService $employeeService) {}
+    public function __construct(
+        private JobOrderService $service,
+        private EmployeeService $employeeService
+    ) {}
 
     public function index(Request $request): Response
     {
-        $perPage = $request->input('per_page', self::PER_PAGE);
+        $perPage = $request->input('per_page', 10);
 
         $search = $request->input('search', '');
 
@@ -63,21 +62,22 @@ class JobOrderController extends Controller
         ]);
     }
 
-    public function destroy(JobOrder $jobOrder): RedirectResponse
+    public function destroy(Request $request, JobOrder $jobOrder): RedirectResponse
     {
         $jobOrder->delete();
 
-        return redirect()->route('job_order.index')
-            ->with(['message' => __('responses.archive.ticket', [
-                'ticket' => $jobOrder->ticket,
-            ])]);
+        $message = __('responses.archive.ticket', ['ticket' => $jobOrder->ticket]);
+
+        $redirectRoute = $request->input('redirectRouteAfterSuccess', 'job_order.index');
+
+        return redirect()->route($redirectRoute)->with(compact('message'));
     }
 
     public function bulkDestroy(Request $request): RedirectResponse
     {
         $jobOrderIds = $request->array('jobOrderIds');
 
-        activity()->withoutLogs(fn () => DB::transaction(fn () => JobOrder::destroy($jobOrderIds)));
+        activity()->withoutLogs(fn () => $this->service->archiveJobOrders($jobOrderIds));
 
         $user = $request->user();
 

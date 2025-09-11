@@ -39,11 +39,11 @@ import FilterPopover from './FilterPopover.vue'
 interface DataTableToolbarProps {
   table: Table<JobOrder>
   globalFilter: string | number
-  routeName?: string 
+  routeName?: string
 }
 
 const props = withDefaults(defineProps<DataTableToolbarProps>(), {
-  routeName: 'job_order.index' 
+  routeName: 'job_order.index',
 })
 const handleOnSearch = (value: string | number) => {
   debounceGlobalFilter(value)
@@ -119,7 +119,7 @@ const { can } = usePermissions()
       </span>
     </div>
 
- <FilterPopover :routeName="routeName" />
+    <FilterPopover :routeName="routeName" />
 
     <DropdownMenu>
       <DropdownMenuTrigger as-child>

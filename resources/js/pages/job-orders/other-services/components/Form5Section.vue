@@ -7,17 +7,22 @@ interface Form5Item {
 }
 
 interface Props {
-  employees?: Employee[] 
-  isEditing?: boolean 
+  employees?: Employee[]
+  isEditing?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   employees: () => [],
-  isEditing: false 
+  isEditing: false,
 })
 
-const assignedPerson = defineModel<number | null>('assignedPerson', { required: true })
-const items = defineModel<Form5Item[]>('items', { required: true, default: () => [] })
+const assignedPerson = defineModel<number | null>('assignedPerson', {
+  required: true,
+})
+const items = defineModel<Form5Item[]>('items', {
+  required: true,
+  default: () => [],
+})
 const purpose = defineModel<string>('purpose', { required: true, default: '' })
 
 const purposeOptions = [
@@ -28,7 +33,7 @@ const purposeOptions = [
   'Document Pickup',
   'Bid Bond Pickup',
   'Payment Transaction',
-  'Bid Bond Submission'
+  'Bid Bond Submission',
 ]
 
 const addItem = () => {
@@ -49,7 +54,7 @@ if (items.value.length === 0 && props.isEditing) {
 </script>
 
 <template>
-  <div class="mt-8 pt-6 border-t border-gray-200 space-y-6">
+  <div class="mt-8 space-y-6 border-t border-gray-200 pt-6">
     <div class="mb-6">
       <div class="text-xl font-semibold leading-6">Form 5 Details</div>
       <p class="text-sm text-muted-foreground">
@@ -58,20 +63,20 @@ if (items.value.length === 0 && props.isEditing) {
     </div>
 
     <!-- Assigned Person and Purpose in same row -->
-    <div class="grid grid-cols-2 gap-x-10 gap-y-3 items-center">
+    <div class="grid grid-cols-2 items-center gap-x-10 gap-y-3">
       <!-- Assigned Person -->
-      <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3 items-center">
+      <div class="grid grid-cols-[auto,1fr] items-center gap-x-7 gap-y-3">
         <label class="text-sm font-medium">Assigned Person</label>
         <div class="w-full">
-          <select 
-            v-model="assignedPerson" 
+          <select
+            v-model="assignedPerson"
             :disabled="!isEditing"
-            class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+            class="w-full rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
           >
             <option :value="null">Select assigned person</option>
-            <option 
-              v-for="employee in props.employees" 
-              :key="employee.id" 
+            <option
+              v-for="employee in props.employees"
+              :key="employee.id"
               :value="employee.id"
             >
               {{ employee.name }}
@@ -81,18 +86,18 @@ if (items.value.length === 0 && props.isEditing) {
       </div>
 
       <!-- Purpose -->
-      <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3 items-center">
+      <div class="grid grid-cols-[auto,1fr] items-center gap-x-7 gap-y-3">
         <label class="text-sm font-medium">Purpose</label>
         <div class="w-full">
-          <select 
-            v-model="purpose" 
+          <select
+            v-model="purpose"
             :disabled="!isEditing"
-            class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+            class="w-full rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
           >
             <option value="">Select purpose</option>
-            <option 
-              v-for="option in purposeOptions" 
-              :key="option" 
+            <option
+              v-for="option in purposeOptions"
+              :key="option"
               :value="option"
             >
               {{ option }}
@@ -104,19 +109,19 @@ if (items.value.length === 0 && props.isEditing) {
 
     <!-- Items Section -->
     <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
-      <label class="text-sm font-medium self-start pt-2">Items</label>
+      <label class="self-start pt-2 text-sm font-medium">Items</label>
       <div class="space-y-3">
         <!-- Editable items -->
-        <div 
-          v-for="(item, index) in items" 
-          :key="index" 
+        <div
+          v-for="(item, index) in items"
+          :key="index"
           class="flex items-center gap-3"
         >
           <input
             v-model="item.item_name"
             :disabled="!isEditing"
             placeholder="Item name"
-            class="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+            class="flex-1 rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
             :required="isEditing"
           />
           <input
@@ -125,48 +130,53 @@ if (items.value.length === 0 && props.isEditing) {
             min="1"
             :disabled="!isEditing"
             placeholder="Qty"
-            class="w-20 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+            class="w-20 rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
             :required="isEditing"
           />
           <button
             v-if="isEditing"
             type="button"
             @click="removeItem(index)"
-            class="px-3 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
-            :class="{ 'opacity-50 cursor-not-allowed': items.length <= 1 }"
+            class="rounded-md bg-red-100 px-3 py-2 text-red-700 transition-colors hover:bg-red-200"
+            :class="{ 'cursor-not-allowed opacity-50': items.length <= 1 }"
             :disabled="items.length <= 1"
           >
             Remove
           </button>
         </div>
-        
+
         <button
           v-if="isEditing"
           type="button"
           @click="addItem"
-          class="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+          class="mt-2 rounded-md bg-blue-100 px-4 py-2 text-blue-700 transition-colors hover:bg-blue-200"
         >
           + Add Another Item
         </button>
 
         <!-- Read-only display -->
-        <div v-if="!isEditing" class="mt-4">
-          <div 
-            v-if="items.length > 0" 
+        <div
+          v-if="!isEditing"
+          class="mt-4"
+        >
+          <div
+            v-if="items.length > 0"
             class="space-y-2"
           >
-            <div 
-              v-for="(item, index) in items" 
-              :key="index" 
-              class="flex justify-between py-2 border-b"
+            <div
+              v-for="(item, index) in items"
+              :key="index"
+              class="flex justify-between border-b py-2"
             >
-              <span class="font-medium">{{ item.item_name || 'Unnamed item' }}</span>
+              <span class="font-medium">{{
+                item.item_name || 'Unnamed item'
+              }}</span>
               <span class="text-gray-600">Qty: {{ item.quantity }}</span>
             </div>
           </div>
-          <div 
-            v-else 
-            class="text-gray-500 italic py-2"
+          <div
+            v-else
+            class="py-2 italic text-gray-500"
           >
             No items added
           </div>

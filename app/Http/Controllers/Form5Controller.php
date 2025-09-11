@@ -21,7 +21,7 @@ class Form5Controller extends Controller
     public function index(Request $request): Response
     {
         $perPage = $request->input('per_page', 10);
-        $search = $request->input('search', '');
+        $search  = $request->input('search', '');
         $filters = $request->input('filters', []);
 
         $data = $this->service->getAllForm5JobOrders($perPage, $search, $filters);
@@ -50,17 +50,16 @@ class Form5Controller extends Controller
         ])->with(['message' => compact('title', 'description')]);
     }
 
-public function edit(JobOrder $ticket): Response
-{
-    $data = $this->service->getForm5Data($ticket);
-    $employees = $this->employeeService->getEmployeesForDropdown();
+    public function edit(JobOrder $ticket): Response
+    {
+        $data      = $this->service->getForm5Data($ticket);
+        $employees = $this->employeeService->getEmployeesForDropdown();
 
-    return Inertia::render('job-orders/other-services/Edit', [
-        'data' => $data,
-        'employees' => $employees,
-    ]);
-}
-
+        return Inertia::render('job-orders/other-services/Edit', [
+            'data'      => $data,
+            'employees' => $employees,
+        ]);
+    }
 
     public function update(UpdateForm5Request $request, Form5 $form5): RedirectResponse
     {

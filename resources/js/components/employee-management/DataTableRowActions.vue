@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { EllipsisVertical, Eye, Pencil, Trash2 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -7,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { EllipsisVertical, Eye, Pencil, Trash2 } from 'lucide-vue-next'
 
 defineProps<{
   row: any
@@ -24,7 +24,10 @@ defineProps<{
         <span class="sr-only">Open menu</span>
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" class="w-[160px]">
+    <DropdownMenuContent
+      align="end"
+      class="w-[160px]"
+    >
       <DropdownMenuItem>
         <Eye class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
         View

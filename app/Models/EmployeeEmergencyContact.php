@@ -13,7 +13,7 @@ class EmployeeEmergencyContact extends Model
         'middle_name',
         'suffix',
         'contact_number',
-        'relation'
+        'relation',
     ];
 
     public function employee()

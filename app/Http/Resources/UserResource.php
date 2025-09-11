@@ -12,7 +12,7 @@ class UserResource extends JsonResource
         return [
             'id'              => $this->id,
             'avatar'          => $this->avatar,
-            'employeeId'      => $this->employeeId,
+            'employeeId'      => $this->employee_id,
             'email'           => $this->email,
             'emailVerifiedAt' => $this->whenNotNull($this->email_verified_at),
             'rememberToken'   => $this->whenNotNull($this->remember_token),

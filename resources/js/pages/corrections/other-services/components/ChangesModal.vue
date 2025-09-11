@@ -5,7 +5,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter, 
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -36,11 +36,11 @@ const { fieldMap, isDateString } = useCorrections()
 // Handle regular changes (non-serviceable)
 const regularChanges = computed(() => {
   const changes = []
-  
+
   for (const key in before) {
     // Skip serviceable changes as they're handled separately
     if (key === 'serviceable') continue
-    
+
     // Check if this is a regular field that exists in fieldMap
     if (fieldMap[key as CorrectionFieldKey]) {
       changes.push({
@@ -61,29 +61,35 @@ const regularChanges = computed(() => {
       })
     }
   }
-  
+
   return changes
 })
 
 // Handle Form5 serviceable changes
 const serviceableChanges = computed(() => {
   const changes = []
-  
+
   if (after?.serviceable) {
     for (const field in after.serviceable) {
       if (field === 'items') {
         // Special handling for items array
         const oldItems = before?.serviceable?.items || []
         const newItems = after?.serviceable?.items || []
-        
+
         changes.push({
           field: 'Service Items',
-          oldValue: oldItems.length > 0 
-            ? oldItems.map(item => `${item.item_name} (Qty: ${item.quantity})`).join(', ')
-            : 'No items',
-          newValue: newItems.length > 0 
-            ? newItems.map(item => `${item.item_name} (Qty: ${item.quantity})`).join(', ')
-            : 'No items'
+          oldValue:
+            oldItems.length > 0
+              ? oldItems
+                  .map((item) => `${item.item_name} (Qty: ${item.quantity})`)
+                  .join(', ')
+              : 'No items',
+          newValue:
+            newItems.length > 0
+              ? newItems
+                  .map((item) => `${item.item_name} (Qty: ${item.quantity})`)
+                  .join(', ')
+              : 'No items',
         })
       } else {
         changes.push({
@@ -94,13 +100,13 @@ const serviceableChanges = computed(() => {
       }
     }
   }
-  
+
   return changes
 })
 
 const allChanges = computed(() => [
   ...regularChanges.value,
-  ...serviceableChanges.value
+  ...serviceableChanges.value,
 ])
 
 const isApprovable = computed(() => {

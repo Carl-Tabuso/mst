@@ -2,6 +2,7 @@
 import { Badge } from '@/components/ui/badge'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { JobOrderCorrection } from '@/types'
+import { provide } from 'vue'
 import ChangesModal from './ChangesModal.vue'
 import ReasonCard from './ReasonCard.vue'
 
@@ -14,6 +15,8 @@ const props = defineProps<PageHeaderProps>()
 const { correctionStatusMap } = useJobOrderDicts()
 
 const correctionStatus = correctionStatusMap[props.correction.status]
+
+provide<number, string>('correctionId', props.correction.id)
 </script>
 
 <template>

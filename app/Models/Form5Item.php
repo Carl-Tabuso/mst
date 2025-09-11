@@ -15,7 +15,6 @@ class Form5Item extends Model
         'quantity',
     ];
 
-
     public function form5()
     {
         return $this->belongsTo(Form5::class);

@@ -8,6 +8,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
@@ -17,15 +22,21 @@ import { toast } from 'vue-sonner'
 
 interface ArchiveJobOrderProps {
   jobOrder: JobOrder
+  redirectUrlAfterArchive?: string
 }
 
-const props = defineProps<ArchiveJobOrderProps>()
+const props = withDefaults(defineProps<ArchiveJobOrderProps>(), {
+  redirectUrlAfterArchive: 'job_order.index',
+})
 
 const isArchiveModalOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
 
 const handleRowArchival = () => {
   router.delete(route('job_order.destroy', props.jobOrder.ticket), {
+    data: {
+      redirectRouteAfterSuccess: props.redirectUrlAfterArchive,
+    },
     replace: true,
     showProgress: false,
     onStart: () => (isLoading.value = true),
@@ -42,15 +53,20 @@ const handleRowArchival = () => {
 
 <template>
   <Dialog v-model:open="isArchiveModalOpen">
-    <DialogTrigger>
-      <Button
-        variant="warning"
-        type="icon"
-        class="rounded-full p-2"
-      >
-        <Archive />
-      </Button>
-    </DialogTrigger>
+    <Tooltip>
+      <TooltipTrigger as-child>
+        <DialogTrigger as-child>
+          <Button
+            variant="warning"
+            type="icon"
+            class="rounded-full p-2"
+          >
+            <Archive />
+          </Button>
+        </DialogTrigger>
+      </TooltipTrigger>
+      <TooltipContent> Archive </TooltipContent>
+    </Tooltip>
     <DialogContent class="w-fit">
       <VisuallyHidden as-child>
         <DialogTitle> Archiving Job Order </DialogTitle>
@@ -60,7 +76,7 @@ const handleRowArchival = () => {
       </VisuallyHidden>
       <div class="flex flex-col items-center justify-center gap-2">
         <TriangleAlert
-          class="h- h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
+          class="h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
         />
         <div class="text-3xl font-bold text-amber-500 dark:text-white">
           Archiving Job Order

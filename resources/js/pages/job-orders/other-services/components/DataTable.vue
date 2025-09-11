@@ -38,7 +38,7 @@ interface DataTableProps {
 }
 
 const props = withDefaults(defineProps<DataTableProps>(), {
-  routeName: 'job_order.index'
+  routeName: 'job_order.index',
 })
 
 const { can } = usePermissions()

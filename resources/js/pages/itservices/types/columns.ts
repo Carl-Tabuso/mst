@@ -1,22 +1,19 @@
-import DropdownAction from '@/components/main-job-orders/DataTableDropdown.vue'
-import DataTableHeader from '@/components/main-job-orders/DataTableHeader.vue'
-import { Badge } from '@/components/ui/badge'
+import TextLink from '@/components/TextLink.vue'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
-import { JobOrderStatus } from '@/constants/job-order-statuses'
+import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
 import { JobOrder } from '@/types'
-import { Link } from '@inertiajs/vue3'
 import '@tanstack/vue-table'
 import { ColumnDef, RowData } from '@tanstack/vue-table'
 import { h } from 'vue'
+import DataTableHeader from '../components/DataTableHeader.vue'
+import StatusColumn from '../components/StatusColumn.vue'
 
 declare module '@tanstack/vue-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
     label?: string
   }
 }
-
-const { statusMap, routeMap } = useJobOrderDicts()
 
 export const columns: ColumnDef<JobOrder>[] = [
   {
@@ -46,14 +43,13 @@ export const columns: ColumnDef<JobOrder>[] = [
     cell: ({ row }) => {
       const serviceType = row.original.serviceableType
       return h(
-        Link,
+        TextLink,
         {
           href: route(
-            `job_order.${routeMap[serviceType]}.edit`,
+            `job_order.${useJobOrderDicts().routeMap[serviceType]}.edit`,
             row.getValue('ticket'),
           ),
-          class:
-            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+          class: 'text-[13px] font-medium truncate tracking-tighter',
         },
         () => row.getValue('ticket'),
       )
@@ -95,14 +91,7 @@ export const columns: ColumnDef<JobOrder>[] = [
     accessorKey: 'status',
     meta: { label: 'Status' },
     header: ({ column }) => h(DataTableHeader, { column }),
-    cell: ({ row }) => {
-      const status: JobOrderStatus = row.getValue('status')
-      return h(
-        Badge,
-        { variant: statusMap[status].badge },
-        () => statusMap[status].label,
-      )
-    },
+    cell: ({ row }) => h(StatusColumn, { jobOrder: row.original }),
   },
   {
     accessorKey: 'creator',
@@ -153,11 +142,12 @@ export const columns: ColumnDef<JobOrder>[] = [
     },
   },
   {
-    id: 'actions',
-    cell: ({ row }) => {
-      const jobOrder = row.original
-      return h('div', { class: 'relative' }, h(DropdownAction, { jobOrder }))
-    },
+    id: 'archive',
+    cell: ({ row }) =>
+      h(ArchiveJobOrder, {
+        jobOrder: row.original,
+        redirectUrlAfterArchive: 'job_order.it_service.index',
+      }),
     enableHiding: false,
   },
 ]
