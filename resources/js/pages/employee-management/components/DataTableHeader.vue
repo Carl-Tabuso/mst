@@ -4,8 +4,8 @@ import { Column } from '@tanstack/vue-table'
 import { ChevronsUpDown } from 'lucide-vue-next'
 
 const props = defineProps<{
-  column: Column<any, any> 
-  label?: string 
+  column: Column<any, any>
+  label?: string
 }>()
 
 const toggleSort = () =>

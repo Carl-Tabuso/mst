@@ -23,7 +23,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $filters = $request->input('filters', []);
-        $search = $filters['search'] ?? '';
+        $search  = $filters['search']   ?? '';
         $perPage = $filters['per_page'] ?? 10;
 
         $employees = $this->employeeService->getAllEmployees(
@@ -37,13 +37,13 @@ class EmployeeController extends Controller
                 'data' => EmployeeResource::collection($employees),
                 'meta' => [
                     'current_page' => $employees->currentPage(),
-                    'last_page' => $employees->lastPage(),
-                    'per_page' => $employees->perPage(),
-                    'total' => $employees->total(),
+                    'last_page'    => $employees->lastPage(),
+                    'per_page'     => $employees->perPage(),
+                    'total'        => $employees->total(),
                 ],
             ],
             'emptySearchImg' => asset('images/empty-search.svg'),
-            'filters' => $filters,
+            'filters'        => $filters,
         ]);
     }
 
@@ -65,7 +65,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee created successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error creating employee: ' . $e->getMessage());
+            return back()->with('error', 'Error creating employee: '.$e->getMessage());
         }
     }
 
@@ -96,7 +96,7 @@ class EmployeeController extends Controller
         ]);
 
         return Inertia::render('employee-management/Edit', [
-            'employee' => new EmployeeResource($employee),
+            'employee'  => new EmployeeResource($employee),
             'positions' => $positions,
         ]);
     }
@@ -110,7 +110,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error updating employee: ' . $e->getMessage());
+            return back()->with('error', 'Error updating employee: '.$e->getMessage());
         }
     }
 
@@ -123,7 +123,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error deleting employee: ' . $e->getMessage());
+            return back()->with('error', 'Error deleting employee: '.$e->getMessage());
         }
     }
 
@@ -132,8 +132,8 @@ class EmployeeController extends Controller
         $employees = Employee::select('id', 'first_name', 'last_name')
             ->orderBy('last_name')
             ->get()
-            ->map(fn($e) => [
-                'id' => $e->id,
+            ->map(fn ($e) => [
+                'id'   => $e->id,
                 'name' => "{$e->first_name} {$e->last_name}",
             ]);
 

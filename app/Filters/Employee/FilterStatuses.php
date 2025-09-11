@@ -20,10 +20,10 @@ class FilterStatuses
                 $q->orWhereDoesntHave('account');
             }
             if (in_array('active', $this->statuses, true)) {
-                $q->orWhereHas('account', fn($q) => $q->whereNull('deleted_at'));
+                $q->orWhereHas('account', fn ($q) => $q->whereNull('deleted_at'));
             }
             if (in_array('deactivated', $this->statuses, true)) {
-                $q->orWhereHas('account', fn($q) => $q->whereNotNull('deleted_at'));
+                $q->orWhereHas('account', fn ($q) => $q->whereNotNull('deleted_at'));
             }
         });
 

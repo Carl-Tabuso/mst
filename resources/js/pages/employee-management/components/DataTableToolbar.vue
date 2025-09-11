@@ -140,7 +140,7 @@ const { can } = usePermissions()
 </script>
 
 <template>
-  <div class="flex items-center py-1 gap-2">
+  <div class="flex items-center gap-2 py-1">
     <div class="relative w-full max-w-xs items-center">
       <Input
         id="search"
@@ -150,7 +150,9 @@ const { can } = usePermissions()
         :model-value="globalFilter"
         @update:model-value="handleOnSearch"
       />
-      <span class="absolute inset-y-0 start-0 flex items-center justify-center px-5">
+      <span
+        class="absolute inset-y-0 start-0 flex items-center justify-center px-5"
+      >
         <Search class="size-4 text-muted-foreground" />
       </span>
     </div>
@@ -159,11 +161,17 @@ const { can } = usePermissions()
 
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
-        <Button variant="ghost" class="mx-1">
+        <Button
+          variant="ghost"
+          class="mx-1"
+        >
           <Settings2 class="mr-2 size-4" />
           View
           <div class="hidden space-x-1 lg:flex">
-            <Badge variant="secondary" class="rounded-full font-extrabold">
+            <Badge
+              variant="secondary"
+              class="rounded-full font-extrabold"
+            >
               {{ visibleColumnCount }}
             </Badge>
           </div>
@@ -183,11 +191,21 @@ const { can } = usePermissions()
       </DropdownMenuContent>
     </DropdownMenu>
 
-    <Button @click="handleExport" variant="ghost" :disabled="!hasRowSelection">
+    <Button
+      @click="handleExport"
+      variant="ghost"
+      :disabled="!hasRowSelection"
+    >
       <Download class="mr-2 size-4" />
       Export
-      <div v-show="hasRowSelection" class="hidden space-x-1 lg:flex">
-        <Badge variant="secondary" class="rounded-full font-extrabold">
+      <div
+        v-show="hasRowSelection"
+        class="hidden space-x-1 lg:flex"
+      >
+        <Badge
+          variant="secondary"
+          class="rounded-full font-extrabold"
+        >
           {{ table.getSelectedRowModel().rows.length }}
         </Badge>
       </div>
@@ -202,16 +220,25 @@ const { can } = usePermissions()
       <UserPlus class="mr-2 size-4" />
       Create Accounts
       <div class="hidden space-x-1 lg:flex">
-        <Badge variant="secondary" class="rounded-full font-extrabold">
+        <Badge
+          variant="secondary"
+          class="rounded-full font-extrabold"
+        >
           {{ table.getSelectedRowModel().rows.length }}
         </Badge>
       </div>
     </Button>
 
-    <div v-if="hasRowSelection && can('archive:employee')" class="ml-auto">
+    <div
+      v-if="hasRowSelection && can('archive:employee')"
+      class="ml-auto"
+    >
       <Dialog>
         <DialogTrigger>
-          <Button variant="warning" class="mx-3">
+          <Button
+            variant="warning"
+            class="mx-3"
+          >
             <Archive class="mr-2 size-4" />
             Archive
             <div class="hidden pl-3 font-extrabold lg:flex">
@@ -232,10 +259,12 @@ const { can } = usePermissions()
             />
             <div class="mb-4 flex flex-col text-center">
               <div class="text-2xl font-bold text-amber-500 dark:text-white">
-                Archiving {{ table.getSelectedRowModel().rows.length }} Employee(s)
+                Archiving
+                {{ table.getSelectedRowModel().rows.length }} Employee(s)
               </div>
-              <div class="text-sm text-muted-foreground mt-2">
-                This action will archive the selected employees. Archived employees can be restored later.
+              <div class="mt-2 text-sm text-muted-foreground">
+                This action will archive the selected employees. Archived
+                employees can be restored later.
               </div>
             </div>
             <div class="max-h-40 w-full overflow-y-auto">
@@ -251,7 +280,10 @@ const { can } = usePermissions()
             </div>
             <div class="mt-4 flex items-center gap-4">
               <DialogClose>
-                <Button variant="outline" class="px-8">
+                <Button
+                  variant="outline"
+                  class="px-8"
+                >
                   Cancel
                 </Button>
               </DialogClose>
@@ -261,7 +293,10 @@ const { can } = usePermissions()
                 :disabled="isLoading"
                 @click="handleBulkArchive"
               >
-                <LoaderCircle v-show="isLoading" class="mr-2 animate-spin size-4" />
+                <LoaderCircle
+                  v-show="isLoading"
+                  class="mr-2 size-4 animate-spin"
+                />
                 Archive
               </Button>
             </div>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, Employee } from '@/types'
-import EmployeeDataTable from './components/EmployeeDataTable.vue'
 import { columns } from './components/columns'
+import EmployeeDataTable from './components/EmployeeDataTable.vue'
 import PageHeader from './components/PageHeader.vue'
 
 interface IndexProps {

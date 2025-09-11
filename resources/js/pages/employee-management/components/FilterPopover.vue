@@ -126,19 +126,28 @@ const clearFilters = () => {
 <template>
   <Popover v-model:open="isParentPopoverOpen">
     <PopoverTrigger as-child>
-      <Button variant="ghost" class="ml-1">
+      <Button
+        variant="ghost"
+        class="ml-1"
+      >
         <Filter class="mr-2 size-4" />
         Filter
         <template v-if="selectedStatuses.size > 0">
           <div class="hidden lg:flex">
-            <Badge variant="secondary" class="rounded-full font-normal">
+            <Badge
+              variant="secondary"
+              class="rounded-full font-normal"
+            >
               {{ selectedStatuses.size }}
             </Badge>
           </div>
         </template>
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-full" align="start">
+    <PopoverContent
+      class="w-full"
+      align="start"
+    >
       <!-- Status Filter -->
       <div class="mb-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">Account Status</div>
@@ -151,10 +160,15 @@ const clearFilters = () => {
             <Checkbox
               :id="status.id"
               :checked="selectedStatuses.has(status.id)"
-              @update:checked="(checked) => handleStatusSelection(status.id, checked)"
+              @update:checked="
+                (checked) => handleStatusSelection(status.id, checked)
+              "
               class="border-gray-400 dark:border-white"
             />
-            <Label :for="status.id" class="font-normal text-sm">
+            <Label
+              :for="status.id"
+              class="text-sm font-normal"
+            >
               {{ status.label }}
             </Label>
           </div>
@@ -165,7 +179,9 @@ const clearFilters = () => {
 
       <!-- Date Filter -->
       <div class="my-5 flex flex-col space-y-5">
-        <div class="text-sm font-semibold leading-none">Account Created Date</div>
+        <div class="text-sm font-semibold leading-none">
+          Account Created Date
+        </div>
         <div class="grid grid-cols-2 gap-10">
           <!-- From -->
           <div class="flex items-center">
@@ -219,8 +235,18 @@ const clearFilters = () => {
 
       <!-- Actions -->
       <div class="flex items-center justify-end space-x-2">
-        <Button @click="clearFilters" variant="outline" size="sm">Clear</Button>
-        <Button @click="applyFilters" variant="default" size="sm">Apply Filter</Button>
+        <Button
+          @click="clearFilters"
+          variant="outline"
+          size="sm"
+          >Clear</Button
+        >
+        <Button
+          @click="applyFilters"
+          variant="default"
+          size="sm"
+          >Apply Filter</Button
+        >
       </div>
     </PopoverContent>
   </Popover>

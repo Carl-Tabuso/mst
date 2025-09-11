@@ -1,10 +1,10 @@
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import DataTableHeader from './DataTableHeader.vue'
 import { Employee } from '@/types'
 import { Link } from '@inertiajs/vue3'
 import { ColumnDef } from '@tanstack/vue-table'
 import { h } from 'vue'
+import DataTableHeader from './DataTableHeader.vue'
 import EmployeeActions from './EmployeeActions.vue'
 
 export const columns: ColumnDef<Employee>[] = [
@@ -33,11 +33,11 @@ export const columns: ColumnDef<Employee>[] = [
     cell: ({ row }) => {
       const fullName = row.getValue('fullName') || 'N/A'
       const employeeId = row.original?.id
-      
+
       if (!employeeId) {
         return h('div', { class: 'text-sm font-medium' }, fullName)
       }
-      
+
       const getEditRoute = () => {
         try {
           return route('employee-management.edit', employeeId)
@@ -46,14 +46,14 @@ export const columns: ColumnDef<Employee>[] = [
           return '#'
         }
       }
-      
+
       return h(
         Link,
         {
           href: getEditRoute(),
           class: 'text-primary underline hover:opacity-80 text-sm font-medium',
         },
-        () => fullName 
+        () => fullName,
       )
     },
     enableHiding: false,
@@ -64,11 +64,7 @@ export const columns: ColumnDef<Employee>[] = [
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
       const positionName = row.getValue('positionName') || 'N/A'
-      return h(
-        'div',
-        { class: 'text-xs font-medium' },
-        positionName
-      )
+      return h('div', { class: 'text-xs font-medium' }, positionName)
     },
   },
   {
@@ -77,11 +73,7 @@ export const columns: ColumnDef<Employee>[] = [
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
       const email = row.getValue('email') || 'N/A'
-      return h(
-        'div',
-        { class: 'text-xs' },
-        email
-      )
+      return h('div', { class: 'text-xs' }, email)
     },
   },
   {
@@ -91,50 +83,60 @@ export const columns: ColumnDef<Employee>[] = [
     cell: ({ row }) => {
       const status = row.getValue('accountStatus') || 'No Account'
       const variant = status === 'Active' ? 'default' : 'destructive'
-      
+
       return h(Badge, { variant }, () => status)
     },
   },
   {
-    accessorKey: 'accountCreatedAt', 
+    accessorKey: 'accountCreatedAt',
     meta: { label: 'Account Created' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
       const createdAt = row.getValue('accountCreatedAt')
-      if (!createdAt) return h('div', { class: 'text-xs text-muted-foreground' }, 'No Account')
-      
+      if (!createdAt)
+        return h(
+          'div',
+          { class: 'text-xs text-muted-foreground' },
+          'No Account',
+        )
+
       try {
-        const formattedDate = new Date(createdAt as string).toLocaleDateString('en-PH', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })
+        const formattedDate = new Date(createdAt as string).toLocaleDateString(
+          'en-PH',
+          {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          },
+        )
         return h('div', { class: 'text-xs' }, formattedDate)
       } catch (error) {
-        return h('div', { class: 'text-xs text-muted-foreground' }, 'Invalid date')
+        return h(
+          'div',
+          { class: 'text-xs text-muted-foreground' },
+          'Invalid date',
+        )
       }
     },
   },
-    {
-    accessorKey: 'Action', 
+  {
+    accessorKey: 'Action',
     meta: { label: 'Actions' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
-     cell: ({ row }) => {
-    
-    
-    try {
-      return h(EmployeeActions, { employee: row.original })
-    } catch (error) {
-      return h('div', { class: 'text-xs text-muted-foreground' }, 'N/A')
-    }
+    cell: ({ row }) => {
+      try {
+        return h(EmployeeActions, { employee: row.original })
+      } catch (error) {
+        return h('div', { class: 'text-xs text-muted-foreground' }, 'N/A')
+      }
+    },
   },
-  },
-{
-  id: 'actions',
-  header: () => h('div', { class: 'text-xs font-medium pl-4' }, 'Actions'),
-  meta: { label: 'Actions' },
+  {
+    id: 'actions',
+    header: () => h('div', { class: 'text-xs font-medium pl-4' }, 'Actions'),
+    meta: { label: 'Actions' },
 
-  enableHiding: false,
-  enableSorting: false, 
-},
+    enableHiding: false,
+    enableSorting: false,
+  },
 ]

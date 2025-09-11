@@ -34,7 +34,7 @@ class Employee extends Model
         'province',
         'city',
         'zip_code',
-        'detailed_address'
+        'detailed_address',
     ];
 
     protected $casts = [
@@ -52,20 +52,19 @@ class Employee extends Model
         return 'archived_at';
     }
 
-   public function fullName(): Attribute
-{
-    return Attribute::make(
-        get: fn () => implode(' ', 
-            array_filter([
-                $this->first_name,
-                $this->middle_name,
-                $this->last_name,
-                $this->suffix,
-            ])
-        )
-    );
-}
- 
+    public function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => implode(' ',
+                array_filter([
+                    $this->first_name,
+                    $this->middle_name,
+                    $this->last_name,
+                    $this->suffix,
+                ])
+            )
+        );
+    }
 
     public function emergencyContact()
     {

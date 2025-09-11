@@ -25,7 +25,7 @@ class EmployeeFactory extends Factory
             'date_of_birth'  => fake()->dateTimeBetween('-60 years', '-18 years')->format('Y-m-d'),
             'email'          => fake()->unique()->companyEmail(),
             'contact_number' => fake()->phoneNumber(),
-            'position_id' => Position::inRandomOrder()->first()->id,
+            'position_id'    => Position::inRandomOrder()->first()->id,
         ];
     }
 }

@@ -1,10 +1,22 @@
 <script setup lang="ts">
-import { Employee } from '@/types'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { MoreVertical, Edit, Archive, User, UserPlus, UserX } from 'lucide-vue-next' 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { usePermissions } from '@/composables/usePermissions'
+import { Employee } from '@/types'
 import { router } from '@inertiajs/vue3'
+import {
+  Archive,
+  Edit,
+  MoreVertical,
+  User,
+  UserPlus,
+  UserX,
+} from 'lucide-vue-next'
 
 interface Props {
   employee: Employee
@@ -33,7 +45,10 @@ const getShowRoute = (employee: Employee) => {
 }
 
 const isAccountDeactivated = (employee: Employee) => {
-  return employee.account?.deleted_at !== null && employee.account?.deleted_at !== undefined
+  return (
+    employee.account?.deleted_at !== null &&
+    employee.account?.deleted_at !== undefined
+  )
 }
 
 const hasAccount = (employee: Employee) => {
@@ -60,7 +75,10 @@ const navigateToShow = (employee: Employee) => {
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" class="h-8 w-8 p-0">
+      <Button
+        variant="ghost"
+        class="h-8 w-8 p-0"
+      >
         <span class="sr-only">Open menu</span>
         <MoreVertical class="h-4 w-4" />
       </Button>
@@ -70,44 +88,52 @@ const navigateToShow = (employee: Employee) => {
         <User class="mr-2 h-4 w-4" />
         View Details
       </DropdownMenuItem>
-      
-      <DropdownMenuItem 
-        v-if="can('manage:employees')" 
+
+      <DropdownMenuItem
+        v-if="can('manage:employees')"
         @click="navigateToEdit(employee)"
       >
         <Edit class="mr-2 h-4 w-4" />
         Edit
       </DropdownMenuItem>
-      
+
       <!-- Account management actions -->
-      <DropdownMenuItem 
-        v-if="!hasAccount(employee) && can('create:user_account')" 
-        @click="() => {}" 
+      <DropdownMenuItem
+        v-if="!hasAccount(employee) && can('create:user_account')"
+        @click="() => {}"
       >
         <UserPlus class="mr-2 h-4 w-4" />
         Create Account
       </DropdownMenuItem>
-      
-      <DropdownMenuItem 
-        v-if="hasAccount(employee) && !isAccountDeactivated(employee) && can('deactivate:user_account')" 
-        @click="() => {}" 
+
+      <DropdownMenuItem
+        v-if="
+          hasAccount(employee) &&
+          !isAccountDeactivated(employee) &&
+          can('deactivate:user_account')
+        "
+        @click="() => {}"
         class="text-destructive"
       >
         <UserX class="mr-2 h-4 w-4" />
         Deactivate Account
       </DropdownMenuItem>
-      
-      <DropdownMenuItem 
-        v-if="hasAccount(employee) && isAccountDeactivated(employee) && can('activate:user_account')" 
-        @click="() => {}" 
+
+      <DropdownMenuItem
+        v-if="
+          hasAccount(employee) &&
+          isAccountDeactivated(employee) &&
+          can('activate:user_account')
+        "
+        @click="() => {}"
       >
         <User class="mr-2 h-4 w-4" />
         Reactivate Account
       </DropdownMenuItem>
-      
-      <DropdownMenuItem 
-        v-if="can('archive:employee')" 
-        @click="() => {}" 
+
+      <DropdownMenuItem
+        v-if="can('archive:employee')"
+        @click="() => {}"
         class="text-destructive"
       >
         <Archive class="mr-2 h-4 w-4" />

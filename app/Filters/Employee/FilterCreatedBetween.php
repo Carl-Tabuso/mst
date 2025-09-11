@@ -12,11 +12,11 @@ class FilterCreatedBetween
     public function __invoke(Builder $query, Closure $next)
     {
         if ($this->from) {
-            $query->whereHas('account', fn($q) => $q->whereDate('created_at', '>=', $this->from));
+            $query->whereHas('account', fn ($q) => $q->whereDate('created_at', '>=', $this->from));
         }
 
         if ($this->to) {
-            $query->whereHas('account', fn($q) => $q->whereDate('created_at', '<=', $this->to));
+            $query->whereHas('account', fn ($q) => $q->whereDate('created_at', '<=', $this->to));
         }
 
         return $next($query);

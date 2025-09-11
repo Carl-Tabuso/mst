@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="TData, TValue">
+import DataTablePagination from '@/components/DataTablePagination.vue'
 import {
   Table,
   TableBody,
@@ -24,8 +25,7 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { ref, computed } from 'vue'
-import DataTablePagination from '@/components/DataTablePagination.vue'
+import { computed, ref } from 'vue'
 import DataTableToolbar from './DataTableToolbar.vue'
 
 interface DataTableProps {

@@ -10,10 +10,10 @@ class EmployeeCompensationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id'         => $this->id,
             'employeeId' => $this->employee_id,
-            'salary' => $this->salary,
-            'allowance' => $this->allowance,
+            'salary'     => $this->salary,
+            'allowance'  => $this->allowance,
         ];
     }
 }

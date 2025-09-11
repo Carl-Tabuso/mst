@@ -84,8 +84,8 @@ export interface Employee {
   region?: string
   province?: string
   city?: string
-  zipCode?: string           
-  detailedAddress?: string  
+  zipCode?: string
+  detailedAddress?: string
   emergencyContact?: EmployeeEmergencyContact
   employmentDetails?: EmployeeEmploymentDetail
   compensation?: EmployeeCompensation
@@ -98,30 +98,30 @@ export interface Employee {
 
 export interface EmployeeEmergencyContact {
   id: number
-  employeeId: number        
-  lastName: string          
-  firstName: string         
-  middleName?: string       
+  employeeId: number
+  lastName: string
+  firstName: string
+  middleName?: string
   suffix?: string
-  contactNumber: string     
+  contactNumber: string
   relation: string
 }
 
 export interface EmployeeEmploymentDetail {
   id: number
-  employeeId: number         
-  sssNumber?: string         
-  philhealthNumber?: string  
-  pagibigNumber?: string     
+  employeeId: number
+  sssNumber?: string
+  philhealthNumber?: string
+  pagibigNumber?: string
   tin?: string
-  dateHired?: string         
-  regularizationDate?: string 
-  endOfContract?: string     
+  dateHired?: string
+  regularizationDate?: string
+  endOfContract?: string
 }
 
 export interface EmployeeCompensation {
   id: number
-  employeeId: number         
+  employeeId: number
   salary?: number
   allowance?: number
 }
