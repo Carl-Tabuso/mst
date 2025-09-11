@@ -30,7 +30,11 @@ class Employee extends Model
         'email',
         'contact_number',
         'position_id',
-        'job_assignment',
+        'region',
+        'province',
+        'city',
+        'zip_code',
+        'detailed_address',
     ];
 
     protected $casts = [
@@ -51,20 +55,15 @@ class Employee extends Model
     public function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => implode(' ',
+            get: fn () => implode(' ',
                 array_filter([
-                    $attributes['first_name'],
-                    $attributes['middle_name'],
-                    $attributes['last_name'],
-                    $attributes['suffix'],
+                    $this->first_name,
+                    $this->middle_name,
+                    $this->last_name,
+                    $this->suffix,
                 ])
             )
         );
-    }
-
-    public function address()
-    {
-        return $this->hasOne(EmployeeAddress::class);
     }
 
     public function emergencyContact()

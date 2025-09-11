@@ -2,120 +2,129 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\NewUserCredentials;
+use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
+use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
-use App\Models\User;
+use App\Models\Position;
+use App\Services\EmployeeService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected EmployeeService $employeeService;
+
+    public function __construct(EmployeeService $employeeService)
     {
-        //
+        $this->employeeService = $employeeService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function index(Request $request)
+    {
+        $filters = $request->input('filters', []);
+        $search  = $filters['search']   ?? '';
+        $perPage = $filters['per_page'] ?? 10;
+
+        $employees = $this->employeeService->getAllEmployees(
+            perPage: (int) $perPage,
+            search: $search,
+            filters: $filters
+        );
+
+        return Inertia::render('employee-management/Index', [
+            'data' => [
+                'data' => EmployeeResource::collection($employees),
+                'meta' => [
+                    'current_page' => $employees->currentPage(),
+                    'last_page'    => $employees->lastPage(),
+                    'per_page'     => $employees->perPage(),
+                    'total'        => $employees->total(),
+                ],
+            ],
+            'emptySearchImg' => asset('images/empty-search.svg'),
+            'filters'        => $filters,
+        ]);
+    }
+
     public function create()
     {
-        //
+        $positions = Position::orderBy('name')->get();
+
+        return Inertia::render('employee-management/Create', [
+            'positions' => $positions,
+        ]);
     }
 
-    public function storeWithAccount(Request $request)
+    public function store(StoreEmployeeRequest $request)
     {
-        $validated = $request->validate([
-            'first_name'  => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name'   => 'required|string|max:255',
-            'suffix'      => 'nullable|string|max:10',
-            'position_id' => 'required|exists:positions,id',
-
-            'email' => 'required|email|unique:users,email',
-        ]);
-
         try {
-            DB::beginTransaction();
+            $this->employeeService->createEmployee($request->validated());
 
-            $employee = Employee::create([
-                'first_name'  => $validated['first_name'],
-                'middle_name' => $validated['middle_name'],
-                'last_name'   => $validated['last_name'],
-                'suffix'      => $validated['suffix'],
-                'position_id' => $validated['position_id'],
-            ]);
-
-            $password = \Illuminate\Support\Str::random(12);
-
-            $user = User::create([
-                'employee_id' => $employee->id,
-                'email'       => $validated['email'],
-                'password'    => Hash::make($password),
-            ]);
-
-            Mail::to($user->email)->send(new NewUserCredentials($user, $password));
-            DB::commit();
-
-            return response()->json([
-                'message'  => 'Employee and account created successfully',
-                'employee' => $employee,
-                'user'     => $user,
-            ], 201);
-
+            return redirect()
+                ->route('employee-management.index')
+                ->with('success', 'Employee created successfully.');
         } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'message' => 'Error creating employee and account',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return back()->with('error', 'Error creating employee: '.$e->getMessage());
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Employee $employee)
     {
-        //
+        $employee->load([
+            'emergencyContact',
+            'employmentDetails',
+            'compensation',
+            'account',
+            'position',
+        ]);
+
+        return Inertia::render('employee-management/Edit', [
+            'employee' => new EmployeeResource($employee),
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Employee $employee)
     {
-        //
+        $positions = Position::orderBy('name')->get();
+        $employee->load([
+            'emergencyContact',
+            'employmentDetails',
+            'compensation',
+            'account',
+            'position',
+        ]);
+
+        return Inertia::render('employee-management/Edit', [
+            'employee'  => new EmployeeResource($employee),
+            'positions' => $positions,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Employee $employee)
+    public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
-        //
+        try {
+            $this->employeeService->updateEmployee($employee, $request->validated());
+
+            return redirect()
+                ->route('employee-management.index')
+                ->with('success', 'Employee updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error updating employee: '.$e->getMessage());
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Employee $employee)
     {
-        //
+        try {
+            $employee->delete();
+
+            return redirect()
+                ->route('employee-management.index')
+                ->with('success', 'Employee deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error deleting employee: '.$e->getMessage());
+        }
     }
 
     public function dropdown()
@@ -128,12 +137,8 @@ class EmployeeController extends Controller
                 'name' => "{$e->first_name} {$e->last_name}",
             ]);
 
-        if (request()->inertia()) {
-            return inertia('Data/Employees', [
-                'employees' => $employees,
-            ]);
-        }
-
-        return response()->json(['employees' => $employees]);
+        return request()->inertia()
+            ? inertia('Data/Employees', ['employees' => $employees])
+            : response()->json(['employees' => $employees]);
     }
 }

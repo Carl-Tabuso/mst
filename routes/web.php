@@ -154,6 +154,10 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
+    Route::resource('employee-management', EmployeeController::class)
+        ->parameters(['employee-management' => 'employee']);
+    Route::post('employee-management/{employee}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
+
     Route::prefix('data')->group(function () {
         Route::get('employees/dropdown', [EmployeeController::class, 'dropdown'])->name('employees.dropdown');
         Route::get('/job-orders/dropdown', [JobOrderController::class, 'dropdownOptions']);

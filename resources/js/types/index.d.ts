@@ -73,11 +73,57 @@ export interface Employee {
   middleName?: string
   lastName: string
   suffix?: string
+  dateOfBirth?: string
+  email?: string
+  contactNumber?: string
   fullName: string
   positionId: number
   createdAt: string
   updatedAt: string
   account?: User
+  region?: string
+  province?: string
+  city?: string
+  zipCode?: string
+  detailedAddress?: string
+  emergencyContact?: EmployeeEmergencyContact
+  employmentDetails?: EmployeeEmploymentDetail
+  compensation?: EmployeeCompensation
+  position?: {
+    id: number
+    name: string
+    description?: string
+  }
+}
+
+export interface EmployeeEmergencyContact {
+  id: number
+  employeeId: number
+  lastName: string
+  firstName: string
+  middleName?: string
+  suffix?: string
+  contactNumber: string
+  relation: string
+}
+
+export interface EmployeeEmploymentDetail {
+  id: number
+  employeeId: number
+  sssNumber?: string
+  philhealthNumber?: string
+  pagibigNumber?: string
+  tin?: string
+  dateHired?: string
+  regularizationDate?: string
+  endOfContract?: string
+}
+
+export interface EmployeeCompensation {
+  id: number
+  employeeId: number
+  salary?: number
+  allowance?: number
 }
 
 export interface JobOrder {
@@ -99,7 +145,7 @@ export interface JobOrder {
   updatedAt: string
   archivedAt: string
   creator: Employee
-  serviceable: Form4 | ITService // add it services and others here
+  serviceable: Form4 | ITService
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
 }
