@@ -1,10 +1,13 @@
+import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
 import {
   PaginationState,
   SortingState,
+  Table,
   VisibilityState,
 } from '@tanstack/vue-table'
+import { useDebounceFn } from '@vueuse/core'
 import { DateRange } from 'reka-ui'
 import { computed, Ref, ref } from 'vue'
 
@@ -63,6 +66,13 @@ const dataTableStateRequestPayload = computed(() => {
 })
 
 export function useArchivedJobOrderTable() {
+  const onSearch = useDebounceFn(
+    (table: Table<JobOrder>, value: string | number) => {
+      table.setGlobalFilter(value)
+    },
+    500,
+  )
+
   const onStatusSelect = (status: string, selected: boolean) => {
     const statuses = dataTable.statuses.value
     if (selected && !statuses.includes(status)) {
@@ -113,6 +123,7 @@ export function useArchivedJobOrderTable() {
     onStatusSelect,
     applyFilters,
     clearFilters,
+    onSearch,
     onDateOfServiceRangePick,
     onDateArchivedRangePick,
   }

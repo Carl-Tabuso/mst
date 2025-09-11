@@ -29,7 +29,7 @@ interface DataTableProps<TData> {
 
 const props = defineProps<DataTableProps<Employee>>()
 
-const { dataTable } = useArchivedEmployeeTable()
+const { dataTable, applyFilters } = useArchivedEmployeeTable()
 
 const table = useVueTable({
   get data() {
@@ -52,19 +52,11 @@ const table = useVueTable({
   onGlobalFilterChange: (updater) => {
     valueUpdater(updater, dataTable.globalFilter)
     table.setPageIndex(0)
-    // applyFilters()
+    applyFilters()
   },
   onPaginationChange: (updater) => {
     valueUpdater(updater, dataTable.pagination)
-    // router.get(
-    //   route('archive.job_order.index'),
-    //   dataTableStateRequestPayload.value,
-    //   {
-    //     preserveState: true,
-    //     preserveScroll: true,
-    //     replace: true,
-    //   },
-    // )
+    applyFilters()
   },
   state: {
     get sorting() {
@@ -87,10 +79,7 @@ const table = useVueTable({
 </script>
 
 <template>
-  <DataTableToolbar
-    :table="table"
-    :globalFilter="dataTable.globalFilter.value"
-  />
+  <DataTableToolbar :table="table" />
   <div class="rounded-md border">
     <Table>
       <TableHeader>

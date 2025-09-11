@@ -3,6 +3,8 @@
 use App\Http\Controllers\ArchivedEmployeeController;
 use App\Http\Controllers\ArchivedJobOrderController;
 use App\Http\Controllers\ArchivedUserController;
+use App\Http\Controllers\ExportEmployeeController;
+use App\Http\Controllers\ExportUserController;
 use App\Models\Employee;
 use App\Models\JobOrder;
 use App\Models\User;
@@ -34,6 +36,10 @@ Route::middleware('auth')->prefix('archives')->name('archive.')->group(function 
             ->name('index')
             ->can('viewAny', Employee::class);
 
+        Route::get('export', ExportEmployeeController::class)
+            ->name('export')
+            ->can('viewAny', Employee::class);
+
         Route::patch('bulk-restore', [ArchivedEmployeeController::class, 'bulkRestore'])
             ->name('bulk_restore')
             ->withTrashed()
@@ -53,6 +59,10 @@ Route::middleware('auth')->prefix('archives')->name('archive.')->group(function 
     Route::prefix('users')->name('user.')->group(function () {
         Route::get('/', [ArchivedUserController::class, 'index'])
             ->name('index')
+            ->can('viewAny', User::class);
+
+        Route::get('export', ExportUserController::class)
+            ->name('export')
             ->can('viewAny', User::class);
 
         Route::patch('bulk-restore', [ArchivedUserController::class, 'bulkRestore'])

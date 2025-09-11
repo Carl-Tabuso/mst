@@ -15,7 +15,17 @@ class ArchivedUserController extends Controller
 
     public function index(Request $request): Response
     {
-        $data = User::onlyTrashed()->with('employee')->paginate(10)->toResourceCollection();
+        $perPage = $request->input('per_page', 10);
+
+        $search = $request->input('search', '');
+
+        $data = User::query()
+            ->onlyTrashed()
+            ->with('employee')
+            ->latest(new User()->getDeletedAtColumn())
+            ->paginate($perPage)
+            ->withQueryString()
+            ->toResourceCollection();
 
         return Inertia::render('archives/users/Index', compact('data'));
     }

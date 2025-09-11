@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Services\EmployeeService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +16,31 @@ class ArchivedEmployeeController extends Controller
 
     public function index(Request $request): Response
     {
-        $data = Employee::onlyTrashed()->with('position')->paginate(10)->toResourceCollection();
+        $perPage = $request->input('per_page', 10);
+
+        $search = $request->input('search', '');
+
+        $data = Employee::query()
+            ->onlyTrashed()
+            ->with('position')
+            ->where(function (Builder $query) use ($search) {
+                $query
+                    ->whereAny([
+                        'first_name',
+                        'middle_name',
+                        'last_name',
+                        'suffix',
+                        'contact_number',
+                    ], 'like', "%{$search}%")
+                    ->orWhereRaw("concat_ws(' ', first_name, middle_name, last_name, suffix) like ?", "%{$search}%")
+                    ->orWhereHas('position', function (Builder $subQuery) use ($search) {
+                        $subQuery->whereLike('name', $search);
+                    });
+            })
+            ->latest(new Employee()->getDeletedAtColumn())
+            ->paginate($perPage)
+            ->withQueryString()
+            ->toResourceCollection();
 
         return Inertia::render('archives/employees/Index', compact('data'));
     }

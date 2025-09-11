@@ -34,6 +34,7 @@ class JobOrderExport implements FromCollection, WithHeadings
         return
             JobOrder::query()
                 ->withTrashed()
+                ->with('serviceable')
                 ->whereIn('id', $this->jobOrderIds)
                 ->with('creator')
                 ->get()
