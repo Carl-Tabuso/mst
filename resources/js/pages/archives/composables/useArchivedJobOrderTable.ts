@@ -1,4 +1,3 @@
-import { usePermissions } from '@/composables/usePermissions'
 import { router } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
 import {
@@ -64,11 +63,6 @@ const dataTableStateRequestPayload = computed(() => {
 })
 
 export function useArchivedJobOrderTable() {
-  const { can } = usePermissions()
-
-  dataTable.columnVisibility.value.actions =
-    can('restore:archived_job_order') && can('force_delete:job_order')
-
   const onStatusSelect = (status: string, selected: boolean) => {
     const statuses = dataTable.statuses.value
     if (selected && !statuses.includes(status)) {
