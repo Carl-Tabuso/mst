@@ -26,7 +26,6 @@ class EmployeeFactory extends Factory
             'email' => fake()->unique()->companyEmail(),
             'contact_number' => fake()->phoneNumber(),
             'position_id' => Position::inRandomOrder()->first()->id,
-            'job_assignment' => fake()->randomElement(['Main Office', 'Field Operation', 'Headquarters', 'Regional Office']),
         ];
     }
 }

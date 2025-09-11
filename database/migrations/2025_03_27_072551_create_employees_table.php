@@ -18,6 +18,14 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->string('suffix')->nullable();
+            $table->string('email')->unique();
+            $table->string('region')->nullable();
+            $table->string('province')->nullable();
+            $table->string('city')->nullable();
+            $table->string('zip_code')->nullable();
+            $table->string('detailed_address')->nullable();
+            $table  ->string('contact_number')->nullable();
+            $table->date('date_of_birth')->nullable();
             $table->foreignIdFor(Position::class)
                 ->constrained()
                 ->cascadeOnUpdate()
