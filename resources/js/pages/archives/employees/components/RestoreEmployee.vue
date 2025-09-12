@@ -14,24 +14,24 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { usePermissions } from '@/composables/usePermissions'
-import { JobOrder } from '@/types'
+import { Employee } from '@/types'
 import { router } from '@inertiajs/vue3'
-import { CircleAlert, LoaderCircle, Trash2 } from 'lucide-vue-next'
+import { ArchiveRestore, LoaderCircle } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 
-interface ForceDeleteJobOrderProps {
-  jobOrder: JobOrder
+interface RestoreEmployeeProps {
+  employee: Employee
 }
 
-const props = defineProps<ForceDeleteJobOrderProps>()
+const props = defineProps<RestoreEmployeeProps>()
 
-const isForceDestroyModalOpen = ref<boolean>(false)
+const isRestoreModalOpen = ref<boolean>(false)
 const isSubmitting = ref<boolean>(false)
 
-const onForceDelete = () => {
-  router.delete(route('archive.job_order.destroy', props.jobOrder.id), {
+const onRestore = () => {
+  router.patch(route('archive.employee.update', props.employee.id), undefined, {
     onStart: () => (isSubmitting.value = true),
     replace: true,
     showProgress: false,
@@ -42,52 +42,49 @@ const onForceDelete = () => {
     },
     onFinish: () => {
       isSubmitting.value = false
-      isForceDestroyModalOpen.value = false
+      isRestoreModalOpen.value = false
     },
   })
 }
 
-const canForceDeleteJobOrder = usePermissions().can('force_delete:job_order')
+const canRestoreEmployee = usePermissions().can('manage:employees')
 </script>
 
 <template>
-  <Dialog v-model:open="isForceDestroyModalOpen">
+  <Dialog v-model:open="isRestoreModalOpen">
     <Tooltip>
       <TooltipTrigger as-child>
         <div>
           <DialogTrigger
             as-child
-            :disabled="!canForceDeleteJobOrder"
+            :disabled="!canRestoreEmployee"
           >
             <Button
-              variant="destructive"
               type="icon"
               class="rounded-full p-[10px]"
             >
-              <Trash2 />
+              <ArchiveRestore />
             </Button>
           </DialogTrigger>
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        {{ canForceDeleteJobOrder ? 'Delete Permanently' : 'Unauthorized' }}
+        {{ canRestoreEmployee ? 'Restore' : 'Unauthorized' }}
       </TooltipContent>
     </Tooltip>
     <DialogContent class="w-fit">
       <VisuallyHidden as-child>
-        <DialogTitle> Deleting Job Order </DialogTitle>
+        <DialogTitle> Restoring Employee </DialogTitle>
         <DialogDescription>
           <!---->
         </DialogDescription>
       </VisuallyHidden>
       <div class="flex flex-col items-center justify-center gap-2">
-        <CircleAlert class="h-28 w-28 fill-destructive stroke-white" />
-        <div class="text-3xl font-bold text-destructive">
-          Deleting Job Order
-        </div>
+        <ArchiveRestore class="h-28 w-28" />
+        <div class="text-3xl font-bold">Restoring Employee</div>
         <div class="text-sm text-muted-foreground">
-          Are you sure you want to permanently delete
-          <span class="font-bold">{{ jobOrder.ticket }}?</span>
+          Are you sure you want to restore
+          <span class="font-bold">{{ employee.fullName }}?</span>
         </div>
         <div class="mt-6 flex items-center gap-4">
           <DialogClose>
@@ -99,10 +96,9 @@ const canForceDeleteJobOrder = usePermissions().can('force_delete:job_order')
             </Button>
           </DialogClose>
           <Button
-            variant="destructive"
             :disabled="isSubmitting"
             class="px-10"
-            @click="onForceDelete"
+            @click="onRestore"
           >
             <LoaderCircle
               v-if="isSubmitting"

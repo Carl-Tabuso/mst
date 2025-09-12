@@ -197,6 +197,24 @@ class EmployeeService
         }
     }
 
+    public function restoreArchivedEmployee(Employee $employee): bool
+    {
+        return $employee->restore();
+    }
+
+    public function bulkRestoreArchivedEmployees(array $employeeIds): mixed
+    {
+        return Employee::query()
+            ->onlyTrashed()
+            ->whereIn('id', $employeeIds)
+            ->restore();
+    }
+
+    public function permanentlyDeleteEmployee(Employee $employee): ?bool
+    {
+        return $employee->forceDelete();
+    }
+
     public function getEmployeesForDropdown()
     {
         return Employee::select('id', 'first_name', 'last_name')

@@ -73,13 +73,14 @@ export interface Employee {
   middleName?: string
   lastName: string
   suffix?: string
-  dateOfBirth?: string
+  dateOfBirth: string
   email?: string
-  contactNumber?: string
+  contactNumber: string
   fullName: string
   positionId: number
   createdAt: string
   updatedAt: string
+  archivedAt: string
   account?: User
   region?: string
   province?: string
@@ -89,11 +90,7 @@ export interface Employee {
   emergencyContact?: EmployeeEmergencyContact
   employmentDetails?: EmployeeEmploymentDetail
   compensation?: EmployeeCompensation
-  position?: {
-    id: number
-    name: string
-    description?: string
-  }
+  position?: Position
 }
 
 export interface EmployeeEmergencyContact {
@@ -315,6 +312,14 @@ export interface Truck {
   creator?: Employee | null
   createdAt: string
   updatedAt: string
+}
+
+export interface Position {
+  id: number
+  name: string
+  createdAt: string
+  updatedAt: string
+  employees: Employee[]
 }
 
 export type ServiceType = 'Waste Management' | 'IT Service' | 'Other Services'

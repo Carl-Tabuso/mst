@@ -9,8 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/lib/utils'
-import { EloquentCollection, JobOrder } from '@/types'
-import { router } from '@inertiajs/vue3'
+import { EloquentCollection, Employee } from '@/types'
 import type { ColumnDef } from '@tanstack/vue-table'
 import {
   FlexRender,
@@ -19,7 +18,7 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { useArchivedJobOrderTable } from '../../composables/useArchivedJobOrderTable'
+import { useArchivedEmployeeTable } from '../../composables/useArchivedEmployeeTable'
 import DataTableToolbar from './DataTableToolbar.vue'
 
 interface DataTableProps<TData> {
@@ -28,10 +27,9 @@ interface DataTableProps<TData> {
   meta: EloquentCollection
 }
 
-const props = defineProps<DataTableProps<JobOrder>>()
+const props = defineProps<DataTableProps<Employee>>()
 
-const { dataTable, dataTableStateRequestPayload, applyFilters } =
-  useArchivedJobOrderTable()
+const { dataTable, applyFilters } = useArchivedEmployeeTable()
 
 const table = useVueTable({
   get data() {
@@ -58,15 +56,7 @@ const table = useVueTable({
   },
   onPaginationChange: (updater) => {
     valueUpdater(updater, dataTable.pagination)
-    router.get(
-      route('archive.job_order.index'),
-      dataTableStateRequestPayload.value,
-      {
-        preserveState: true,
-        preserveScroll: true,
-        replace: true,
-      },
-    )
+    applyFilters()
   },
   state: {
     get sorting() {

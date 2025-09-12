@@ -14,24 +14,24 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { usePermissions } from '@/composables/usePermissions'
-import { JobOrder } from '@/types'
+import { User } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { CircleAlert, LoaderCircle, Trash2 } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 
-interface ForceDeleteJobOrderProps {
-  jobOrder: JobOrder
+interface ForceDeleteUserProps {
+  user: User
 }
 
-const props = defineProps<ForceDeleteJobOrderProps>()
+const props = defineProps<ForceDeleteUserProps>()
 
 const isForceDestroyModalOpen = ref<boolean>(false)
 const isSubmitting = ref<boolean>(false)
 
 const onForceDelete = () => {
-  router.delete(route('archive.job_order.destroy', props.jobOrder.id), {
+  router.delete(route('archive.user.destroy', props.user.id), {
     onStart: () => (isSubmitting.value = true),
     replace: true,
     showProgress: false,
@@ -47,7 +47,7 @@ const onForceDelete = () => {
   })
 }
 
-const canForceDeleteJobOrder = usePermissions().can('force_delete:job_order')
+const canForceDeleteUser = usePermissions().can('manage:users')
 </script>
 
 <template>
@@ -57,7 +57,7 @@ const canForceDeleteJobOrder = usePermissions().can('force_delete:job_order')
         <div>
           <DialogTrigger
             as-child
-            :disabled="!canForceDeleteJobOrder"
+            :disabled="!canForceDeleteUser"
           >
             <Button
               variant="destructive"
@@ -70,24 +70,22 @@ const canForceDeleteJobOrder = usePermissions().can('force_delete:job_order')
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        {{ canForceDeleteJobOrder ? 'Delete Permanently' : 'Unauthorized' }}
+        {{ canForceDeleteUser ? 'Delete Permanently' : 'Unauthorized' }}
       </TooltipContent>
     </Tooltip>
     <DialogContent class="w-fit">
       <VisuallyHidden as-child>
-        <DialogTitle> Deleting Job Order </DialogTitle>
+        <DialogTitle> Deleting User </DialogTitle>
         <DialogDescription>
           <!---->
         </DialogDescription>
       </VisuallyHidden>
       <div class="flex flex-col items-center justify-center gap-2">
         <CircleAlert class="h-28 w-28 fill-destructive stroke-white" />
-        <div class="text-3xl font-bold text-destructive">
-          Deleting Job Order
-        </div>
+        <div class="text-3xl font-bold text-destructive">Deleting User</div>
         <div class="text-sm text-muted-foreground">
           Are you sure you want to permanently delete
-          <span class="font-bold">{{ jobOrder.ticket }}?</span>
+          <span class="font-bold">{{ user.employee.fullName }}?</span>
         </div>
         <div class="mt-6 flex items-center gap-4">
           <DialogClose>
