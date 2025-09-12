@@ -8,7 +8,7 @@ export function usePermissions() {
 
   const authUserRole = page.props.auth.user.roles[0].name
 
-  const can = (permission: string) => {
+  const can = (permission: string, p0: string) => {
     return authUserPermissions.has(permission)
   }
 
