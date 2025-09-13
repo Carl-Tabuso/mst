@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Filters\ApplyDateOfArchivalRange;
 use App\Filters\Employee\FilterCreatedBetween;
+use App\Filters\Employee\FilterPositions;
 use App\Filters\Employee\FilterStatuses;
 use App\Filters\Employee\SearchDetails;
+use App\Filters\FilterOnlyArchived;
 use App\Mail\NewUserCredentials;
 use App\Models\Employee;
 use App\Models\EmployeeCompensation;
@@ -12,10 +15,10 @@ use App\Models\EmployeeEmergencyContact;
 use App\Models\EmployeeEmploymentDetail;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Support\Str;
 
 class EmployeeService
@@ -28,8 +31,7 @@ class EmployeeService
             new FilterCreatedBetween($filters['fromDateCreated'] ?? null, $filters['toDateCreated'] ?? null),
         ];
 
-        return app(Pipeline::class)
-            ->send(Employee::query())
+        return Pipeline::send(Employee::query())
             ->through($pipes)
             ->then(function (Builder $query) use ($perPage) {
                 return $query->with(['emergencyContact', 'employmentDetails', 'compensation', 'account', 'position'])
@@ -37,6 +39,28 @@ class EmployeeService
                     ->orderBy('first_name')
                     ->paginate($perPage)
                     ->withQueryString();
+            });
+    }
+
+    public function getArchivedEmployees(int $perPage = 10, ?string $search = '', ?array $filters = [])
+    {
+        $archivedAtColumn = new Employee()->getDeletedAtColumn();
+
+        $pipes = [
+            new FilterOnlyArchived,
+            new SearchDetails($search),
+            new ApplyDateOfArchivalRange($archivedAtColumn, $filters),
+            new FilterPositions($filters),
+        ];
+
+        return Pipeline::send(Employee::with('position'))
+            ->through($pipes)
+            ->then(function (Builder $query) use ($perPage, $archivedAtColumn) {
+                return $query
+                    ->latest($archivedAtColumn)
+                    ->paginate($perPage)
+                    ->withQueryString()
+                    ->toResourceCollection();
             });
     }
 
@@ -195,6 +219,24 @@ class EmployeeService
 
             Mail::to($user->email)->send(new NewUserCredentials($user, $password));
         }
+    }
+
+    public function restoreArchivedEmployee(Employee $employee): bool
+    {
+        return $employee->restore();
+    }
+
+    public function bulkRestoreArchivedEmployees(array $employeeIds): mixed
+    {
+        return Employee::query()
+            ->onlyTrashed()
+            ->whereIn('id', $employeeIds)
+            ->restore();
+    }
+
+    public function permanentlyDeleteEmployee(Employee $employee): ?bool
+    {
+        return $employee->forceDelete();
     }
 
     public function getEmployeesForDropdown()

@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Filters\FilterOnlyArchived;
 use App\Filters\JobOrder\ApplyDateOfArchivalRange;
 use App\Filters\JobOrder\ApplyDateOfServiceRange;
-use App\Filters\JobOrder\FilterOnlyArchived;
 use App\Filters\JobOrder\FilterOnlyChecklist;
 use App\Filters\JobOrder\FilterOnlyCreated;
 use App\Filters\JobOrder\FilterStatuses;

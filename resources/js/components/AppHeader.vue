@@ -31,6 +31,7 @@ import {
 import UserMenuContent from '@/components/UserMenuContent.vue'
 import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
+import { UserRoleType } from '@/constants/user-role'
 import { SharedData, type BreadcrumbItem, type NavItem } from '@/types'
 import { Link, usePage } from '@inertiajs/vue3'
 import {
@@ -55,7 +56,7 @@ interface Props {
   breadcrumbs?: BreadcrumbItem[]
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   breadcrumbs: () => [],
 })
 
@@ -70,11 +71,16 @@ const activeItemStyles = computed(
 
 const { can, canAny } = usePermissions()
 
-const canAccessJobOrders = computed(() => {
-  return canAny({
-    roles: ['frontliner', 'head frontliner', 'team leader', 'dispatcher'],
-  })
-})
+const archiveRoutes: Partial<Record<UserRoleType, string>> = {
+  frontliner: 'archives/job-orders',
+  'human resource': 'archives/employees',
+  'it admin': 'archives/users',
+}
+
+const archiveUrl =
+  Object.entries(archiveRoutes).find((role) => {
+    return role[0] === auth.value.user.roles[0].name
+  })?.[1] ?? '#'
 
 const canAccessPerformanceMonitoring = computed(() => {
   return can('view:performances')
@@ -95,7 +101,9 @@ const mainNavItems: NavItem[] = [
   {
     title: 'Job Order List',
     href: '/job-orders',
-    can: canAccessJobOrders.value,
+    can: canAny({
+      roles: ['frontliner', 'head frontliner', 'team leader', 'dispatcher'],
+    }),
   },
   {
     title: 'Job Order Corrections',
@@ -136,8 +144,8 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Archives',
-    href: '/archives/job-orders',
-    can: can('update:job_order'),
+    href: archiveUrl,
+    can: archiveUrl !== undefined,
   },
   {
     title: 'Activity Logs',
