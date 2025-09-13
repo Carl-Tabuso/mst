@@ -16,11 +16,11 @@ class FilterCreatedBetween
         }
 
         $query->where(function (Builder $query) {
-            if (!blank($this->fromDate)) {
+            if (! blank($this->fromDate)) {
                 $query->whereDate('created_at', '>=', Carbon::parse($this->fromDate));
             }
 
-            if (!blank($this->toDate)) {
+            if (! blank($this->toDate)) {
                 $query->whereDate('created_at', '<=', Carbon::parse($this->toDate));
             }
         });

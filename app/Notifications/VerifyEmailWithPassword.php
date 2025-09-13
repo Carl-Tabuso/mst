@@ -23,11 +23,11 @@ class VerifyEmailWithPassword extends VerifyEmail implements ShouldQueue
         $verificationUrl = $this->verificationUrl($notifiable);
 
         return (new MailMessage)
-            ->subject('Verify Email Address - ' . config('app.name'))
+            ->subject('Verify Email Address - '.config('app.name'))
             ->line('Your account has been created successfully!')
             ->line('Here are your login credentials:')
-            ->line('**Email:** ' . $notifiable->email)
-            ->line('**Password:** ' . $this->password)
+            ->line('**Email:** '.$notifiable->email)
+            ->line('**Password:** '.$this->password)
             ->line('Please click the button below to verify your email address.')
             ->action('Verify Email Address', $verificationUrl)
             ->line('After verifying, we recommend changing your password on first login.')

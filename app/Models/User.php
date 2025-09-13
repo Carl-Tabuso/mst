@@ -39,10 +39,11 @@ class User extends Authenticatable
     ];
 
     protected $guard_name = 'web';
+
     public function sendEmailVerificationNotificationWithPassword($password)
-{
-    $this->notify(new VerifyEmailWithPassword($password));
-}
+    {
+        $this->notify(new VerifyEmailWithPassword($password));
+    }
 
     public function employee(): BelongsTo
     {
