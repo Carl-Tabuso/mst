@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filters\JobOrder;
+namespace App\Filters;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder;

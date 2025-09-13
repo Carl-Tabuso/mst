@@ -20,7 +20,7 @@ const { onSearch, dataTable } = useArchivedUserTable()
       id="search"
       type="text"
       class="h-9 max-w-sm pl-12"
-      placeholder="Search"
+      placeholder="Search user email or name"
       :model-value="dataTable.globalFilter.value"
       @update:model-value="(value) => onSearch(table, value)"
     />

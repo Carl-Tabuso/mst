@@ -5,6 +5,8 @@ import { usePermissions } from '@/composables/usePermissions'
 import { Employee } from '@/types'
 import { Table } from '@tanstack/vue-table'
 import BulkRestoreEmployee from './BulkRestoreEmployee.vue'
+import DateArchivedPopover from './DateArchivedPopover.vue'
+import PositionPopoverFilter from './PositionPopoverFilter.vue'
 import SearchBar from './SearchBar.vue'
 
 interface DataTableToolbarProps {
@@ -19,6 +21,8 @@ const canBulkRestoreEmployee = usePermissions().can('manage:employees')
 <template>
   <div class="flex flex-row items-center py-1">
     <SearchBar :table="table" />
+    <PositionPopoverFilter />
+    <DateArchivedPopover />
     <ColumnViewToggle :table="table" />
     <ExportEmployee :table="table" />
     <div

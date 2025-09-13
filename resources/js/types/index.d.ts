@@ -45,6 +45,7 @@ export interface NavItem {
     href: string
   }[]
   can?: boolean
+  only?: string[]
 }
 
 export interface SharedData extends PageProps {

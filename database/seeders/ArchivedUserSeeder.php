@@ -16,6 +16,6 @@ class ArchivedUserSeeder extends Seeder
             ->count(20)
             ->trashed()
             ->create()
-            ->each(fn (User $user) => $user->assignRole(UserRole::Regular));
+            ->each(fn (User $user) => $user->assignRole(array_rand(UserRole::cases())));
     }
 }

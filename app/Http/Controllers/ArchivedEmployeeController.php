@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Position;
 use App\Services\EmployeeService;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,29 +20,13 @@ class ArchivedEmployeeController extends Controller
 
         $search = $request->input('search', '');
 
-        $data = Employee::query()
-            ->onlyTrashed()
-            ->with('position')
-            ->where(function (Builder $query) use ($search) {
-                $query
-                    ->whereAny([
-                        'first_name',
-                        'middle_name',
-                        'last_name',
-                        'suffix',
-                        'contact_number',
-                    ], 'like', "%{$search}%")
-                    ->orWhereRaw("concat_ws(' ', first_name, middle_name, last_name, suffix) like ?", "%{$search}%")
-                    ->orWhereHas('position', function (Builder $subQuery) use ($search) {
-                        $subQuery->whereLike('name', $search);
-                    });
-            })
-            ->latest(new Employee()->getDeletedAtColumn())
-            ->paginate($perPage)
-            ->withQueryString()
-            ->toResourceCollection();
+        $filters = $request->input('filters', []);
 
-        return Inertia::render('archives/employees/Index', compact('data'));
+        $data = $this->employeeService->getArchivedEmployees($perPage, $search, $filters);
+
+        $positions = Position::all()->toResourceCollection();
+
+        return Inertia::render('archives/employees/Index', compact('data', 'positions'));
     }
 
     public function update(Employee $employee): RedirectResponse

@@ -1,5 +1,6 @@
 import { Employee } from '@/types'
 import { router } from '@inertiajs/vue3'
+import { parseDate } from '@internationalized/date'
 import {
   PaginationState,
   SortingState,
@@ -7,7 +8,8 @@ import {
   VisibilityState,
 } from '@tanstack/vue-table'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { DateRange } from 'reka-ui'
+import { computed, Ref, ref } from 'vue'
 
 const urlParams = route().queryParams as any
 
@@ -17,7 +19,7 @@ const dataTable = {
     fullName: true,
     dateOfBirth: true,
     contactNumber: true,
-    createdAt: true,
+    createdAt: false,
     archivedAt: true,
     actions: true,
   }),
@@ -27,6 +29,17 @@ const dataTable = {
     pageSize: urlParams.per_page ? Number(urlParams.per_page) : 10,
   }),
   globalFilter: ref<string | number>(urlParams.search ?? ''),
+  positions: ref<number[]>(
+    urlParams?.filters?.positions?.map((p: string) => Number(p)) ?? [],
+  ),
+  dateArchived: ref({
+    start: urlParams?.filters?.fromDateArchived
+      ? parseDate(urlParams.filters.fromDateArchived)
+      : undefined,
+    end: urlParams?.filters?.toDateArchived
+      ? parseDate(urlParams.filters.toDateArchived)
+      : undefined,
+  }) as Ref<DateRange>,
 }
 
 const dataTableStateRequestPayload = computed(() => {
@@ -34,6 +47,11 @@ const dataTableStateRequestPayload = computed(() => {
     page: dataTable.pagination.value.pageIndex + 1,
     per_page: dataTable.pagination.value.pageSize,
     search: dataTable.globalFilter.value,
+    filters: {
+      positions: dataTable.positions.value,
+      fromDateArchived: dataTable.dateArchived.value?.start?.toString(),
+      toDateArchived: dataTable.dateArchived.value?.end?.toString(),
+    },
   }
 })
 
@@ -44,6 +62,40 @@ export function useArchivedEmployeeTable() {
     },
     500,
   )
+
+  const onPositionSelect = (positionId: number) => {
+    const positions = dataTable.positions.value
+    if (!positions.includes(positionId)) {
+      positions.push(positionId)
+    } else {
+      const index = positions.findIndex((id) => positionId === id)
+      positions.splice(index, 1)
+    }
+    applyFilters()
+  }
+
+  const onClearPosition = () => {
+    dataTable.positions.value = []
+    applyFilters()
+  }
+
+  const onDateArchivedRangePick = (value: DateRange) => {
+    dataTable.dateArchived.value = {
+      start: value.start,
+      end: value.end,
+    }
+    if (value.start && value.end) {
+      applyFilters()
+    }
+  }
+
+  const onClearDateArchivedRange = () => {
+    dataTable.dateArchived.value = {
+      start: undefined,
+      end: undefined,
+    }
+    applyFilters()
+  }
 
   const applyFilters = () => {
     router.get(
@@ -60,6 +112,10 @@ export function useArchivedEmployeeTable() {
   return {
     dataTable,
     onSearch,
+    onPositionSelect,
+    onClearPosition,
+    onDateArchivedRangePick,
+    onClearDateArchivedRange,
     applyFilters,
   }
 }

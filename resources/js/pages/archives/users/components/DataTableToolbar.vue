@@ -5,6 +5,8 @@ import { usePermissions } from '@/composables/usePermissions'
 import { User } from '@/types'
 import { Table } from '@tanstack/vue-table'
 import BulkRestoreUser from './BulkRestoreUser.vue'
+import DateArchivedPopover from './DateArchivedPopover.vue'
+import RolePopover from './RolePopover.vue'
 import SearchBar from './SearchBar.vue'
 
 interface DataTableToolbarProps {
@@ -17,6 +19,8 @@ defineProps<DataTableToolbarProps>()
 <template>
   <div class="flex flex-row items-center py-1">
     <SearchBar :table="table" />
+    <RolePopover />
+    <DateArchivedPopover />
     <ColumnViewToggle :table="table" />
     <ExportUser :table="table" />
     <div
