@@ -3,10 +3,16 @@ import type {
   FormData,
   JobOrderOption,
 } from '@/types/incident'
-import axios from 'axios'
-import { computed, onMounted, ref, watch } from 'vue'
+import { usePage } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
 
 export function useIncidentForm() {
+  const page = usePage()
+  
+  // Get data from page props (pre-loaded by Laravel)
+  const employees = ref<EmployeeSelection[]>(page.props.employees || [])
+  const jobOrders = ref<JobOrderOption[]>(page.props.jobOrders || [])
+
   const formData = ref<FormData>({
     subject: '',
     involvedEmployees: [],
@@ -27,13 +33,10 @@ export function useIncidentForm() {
     'Others',
   ])
 
-  const employees = ref<EmployeeSelection[]>([])
-  const jobOrders = ref<JobOrderOption[]>([])
   const searchTerm = ref('')
   const selectedEmployeeIds = ref<number[]>([])
 
   const filteredEmployees = computed(() => {
-    if (!employees.value) return []
     return employees.value
       .filter(
         (e) => !formData.value.involvedEmployees.some((sel) => sel.id === e.id),
@@ -68,7 +71,38 @@ export function useIncidentForm() {
     const selected = jobOrders.value.find((j) => j.id === value)
     if (selected) {
       formData.value.serviceType = selected.service_type
+      formData.value.jobOrder = selected.id
     }
+  }
+
+  // NEW: Load incident data into form
+  const loadIncidentData = (incident: any) => {
+    if (!incident) return
+    
+    // Determine which job order to use (regular or hauling)
+    const jobOrderId = incident.job_order?.id || incident.hauling_job_order?.id;
+    const serviceType = incident.job_order?.service_type || incident.hauling_job_order?.service_type || '';
+    
+    // Use assigned personnel from hauling or involved employees
+    const involvedEmployees = incident.assigned_personnel?.length ? 
+                            incident.assigned_personnel : 
+                            incident.involved_employees;
+
+    formData.value = {
+      jobOrder: jobOrderId || null,
+      subject: incident.subject || '',
+      location: incident.location || '',
+      infractionType: incident.infraction_type || '',
+      dateTime: incident.occured_at ? 
+               new Date(incident.occured_at).toISOString().slice(0, 16) : 
+               new Date().toISOString().slice(0, 16),
+      description: incident.description || '',
+      serviceType: serviceType,
+      involvedEmployees: involvedEmployees || []
+    };
+    
+    // Update selected employee IDs
+    updateSelectedEmployeeIds();
   }
 
   const handleEmployeeSelect = (employeeId: number) => {
@@ -82,6 +116,7 @@ export function useIncidentForm() {
         name: employee.name,
       })
       searchTerm.value = ''
+      updateSelectedEmployeeIds()
     }
   }
 
@@ -95,35 +130,26 @@ export function useIncidentForm() {
     formData.value.involvedEmployees = formData.value.involvedEmployees.filter(
       (emp) => newNames.includes(emp.name),
     )
+    updateSelectedEmployeeIds()
   }
 
-  const fetchData = async () => {
-    try {
-      const [empResponse, jobOrderResponse] = await Promise.all([
-        axios.get('/data/employees/dropdown'),
-        axios.get('/data/job-orders/dropdown'),
-      ])
+  const updateSelectedEmployeeIds = () => {
+    selectedEmployeeIds.value = formData.value.involvedEmployees.map((e) => e.id)
+  }
 
-      employees.value = empResponse.data
-      jobOrders.value = jobOrderResponse.data.map((j: any) => ({
-        id: j.id,
-        label: j.label,
-        service_type: j.service_type,
-      }))
-    } catch (error) {
-      console.error('Failed to load data:', error)
+  const clearForm = () => {
+    formData.value = {
+      subject: '',
+      involvedEmployees: [],
+      dateTime: new Date().toISOString().slice(0, 16),
+      location: '',
+      infractionType: '',
+      serviceType: '',
+      description: '',
+      jobOrder: null,
     }
+    updateSelectedEmployeeIds()
   }
-
-  onMounted(fetchData)
-
-  watch(
-    () => formData.value.involvedEmployees,
-    (employees) => {
-      selectedEmployeeIds.value = employees.map((e) => e.id)
-    },
-    { immediate: true },
-  )
 
   return {
     formData,
@@ -139,5 +165,8 @@ export function useIncidentForm() {
     handleEmployeeSelect,
     addCurrentSearchTerm,
     handleTagsUpdate,
+    loadIncidentData,
+    clearForm,
+    updateSelectedEmployeeIds,
   }
 }
