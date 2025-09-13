@@ -8,6 +8,8 @@ enum IncidentStatus: string
     case Verified        = 'verified';
     case Dropped         = 'dropped';
 
+    case NoIncident      = 'no incident';
+
     case Draft           = 'draft';
 
     public function getLabel(): string
@@ -17,6 +19,7 @@ enum IncidentStatus: string
             self::Verified        => 'Verified',
             self::Dropped         => 'Dropped',
             self::Draft           => 'Draft',
+            self::NoIncident      => 'No Incident',
         };
     }
 }
