@@ -6,15 +6,63 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User } from '@/types/user'
-import type { Row } from '@tanstack/vue-table'
+import { usePermissions } from '@/composables/usePermissions'
+import { User } from '@/types'
+import { router } from '@inertiajs/vue3'
 import { Ellipsis } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
-interface DataTableRowActionsProps {
-  row: Row<User>
+interface UserActionsProps {
+  user: User
 }
 
-const props = defineProps<DataTableRowActionsProps>()
+const props = defineProps<UserActionsProps>()
+const { can } = usePermissions()
+
+const handleEdit = () => {
+  router.visit(route('users.settings', props.user.id))
+}
+
+const handleToggleStatus = () => {
+  if (props.user.deletedAt) {
+    router.visit(route('users.restore', props.user.id), {
+      method: 'post',
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success('User activated successfully')
+      },
+      onError: () => {
+        toast.error('Failed to activate user')
+      },
+    })
+  } else {
+    router.visit(route('user-management.deactivate', props.user.id), {
+      method: 'post',
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success('User deactivated successfully')
+      },
+      onError: () => {
+        toast.error('Failed to deactivate user')
+      },
+    })
+  }
+}
+
+const handleDelete = () => {
+  if (confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) {
+    router.visit(route('user-management.destroy', props.user.id), {
+      method: 'delete',
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success('User permanently deleted')
+      },
+      onError: () => {
+        toast.error('Failed to delete user')
+      },
+    })
+  }
+}
 </script>
 
 <template>
@@ -32,15 +80,31 @@ const props = defineProps<DataTableRowActionsProps>()
       align="end"
       class="w-[160px]"
     >
-      <DropdownMenuItem>Edit</DropdownMenuItem>
-      <DropdownMenuItem v-if="row.original.status === 'active'">
+      <DropdownMenuItem @click="handleEdit">
+        Edit
+      </DropdownMenuItem>
+
+      <DropdownMenuItem
+        v-if="!props.user.deletedAt"
+        @click="handleToggleStatus"
+      >
         Deactivate
       </DropdownMenuItem>
-      <DropdownMenuItem v-else-if="row.original.status === 'deactivated'">
+
+      <DropdownMenuItem
+        v-else-if="props.user.deletedAt"
+        @click="handleToggleStatus"
+      >
         Activate
       </DropdownMenuItem>
-      <DropdownMenuItem v-else> Create Account </DropdownMenuItem>
-      <DropdownMenuItem class="text-red-600"> Delete </DropdownMenuItem>
+
+      <DropdownMenuItem
+        v-if="can('delete:user')"
+        class="text-red-600"
+        @click="handleDelete"
+      >
+        Delete
+      </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
