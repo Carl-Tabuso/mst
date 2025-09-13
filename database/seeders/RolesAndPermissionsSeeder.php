@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Enums\UserPermission;
@@ -16,7 +15,7 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissions = array_map(fn ($case) => [
+        $permissions = array_map(fn($case) => [
             'name'       => $case->value,
             'guard_name' => 'web',
             'created_at' => now(),
@@ -24,7 +23,11 @@ class RolesAndPermissionsSeeder extends Seeder
         ], UserPermission::cases());
 
         DB::transaction(function () use ($permissions) {
-            Permission::insert($permissions);
+            Permission::upsert(
+                $permissions,
+                ['name', 'guard_name'],
+                ['updated_at']
+            );
 
             Role::firstOrCreate(['name' => UserRole::Frontliner])
                 ->givePermissionTo($this->useValue(UserPermission::getFrontlinerPermissions()));
@@ -50,12 +53,13 @@ class RolesAndPermissionsSeeder extends Seeder
             Role::firstOrCreate(['name' => UserRole::Consultant])
                 ->givePermissionTo($this->useValue(UserPermission::getConsultantPermissions()));
 
-            Role::firstOrCreate(['name' => UserRole::Regular]);
+            Role::firstOrCreate(['name' => UserRole::Regular])
+                ->givePermissionTo($this->useValue(UserPermission::getRegularPermissions()));
         });
     }
 
     private function useValue($enum): array
     {
-        return array_map(fn ($case) => $case->value, $enum);
+        return array_map(fn($case) => $case->value, $enum);
     }
 }

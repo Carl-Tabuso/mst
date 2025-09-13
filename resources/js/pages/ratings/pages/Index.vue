@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import JobOrderDataTable from '@/components/employee-ratings/DataTable.vue'
+import EmployeeRatingDataTable from '@/components/employee-ratings/DataTable.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, JobOrder } from '@/types'
 import { ref, watch } from 'vue'
-import { columns } from '..//types/columns'
+import { columns } from '../types/columns'
 
 const props = defineProps<{
   jobOrders: { data: JobOrder[]; meta: EloquentCollection }
+  filters?: {
+    search?: string
+    statuses?: string[]
+    fromDateOfService?: string
+    toDateOfService?: string
+  }
 }>()
 
 const data = ref<JobOrder[]>(props.jobOrders.data)
@@ -29,51 +35,29 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
+
   <Head title="Performance Evaluation" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="px-3 py-3">
-      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-        <div class="mb-3 flex items-center">
-          <div class="flex flex-col gap-y-1">
-            <h3 class="scroll-m-20 text-3xl font-bold">
-              Performance Evaluation
-            </h3>
-            <p class="text-muted-foreground">
-              Evaluate employees’ performance based on previous assigned hauling
-            </p>
+    <div class="min-h-screen bg-white dark:bg-zinc-900">
+      <div class="px-3 py-3 sm:px-6 sm:py-6">
+        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-2 sm:p-4 lg:p-6 bg-white dark:bg-zinc-900">
+          <div class="mb-3 flex items-center">
+            <div class="flex flex-col gap-y-1">
+              <h3 class="scroll-m-20 text-2xl sm:text-3xl lg:text-4xl font-bold text-sky-900 dark:text-gray-100">
+                Performance Evaluation
+              </h3>
+              <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+                Evaluate employees' performance based on previous assigned hauling
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-900 rounded-lg p-6 border-gray-200 dark:border-gray-700">
+            <EmployeeRatingDataTable :columns="columns" :data="data" :meta="meta" :filters="filters"
+              route-name="employee.ratings.index" />
           </div>
         </div>
-        <!-- <Tabs :model-value="route().current()" class="w-full">
-                    <TabsList class="flex justify-start">
-                        <Link :href="route('job_order.index')">
-                        <TabsTrigger value="job_order.index" class="px-7">
-                            All
-                        </TabsTrigger>
-                        </Link>
-                        <Link :href="route('job_order.waste_management')">
-                        <TabsTrigger value="waste_management" class="px-7">
-                            Waste Management
-                        </TabsTrigger>
-                        </Link>
-                        <Link :href="route('job_order.it_service')">
-                        <TabsTrigger value="job_order.it_service" class="px-7">
-                            Performance Evaluation
-                        </TabsTrigger>
-                        </Link>
-                        <Link :href="route('job_order.others')">
-                        <TabsTrigger value="job_order.others" class="px-7">
-                            Other Services
-                        </TabsTrigger>
-                        </Link>
-                    </TabsList>
-                </Tabs> -->
-        <JobOrderDataTable
-          :columns="columns"
-          :data="data"
-          :meta="meta"
-          route-name="employee.ratings"
-        />
       </div>
     </div>
   </AppLayout>

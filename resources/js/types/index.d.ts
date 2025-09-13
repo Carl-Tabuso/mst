@@ -125,6 +125,7 @@ export interface EmployeeCompensation {
 }
 
 export interface JobOrder {
+  rating_status: string
   id: number
   ticket: string
   serviceableId: number

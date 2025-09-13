@@ -12,19 +12,15 @@ declare module '@tanstack/vue-table' {
   }
 }
 
-const badgeMap = {
-  'to be evaluated': 'warning',
-  'evaluation done': 'success',
-  default: 'default',
-} as const
-
 export const columns: ColumnDef<JobOrder>[] = [
   {
-    accessorKey: 'id',
+    accessorKey: 'ticket',
     meta: { label: 'Job Order' },
     header: ({ column }) => h(DataTableHeader, { column }),
-    cell: ({ row }) =>
-      h('div', { class: 'text-sm font-medium' }, `JO #${row.getValue('id')}`),
+    cell: ({ row }) => {
+      const ticket = row.getValue('ticket')
+      return h('div', { class: 'text-sm font-medium' }, [ticket || `JO #${row.original.id}`])
+    },
   },
   {
     accessorKey: 'date_time',
@@ -32,9 +28,11 @@ export const columns: ColumnDef<JobOrder>[] = [
     header: ({ column }) => h(DataTableHeader, { column }),
     cell: ({ row }) => {
       const rawDate = row.getValue('date_time')
-      if (!rawDate) return h('div', '—')
+      if (!rawDate || typeof rawDate !== 'string' && typeof rawDate !== 'number' && !(rawDate instanceof Date)) {
+        return h('div', '—')
+      }
 
-      const dateTime = new Date(rawDate)
+      const dateTime = new Date(rawDate as string | number | Date)
       return h('div', { class: 'text-xs' }, [
         h(
           'div',
@@ -57,25 +55,12 @@ export const columns: ColumnDef<JobOrder>[] = [
     },
   },
   {
-    accessorKey: 'assignedPersonnel',
-    meta: { label: 'Assigned Personnel' },
-    header: ({ column }) => h(DataTableHeader, { column }),
-    cell: ({ row }) => {
-      const names = row.original.assignedPersonnel || []
-      return h(
-        'div',
-        { class: 'text-xs whitespace-pre-line' },
-        names.join('\n'),
-      )
-    },
-  },
-  {
     accessorKey: 'rating_status',
     meta: { label: 'Status' },
     header: ({ column }) => h(DataTableHeader, { column }),
     cell: ({ row }) => {
       const status: string = row.getValue('rating_status') ?? ''
-      const variant = status === 'Evaluation Done' ? 'success' : 'warning'
+      const variant = status === 'Evaluation Done' ? 'success' : 'default'
       return h(Badge, { variant, class: 'truncate' }, () => status)
     },
   },
@@ -86,6 +71,7 @@ export const columns: ColumnDef<JobOrder>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const status = row.original.rating_status ?? ''
+      const jobOrderTicket = row.original.ticket
       const jobOrderId = row.original.id
 
       const isEvaluated = status === 'Evaluation Done'
@@ -98,12 +84,16 @@ export const columns: ColumnDef<JobOrder>[] = [
         'button',
         {
           onClick: () => {
-            router.get(route(routeName), { job_order_id: jobOrderId })
+            const params = jobOrderTicket 
+              ? { job_order_ticket: jobOrderTicket }
+              : { job_order_id: jobOrderId }
+            
+            router.get(route(routeName), params)
           },
           class: [
             'text-sm font-medium',
             isEvaluated
-              ? 'text-zinc-500 underline hover:text-zinc-700'
+              ? 'text-zinc-600 underline hover:text-zinc-700'
               : 'text-lime-600 underline hover:text-lime-800',
           ],
         },
