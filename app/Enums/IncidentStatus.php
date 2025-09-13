@@ -8,12 +8,15 @@ enum IncidentStatus: string
     case Verified        = 'verified';
     case Dropped         = 'dropped';
 
+    case Draft           = 'draft';
+
     public function getLabel(): string
     {
         return match ($this) {
             self::ForVerification => 'For Verification',
             self::Verified        => 'Verified',
             self::Dropped         => 'Dropped',
+            self::Draft           => 'Draft',
         };
     }
 }
