@@ -14,11 +14,10 @@ class UserResource extends JsonResource
             'avatar'          => $this->avatar,
             'employeeId'      => $this->employee_id,
             'email'           => $this->email,
-            'emailVerifiedAt' => $this->whenNotNull($this->email_verified_at),
-            'rememberToken'   => $this->whenNotNull($this->remember_token),
+            'emailVerifiedAt' => $this->email_verified_at,
             'createdAt'       => $this->created_at,
             'updatedAt'       => $this->updated_at,
-            'deletedAt'       => $this->whenNotNull($this->deleted_at),
+            'deletedAt'       => $this->deleted_at,
             'employee'        => EmployeeResource::make($this->whenLoaded('employee')),
             'roles'           => RoleResource::collection($this->roles),
         ];

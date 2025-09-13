@@ -13,18 +13,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { usePermissions } from '@/composables/usePermissions'
 import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
-import { ArchiveRestore, CircleAlert, LoaderCircle } from 'lucide-vue-next'
+import { CircleAlert, LoaderCircle, Trash2 } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 
-interface RestoreJobOrderProps {
+interface ForceDeleteJobOrderProps {
   jobOrder: JobOrder
 }
 
-const props = defineProps<RestoreJobOrderProps>()
+const props = defineProps<ForceDeleteJobOrderProps>()
 
 const isForceDestroyModalOpen = ref<boolean>(false)
 const isSubmitting = ref<boolean>(false)
@@ -45,23 +46,32 @@ const onForceDelete = () => {
     },
   })
 }
+
+const canForceDeleteJobOrder = usePermissions().can('force_delete:job_order')
 </script>
 
 <template>
   <Dialog v-model:open="isForceDestroyModalOpen">
     <Tooltip>
       <TooltipTrigger as-child>
-        <DialogTrigger as-child>
-          <Button
-            variant="destructive"
-            type="icon"
-            class="rounded-full p-[10px]"
+        <div>
+          <DialogTrigger
+            as-child
+            :disabled="!canForceDeleteJobOrder"
           >
-            <ArchiveRestore />
-          </Button>
-        </DialogTrigger>
+            <Button
+              variant="destructive"
+              type="icon"
+              class="rounded-full p-[10px]"
+            >
+              <Trash2 />
+            </Button>
+          </DialogTrigger>
+        </div>
       </TooltipTrigger>
-      <TooltipContent> Delete Permanently </TooltipContent>
+      <TooltipContent>
+        {{ canForceDeleteJobOrder ? 'Delete Permanently' : 'Unauthorized' }}
+      </TooltipContent>
     </Tooltip>
     <DialogContent class="w-fit">
       <VisuallyHidden as-child>

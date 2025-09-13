@@ -13,6 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { usePermissions } from '@/composables/usePermissions'
 import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { ArchiveRestore, LoaderCircle } from 'lucide-vue-next'
@@ -49,22 +50,33 @@ const onRestore = () => {
     },
   )
 }
+
+const canRestoreArchivedJobOrder = usePermissions().can(
+  'restore:archived_job_order',
+)
 </script>
 
 <template>
   <Dialog v-model:open="isRestoreModalOpen">
     <Tooltip>
       <TooltipTrigger as-child>
-        <DialogTrigger as-child>
-          <Button
-            type="icon"
-            class="rounded-full p-[10px]"
+        <div>
+          <DialogTrigger
+            as-child
+            :disabled="!canRestoreArchivedJobOrder"
           >
-            <ArchiveRestore />
-          </Button>
-        </DialogTrigger>
+            <Button
+              type="icon"
+              class="rounded-full p-[10px]"
+            >
+              <ArchiveRestore />
+            </Button>
+          </DialogTrigger>
+        </div>
       </TooltipTrigger>
-      <TooltipContent> Restore </TooltipContent>
+      <TooltipContent>
+        {{ canRestoreArchivedJobOrder ? 'Restore' : 'Unauthorized' }}
+      </TooltipContent>
     </Tooltip>
     <DialogContent class="w-fit">
       <VisuallyHidden as-child>
