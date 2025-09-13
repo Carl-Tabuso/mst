@@ -18,7 +18,7 @@ class FilterStatuses
             if (in_array('active', $this->statuses)) {
                 $query->orWhereNull('deleted_at');
             }
-            
+
             if (in_array('inactive', $this->statuses)) {
                 $query->orWhereNotNull('deleted_at');
             }
