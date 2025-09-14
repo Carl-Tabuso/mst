@@ -2,8 +2,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
-use App\Exports\EmployeeRatingsExport;
 use App\Exports\EmployeeHistoryRatingsExport;
+use App\Exports\EmployeeRatingsExport;
 use App\Models\Employee;
 use App\Models\EmployeePerformance;
 use App\Models\EmployeeRating;
@@ -156,43 +156,43 @@ class EmployeeRatingController extends Controller
     }
 
     public function historyPage(Request $request, $employeeId)
-{
-    $employee = Employee::with([
-        'performancesAsEmployee.jobOrder',
-        'performancesAsEmployee.ratings.performanceRating',
-        'performancesAsEmployee.evaluator.position',
-        'position',
-    ])->findOrFail($employeeId);
+    {
+        $employee = Employee::with([
+            'performancesAsEmployee.jobOrder',
+            'performancesAsEmployee.ratings.performanceRating',
+            'performancesAsEmployee.evaluator.position',
+            'position',
+        ])->findOrFail($employeeId);
 
-    $filters = $this->parseHistoryFilters($request);
-    $search = $request->input('search'); // Add this line
-    $ratings = $this->getEmployeeRatings($employee, $filters);
-    
-    // Apply search if provided
-    if ($search) {
-        $ratings = $this->applyHistorySearch($ratings, $search);
+        $filters = $this->parseHistoryFilters($request);
+        $search  = $request->input('search'); // Add this line
+        $ratings = $this->getEmployeeRatings($employee, $filters);
+
+        // Apply search if provided
+        if ($search) {
+            $ratings = $this->applyHistorySearch($ratings, $search);
+        }
+
+        $sortedRatings    = $this->sortRatings($ratings, $filters['sort']);
+        $paginatedRatings = $this->paginateRatings($sortedRatings, $request);
+
+        return Inertia::render('ratings/pages/RatingHistory', [
+            'employee' => [
+                'id'        => $employee->id,
+                'full_name' => $employee->full_name,
+                'position'  => $employee->position->name ?? '',
+            ],
+            'received' => $paginatedRatings,
+            'filters'  => array_merge($filters, ['search' => $search]),
+        ]);
     }
-    
-    $sortedRatings = $this->sortRatings($ratings, $filters['sort']);
-    $paginatedRatings = $this->paginateRatings($sortedRatings, $request);
-
-    return Inertia::render('ratings/pages/RatingHistory', [
-        'employee' => [
-            'id'        => $employee->id,
-            'full_name' => $employee->full_name,
-            'position'  => $employee->position->name ?? '',
-        ],
-        'received' => $paginatedRatings,
-        'filters'  => array_merge($filters, ['search' => $search]),
-    ]);
-}
 
     public function export(Request $request)
     {
 
         try {
             $filters = $this->parseTableFilters($request);
-            
+
             $filteredEmployees = $this->getFilteredEmployees($filters);
 
             if ($search = $request->input('search')) {
@@ -224,7 +224,7 @@ class EmployeeRatingController extends Controller
     // Exporting specific employee's history of rating
     public function exportHistory(Request $request, $employeeId)
     {
-        
+
         $employee = Employee::with([
             'performancesAsEmployee.jobOrder',
             'performancesAsEmployee.ratings.performanceRating',
@@ -235,13 +235,13 @@ class EmployeeRatingController extends Controller
         try {
             $filters = $this->parseHistoryFilters($request);
             $ratings = $this->getEmployeeRatings($employee, $filters);
-            
+
             if ($search = $request->input('search')) {
                 $ratings = $this->applyHistorySearch($ratings, $search);
             }
-            
+
             $sortedRatings = $this->sortRatings($ratings, $filters['sort']);
-            
+
             $filename = $this->generateHistoryExportFilename($employee, $filters);
 
             return Excel::download(
@@ -271,21 +271,21 @@ class EmployeeRatingController extends Controller
     {
         // Remove JO- prefix and current year, extract the numeric ID
         $currentYear = now()->format('y');
-        $prefix = "JO-{$currentYear}";
-        
-        if (!str_starts_with($ticket, $prefix)) {
+        $prefix      = "JO-{$currentYear}";
+
+        if (! str_starts_with($ticket, $prefix)) {
             return null;
         }
-        
+
         $numericPart = str_replace($prefix, '', $ticket);
-        $id = (int) $numericPart;
-        
+        $id          = (int) $numericPart;
+
         return $id > 0 ? $id : null;
     }
 
     private function formatJobOrderForFrontend($jobOrder): array
     {
-        $formatted = $jobOrder->toArray();
+        $formatted           = $jobOrder->toArray();
         $formatted['ticket'] = $jobOrder->ticket;
         return $formatted;
     }
@@ -342,14 +342,28 @@ class EmployeeRatingController extends Controller
 
     private function getAlreadyRatedForm3Ids($employee)
     {
-        return EmployeePerformance::where('evaluator_id', $employee->id)
-            ->whereHas('jobOrder', fn($q) => $q->where('serviceable_type', 'form4'))
-            ->get()
-            ->map(fn($perf) => optional($perf->jobOrder->serviceable->form3)->id)
-            ->filter()
-            ->unique()
-            ->values()
+        // OPTIMIZED: Cache per employee to avoid repeated queries
+        static $cachedRatedForm3Ids = [];
+
+        $employeeId = $employee->id;
+        if (isset($cachedRatedForm3Ids[$employeeId])) {
+            return $cachedRatedForm3Ids[$employeeId];
+        }
+
+        // OPTIMIZED: Use direct JOIN query instead of Eloquent relationships
+        $ratedForm3Ids = DB::table('employee_performances as ep')
+            ->join('job_orders as jo', 'ep.job_order_id', '=', 'jo.id')
+            ->join('form4 as f4', 'jo.serviceable_id', '=', 'f4.id')
+            ->join('form3 as f3', 'f4.id', '=', 'f3.form4_id')
+            ->where('ep.evaluator_id', $employeeId)
+            ->where('jo.serviceable_type', 'form4')
+            ->whereNull('ep.deleted_at')
+            ->distinct()
+            ->pluck('f3.id')
             ->toArray();
+
+        $cachedRatedForm3Ids[$employeeId] = $ratedForm3Ids;
+        return $ratedForm3Ids;
     }
 
     private function getFilteredJobOrders($filters, $allForm3Ids, $alreadyRatedForm3Ids)
@@ -369,7 +383,7 @@ class EmployeeRatingController extends Controller
         if ($filters['search']) {
             $query->where(function ($q) use ($filters) {
                 $search = $filters['search'];
-                
+
                 // Check if search looks like a ticket
                 if (preg_match('/^JO-\d{2}[\d-]+$/', $search)) {
                     $extractedId = $this->extractIdFromTicket($search);
@@ -401,8 +415,8 @@ class EmployeeRatingController extends Controller
         $filtered = $filtered->map(function ($jobOrder) use ($alreadyRatedForm3Ids) {
             $form3Id                 = optional(optional($jobOrder->serviceable)->form3)->id;
             $jobOrder->rating_status = in_array($form3Id, $alreadyRatedForm3Ids)
-            ? 'Evaluation Done'
-            : 'To be Evaluated';
+                ? 'Evaluation Done'
+                : 'To be Evaluated';
             $jobOrder->ticket = $jobOrder->ticket; // Ensure ticket is available
             return $jobOrder;
         });
@@ -426,30 +440,34 @@ class EmployeeRatingController extends Controller
         return $this->formatJobOrdersForFrontend($filtered);
     }
 
+    // FIXED: This is the main method causing N+1 queries
     private function getValidJobOrderForRating($jobOrderId, $allForm3Ids, $alreadyRatedForm3Ids)
     {
-        $completedJobOrders = JobOrder::where('status', JobOrderStatus::Completed)
+        // FIX: Eager load all necessary relationships in a single query
+        $jobOrder = JobOrder::where('id', $jobOrderId)
+            ->where('status', JobOrderStatus::Completed)
             ->where('serviceable_type', 'form4')
             ->with([
-                'serviceable',
-                'serviceable.form3',
                 'serviceable.form3.haulings.haulers.position',
                 'serviceable.form3.haulings.assignedPersonnel.teamLeader.position',
                 'serviceable.form3.haulings.assignedPersonnel.teamDriver.position',
+                'serviceable.form3.haulings.assignedPersonnel.safetyOfficer.position',
+                'serviceable.form3.haulings.assignedPersonnel.teamMechanic.position',
             ])
-            ->get();
+            ->first();
 
-        $filtered = $completedJobOrders->filter(function ($jobOrder) use ($allForm3Ids, $alreadyRatedForm3Ids) {
-            $form4 = $jobOrder->serviceable;
-            if (! $form4 || ! $form4->form3) {
-                return false;
-            }
+        if (! $jobOrder || ! $jobOrder->serviceable || ! $jobOrder->serviceable->form3) {
+            return null;
+        }
 
-            $form3Id = $form4->form3->id;
-            return in_array($form3Id, $allForm3Ids) && ! in_array($form3Id, $alreadyRatedForm3Ids);
-        });
+        $form3Id = $jobOrder->serviceable->form3->id;
 
-        return $filtered->filter(fn($jo) => $jo->id == $jobOrderId)->first();
+        // Check if this form3 is authorized and not already rated
+        if (! in_array($form3Id, $allForm3Ids) || in_array($form3Id, $alreadyRatedForm3Ids)) {
+            return null;
+        }
+
+        return $jobOrder;
     }
 
     private function getJobOrderWithRatings($jobOrderId, $employee, $allForm3Ids)
@@ -571,10 +589,16 @@ class EmployeeRatingController extends Controller
 
     // ==================== EMPLOYEE RATINGS TABLE METHODS ====================
 
+    // OPTIMIZED: Reduced N+1 queries by eager loading relationships
     private function getFilteredEmployees($filters)
     {
-        $query = Employee::with(['position', 'performancesAsEmployee.ratings.performanceRating'])
-            ->whereHas('position', fn($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
+        $query = Employee::with([
+            'position',
+            'performancesAsEmployee' => function ($q) {
+                $q->whereNull('deleted_at')
+                    ->with('ratings.performanceRating');
+            },
+        ])->whereHas('position', fn($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
 
         if ($filters['positions']) {
             $validPositions = array_intersect($filters['positions'], self::ALLOWED_POSITIONS);
@@ -591,7 +615,6 @@ class EmployeeRatingController extends Controller
 
         $transformedEmployees = $employees->map(function ($employee) {
             $ratings = $employee->performancesAsEmployee
-                ->filter(fn($perf) => $perf->deleted_at === null)
                 ->flatMap(fn($perf) => $perf->ratings)
                 ->pluck('performanceRating.scale')
                 ->filter();
@@ -709,36 +732,36 @@ class EmployeeRatingController extends Controller
     private function sortRatings($ratings, $sort)
     {
         return match ($sort) {
-            'date_asc' => $ratings->sortBy('job_datetime')->values(),
-            'date_desc' => $ratings->sortByDesc('job_datetime')->values(),
-            'scale_asc' => $ratings->sortBy('scale')->values(),
+            'date_asc'   => $ratings->sortBy('job_datetime')->values(),
+            'date_desc'  => $ratings->sortByDesc('job_datetime')->values(),
+            'scale_asc'  => $ratings->sortBy('scale')->values(),
             'scale_desc' => $ratings->sortByDesc('scale')->values(),
-            default => $ratings->values(),
+            default      => $ratings->values(),
         };
     }
 
     private function applyHistorySearch($ratings, $search)
     {
         $searchTerm = strtolower(trim($search));
-        
+
         return $ratings->filter(function ($rating) use ($searchTerm) {
             return str_contains(strtolower($rating['from']), $searchTerm) ||
-                str_contains(strtolower($rating['from_position']), $searchTerm) ||
-                str_contains(strtolower($rating['description'] ?? ''), $searchTerm) ||
-                str_contains((string) $rating['job_order_id'], $searchTerm) ||
-                str_contains(strtolower($rating['job_order_ticket'] ?? ''), $searchTerm) ||
-                str_contains((string) $rating['scale'], $searchTerm);
+            str_contains(strtolower($rating['from_position']), $searchTerm) ||
+            str_contains(strtolower($rating['description'] ?? ''), $searchTerm) ||
+            str_contains((string) $rating['job_order_id'], $searchTerm) ||
+            str_contains(strtolower($rating['job_order_ticket'] ?? ''), $searchTerm) ||
+            str_contains((string) $rating['scale'], $searchTerm);
         });
     }
 
     private function generateHistoryExportFilename($employee, $filters)
     {
-        $timestamp = now()->format('Y-m-d_H-i-s');
+        $timestamp    = now()->format('Y-m-d_H-i-s');
         $employeeName = preg_replace('/[^a-zA-Z0-9\s]/', '', $employee->full_name);
         $employeeName = preg_replace('/\s+/', '_', trim($employeeName));
-        
+
         $filterSuffix = $this->generateHistoryFilterSuffix($filters);
-        
+
         return "employee_history_{$employeeName}_{$timestamp}{$filterSuffix}.xlsx";
     }
 
@@ -747,14 +770,14 @@ class EmployeeRatingController extends Controller
         $parts = [];
 
         if ($filters['scale_from'] !== null || $filters['scale_to'] !== null) {
-            $from = $filters['scale_from'] ?? 'min';
-            $to = $filters['scale_to'] ?? 'max';
+            $from    = $filters['scale_from'] ?? 'min';
+            $to      = $filters['scale_to'] ?? 'max';
             $parts[] = "rating-{$from}-to-{$to}";
         }
 
         if ($filters['date_from'] || $filters['date_to']) {
-            $from = $filters['date_from'] ? date('Y-m-d', strtotime($filters['date_from'])) : 'earliest';
-            $to = $filters['date_to'] ? date('Y-m-d', strtotime($filters['date_to'])) : 'latest';
+            $from    = $filters['date_from'] ? date('Y-m-d', strtotime($filters['date_from'])) : 'earliest';
+            $to      = $filters['date_to'] ? date('Y-m-d', strtotime($filters['date_to'])) : 'latest';
             $parts[] = "date-{$from}-to-{$to}";
         }
 
@@ -819,7 +842,7 @@ class EmployeeRatingController extends Controller
         $employee = $this->getAuthenticatedEmployee();
         $this->authorizeConsultant($employee);
 
-        $filters = $this->parseTableFilters($request);
+        $filters           = $this->parseTableFilters($request);
         $filteredEmployees = $this->getFilteredEmployees($filters);
 
         if ($search = $request->input('search')) {
@@ -827,9 +850,9 @@ class EmployeeRatingController extends Controller
         }
 
         return [
-            'data' => $filteredEmployees,
-            'total' => $filteredEmployees->count(),
-            'filters' => $filters
+            'data'    => $filteredEmployees,
+            'total'   => $filteredEmployees->count(),
+            'filters' => $filters,
         ];
     }
 
@@ -882,9 +905,9 @@ class EmployeeRatingController extends Controller
         };
 
         match ($sort) {
-            'name_asc' => $nameOrder($query, 'asc'),
+            'name_asc'  => $nameOrder($query, 'asc'),
             'name_desc' => $nameOrder($query, 'desc'),
-            default => $nameOrder($query, 'asc'),
+            default     => $nameOrder($query, 'asc'),
         };
     }
 

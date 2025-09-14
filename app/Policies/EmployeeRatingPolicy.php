@@ -13,12 +13,11 @@ class EmployeeRatingPolicy
     public function viewAny(User $user): Response
     {
         Log::info('User permissions check', [
-    'user_id'          => $user->id,
-    'has_permission'   => $user->hasPermissionTo(UserPermission::ViewAnyEmployeeRating),
-    'user_roles'       => $user->roles->pluck('name')->toArray(),
-    'user_permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
-]);
-
+            'user_id'          => $user->id,
+            'has_permission'   => $user->hasPermissionTo(UserPermission::ViewAnyEmployeeRating),
+            'user_roles'       => $user->roles->pluck('name')->toArray(),
+            'user_permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
+        ]);
 
         return $user->hasPermissionTo(UserPermission::ViewAnyEmployeeRating) ||
         $user->hasAnyRole([UserRole::TeamLeader, UserRole::Regular, UserRole::Consultant])
