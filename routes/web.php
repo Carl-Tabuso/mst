@@ -145,15 +145,13 @@ Route::prefix('users')->group(function () {
     
     Route::post('/employees-with-account', [EmployeeController::class, 'storeWithAccount']);
     Route::prefix('incidents')->name('incidents.')->group(function () {
-        Route::get('/', [IncidentController::class, 'index'])->name('index');
-         Route::put('/{incident}', [IncidentController::class, 'update'])->name('incidents.update');
+        Route::get('/', action: [IncidentController::class, 'index'])->name('index');
+         Route::put('/{incident}', [IncidentController::class, 'update'])->name('update');
         Route::post('/', [IncidentController::class, 'store'])->name('store');
         Route::patch('{incident}/read', [IncidentController::class, 'markAsRead'])->name('markAsRead');
         Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
-        Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])
-            ->middleware(['can:verify,incident']);
-            Route::put('/incidents/job-order/{jobOrder}/no-incident', [IncidentController::class, 'markNoIncident'])
-    ->name('incidents.markNoIncident');
+        Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])->name('verify')->middleware(['can:verify,incident']);
+     Route::put('/incidents/{incident}/mark-no-incident', [IncidentController::class, 'markNoIncident'])->name('markNoIncident');
 
     });
 
