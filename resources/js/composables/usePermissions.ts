@@ -1,4 +1,3 @@
-import { UserRoleType } from '@/constants/user-role'
 import { SharedData } from '@/types'
 import { usePage } from '@inertiajs/vue3'
 
@@ -9,7 +8,7 @@ export function usePermissions() {
 
   const authUserRole = page.props.auth.user.roles[0].name
 
-  const can = (permission: string, p0: string) => {
+  const can = (permission: string) => {
     return authUserPermissions.has(permission)
   }
 
@@ -22,7 +21,7 @@ export function usePermissions() {
     roles,
   }: {
     permissions?: string[]
-    roles?: UserRoleType[]
+    roles?: string[]
   }) => {
     const authorizedRoles = roles?.includes(authUserRole)
     const authorizedPermissions = [...authUserPermissions].some((permission) =>
