@@ -53,11 +53,6 @@ class User extends Authenticatable
         return $this->avatar ? Storage::url($this->avatar) : null;
     }
 
-    public function getAvatarUrlAttribute()
-    {
-        return $this->avatar ? Storage::url($this->avatar) : null;
-    }
-
     // public function getActivitylogOptions(): LogOptions
     // {
     //     return LogOptions::defaults()
