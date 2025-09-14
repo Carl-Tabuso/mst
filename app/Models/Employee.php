@@ -1,6 +1,8 @@
 <?php
 namespace App\Models;
 
+use App\Policies\EmployeePolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[UsePolicy(EmployeePolicy::class)]
 class Employee extends Model
 {
     use HasFactory, SoftDeletes;
@@ -20,9 +23,26 @@ class Employee extends Model
         'updated_at',
     ];
 
+    protected $fillable = [
+        'last_name',
+        'first_name',
+        'middle_name',
+        'suffix',
+        'date_of_birth',
+        'email',
+        'contact_number',
+        'position_id',
+        'region',
+        'province',
+        'city',
+        'zip_code',
+        'detailed_address',
+    ];
+
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'created_at'    => 'datetime',
+        'updated_at'    => 'datetime',
+        'date_of_birth' => 'date',
     ];
 
     protected $appends = [
@@ -39,13 +59,28 @@ class Employee extends Model
         return Attribute::make(
             get: fn(mixed $value, array $attributes) => implode(' ',
                 array_filter([
-                    $attributes['first_name'],
-                    $attributes['middle_name'],
-                    $attributes['last_name'],
-                    $attributes['suffix'],
+                    $this->first_name,
+                    $this->middle_name,
+                    $this->last_name,
+                    $this->suffix,
                 ])
             )
         );
+    }
+
+    public function emergencyContact()
+    {
+        return $this->hasOne(EmployeeEmergencyContact::class);
+    }
+
+    public function employmentDetails()
+    {
+        return $this->hasOne(EmployeeEmploymentDetail::class);
+    }
+
+    public function compensation()
+    {
+        return $this->hasOne(EmployeeCompensation::class);
     }
 
     public function account(): HasOne

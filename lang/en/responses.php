@@ -21,4 +21,19 @@ return [
         'create' => 'Saved new truck information.',
         'update' => 'Saved changes :model: :plate_no.',
     ],
+    'restore' => [
+        'ticket'   => 'Successfully restored ticket :ticket.',
+        'employee' => ':employee was successfully restored.',
+        'user'     => ':first_name\'s account was successfully restored',
+    ],
+    'batch_restore' => [
+        'ticket'   => 'Successfully restored :count ticket(s).',
+        'employee' => 'Successfully restored :count employee(s).',
+        'user'     => 'Successfully restored :count user(s).',
+    ],
+    'permanent_delete' => [
+        'ticket'   => 'Ticket :ticket was permanently deleted.',
+        'employee' => ':employee was permanently deleted.',
+        'user'     => ':first_name\'s account was permanently deleted.',
+    ],
 ];

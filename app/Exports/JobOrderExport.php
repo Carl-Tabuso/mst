@@ -25,6 +25,7 @@ class JobOrderExport implements FromCollection, WithHeadings
             'Contact Number',
             'Frontliner',
             'Date Logged/Created',
+            'Date Archived',
         ];
     }
 
@@ -32,20 +33,23 @@ class JobOrderExport implements FromCollection, WithHeadings
     {
         return
             JobOrder::query()
+                ->withTrashed()
+                ->with('serviceable')
                 ->whereIn('id', $this->jobOrderIds)
                 ->with('creator')
                 ->get()
-                ->map(fn ($jO) => [
-                    $jO->ticket,
-                    $jO->client,
-                    JobOrderServiceType::from($jO->serviceable->getMorphClass())->getLabel(),
-                    $jO->date_time,
-                    $jO->address,
-                    $jO->department,
-                    $jO->contact_person,
-                    $jO->contact_no,
-                    $jO->creator->full_name,
-                    $jO->created_at,
+                ->map(fn (JobOrder $jobOrder) => [
+                    $jobOrder->ticket,
+                    $jobOrder->client,
+                    JobOrderServiceType::from($jobOrder->serviceable->getMorphClass())->getLabel(),
+                    $jobOrder->date_time,
+                    $jobOrder->address,
+                    $jobOrder->department,
+                    $jobOrder->contact_person,
+                    $jobOrder->contact_no,
+                    $jobOrder->creator->full_name,
+                    $jobOrder->created_at,
+                    $jobOrder->archived_at,
                 ]);
     }
 }

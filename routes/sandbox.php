@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('test', function () {
     $dispatchers = User::role(UserRole::Dispatcher)->get()->pluck('email')->toArray();
     $teamLeaders = User::role(UserRole::TeamLeader)->get()->pluck('email')->toArray();
-    $head        = User::role(UserRole::HeadFrontliner)->first()->email;
+    // $head        = User::role(UserRole::HeadFrontliner)->first()->email;
     $itAdmins    = User::role(UserRole::ITAdmin)->get()->pluck('email')->toArray();
     $consultants = User::role(UserRole::Consultant)->get()->pluck('email')->toArray();
     $hrs         = User::role(UserRole::HumanResource)->get()->pluck('email')->toArray();
@@ -20,7 +20,7 @@ Route::get('test', function () {
     dd([
         'dispatchers'     => $dispatchers,
         'team leaders'    => $teamLeaders,
-        'head'            => $head,
+        // 'head'            => $head,
         'it admins'       => $itAdmins,
         'consultants'     => $consultants,
         'human resources' => $hrs,

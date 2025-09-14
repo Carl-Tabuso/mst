@@ -22,6 +22,8 @@ enum UserPermission: string
     case ViewReportsAnalytics             = 'view:reports_analytics';
     case ViewPerformances                 = 'view:performances';
     case ViewAnyJobOrderCorrection        = 'view:any_job_order_correction';
+    case RestoreArchivedJobOrder          = 'restore:archived_job_order';
+    case ForceDeleteJobOrder              = 'force_delete:job_order';
 
     public function getLabel(): string
     {
@@ -41,6 +43,8 @@ enum UserPermission: string
             self::ManageEmployees                  => 'Manage Employees',
             self::ViewReportsAnalytics             => 'View Reports And Analytics',
             self::ViewAnyJobOrderCorrection        => 'View Any Job Order Corrections',
+            self::RestoreArchivedJobOrder          => 'Restore Archived Job Order',
+            self::ForceDeleteJobOrder              => 'Force Delete Job Order',
         };
     }
 
@@ -81,6 +85,8 @@ enum UserPermission: string
             self::ViewPerformances,
             self::ViewAnyJobOrderCorrection,
             self::UpdateJobOrderCorrection,
+            self::RestoreArchivedJobOrder,
+            self::ForceDeleteJobOrder,
         ];
     }
 

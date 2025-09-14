@@ -29,22 +29,6 @@ class JobOrder extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
-    protected $fillable = [
-        'serviceable_type',
-        'serviceable_id',
-        'date_time',
-        'client',
-        'address',
-        'department',
-        'contact_no',
-        'contact_person',
-        'contact_position',
-        'created_by',
-        'status',
-        'error_count',
-        'archived_at',
-    ];
-
     protected $guarded = [
         'id',
         'created_at',
@@ -82,11 +66,21 @@ class JobOrder extends Model
         return $this->ticketPrefix.str_pad($this->id, 7, 0, STR_PAD_LEFT);
     }
 
-    public function resolveRouteBinding($value, $field = null): Model
+    public function resolveRouteBinding($value, $field = null): mixed
     {
-        $modelId = (int) str_replace($this->ticketPrefix, '', $value);
+        return parent::resolveRouteBinding($this->getModelId($value), $field);
+    }
 
-        return parent::resolveRouteBinding($modelId, $field);
+    public function resolveSoftDeletableRouteBinding($value, $field = null)
+    {
+        return parent::resolveRouteBindingQuery($this, $this->getModelId($value), $field)
+            ->withTrashed()
+            ->first();
+    }
+
+    protected function getModelId($value): int
+    {
+        return (int) str_replace($this->ticketPrefix, '', $value);
     }
 
     #[Scope]
@@ -148,6 +142,11 @@ class JobOrder extends Model
         ];
     }
 
+    public function markAsCompleted()
+    {
+        $this->update(['status' => JobOrderStatus::Completed]);
+    }
+
     public function serviceable(): MorphTo
     {
         return $this->morphTo();
@@ -207,9 +206,10 @@ class JobOrder extends Model
                 return match ($event) {
                     'created' => __('activity.job_order.created', $placeholderValues),
                     'updated' => __('activity.job_order.updated', $placeholderValues),
-                    'deleted' => $this->archived_at
+                    'deleted' => $this->exists
                         ? __('activity.job_order.archived.single', $placeholderValues)
-                        : __('activity.job_order.deleted.single', $placeholderValues)
+                        : __('activity.job_order.deleted.single', $placeholderValues),
+                    'restored' => __('activity.job_order.restored.single', $placeholderValues),
                 };
             });
     }

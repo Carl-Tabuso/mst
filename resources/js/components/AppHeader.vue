@@ -31,22 +31,10 @@ import {
 import UserMenuContent from '@/components/UserMenuContent.vue'
 import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
+import { UserRoleType } from '@/constants/user-role'
 import { SharedData, type BreadcrumbItem, type NavItem } from '@/types'
 import { Link, usePage } from '@inertiajs/vue3'
-import {
-  Archive,
-  Award,
-  ChartPie,
-  ClipboardList,
-  FilePenLine,
-  History,
-  Home,
-  Menu,
-  Pencil,
-  Truck,
-  UserRoundCog,
-  UsersRound,
-} from 'lucide-vue-next'
+import { Menu } from 'lucide-vue-next'
 import { computed } from 'vue'
 import DarkModeToggle from './DarkModeToggle.vue'
 
@@ -54,7 +42,7 @@ interface Props {
   breadcrumbs?: BreadcrumbItem[]
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   breadcrumbs: () => [],
 })
 
@@ -69,77 +57,73 @@ const activeItemStyles = computed(
 
 const { can, canAny } = usePermissions()
 
-const canAccessJobOrders = computed(() => {
-  return canAny({
-    roles: ['frontliner', 'head frontliner', 'team leader', 'dispatcher'],
-  })
-})
+const archiveRoutes: Partial<Record<UserRoleType, string>> = {
+  frontliner: 'archives/job-orders',
+  'human resource': 'archives/employees',
+  'it admin': 'archives/users',
+}
+
+const archiveUrl =
+  Object.entries(archiveRoutes).find((role) => {
+    return role[0] === auth.value.user.roles[0].name
+  })?.[1] ?? '#'
 
 const mainNavItems: NavItem[] = [
   {
     title: 'Home',
     href: '/',
-    icon: Home,
     can: true,
   },
   {
     title: 'Job Order List',
     href: '/job-orders',
-    icon: ClipboardList,
-    can: canAccessJobOrders.value,
+    can: canAny({
+      roles: ['frontliner', 'head frontliner', 'team leader', 'dispatcher'],
+    }),
   },
   {
     title: 'Job Order Corrections',
     href: '/job-orders/corrections',
-    icon: Pencil,
     can: canAny({ roles: ['frontliner', 'head frontliner'] }),
   },
   {
     title: 'User Management',
     href: '/users',
-    icon: UserRoundCog,
     can: can('manage:users'),
   },
   {
     title: 'Employee Management',
-    href: '#',
-    icon: UsersRound,
+    href: '/employee-management',
     can: can('manage:employees'),
   },
   {
     title: 'Incident Reports',
     href: '/incidents/report',
-    icon: FilePenLine,
     can: can('manage:incident_reports'),
   },
   {
     title: 'Performance Monitoring',
     href: '/performances',
-    icon: Award,
     can: can('view:performances'),
   },
   {
     title: 'Reports and Analytics',
     href: '/reports',
-    icon: ChartPie,
     can: can('view:reports_analytics'),
   },
   {
     title: 'Archives',
-    href: '/archives',
-    icon: Archive,
-    can: can('update:job_order'),
+    href: archiveUrl,
+    can: archiveUrl !== undefined,
   },
   {
     title: 'Activity Logs',
     href: '/activities',
-    icon: History,
     can: can('view:activity_logs'),
   },
   {
     title: 'Truck Inventory',
     href: '/trucks',
-    icon: Truck,
     can: can('assign:hauling_personnel'),
   },
 ]
@@ -222,11 +206,6 @@ const rightNavItems: NavItem[] = [
                         activeItemStyles(item.href),
                       ]"
                     >
-                      <!-- <component
-                        v-if="item.icon"
-                        :is="item.icon"
-                        class="mr-2 h-4 w-4"
-                      /> -->
                       {{ item.title }}
                     </NavigationMenuLink>
                   </Link>

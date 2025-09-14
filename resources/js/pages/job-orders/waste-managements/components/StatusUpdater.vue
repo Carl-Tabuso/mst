@@ -47,6 +47,7 @@ const onMarkAsUpdate = () => {
     }))
     .patch(route('job_order.update', ticket), {
       preserveScroll: true,
+      preserveState: false,
       showProgress: false,
       onSuccess: (page: any) => {
         isOpen.value = false

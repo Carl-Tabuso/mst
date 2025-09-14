@@ -67,13 +67,17 @@ class JobOrderPolicy
             : Response::deny();
     }
 
-    public function restore(User $user, JobOrder $jobOrder): bool
+    public function restore(User $user): Response
     {
-        return false;
+        return $user->hasPermissionTo(UserPermission::RestoreArchivedJobOrder)
+            ? Response::allow()
+            : Response::deny();
     }
 
-    public function forceDelete(User $user, JobOrder $jobOrder): bool
+    public function forceDelete(User $user): Response
     {
-        return false;
+        return $user->hasPermissionTo(UserPermission::ForceDeleteJobOrder)
+            ? Response::allow()
+            : Response::deny();
     }
 }

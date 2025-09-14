@@ -13,6 +13,7 @@ use App\Models\JobOrderCorrection;
 use App\Services\JobOrderCorrectionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,22 +38,39 @@ class JobOrderCorrectionController extends Controller
     {
         $data = $request->validated();
 
-        $this->service->storeJobOrderCorrection($data, $ticket);
+        $correction = $this->service->storeJobOrderCorrection($data, $ticket);
 
-        return back()->with(['message' => __('responses.correction')]);
+        return redirect()->route('job_order.correction.show', [
+            'correction' => $correction->id,
+        ]);
     }
 
     public function show(JobOrderCorrection $correction): Response
     {
+        $serviceType = $correction->jobOrder->serviceable_type;
+
         $correction->load([
             'jobOrder' => [
-                'creator' => ['account:avatar'],
+                'creator' => ['account'],
                 'cancel',
-                'serviceable' => ['form3'],
+                'serviceable' => [
+                    ...($serviceType === JobOrderServiceType::Form4 ? [
+                        'form3',
+                    ] : []),
+                    ...($serviceType === JobOrderServiceType::ITService ? [
+                        'technician' => ['account'],
+                        'initialOnsiteReport',
+                        'finalOnsiteReport',
+                    ] : []),
+                    ...($serviceType === JobOrderServiceType::Form5 ? [
+                        'items',
+                        'assignedPerson',
+                    ] : []),
+                ],
             ],
         ]);
 
-        $subFolder = match ($correction->jobOrder->serviceable_type) {
+        $subFolder = match ($serviceType) {
             JobOrderServiceType::Form4     => 'waste-managements',
             JobOrderServiceType::ITService => 'it-services',
             JobOrderServiceType::Form5     => 'other-services',
@@ -63,6 +81,15 @@ class JobOrderCorrectionController extends Controller
         return Inertia::render($component, [
             'data' => JobOrderCorrectionResource::make($correction),
         ]);
+    }
+
+    public function showInitialOnsiteReportTempFile(JobOrderCorrection $correction): RedirectResponse
+    {
+        $filePath = sprintf('it_services/temp/%s', $correction->properties['after']['file_hash']);
+
+        $fileUrl = Storage::temporaryUrl($filePath, now()->addMinutes(5));
+
+        return redirect()->to($fileUrl);
     }
 
     public function update(UpdateJobOrderCorrectionRequest $request, JobOrderCorrection $correction): RedirectResponse

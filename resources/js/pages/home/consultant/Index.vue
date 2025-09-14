@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import TextLink from '@/components/TextLink.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
@@ -37,7 +38,7 @@ onMounted(() => {
   <Head title="Home" />
 
   <AppLayout>
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div>
         <div class="grid items-start gap-4 md:grid-cols-1 lg:grid-cols-3">
           <div class="flex flex-col gap-4 lg:col-span-2">
@@ -66,6 +67,6 @@ onMounted(() => {
           />
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

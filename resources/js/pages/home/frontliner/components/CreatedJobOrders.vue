@@ -20,7 +20,7 @@ const serviceTypeBindings = serviceTypes
       <div class="text-sm font-medium">
         Job Order Created
         <span class="pl-2 text-xs font-semibold text-muted-foreground">
-          {{ format(new Date(), 'Y') }}
+          {{ format(new Date(), 'y') }}
         </span>
       </div>
       <Separator class="flex-1" />

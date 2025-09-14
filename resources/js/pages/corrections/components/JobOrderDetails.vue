@@ -1,0 +1,179 @@
+<script setup lang="ts">
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Textarea } from '@/components/ui/textarea'
+import { useCorrections } from '@/composables/useCorrections'
+import { getInitials } from '@/composables/useInitials'
+import { JobOrder } from '@/types'
+import { Calendar } from 'lucide-vue-next'
+
+interface FirstSectionProps {
+  jobOrder: JobOrder
+  changes: any
+}
+
+const { changes, jobOrder } = defineProps<FirstSectionProps>()
+
+const { getChangedOrCurrentValue } = useCorrections(changes, jobOrder)
+
+const technician = getChangedOrCurrentValue('technician')
+const technicianAvatar = technician.defaultValue.hasOwnProperty('account')
+  ? technician.defaultValue.account.avatar
+  : technician.defaultValue.avatar
+</script>
+
+<template>
+  <div class="flex flex-col gap-4 rounded-xl">
+    <div class="mb-3 flex items-center">
+      <div class="flex w-full flex-col">
+        <div class="grid gap-y-6">
+          <div>
+            <h4 class="text-xl font-semibold leading-6 text-foreground">
+              Job Order Details
+            </h4>
+            <p class="text-sm text-muted-foreground">
+              General information of the requested service and client
+              information.
+            </p>
+          </div>
+          <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
+            <Label class="self-center"> Type of Service </Label>
+            <RadioGroup
+              required
+              v-model="jobOrder.serviceableType"
+              class="pointer-events-none flex items-center gap-x-10"
+            >
+              <div class="flex items-center gap-x-2">
+                <RadioGroupItem
+                  id="wm"
+                  value="form4"
+                />
+                <Label> Waste Management </Label>
+              </div>
+              <div class="flex items-center gap-x-2">
+                <RadioGroupItem
+                  id="its"
+                  value="it_service"
+                />
+                <Label> IT Services </Label>
+              </div>
+              <div class="flex items-center gap-x-2">
+                <RadioGroupItem
+                  id="os"
+                  value="form5"
+                />
+                <Label> Other Services (specify) </Label>
+              </div>
+            </RadioGroup>
+            <Label class="self-center"> Date and Time of Service </Label>
+            <div class="flex items-center gap-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                v-bind="getChangedOrCurrentValue('date_time')"
+                class="pointer-events-none w-[400px] ps-3 text-start font-normal"
+              >
+                <span>
+                  {{ getChangedOrCurrentValue('date_time').defaultValue.date }}
+                </span>
+                <Calendar class="ms-auto h-4 w-4 opacity-50" />
+              </Button>
+              <Input
+                id="time"
+                type="time"
+                :default-value="
+                  getChangedOrCurrentValue('date_time').defaultValue.time
+                "
+                :class="getChangedOrCurrentValue('date_time').class"
+                class="pointer-events-none w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"
+              />
+            </div>
+            <Label class="self-center"> Client </Label>
+            <Input
+              id="client"
+              type="text"
+              v-bind="getChangedOrCurrentValue('client')"
+              class="pointer-events-none w-[515px]"
+            />
+            <Label class="self-start pt-1"> Address </Label>
+            <Textarea
+              id="address"
+              class="pointer-events-none w-full"
+              v-bind="getChangedOrCurrentValue('address')"
+            />
+            <div class="col-span-2 grid grid-cols-2 gap-x-10">
+              <div class="flex items-center gap-x-4">
+                <Label class="w-44 shrink-0"> Department/Branch </Label>
+                <Input
+                  id="department"
+                  type="text"
+                  class="pointer-events-none w-[400px]"
+                  v-bind="getChangedOrCurrentValue('department')"
+                />
+              </div>
+              <div class="flex items-center">
+                <Label class="w-36 shrink-0"> Contact Position </Label>
+                <Input
+                  id="position"
+                  type="text"
+                  class="pointer-events-none w-full"
+                  v-bind="getChangedOrCurrentValue('contact_position')"
+                />
+              </div>
+            </div>
+            <div class="col-span-2 grid grid-cols-2 gap-x-10">
+              <div class="flex items-center gap-x-4">
+                <Label class="w-44 shrink-0"> Contact Person </Label>
+                <Input
+                  id="contactPerson"
+                  type="text"
+                  class="pointer-events-none w-full"
+                  v-bind="getChangedOrCurrentValue('contact_person')"
+                />
+              </div>
+              <div class="flex items-center">
+                <Label class="w-36 shrink-0"> Contact Number </Label>
+                <Input
+                  id="contactNumber"
+                  type="text"
+                  v-bind="getChangedOrCurrentValue('contact_no')"
+                  class="pointer-events-none w-full"
+                />
+              </div>
+            </div>
+            <div
+              v-if="jobOrder.serviceableType === 'it_service'"
+              class="col-span-2 grid grid-cols-2 gap-x-10"
+            >
+              <div class="flex flex-row items-center gap-x-4">
+                <Label class="w-44 shrink-0"> Technician </Label>
+                <Button
+                  variant="outline"
+                  class="pointer-events-none w-full justify-start"
+                  :class="technician.class"
+                >
+                  <Avatar class="h-7 w-7 shrink-0">
+                    <AvatarImage
+                      v-if="technicianAvatar"
+                      :src="technicianAvatar"
+                      :alt="technician.defaultValue.fullName"
+                    />
+                    <AvatarFallback>
+                      {{ getInitials(technician.defaultValue.fullName) }}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span class="text-xs">
+                    {{ technician.defaultValue.fullName }}
+                  </span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

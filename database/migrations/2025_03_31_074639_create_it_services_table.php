@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Employee;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,9 +19,11 @@ return new class extends Migration
             $table->string('serial_no');
             $table->string('tag_no');
             $table->longText('machine_problem')->nullable();
-            $table->longText('service_performed')->nullable();
-            $table->longText('recommendation')->nullable();
-            $table->string('machine_status')->nullable();
+            $table->foreignIdFor(Employee::class, 'technician_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->nullOnDelete();
             $table->timestamps();
         });
     }

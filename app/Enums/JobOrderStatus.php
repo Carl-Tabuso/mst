@@ -5,7 +5,6 @@ namespace App\Enums;
 enum JobOrderStatus: string
 {
     case ForViewing             = 'for viewing';
-    case ForCheckUP             = 'for check up'; // For IT services
     case ForProposal            = 'for proposal';
     case ForApproval            = 'for approval';
     case Successful             = 'successful';
@@ -18,6 +17,8 @@ enum JobOrderStatus: string
     case ForAppraisal           = 'for appraisal';
     case PreHauling             = 'pre-hauling';
     case InProgress             = 'in-progress';
+    case ForCheckup             = 'for check up';
+    case ForFinalService        = 'for final service';
 
     public function getLabel(): string
     {
@@ -34,8 +35,9 @@ enum JobOrderStatus: string
             self::ForVerification   => 'For Verification',
             self::ForAppraisal      => 'For Appraisal',
             self::PreHauling        => 'Pre-Hauling',
-            self::ForCheckUP        => 'For Check Up',
             self::InProgress        => 'In-progress',
+            self::ForCheckup        => 'For Checkup',
+            self::ForFinalService   => 'For Final Service',
         };
     }
 
@@ -79,6 +81,15 @@ enum JobOrderStatus: string
             self::InProgress,
             self::OnHold,
             self::Closed,
+            self::Completed,
+        ];
+    }
+
+    public static function getITServiceStatus(): array
+    {
+        return [
+            self::ForCheckup,
+            self::ForFinalService,
             self::Completed,
         ];
     }

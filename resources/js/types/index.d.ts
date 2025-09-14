@@ -1,6 +1,7 @@
 import { CorrectionStatusType } from '@/constants/correction-statuses'
 import { HaulingStatusType } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { MachineStatusType } from '@/constants/machine-statuses'
 import { UserRoleType } from '@/constants/user-role'
 import type { PageProps } from '@inertiajs/core'
 import type { LucideIcon } from 'lucide-vue-next'
@@ -45,11 +46,11 @@ export interface NavItem {
     href: string
   }[]
   can?: boolean
+  only?: string[]
 }
 
 export interface SharedData extends PageProps {
   name: string
-  quote: { message: string; author: string }
   auth: Auth
   ziggy: Config & { location: string }
   flash: { message: any }
@@ -74,18 +75,61 @@ export interface Employee {
   middleName?: string
   lastName: string
   suffix?: string
+  dateOfBirth: string
+  email?: string
+  contactNumber: string
   fullName: string
   positionId: number
   createdAt: string
   updatedAt: string
+  archivedAt: string
   account?: User
+  region?: string
+  province?: string
+  city?: string
+  zipCode?: string
+  detailedAddress?: string
+  emergencyContact?: EmployeeEmergencyContact
+  employmentDetails?: EmployeeEmploymentDetail
+  compensation?: EmployeeCompensation
+  position?: Position
+}
+
+export interface EmployeeEmergencyContact {
+  id: number
+  employeeId: number
+  lastName: string
+  firstName: string
+  middleName?: string
+  suffix?: string
+  contactNumber: string
+  relation: string
+}
+
+export interface EmployeeEmploymentDetail {
+  id: number
+  employeeId: number
+  sssNumber?: string
+  philhealthNumber?: string
+  pagibigNumber?: string
+  tin?: string
+  dateHired?: string
+  regularizationDate?: string
+  endOfContract?: string
+}
+
+export interface EmployeeCompensation {
+  id: number
+  employeeId: number
+  salary?: number
+  allowance?: number
 }
 
 export interface JobOrder {
   id: number
   ticket: string
   serviceableId: number
-  serviceableType: string
+  serviceableType: 'form4' | 'it_service' | 'form5'
   dateTime: string
   client: string
   address: string
@@ -98,10 +142,48 @@ export interface JobOrder {
   errorCount: number
   createdAt: string
   updatedAt: string
+  archivedAt: string
   creator: Employee
-  serviceable: Form4 // add it services and others here
+  serviceable: Form4 | ITService
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
+}
+
+export interface ITService {
+  id: number
+  technicianId: number
+  machineType: string
+  model: string
+  serialNo: string | number
+  tagNo: string | number
+  machineProblem: string
+  jobOrder?: JobOrder
+  initialOnsiteReport?: InitialOnsiteReport
+  finalOnsiteReport?: FinalOnsiteReport
+  technician?: Employee
+}
+
+export interface InitialOnsiteReport {
+  id: number
+  servicePerformed: string
+  recommendation: string
+  machineStatus: MachineStatusType
+  fileName: string | null
+  fileHash: string | null
+  createdAt: string
+  updatedAt: string
+  itService: ITService
+}
+
+export interface FinalOnsiteReport {
+  id: number
+  servicePerformed: string
+  partsReplaced: string
+  remarks: string
+  machineStatus: MachineStatusType
+  createdAt: string
+  updatedAt: string
+  itService: ITService
 }
 
 export interface Form4 {
@@ -232,6 +314,14 @@ export interface Truck {
   creator?: Employee | null
   createdAt: string
   updatedAt: string
+}
+
+export interface Position {
+  id: number
+  name: string
+  createdAt: string
+  updatedAt: string
+  employees: Employee[]
 }
 
 export type ServiceType = 'Waste Management' | 'IT Service' | 'Other Services'

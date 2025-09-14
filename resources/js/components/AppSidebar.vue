@@ -61,7 +61,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Employee Management',
-    href: '#',
+    href: '/employee-management',
     icon: UsersRound,
   },
   {
@@ -86,7 +86,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Archives',
-    href: '#',
+    href: '/archives/job-orders',
     icon: Archive,
   },
 ]
@@ -103,7 +103,7 @@ const footerNavItems: NavItem[] = [
 <template>
   <Sidebar
     collapsible="icon"
-    variant="sidebar"
+    variant="floating"
   >
     <SidebarHeader>
       <SidebarMenu>

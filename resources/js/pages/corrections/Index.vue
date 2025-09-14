@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import {
   BreadcrumbItem,
@@ -48,7 +49,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Job Order Corrections" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
         <PageHeader
           title="Job Order Corrections"
@@ -60,6 +61,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           :meta="data.meta"
         />
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

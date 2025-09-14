@@ -16,14 +16,12 @@ class EmployeeSeeder extends Seeder
         $this->seedFrontliners();
         $this->seedDispatchers();
         $this->seedTeamLeaders();
-        $this->seedHeadFrontliner();
         $this->seedHaulers();
-        $this->seedItAdmins();
         $this->seedConsultants();
         $this->seedHumanResources();
     }
 
-    private function seedFrontliners(): void
+    private function seedFrontliners()
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Frontliner'),
@@ -44,24 +42,10 @@ class EmployeeSeeder extends Seeder
         ]);
     }
 
-    private function seedHeadFrontliner(): void
-    {
-        Employee::factory()->create([
-            'position_id' => $this->getPositionId('Head Frontliner'),
-        ]);
-    }
-
     private function seedHaulers(): void
     {
-        Employee::factory(20)->create([
+        Employee::factory(15)->create([
             'position_id' => $this->getPositionId('Hauler'),
-        ]);
-    }
-
-    private function seedItAdmins(): void
-    {
-        Employee::factory(5)->create([
-            'position_id' => $this->getPositionId('IT Admin'),
         ]);
     }
 

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
@@ -9,9 +8,9 @@ use App\Http\Controllers\EmployeeRatingController;
 use App\Http\Controllers\ExportActivityLogController;
 use App\Http\Controllers\ExportJobOrderController;
 use App\Http\Controllers\ExportReportsController;
+use App\Http\Controllers\Form5Controller;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidentController;
-use App\Http\Controllers\ITServicesController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SafetyInspectionController;
@@ -46,31 +45,31 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{jobOrder}', [JobOrderController::class, 'destroy'])
             ->name('destroy')
             ->can('update', 'jobOrder');
+        Route::prefix('other-services')->name('other_services.')->group(function () {
+            Route::get('/', [Form5Controller::class, 'index'])->name('index');
+            Route::get('{ticket}/edit', [Form5Controller::class, 'edit'])
+                ->name('edit')
+                ->can('view', 'ticket');
+            Route::post('/', [Form5Controller::class, 'store'])->name('store');
+            Route::patch('{form5}', [Form5Controller::class, 'update'])->name('update');
 
+        });
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
-            Route::get('/', [WasteManagementController::class, 'index'])->name('index');
+            Route::get('/', [WasteManagementController::class, 'index'])
+                ->name('index');
+
             Route::get('{ticket}/edit', [WasteManagementController::class, 'edit'])
                 ->name('edit')
                 ->can('view', 'ticket');
-            Route::post('/', [WasteManagementController::class, 'store'])->name('store');
-            Route::patch('{form4}', [WasteManagementController::class, 'update'])->name('update');
+
+            Route::post('/', [WasteManagementController::class, 'store'])
+                ->name('store');
+
+            Route::patch('{form4}', [WasteManagementController::class, 'update'])
+                ->name('update');
+
             Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
                 ->name('safety_inspection.update');
-        });
-
-        Route::prefix('it-services')->name('it_service.')->group(function () {
-            Route::get('/', [ITServicesController::class, 'index'])->name('index');
-            Route::get('/create', [ITServicesController::class, 'create'])->name('create');
-            Route::post('/', [ITServicesController::class, 'store'])->name('store');
-
-            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
-            Route::post('/archive', [ITServicesController::class, 'archive'])->name('archive');
-
-        });
-
-        Route::prefix('others')->name('other.')->group(function () {
-            Route::get('/', fn () => dd('os'))->name('index');
-            Route::get('{jobOrder}/edit', fn () => dd('it eit'))->name('edit');
         });
 
         Route::prefix('cancels')->name('cancel.')->group(function () {
@@ -122,16 +121,6 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Archive
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/archives', [ArchiveController::class, 'index'])->name('archives.index');
-    Route::post('/archives/restore', [ArchiveController::class, 'restore'])->name('archives.restore');
-    Route::post('/archives/force-delete', [ArchiveController::class, 'forceDelete'])->name('archives.force-delete');
-
-    /*
-    |--------------------------------------------------------------------------
     | User Management
     |--------------------------------------------------------------------------
     */
@@ -167,6 +156,10 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
+    Route::resource('employee-management', EmployeeController::class)
+        ->parameters(['employee-management' => 'employee']);
+    Route::post('employee-management/{employee}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
+
     Route::prefix('data')->group(function () {
         Route::get('employees/dropdown', [EmployeeController::class, 'dropdown'])->name('employees.dropdown');
         Route::get('/job-orders/dropdown', [JobOrderController::class, 'dropdownOptions']);
@@ -183,3 +176,5 @@ require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 require __DIR__.'/corrections.php';
 require __DIR__.'/trucks.php';
+require __DIR__.'/itservice.php';
+require __DIR__.'/archives.php';

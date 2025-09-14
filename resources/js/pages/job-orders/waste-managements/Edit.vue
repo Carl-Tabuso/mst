@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import CorrectionRequestBanner from '@/components/CorrectionRequestBanner.vue'
+import MainContainer from '@/components/MainContainer.vue'
+import StickyPageHeader from '@/components/StickyPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useCorrections } from '@/composables/useCorrections'
@@ -6,15 +9,15 @@ import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
-import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
-import { JobOrder, SharedData, Truck, type BreadcrumbItem } from '@/types'
-import { router, useForm, usePage } from '@inertiajs/vue3'
-import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
-import { computed, onMounted, provide, readonly, ref, watch } from 'vue'
+import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
+import { BreadcrumbItem, Form4, JobOrder, Truck } from '@/types'
+import { router, useForm } from '@inertiajs/vue3'
+import { LoaderCircle } from 'lucide-vue-next'
+import { computed, provide, readonly, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { GroupedEmployeesByAccountRole } from '.'
+import RequestCorrectionButton from '../components/RequestCorrectionButton.vue'
 import TicketHeader from '../components/TicketHeader.vue'
-import CorrectionRequestBanner from './components/CorrectionRequestBanner.vue'
 import FifthSection from './components/sections/FifthSection.vue'
 import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
@@ -24,7 +27,7 @@ import ThirdSection from './components/sections/ThirdSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
 
 interface WasteManagementEditProps {
-  data: JobOrder
+  data: Omit<JobOrder, 'serviceable'> & { serviceable: Form4 }
   employees?: GroupedEmployeesByAccountRole[]
   trucks?: Truck[]
 }
@@ -130,9 +133,6 @@ const onSubmitCorrection = () => {
       onSuccess: (page: any) => {
         form.reset()
         isEditing.value = false
-        toast.success(page.props.flash.message, {
-          position: 'top-right',
-        })
       },
     })
 }
@@ -166,25 +166,8 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-const page = usePage<SharedData>()
-
-onMounted(() => {
-  const message = page.props.flash.message
-
-  if (message) {
-    toast.success(message.title, {
-      description: message.description,
-      position: 'top-center',
-    })
-  }
-})
-
 const unapprovedCorrections = computed(() => {
   return props.data.corrections?.find((correction) => !correction.approvedAt)
-})
-
-const isNotHeadFrontliner = computed(() => {
-  return page.props.auth.user.roles[0].name !== 'head frontliner'
 })
 </script>
 
@@ -192,15 +175,8 @@ const isNotHeadFrontliner = computed(() => {
   <Head :title="data.ticket" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
-      <div
-        :class="[
-          'sticky top-0 z-10 border-b border-border bg-background shadow-sm',
-          {
-            'top-[57px]': isNotHeadFrontliner,
-          },
-        ]"
-      >
+    <MainContainer>
+      <StickyPageHeader>
         <CorrectionRequestBanner :correction="unapprovedCorrections" />
         <div class="mb-3 flex items-center justify-between">
           <TicketHeader :job-order="data" />
@@ -226,28 +202,13 @@ const isNotHeadFrontliner = computed(() => {
                 v-if="!unapprovedCorrections"
                 class="flex gap-5"
               >
-                <Button
-                  v-show="!isEditing"
-                  variant="outline"
-                  @click="() => (isEditing = !isEditing)"
-                >
-                  <Pencil class="mr-2" />
-                  Request Correction
-                </Button>
-                <Button
-                  v-show="isEditing"
-                  variant="outline"
-                  @click="() => (isEditing = !isEditing)"
-                >
-                  <X class="mr-2" />
-                  Cancel Correction
-                </Button>
+                <RequestCorrectionButton v-model:is-editing="isEditing" />
               </div>
-              <ArchiveColumn :jobOrder="data" />
+              <ArchiveJobOrder :jobOrder="data" />
             </div>
           </div>
         </div>
-      </div>
+      </StickyPageHeader>
       <div class="my-4 flex flex-col gap-4 rounded-xl">
         <div class="mb-3 flex items-center">
           <div class="flex w-full flex-col">
@@ -358,6 +319,6 @@ const isNotHeadFrontliner = computed(() => {
           </div>
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

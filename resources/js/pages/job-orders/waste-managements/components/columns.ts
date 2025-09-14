@@ -1,11 +1,11 @@
+import CreatorAndTimestamp from '@/components/CreatorAndTimestamp.vue'
+import TextLink from '@/components/TextLink.vue'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
-import ArchiveColumn from '@/pages/job-orders/components/ArchiveColumn.vue'
-import CreatorAndTimestamp from '@/pages/job-orders/components/CreatorAndTimestamp.vue'
+import ArchiveJobOrder from '@/pages/job-orders/components/ArchiveJobOrder.vue'
 import DataTableHeader from '@/pages/job-orders/components/DataTableHeader.vue'
 import { JobOrder } from '@/types'
-import { Link } from '@inertiajs/vue3'
 import { ColumnDef } from '@tanstack/vue-table'
 import { h } from 'vue'
 
@@ -34,14 +34,13 @@ export const columns: ColumnDef<JobOrder>[] = [
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
       return h(
-        Link,
+        TextLink,
         {
           href: route(
             'job_order.waste_management.edit',
             row.getValue('ticket'),
           ),
-          class:
-            'text-primary underline hover:opacity-80 text-[13px] font-medium truncate tracking-tighter',
+          class: 'text-[13px] font-medium truncate tracking-tighter',
         },
         () => row.getValue('ticket'),
       )
@@ -130,7 +129,7 @@ export const columns: ColumnDef<JobOrder>[] = [
   },
   {
     id: 'archive',
-    cell: ({ row }) => h(ArchiveColumn, { jobOrder: row.original }),
+    cell: ({ row }) => h(ArchiveJobOrder, { jobOrder: row.original }),
     enableHiding: false,
   },
 ]
