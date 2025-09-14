@@ -61,7 +61,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Employee Management',
-    href: '#',
+    href: '/employee-management',
     icon: UsersRound,
   },
   {

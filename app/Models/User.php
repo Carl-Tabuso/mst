@@ -4,20 +4,22 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Collections\UserCollection;
+use App\Policies\UserPolicy;
 use Illuminate\Database\Eloquent\Attributes\CollectedBy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 #[CollectedBy(UserCollection::class)]
+#[UsePolicy(UserPolicy::class)]
 class User extends Authenticatable
 {
-    use HasFactory, HasRoles, LogsActivity, Notifiable, SoftDeletes;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'employee_id',
@@ -42,12 +44,12 @@ class User extends Authenticatable
         return $this->belongsTo(Employee::class)->withTrashed();
     }
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logExcept(['password', 'remember_token'])
-            ->logFillable()
-            ->logOnlyDirty()
-            ->dontLogIfAttributesChangedOnly(['remember_token']);
-    }
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logExcept(['password', 'remember_token'])
+    //         ->logFillable()
+    //         ->logOnlyDirty()
+    //         ->dontLogIfAttributesChangedOnly(['remember_token']);
+    // }
 }

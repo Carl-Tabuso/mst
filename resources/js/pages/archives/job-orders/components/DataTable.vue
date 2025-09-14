@@ -89,10 +89,7 @@ const table = useVueTable({
 </script>
 
 <template>
-  <DataTableToolbar
-    :table="table"
-    :globalFilter="dataTable.globalFilter.value"
-  />
+  <DataTableToolbar :table="table" />
   <div class="rounded-md border">
     <Table>
       <TableHeader>

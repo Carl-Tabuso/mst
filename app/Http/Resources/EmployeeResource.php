@@ -23,6 +23,7 @@ class EmployeeResource extends JsonResource
             'positionName'      => $this->whenLoaded('position', fn () => $this->position->name),
             'createdAt'         => $this->created_at,
             'updatedAt'         => $this->updated_at,
+            'archivedAt'        => $this->archived_at,
             'account'           => UserResource::make($this->whenLoaded('account')),
             'accountCreatedAt'  => $this->whenLoaded('account', fn () => $this->account->created_at),
             'accountStatus'     => $this->whenLoaded('account', fn () => $this->account->deleted_at ? 'Deactivated' : 'Active'),
@@ -34,6 +35,7 @@ class EmployeeResource extends JsonResource
             'emergencyContact'  => EmployeeEmergencyContactResource::make($this->whenLoaded('emergencyContact')),
             'employmentDetails' => EmployeeEmploymentDetailResource::make($this->whenLoaded('employmentDetails')),
             'compensation'      => EmployeeCompensationResource::make($this->whenLoaded('compensation')),
+            'position'          => PositionResource::make($this->whenLoaded('position')),
         ];
     }
 }
