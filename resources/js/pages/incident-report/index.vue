@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import { Button } from '@/components/ui/button'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem } from '@/types'
-import { ref } from 'vue'
 import Incident from '../../components/incident-report/components/Incident.vue'
 import MainContainer from '@/components/MainContainer.vue'
 
@@ -17,11 +15,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-const isComposing = ref(false)
 
-const toggleCompose = () => {
-  isComposing.value = !isComposing.value
-}
 </script>
 
 <template>
