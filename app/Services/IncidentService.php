@@ -31,7 +31,6 @@ class IncidentService
             'hauling.assignedPersonnel.teamMechanic'
         ])->orderBy('occured_at', 'desc');
 
-        // Apply role-based filters
         if (!$user->hasRole('admin')) {
             if ($isCreatingRole && $employeeId) {
                 $query->where(function ($q) use ($employeeId) {
