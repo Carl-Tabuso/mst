@@ -1,5 +1,6 @@
 export interface JobOrder {
   id: number | string
+  ticket?: string
   status?: string
   client?: string
   serviceable_type?: string
@@ -23,6 +24,7 @@ export interface PerformanceStats {
   corrections_count?: number
   success_rate: number
   current_month: string
+  error_count?: number
 }
 
 export interface TeamStats {

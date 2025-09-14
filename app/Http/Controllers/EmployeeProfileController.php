@@ -67,11 +67,9 @@ class EmployeeProfileController extends Controller
             'assignedPersonnelAsDriver.form3Hauling.form3.form4.jobOrder',
             'assignedPersonnelAsSafetyOfficer.form3Hauling.form3.form4.jobOrder',
             'assignedPersonnelAsMechanic.form3Hauling.form3.form4.jobOrder',
-
             'performancesAsEmployee.ratings.performanceRating',
         ])->findOrFail($id);
 
-        // Enhanced logging for team leader verification
         $this->logTeamLeaderAssignments($employee);
 
         $position = strtolower($employee->position->name ?? '');
@@ -101,7 +99,6 @@ class EmployeeProfileController extends Controller
             'position'                 => $position,
         ];
 
-        // Position-specific data
         switch ($position) {
             case 'frontliner':
                 $profileData['createdJobOrders']     = $jobOrderStats;
@@ -138,7 +135,6 @@ class EmployeeProfileController extends Controller
             'position' => $employee->position?->name,
         ]);
 
-        // Log created job orders team leaders
         if ($employee->createdJobOrders->isNotEmpty()) {
             Log::info('Created Job Orders Team Leaders:', [
                 'total_created_job_orders' => $employee->createdJobOrders->count(),
@@ -155,7 +151,6 @@ class EmployeeProfileController extends Controller
             ]);
         }
 
-        // Log hauler assignments
         if ($employee->form3sHauler->isNotEmpty()) {
             Log::info('Hauler Job Assignments Team Leaders:', [
                 'total_hauler_assignments' => $employee->form3sHauler->count(),
@@ -173,7 +168,6 @@ class EmployeeProfileController extends Controller
             ]);
         }
 
-        // Log team leader assignments
         if ($employee->assignedPersonnelAsTeamLeader->isNotEmpty()) {
             Log::info('Team Leader Role Assignments:', [
                 'total_team_leader_assignments' => $employee->assignedPersonnelAsTeamLeader->count(),
@@ -206,26 +200,22 @@ class EmployeeProfileController extends Controller
             'debug_path' => []
         ];
 
-        // Handle both enum and string comparison for serviceable_type
         $isForm4 = false;
         if (is_object($jobOrder->serviceable_type)) {
-            // If it's an enum, check multiple possible values
             $enumValue = method_exists($jobOrder->serviceable_type, 'value') ? $jobOrder->serviceable_type->value : null;
             $isForm4 = in_array($enumValue, ['form4', 'Form4', 'App\\Models\\Form4']) || 
                       $jobOrder->serviceable_type instanceof \App\Enums\JobOrderServiceType;
             $teamLeaderInfo['debug_path'][] = 'Serviceable type is enum with value: ' . ($enumValue ?? 'unknown');
             $teamLeaderInfo['debug_path'][] = 'Enum class: ' . get_class($jobOrder->serviceable_type);
+
         } else {
-            // If it's a string, check directly
             $isForm4 = in_array($jobOrder->serviceable_type, ['form4', 'Form4', 'App\\Models\\Form4']);
             $teamLeaderInfo['debug_path'][] = 'Serviceable type is string: ' . $jobOrder->serviceable_type;
         }
 
-        // Additional check: see if the actual serviceable model is a Form4
         $serviceableIsForm4 = $jobOrder->serviceable instanceof \App\Models\Form4;
         $teamLeaderInfo['debug_path'][] = 'Serviceable model is Form4 instance: ' . ($serviceableIsForm4 ? 'true' : 'false');
         
-        // Use either check for final determination
         $isForm4 = $isForm4 || $serviceableIsForm4;
         
         $teamLeaderInfo['debug_path'][] = 'Is Form4 check result: ' . ($isForm4 ? 'true' : 'false');
@@ -235,7 +225,6 @@ class EmployeeProfileController extends Controller
             $teamLeaderInfo['debug_path'][] = 'Serviceable class: ' . get_class($jobOrder->serviceable);
             $teamLeaderInfo['debug_path'][] = 'Serviceable ID: ' . $jobOrder->serviceable->id;
             
-            // Let's also check the raw database values
             $teamLeaderInfo['debug_path'][] = 'Raw serviceable_type from DB: ' . $jobOrder->getRawOriginal('serviceable_type');
             $teamLeaderInfo['debug_path'][] = 'Raw serviceable_id from DB: ' . $jobOrder->getRawOriginal('serviceable_id');
         }
@@ -249,7 +238,6 @@ class EmployeeProfileController extends Controller
                 $teamLeaderInfo['haulings_count'] = $form3->haulings->count();
                 $teamLeaderInfo['debug_path'][] = 'Haulings count: ' . $teamLeaderInfo['haulings_count'];
                 
-                // Check all haulings for assigned personnel
                 $haulings = $form3->haulings;
                 $teamLeaderInfo['haulings_data'] = $haulings->map(function ($hauling, $index) {
                     $assignedPersonnel = $hauling->assignedPersonnel;
@@ -267,7 +255,6 @@ class EmployeeProfileController extends Controller
 
                 $teamLeaderInfo['debug_path'][] = 'Haulings data extracted for ' . $haulings->count() . ' haulings';
 
-                // Get the first hauling's assigned personnel for main display
                 $firstHauling = $haulings->first();
                 if ($firstHauling) {
                     $teamLeaderInfo['debug_path'][] = 'Found first hauling with ID: ' . $firstHauling->id;
@@ -317,6 +304,7 @@ class EmployeeProfileController extends Controller
                 
                 return [
                     'id'               => $jobOrder->id,
+                    'ticket'           => $jobOrder->ticket,
                     'status'           => $jobOrder->status,
                     'client'           => $jobOrder->client,
                     'serviceable_type' => $jobOrder->serviceable_type,
@@ -330,7 +318,7 @@ class EmployeeProfileController extends Controller
 
     private function getTeamLeaderStats(Employee $employee)
     {
-        // Calculate team leader stats based on Form3AssignedPersonnel
+
         $teamLeaderAssignments = $employee->assignedPersonnelAsTeamLeader()->count();
         $totalTeamJobOrders    = $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsTeamLeader)->count();
 
@@ -362,8 +350,6 @@ class EmployeeProfileController extends Controller
             default => collect(),
         };
     }
-
-    // For haulers (many-to-many relationship)
     private function pluckJobOrdersFromHauler($form3Haulers)
     {
         return $form3Haulers
@@ -372,8 +358,6 @@ class EmployeeProfileController extends Controller
             ->unique('id')
             ->values();
     }
-
-    // For assigned personnel (team leader, driver, etc.)
     private function pluckJobOrdersFromPersonnelAssignments($personnelAssignments)
     {
         return $personnelAssignments
@@ -399,6 +383,7 @@ class EmployeeProfileController extends Controller
 
                 $transformedOrder = [
                     'id'               => $jobOrder->id,
+                    'ticket' => $jobOrder->ticket,
                     'status'           => $status,
                     'serviceable_type' => $jobOrder->serviceable_type ?? null,
                     'client'           => $jobOrder->client ?? null,
@@ -410,7 +395,6 @@ class EmployeeProfileController extends Controller
                     'updated_at'       => $jobOrder->updated_at,
                 ];
 
-                // Log each transformed job order
                 Log::info("Transformed Job Order {$jobOrder->id}:", [
                     'original_job_order_id' => $jobOrder->id,
                     'serviceable_type' => $jobOrder->serviceable_type,
@@ -425,7 +409,6 @@ class EmployeeProfileController extends Controller
             ->filter()
             ->values();
 
-        // Log final transformed results summary
         Log::info('=== TRANSFORMED JOB ORDERS SUMMARY ===', [
             'total_job_orders' => $transformedOrders->count(),
             'with_team_leader' => $transformedOrders->where('team_leader', '!=', null)->count(),
@@ -528,7 +511,6 @@ class EmployeeProfileController extends Controller
 
     private function getFrontlinerPerformanceStatsForMonth(Employee $employee, $month)
     {
-
         try {
             $startOfMonth = \Carbon\Carbon::createFromFormat('Y-m', $month)->startOfMonth();
             $endOfMonth   = \Carbon\Carbon::createFromFormat('Y-m', $month)->endOfMonth();
@@ -538,31 +520,35 @@ class EmployeeProfileController extends Controller
             $month        = now()->format('Y-m');
         }
 
-        // Get job orders created in the specific month
         $jobOrdersInMonthQuery = $employee->createdJobOrders()
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
 
         $monthlyCreated = $jobOrdersInMonthQuery->count();
 
-        // Get all job orders created up to the end of the selected month
         $allJobOrdersUpToMonthQuery = $employee->createdJobOrders()
             ->where('created_at', '<=', $endOfMonth);
 
         $totalCreated = $allJobOrdersUpToMonthQuery->count();
 
-        // Count completed jobs
         $completedJobsQuery = $employee->createdJobOrders()
             ->where('created_at', '<=', $endOfMonth)
             ->where('status', \App\Enums\JobOrderStatus::Completed);
 
         $completedJobs = $completedJobsQuery->count();
 
-        // Count job orders with corrections
         $jobOrdersWithCorrectionsQuery = $employee->createdJobOrders()
             ->where('created_at', '<=', $endOfMonth)
             ->whereHas('corrections');
 
         $jobOrdersWithCorrections = $jobOrdersWithCorrectionsQuery->count();
+
+        $totalErrorCount = $employee->createdJobOrders()
+            ->where('created_at', '<=', $endOfMonth)
+            ->sum('error_count');
+
+        $monthlyErrorCount = $employee->createdJobOrders()
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->sum('error_count');
 
         $successRate = $totalCreated > 0 ? round(($completedJobs / $totalCreated) * 100, 2) : 0;
 
@@ -571,6 +557,8 @@ class EmployeeProfileController extends Controller
             'monthly_created'   => $monthlyCreated,
             'completed_jobs'    => $completedJobs,
             'corrections_count' => $jobOrdersWithCorrections,
+            'error_count'       => $totalErrorCount,
+            'monthly_error_count' => $monthlyErrorCount,
             'success_rate'      => $successRate,
             'current_month'     => \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y'),
         ];

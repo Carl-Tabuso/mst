@@ -7,6 +7,7 @@ interface PerformanceStats {
     monthly_created: number
     completed_jobs: number
     corrections_count?: number
+    error_count?: number
     success_rate: number
     current_month: string
 }
@@ -25,10 +26,8 @@ const props = defineProps<{
 const selectedMonth = ref('August 2025')
 const isLoading = ref(false)
 
-// This will hold the current performance data (either from props initially or from API calls)
 const currentPerformanceData = ref<PerformanceStats | null>(null)
 
-// Generate months for the dropdown (current year and previous year)
 const months = computed(() => {
     const currentYear = new Date().getFullYear()
     const previousYear = currentYear - 1
@@ -39,12 +38,10 @@ const months = computed(() => {
 
     const allMonths = []
 
-    // Add current year months
     for (const month of monthNames) {
         allMonths.push(`${month} ${currentYear}`)
     }
 
-    // Add previous year months
     for (const month of monthNames) {
         allMonths.push(`${month} ${previousYear}`)
     }
@@ -52,7 +49,6 @@ const months = computed(() => {
     return allMonths.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
 })
 
-// Compute performance data from current state
 const computedPerformanceData = computed(() => {
     const data = currentPerformanceData.value
     if (data) {
@@ -62,17 +58,18 @@ const computedPerformanceData = computed(() => {
             successfulJobs: data.completed_jobs || 0,
             completionsMade: data.monthly_created || 0,
             correctionsCount: data.corrections_count || 0,
+            errorCount: data.error_count || 0,
             currentMonth: data.current_month || selectedMonth.value
         }
     }
 
-    // Fallback to default values
     return {
         currentRating: 0,
         totalEvaluations: 0,
         successfulJobs: 0,
         completionsMade: 0,
         correctionsCount: 0,
+        errorCount: 0,
         currentMonth: selectedMonth.value
     }
 })
@@ -80,14 +77,10 @@ const computedPerformanceData = computed(() => {
 const handleMonthChange = async () => {
     isLoading.value = true
     try {
-        // Convert "August 2025" to "2025-08" format for API
         const [monthName, year] = selectedMonth.value.split(' ')
         const monthNumber = new Date(Date.parse(monthName + " 1, 2000")).getMonth() + 1
         const formattedMonth = `${year}-${monthNumber.toString().padStart(2, '0')}`
 
-        console.log('Fetching data for month:', formattedMonth)
-
-        // Make API call to get performance data for selected month
         const response = await fetch(`/profile/${props.employee.id}/performance-data?month=${formattedMonth}`, {
             method: 'GET',
             headers: {
@@ -98,32 +91,27 @@ const handleMonthChange = async () => {
 
         if (response.ok) {
             const data = await response.json()
-            console.log('Received API response:', data)
 
-            // Update current performance data with the response
             if (data.stats) {
                 currentPerformanceData.value = {
                     total_created: data.stats.total_created || 0,
                     monthly_created: data.stats.monthly_created || 0,
                     completed_jobs: data.stats.completed_jobs || 0,
                     corrections_count: data.stats.corrections_count || 0,
+                    error_count: data.stats.error_count || 0,
                     success_rate: data.stats.success_rate || 0,
                     current_month: data.stats.current_month || selectedMonth.value
                 }
-                console.log('Updated performance data:', currentPerformanceData.value)
             }
-        } else {
-            console.error('API response not ok:', response.status, response.statusText)
         }
     } catch (error) {
-        console.error('Error fetching performance data:', error)
+        // Handle error silently
     } finally {
         isLoading.value = false
     }
 }
 
 onMounted(() => {
-    // Initialize with props data if available
     if (props.performanceStats) {
         currentPerformanceData.value = { ...props.performanceStats }
         if (props.performanceStats.current_month) {
@@ -134,12 +122,13 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class= "dark:bg-gray-800 rounded-lg shadow-sm p-6 relative">
-        <div class="flex items-center justify-between mb-6">
+    <div class="dark:bg-gray-900 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 relative">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
             <h3 class="text-lg font-semibold text-sky-900 dark:text-white">Performance Evaluation</h3>
             <div class="relative">
                 <select v-model="selectedMonth" @change="handleMonthChange" :disabled="isLoading"
-                    class="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-sky-900 dark:text-white rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-w-[140px]">
+                    class="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-sky-900 dark:text-white rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 w-full sm:min-w-[140px]">
                     <option v-for="month in months" :key="month" :value="month">
                         {{ month }}
                     </option>
@@ -149,15 +138,15 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+        <div class="text-sm text-gray-600 dark:text-gray-300 mb-4 sm:mb-6">
             Your Performance Evaluation for this month
         </div>
 
-        <!-- Main Content: Circular Progress + Stats Side by Side -->
-        <div class="flex items-start gap-8">
-            <!-- Left Side: Circular Progress -->
-            <div class="flex-shrink-0">
-                <div class="relative w-48 h-48 mt-20">
+        <!-- Main Content: Responsive Layout -->
+        <div class="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8 mb-6 lg:mb-8">
+            <!-- Circular Progress - Full width on mobile, left side on desktop -->
+            <div class="flex justify-center lg:flex-shrink-0">
+                <div class="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 lg:mt-20">
                     <!-- Outer glow rings -->
                     <div
                         class="absolute inset-0 rounded-full bg-gradient-to-r from-green-100 to-lime-100 dark:from-green-900/20 dark:to-lime-900/20 opacity-30 animate-pulse">
@@ -168,7 +157,8 @@ onMounted(() => {
 
                     <!-- Main circular progress -->
                     <div class="absolute inset-4 flex items-center justify-center">
-                        <svg class="w-40 h-40 transform -rotate-90" viewBox="0 0 120 120">
+                        <svg class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 transform -rotate-90"
+                            viewBox="0 0 120 120">
                             <!-- Background circle -->
                             <circle cx="60" cy="60" r="50" stroke="#e5e7eb" class="dark:stroke-gray-700"
                                 stroke-width="8" fill="none" />
@@ -191,29 +181,29 @@ onMounted(() => {
                         <!-- Center percentage -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             <span
-                                class="text-4xl font-bold bg-gradient-to-r from-green-600 to-lime-600 dark:from-green-400 dark:to-lime-400 bg-clip-text text-transparent">
+                                class="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-600 to-lime-600 dark:from-green-400 dark:to-lime-400 bg-clip-text text-transparent">
                                 {{ computedPerformanceData.currentRating }}%
                             </span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mt-1">out of 100</span>
+                            <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">out of 100</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side: Performance Stats -->
-            <div class="flex-1 space-y-6">
+            <!-- Performance Stats - Stack on mobile, side by side on desktop -->
+            <div class="flex-1 space-y-4 sm:space-y-6">
                 <!-- Job Orders Created -->
                 <div
-                    class="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30">
+                    class="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30">
                     <div
-                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <User class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <User class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <div class="flex-1">
-                        <div class="text-2xl font-bold text-sky-900 dark:text-white">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xl sm:text-2xl font-bold text-sky-900 dark:text-white">
                             {{ computedPerformanceData.totalEvaluations }}
                         </div>
-                        <div class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        <div class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
                             Job Orders Created
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -224,16 +214,16 @@ onMounted(() => {
 
                 <!-- Successful Job Orders -->
                 <div
-                    class="flex items-center gap-4 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900/30">
+                    class="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900/30">
                     <div
-                        class="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <FileText class="w-6 h-6 text-green-600 dark:text-green-400" />
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <FileText class="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
                     </div>
-                    <div class="flex-1">
-                        <div class="text-2xl font-bold text-sky-900 dark:text-white">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xl sm:text-2xl font-bold text-sky-900 dark:text-white">
                             {{ computedPerformanceData.successfulJobs }}
                         </div>
-                        <div class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        <div class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
                             Successful Job Orders
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -244,16 +234,16 @@ onMounted(() => {
 
                 <!-- Corrections Made -->
                 <div
-                    class="flex items-center gap-4 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30">
+                    class="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30">
                     <div
-                        class="w-12 h-12 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Award class="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Award class="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
                     </div>
-                    <div class="flex-1">
-                        <div class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                             {{ computedPerformanceData.correctionsCount }}
                         </div>
-                        <div class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        <div class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
                             Corrections Made
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -264,9 +254,78 @@ onMounted(() => {
             </div>
         </div>
 
+        <!-- Bottom Section: Error Tracking -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 sm:pt-6">
+            <div class="mb-4">
+                <h4 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                    Error Analysis
+                </h4>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    Tracking job order errors for quality improvement
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <!-- Total Errors -->
+                <div
+                    class="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-100 dark:border-red-900/30 shadow-sm">
+                    <div
+                        class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/40 dark:to-red-800/40 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-red-600 dark:text-red-400" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-2xl sm:text-3xl font-bold text-red-700 dark:text-red-300">
+                            {{ computedPerformanceData.errorCount }}
+                        </div>
+                        <div class="text-sm font-medium text-red-700 dark:text-red-300 truncate">
+                            Total Job Order Errors
+                        </div>
+                        <div class="text-xs text-red-600 dark:text-red-400 mt-1">
+                            Cumulative as of {{ selectedMonth }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Rate -->
+                <div
+                    class="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-100 dark:border-amber-900/30 shadow-sm">
+                    <div
+                        class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-100 to-orange-200 dark:from-amber-900/40 dark:to-orange-800/40 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-amber-600 dark:text-amber-400" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-2xl sm:text-3xl font-bold text-amber-700 dark:text-amber-300">
+                            {{ computedPerformanceData.totalEvaluations > 0 ?
+                                Math.round((computedPerformanceData.errorCount / computedPerformanceData.totalEvaluations) *
+                                    100)
+                                : 0 }}%
+                        </div>
+                        <div class="text-sm font-medium text-amber-700 dark:text-amber-300 truncate">
+                            Error Rate
+                        </div>
+                        <div class="text-xs text-amber-600 dark:text-amber-400 mt-1 truncate">
+                            {{ computedPerformanceData.errorCount }} errors / {{
+                                computedPerformanceData.totalEvaluations }} total orders
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Loading state -->
         <div v-if="isLoading"
-            class="absolute inset-0 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 flex items-center justify-center rounded-lg backdrop-blur-sm">
+            class="absolute inset-0 bg-white dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-90 flex items-center justify-center rounded-lg backdrop-blur-sm">
             <div class="flex items-center gap-3">
                 <div
                     class="w-5 h-5 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin">

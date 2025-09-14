@@ -29,7 +29,6 @@ export const useProfile = (props: EnhancedProfileProps) => {
     positionName.value === 'frontliner' || 'head frontliner'
   )
 
-  // Show job orders that were created (for frontliners and admins)
   const showJobOrdersCreated = computed(() =>
     ['frontliner', 'head frontliner', 'admin'].includes(positionName.value),
   )

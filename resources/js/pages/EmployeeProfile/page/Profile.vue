@@ -25,37 +25,40 @@ const {
 
 <template>
   <AppLayout>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div class="max-w-7xl mx-auto">
-        <ProfileHeader :employee="props.employee" :profile-image-url="props.profileImageUrl" />
+    <div class="min-h-screen bg-gray-50 dark:bg-zinc-900">
+      <div class="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ProfileHeader :employee="props.employee" :profile-image-url="props.profileImageUrl" />
 
-          <div v-if="showPerformance" class="lg:col-span-1">
-            <PerformanceEvaluation :employee="props.employee" :performance-stats="props.performanceStats"
-              :performance-evaluations="props.performanceEvaluations" />
+          <div class="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2">
+
+            <div v-if="showPerformance" class="xl:col-span-1">
+              <PerformanceEvaluation :employee="props.employee" :performance-stats="props.performanceStats"
+                :performance-evaluations="props.performanceEvaluations" />
+            </div>
+
+            <div v-if="showFrontlinerContent" :class="showPerformance ? 'xl:col-span-1' : 'xl:col-span-2'">
+              <JobOrdersTable :job-orders="props.createdJobOrdersList ?? []" :position-name="positionName" />
+            </div>
+
+            <div v-if="showTeamLeaderStats" class="xl:col-span-2">
+              <TeamLeaderStats :team-stats="props.teamStats" :assigned-job-orders="props.assignedJobOrders"
+                :average-performance-rating="props.averagePerformanceRating" :format-status="formatStatus"
+                :get-status-color="getStatusColor" />
+            </div>
+
+            <div v-if="showITServices" class="xl:col-span-2">
+              <ITServicesList :services="props.itServices ?? []" />
+            </div>
+
+            <div v-if="showJobOrders && !showFrontlinerContent && !showTeamLeaderStats" class="xl:col-span-2">
+              <JobOrderStats :job-order-stats="props.jobOrderStats" :assigned-job-orders="props.assignedJobOrders"
+                :position-name="positionName" :format-status="formatStatus" :get-status-color="getStatusColor"
+                :average-performance-rating="props.averagePerformanceRating" />
+            </div>
+
           </div>
-
-          <div v-if="showFrontlinerContent" :class="showPerformance ? 'lg:col-span-1' : 'lg:col-span-2'">
-            <JobOrdersTable :job-orders="props.createdJobOrdersList ?? []" :position-name="positionName" />
-          </div>
-
-          <div v-if="showTeamLeaderStats" class="lg:col-span-2">
-            <TeamLeaderStats :team-stats="props.teamStats" :assigned-job-orders="props.assignedJobOrders"
-              :average-performance-rating="props.averagePerformanceRating" :format-status="formatStatus"
-              :get-status-color="getStatusColor" />
-          </div>
-
-          <div v-if="showITServices" class="lg:col-span-2">
-            <ITServicesList :services="props.itServices ?? []" />
-          </div>
-
-          <div v-if="showJobOrders && !showFrontlinerContent && !showTeamLeaderStats" class="lg:col-span-2">
-            <JobOrderStats :job-order-stats="props.jobOrderStats" :assigned-job-orders="props.assignedJobOrders"
-              :position-name="positionName" :format-status="formatStatus" :get-status-color="getStatusColor"
-              :average-performance-rating="props.averagePerformanceRating" />
-          </div>
-
         </div>
       </div>
     </div>

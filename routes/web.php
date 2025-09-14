@@ -97,11 +97,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('profile')->name('employees.profile.')->group(function () {
         Route::get('/{id}', [EmployeeProfileController::class, 'show'])->name('show');
         Route::patch('/{id}/update', [EmployeeProfileController::class, 'update'])->name('update');
-
         Route::get('/{id}/performance-data', [EmployeeProfileController::class, 'getPerformanceData'])->name('performance-data');
-
         Route::get('/{id}/avatar', [EmployeeProfileController::class, 'avatar'])->name('avatar')->middleware('auth');
-
     });
 
     /*
