@@ -90,7 +90,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Incident Reports',
-    href: '/incidents/report',
+    href: '/incidents',
     can: can('manage:incident_reports'),
   },
   {
