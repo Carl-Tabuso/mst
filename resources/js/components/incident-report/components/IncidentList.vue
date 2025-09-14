@@ -23,20 +23,14 @@ const props = defineProps<IncidentListProps>()
 const selectedIncident = defineModel<string | number>('selectedIncident', { required: false })
 const selectedIncidents = defineModel<Array<string | number>>('selectedIncidents', { default: [] })
 
-const getBadgeVariantFromLabel = (label: string) => {
-  const labelMap: Record<string, string> = {
-    'waste management': 'default',
-    'it services': 'secondary',
-    'other services': 'tertiary',
-  }
-  return labelMap[label.toLowerCase()] || 'secondary'
-}
 
 const getStatusBadgeVariant = (status: string) => {
   const statusMap: Record<string, string> = {
     'for verification': 'tertiary',
-    verified: 'default',
-    pending: 'secondary',
+    'verified': 'default',
+    'pending': 'secondary',
+    'draft': 'outline',
+    'no_incident': 'secondary',
   }
   return statusMap[status.toLowerCase()] || 'outline'
 }
@@ -49,7 +43,7 @@ const filteredItems = computed(() => {
     result = result.filter(
       (item) =>
         item.subject.toLowerCase().includes(searchTerm) ||
-        item.plainText.toLowerCase().includes(searchTerm) ||
+        item.plainText?.toLowerCase().includes(searchTerm) ||
         item.location?.toLowerCase().includes(searchTerm) ||
         item.infraction_type?.toLowerCase().includes(searchTerm) ||
         item.involved_employees?.some((emp) =>
@@ -173,7 +167,7 @@ const handleItemClick = (itemId: string) => {
                 )
               "
             >
-              {{ item.plainText }}
+              {{ item.plainText || 'No description' }}
             </div>
 
             <div
@@ -190,13 +184,7 @@ const handleItemClick = (itemId: string) => {
               {{
                 format(new Date(item.occured_at), "MMMM d, yyyy 'at' hh:mmaaa")
               }}
-              <Badge
-                v-for="label of item.labels"
-                :key="label"
-                :variant="getBadgeVariantFromLabel(label)"
-              >
-                {{ label }}
-              </Badge>
+
               <Badge
                 v-if="item.status"
                 :variant="getStatusBadgeVariant(item.status)"
