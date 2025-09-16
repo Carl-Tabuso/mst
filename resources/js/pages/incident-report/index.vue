@@ -14,16 +14,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/incident-report',
   },
 ]
-
-
 </script>
 
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
-    <div class="container p-5">
+    <div class="container">
       <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-3xl font-bold tracking-tight text-blue-900">
+        <h1 class="text-3xl text-primary font-bold tracking-tight">
           Incident Report
         </h1>
 

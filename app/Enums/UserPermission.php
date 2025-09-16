@@ -71,8 +71,7 @@ enum UserPermission: string
     {
         return [
             self::FillOutSafetyInspectionChecklist,
-                        self::ManageIncidentReports,
-
+            self::ManageIncidentReports,
             self::ViewAnyJobOrder,
         ];
     }

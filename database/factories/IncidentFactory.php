@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Enums\IncidentStatus;
-use App\Models\JobOrder;
 use App\Traits\RandomEmployee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

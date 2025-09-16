@@ -1,15 +1,15 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Enums\IncidentStatus;
+use App\Http\Requests\ArchiveIncidentsRequest;
 use App\Http\Requests\StoreIncidentRequest;
 use App\Http\Requests\UpdateIncidentRequest;
-use App\Http\Requests\ArchiveIncidentsRequest;
 use App\Models\Incident;
 use App\Services\IncidentService;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
-
+use Inertia\Inertia;
 
 class IncidentController extends Controller
 {
@@ -23,7 +23,7 @@ class IncidentController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        
+
         $incidents = $this->incidentService->getFilteredIncidents(
             $request->only(['search', 'statuses', 'dateFrom', 'dateTo']),
             $user
@@ -31,8 +31,8 @@ class IncidentController extends Controller
 
         return Inertia::render('incident-report/index', [
             'incidents' => $incidents,
-            'filters' => $request->only(['search', 'statuses', 'dateFrom', 'dateTo', 'tab']),
-            'auth' => [
+            'filters'   => $request->only(['search', 'statuses', 'dateFrom', 'dateTo', 'tab']),
+            'auth'      => [
                 'user' => $request->user()->load('employee.position'),
             ],
         ]);
@@ -54,15 +54,15 @@ class IncidentController extends Controller
 
     public function markNoIncident(Incident $incident)
     {
-        if ($incident->status !== IncidentStatus::Draft) { 
+        if ($incident->status !== IncidentStatus::Draft) {
             return redirect()->back()->with('error', 'Only draft incidents can be marked as no incident.');
         }
 
         $incident->update([
-            'status' => 'no incident',
-            'subject' => 'No Incident Reported',
-            'description' => 'This incident has been reviewed and marked as no incident.',
-            'completed_at' => now()
+            'status'       => 'no incident',
+            'subject'      => 'No Incident Reported',
+            'description'  => 'This incident has been reviewed and marked as no incident.',
+            'completed_at' => now(),
         ]);
 
         return redirect()->back()->with('success', 'Marked as no incident.');
@@ -79,7 +79,7 @@ class IncidentController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user || !$user->employee_id) {
+        if (! $user || ! $user->employee_id) {
             return back()->with('error', 'Authenticated user has no associated employee');
         }
 
