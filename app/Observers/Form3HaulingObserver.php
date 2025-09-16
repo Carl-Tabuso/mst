@@ -15,7 +15,7 @@ class Form3HaulingObserver
 
         Incident::create([
             'form3_hauling_id' => $hauling->id,
-            'created_by'       => Auth::id() ?? 1,
+            'created_by'       => null,
             'status'           => IncidentStatus::Draft,
             'subject'          => 'Incident Report for Hauling '.$hauling->date->format('Y-m-d'),
             'location'         => 'To be determined',
