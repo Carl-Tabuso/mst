@@ -126,7 +126,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
         Route::get('/{user}/settings', [UserController::class, 'settings'])
-            ->name('users.settings') ->withTrashed();
+            ->name('users.settings')->withTrashed();
         Route::post('/store', [UserController::class, 'store'])->name('users.store');
         Route::patch('/{user}', [UserController::class, 'update'])
             ->name('users.update');

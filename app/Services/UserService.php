@@ -10,57 +10,80 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Pipeline;
+use Illuminate\Support\Str;
 
 class UserService
 {
-public function getAllUsers($search = '', $status = null, $sort = null, $perPage = 10)
-{
-    if (is_array($status)) {
-        $status = !empty($status) ? $status[0] : null;
-    }
-    
-    $query = User::with(['employee' => function ($query) {
-        $query->select('id', 'first_name', 'middle_name', 'last_name', 'suffix', 'position_id', 'created_at', 'updated_at');
-    }])->select('users.*');
-
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('email', 'like', "%{$search}%")
-                ->orWhereHas('employee', function ($q) use ($search) {
-                    $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
-                });
-        });
-    }
-
-    if ($status) {
-        if ($status === 'active') {
-            $query->whereNull('deleted_at');
-        } elseif ($status === 'inactive') {
-            $query->whereNotNull('deleted_at');
+    public function getAllUsers($search = '', $status = null, $sort = null, $perPage = 10)
+    {
+        if (is_array($status)) {
+            $status = ! empty($status) ? $status[0] : null;
         }
-    }
 
-    if ($sort) {
-        [$column, $direction] = explode(':', $sort);
+        $query = User::with(['employee' => function ($query) {
+            $query->select('id', 'first_name', 'middle_name', 'last_name', 'suffix', 'position_id', 'created_at', 'updated_at');
+        }])->select('users.*');
 
-        if ($column === 'name') {
-            $query->join('employees', 'users.employee_id', '=', 'employees.id')
-                ->orderBy('employees.last_name', $direction)
-                ->orderBy('employees.first_name', $direction);
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('email', 'like', "%{$search}%")
+                    ->orWhereHas('employee', function ($q) use ($search) {
+                        $q->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
+            });
+        }
+
+        if ($status) {
+            if ($status === 'active') {
+                $query->whereNull('deleted_at');
+            } elseif ($status === 'inactive') {
+                $query->whereNotNull('deleted_at');
+            }
+        }
+
+        if ($sort) {
+            [$column, $direction] = explode(':', $sort);
+
+            if ($column === 'name') {
+                $query->join('employees', 'users.employee_id', '=', 'employees.id')
+                    ->orderBy('employees.last_name', $direction)
+                    ->orderBy('employees.first_name', $direction);
+            } else {
+                $query->orderBy($column === 'created_at' ? 'users.created_at' : $column, $direction);
+            }
         } else {
-            $query->orderBy($column === 'created_at' ? 'users.created_at' : $column, $direction);
+            $query->orderBy('users.created_at', 'desc');
         }
-    } else {
-        $query->orderBy('users.created_at', 'desc');
+
+        return $query->with('roles')->paginate($perPage);
     }
 
-    return $query->withTrashed()->paginate($perPage);
-}
-     public function createUser(array $validated)
+    public function getArchivedUsers(?int $perPage = 10, ?string $search = '', ?array $filters = []): mixed
+    {
+        $archivedAtColumn = new User()->getDeletedAtColumn();
+
+        $pipes = [
+            new FilterOnlyArchived,
+            new ApplyDateOfArchivalRange($archivedAtColumn, $filters),
+            new SearchDetails($search),
+            new FilterRole($filters),
+        ];
+
+        return Pipeline::send(User::query())
+            ->through($pipes)
+            ->then(function (Builder $query) use ($perPage, $archivedAtColumn) {
+                return $query
+                    ->latest($archivedAtColumn)
+                    ->paginate($perPage)
+                    ->withQueryString()
+                    ->toResourceCollection();
+            });
+    }
+
+    public function createUser(array $validated)
     {
         return DB::transaction(function () use ($validated) {
             $password = Str::random(12);
@@ -72,12 +95,13 @@ public function getAllUsers($search = '', $status = null, $sort = null, $perPage
             ]);
 
             return [
-                'user' => $user,
-                'password' => $password
+                'user'     => $user,
+                'password' => $password,
             ];
         });
     }
-     public function updateUserProfile(User $user, array $validated)
+
+    public function updateUserProfile(User $user, array $validated)
     {
         return DB::transaction(function () use ($user, $validated) {
             $user->employee()->update([
@@ -90,19 +114,18 @@ public function getAllUsers($search = '', $status = null, $sort = null, $perPage
             return $user;
         });
     }
-      public function updateUserRole(User $user, int $positionId)
+
+    public function updateUserRole(User $user, int $positionId)
     {
         return $user->employee()->update([
             'position_id' => $positionId,
         ]);
     }
-     public function deactivateUser(User $user)
+
+    public function deactivateUser(User $user)
     {
         return $user->delete();
     }
-
-
-
 
     public function restoreArchivedUser(User $user): bool
     {
