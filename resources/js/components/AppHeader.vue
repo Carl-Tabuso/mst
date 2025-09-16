@@ -49,7 +49,9 @@ withDefaults(defineProps<Props>(), {
 const page = usePage<SharedData>()
 const auth = computed(() => page.props.auth)
 
-const isCurrentRoute = computed(() => (url: string) => page.url === url)
+const isCurrentRoute = computed(() => {
+  return (url: string) => page.url.split('?')[0] === url
+})
 
 const activeItemStyles = computed(
   () => (url: string) => (isCurrentRoute.value(url) ? 'text-primary' : ''),

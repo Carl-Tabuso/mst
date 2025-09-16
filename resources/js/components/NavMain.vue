@@ -17,12 +17,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible'
+import { computed } from 'vue'
 
 defineProps<{
   items: NavItem[]
 }>()
 
 const page = usePage<SharedData>()
+
+const currentUrl = computed(() => page.url.split('?')[0])
 </script>
 
 <template>
@@ -42,7 +45,7 @@ const page = usePage<SharedData>()
               <SidebarMenuButton
                 :tooltip="item.title"
                 :is-active="
-                  item.items.flatMap((i) => i.href).includes(page.url)
+                  item.items.flatMap((i) => i.href).includes(currentUrl)
                 "
               >
                 <component
@@ -63,7 +66,7 @@ const page = usePage<SharedData>()
                 >
                   <SidebarMenuSubButton
                     as-child
-                    :class="{ 'font-semibold': subItem.href === page.url }"
+                    :class="{ 'font-semibold': subItem.href === currentUrl }"
                   >
                     <Link
                       :href="subItem.href"
@@ -79,7 +82,7 @@ const page = usePage<SharedData>()
           <div v-else>
             <SidebarMenuButton
               as-child
-              :is-active="item.href === page.url"
+              :is-active="item.href === currentUrl"
               :tooltip="item.title"
             >
               <Link
