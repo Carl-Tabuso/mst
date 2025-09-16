@@ -13,29 +13,17 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useIncidentData } from '@/composables/useIncidentData'
 import { useIncidentFilters } from '@/composables/useIncidentFilters'
-import type { IncidentProps } from '@/types/incident'
+import type { IncidentProps, Incident } from '@/types/incident'
 import { Icon } from '@iconify/vue'
 import { refDebounced } from '@vueuse/core'
 import { Search } from 'lucide-vue-next'
-import { computed, withDefaults, watch } from 'vue'
+import { computed, withDefaults, ref, watch } from 'vue'
 import IncidentDisplay from './IncidentDisplay.vue'
 import IncidentList from './IncidentList.vue'
-
-const handleMarkAsRead = async (id: string) => {
-  try {
-    const item = incidents.value.find((m) => m.id === id)
-    if (item) item.is_read = true
-    await markAsRead(id)
-  } catch (err) {
-    console.error('Failed to mark as read:', err)
-    const item = incidents.value.find((m) => m.id === id)
-    if (item) item.is_read = false
-  }
-}
 
 const props = withDefaults(defineProps<IncidentProps>(), {
   defaultCollapsed: false,
@@ -58,24 +46,55 @@ const {
   sortBy,
   tempFilters,
   activeFilters,
-  filteredIncidentList,
   applyFilters,
   clearFilters,
 } = useIncidentFilters(incidents)
 
-const debouncedSearch = refDebounced(searchValue, 250)
+const debouncedSearch = refDebounced(searchValue, 300)
+const incidentsRefreshKey = ref(0)
 const selectedIncidentData = computed(() =>
   incidents.value.find((item) => item.id === selectedIncident.value),
 )
 
-// Remove isComposing and replace with isEditing
 const isEditing = computed(() => {
   if (!selectedIncident.value) return false
   const incident = incidents.value.find(i => i.id === selectedIncident.value)
   return incident?.status === 'draft'
 })
 
-// Watch for filter changes and refetch
+const handleMarkAsRead = async (id: string) => {
+  try {
+    const item = incidents.value.find((m) => m.id === id)
+    if (item) item.is_read = true
+    await markAsRead(id)
+  } catch (err) {
+    console.error('Failed to mark as read:', err)
+    const item = incidents.value.find((m) => m.id === id)
+    if (item) item.is_read = false
+  }
+}
+
+const handleNoIncident = (updatedIncident: Incident) => {
+  const index = incidents.value.findIndex(i => i.id === updatedIncident.id)
+  if (index !== -1) {
+    incidents.value[index] = { ...incidents.value[index], ...updatedIncident }
+    incidentsRefreshKey.value++ 
+  }
+}
+
+const handleCancelEdit = () => {
+  fetchIncidents()
+}
+
+const handleIncidentUpdate = () => {
+  fetchIncidents()
+}
+
+const refreshIncidents = () => {
+  incidentsRefreshKey.value++
+  fetchIncidents()
+}
+
 watch([debouncedSearch, activeTab, activeFilters], () => {
   fetchIncidents({
     search: debouncedSearch.value,
@@ -86,24 +105,11 @@ watch([debouncedSearch, activeTab, activeFilters], () => {
   })
 })
 
-// Update the emits to match new functionality
 defineEmits(['cancel-edit', 'no-incident'])
 </script>
 
 <template>
-  <div class="mb-5 w-full border-b">
-    <Tabs v-model="activeTab">
-      <TabsList>
-        <TabsTrigger value="All">All</TabsTrigger>
-        <TabsTrigger value="Waste Management">Waste Management</TabsTrigger>
-        <TabsTrigger value="IT Services">IT Services</TabsTrigger>
-        <TabsTrigger value="Other Services">Other Services</TabsTrigger>
-      </TabsList>
-    </Tabs>
-  </div>
-
   <div class="flex items-center justify-between gap-2">
-    <!-- Search (immediate) -->
     <form class="w-full max-w-xs">
       <div class="relative">
         <Search class="absolute left-2 top-2.5 size-4 text-muted-foreground" />
@@ -131,7 +137,6 @@ defineEmits(['cancel-edit', 'no-incident'])
             <div>
               <p class="text-sm font-semibold">Status</p>
               <div class="mt-2 space-y-1">
-                <!-- Add 'draft' and 'no_incident' to status filters -->
                 <div
                   v-for="status in ['draft', 'verified', 'for verification', 'dropped', 'no_incident']"
                   :key="status"
@@ -179,7 +184,6 @@ defineEmits(['cancel-edit', 'no-incident'])
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <!-- Sort Dropdown (immediate) -->
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline">
@@ -224,13 +228,13 @@ defineEmits(['cancel-edit', 'no-incident'])
       </Button>
       <Button
         variant="outline"
-        @click="fetchIncidents"
+        @click="refreshIncidents"
       >
         <Icon
-          icon="lucide:download"
+          icon="lucide:refresh-cw"
           class="mr-2 size-4"
         />
-        Export
+        Refresh
       </Button>
     </div>
   </div>
@@ -241,7 +245,6 @@ defineEmits(['cancel-edit', 'no-incident'])
         direction="horizontal"
         class="max-h-[800px] min-h-[500px] w-full rounded-lg border"
       >
-        <!-- Incident List Panel -->
         <ResizablePanel
           :default-size="20"
           :min-size="20"
@@ -258,11 +261,12 @@ defineEmits(['cancel-edit', 'no-incident'])
                 class="mt-0 flex-1 overflow-scroll"
               >
                 <IncidentList
+                  :key="incidentsRefreshKey"
                   :on-mark-as-read="handleMarkAsRead"
                   @item-click="selectedIncident = $event"
                   v-model:selected-incident="selectedIncident"
                   v-model:selected-incidents="selectedIncidents"
-                  :items="filteredIncidentList"
+                  :items="incidents"
                   :loading="loading"
                   :search-query="debouncedSearch"
                   :active-tab="activeTab"
@@ -283,12 +287,14 @@ defineEmits(['cancel-edit', 'no-incident'])
           :min-size="30"
           class="relative overflow-auto"
         >
-          <IncidentDisplay
-            :incident="selectedIncidentData"
-            :is-editing="isEditing"
-            @cancel-edit="$emit('cancel-edit')"
-            @no-incident="$emit('no-incident')"
-          />
+         <IncidentDisplay
+  :key="selectedIncident" 
+  :incident="selectedIncidentData"
+  :is-editing="isEditing"
+  @cancel-edit="handleCancelEdit"
+  @no-incident="handleNoIncident"
+  @incident-updated="handleIncidentUpdate"
+/>
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>

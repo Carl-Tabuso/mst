@@ -27,7 +27,6 @@ export interface Incident {
   created_by: Employee
   involved_employees: Employee[]
   haulers: Employee[] // Only haulers now
-  job_order?: JobOrder
   hauling_job_order?: JobOrder
   labels?: string[]
   hauling?: any
@@ -67,7 +66,6 @@ export interface FormData {
   dateTime: string
   location: string
   infractionType: string
-  serviceType: string
   description: string
   jobOrder: number | null
 }

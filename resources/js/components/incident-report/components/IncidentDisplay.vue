@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator'
 import { useEditorSetup } from '@/composables/useEditorSetup'
 import { useIncidentForm } from '@/composables/useIncidentForm'
 import { useUserPermissions } from '@/composables/useUserPermissions'
-import type { IncidentDisplayProps } from '@/types/incident'
+import type { IncidentDisplayProps, Incident } from '@/types/incident'
 import { Icon } from '@iconify/vue'
 import { EditorContent } from '@tiptap/vue-3'
 import { format } from 'date-fns'
@@ -24,23 +24,13 @@ import { computed, onMounted, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 
 const props = defineProps<IncidentDisplayProps>()
-const emit = defineEmits(['cancel-edit', 'no-incident'])
-const { canVerify, canCompose } = useUserPermissions()
+const emit = defineEmits(['cancel-edit', 'no-incident', 'incident-updated'])
+const { canVerify } = useUserPermissions()
 
 const {
   formData,
-  employees,
-  jobOrders,
   infractionTypes,
   showOtherInfractionInput,
-  searchTerm,
-  filteredEmployees,
-  employeeNames,
-  selectedEmployeeIds,
-  onJobOrderSelected,
-  handleEmployeeSelect,
-  addCurrentSearchTerm,
-  handleTagsUpdate,
   loadIncidentData,  
   clearForm,        
 } = useIncidentForm()
@@ -55,23 +45,14 @@ const {
   formData.value.description = html
 })
 
-const incidentFallbackName = computed(() => {
-  return props.incident?.created_by?.name
-    ?.split(' ')
-    .map((chunk) => chunk[0])
-    .join('') || '?'
-})
-
 const isEditing = computed(() => props.incident?.status === 'draft')
 
-// Load incident data when component mounts or incident changes
 onMounted(() => {
   if (props.incident) {
     loadIncidentData(props.incident)
   }
 })
 
-// Watch for incident changes and load data
 watch(() => props.incident, (newIncident) => {
   if (newIncident) {
     loadIncidentData(newIncident)
@@ -79,6 +60,11 @@ watch(() => props.incident, (newIncident) => {
     clearForm()
   }
 }, { immediate: true })
+
+const handleApiError = (error: any, context: string) => {
+  console.error(`${context} failed:`, error)
+  alert(`Failed to ${context}. Please try again.`)
+}
 
 const submitIncident = async () => {
   try {
@@ -96,7 +82,7 @@ const submitIncident = async () => {
 
     const method = isEditing.value ? 'put' : 'post'
 
-    router[method](url, {
+    await router[method](url, {
       job_order_id: formData.value.jobOrder,
       subject: formData.value.subject,
       location: formData.value.location,
@@ -106,82 +92,103 @@ const submitIncident = async () => {
       involved_employees: validEmployees,
     }, {
       onSuccess: () => {
+        emit('incident-updated')
         emit('cancel-edit')
       },
       onError: (errors) => {
-        console.error('Submission failed:', errors)
-        alert('Failed to submit the report. Please check the form for errors.')
+        handleApiError(errors, 'submit the report')
       }
     })
   } catch (error: any) {
-    console.error('Submission failed:', error)
-    alert(`Failed to submit the report: ${error.message}`)
+    handleApiError(error, 'submit the report')
   }
 }
 
 const markNoIncident = async () => {
   try {
-    router.put(route('incidents.markNoIncident', { 
-      jobOrder: formData.value.jobOrder 
+    await router.put(route('incidents.markNoIncident', { 
+      incident: props.incident.id  
     }), {}, {
       onSuccess: () => {
-        emit('no-incident')
-        alert('Marked as no incident for this job order.')
+        const updatedIncident: Incident = {
+          ...props.incident,
+          status: 'no_incident',
+          subject: 'No Incident Reported',
+          completed_at: new Date().toISOString()
+        }
+        
+        emit('no-incident', updatedIncident)
       },
       onError: () => {
-        alert('Failed to mark as no incident.')
+        handleApiError(null, 'mark as no incident')
       }
     })
   } catch (error) {
-    console.error('Failed to mark no incident:', error)
-    alert('Failed to mark as no incident.')
+    handleApiError(error, 'mark as no incident')
   }
-}
-
-const getInvolvedPersonnel = () => {
-  if (!props.incident) return [];
-  
-  if (props.incident.haulers?.length) {
-    return props.incident.haulers.map(hauler => hauler.name);
-  }
-  
-  if (props.incident.involved_employees?.length) {
-    return props.incident.involved_employees.map(employee => employee.name);
-  }
-  
-  return [];
 }
 
 const verifyIncident = async (id: string) => {
   try {
-    router.patch(route('incidents.verify', { incident: id }), {}, {
+    await router.patch(route('incidents.verify', { incident: id }), {}, {
       onSuccess: () => {
+        emit('incident-updated')
         alert('Incident verified successfully!')
-        router.reload({ only: ['incidents'] })
       },
       onError: () => {
-        alert('Failed to verify the incident')
+        handleApiError(null, 'verify the incident')
       }
     })
   } catch (error) {
-    console.error('Verification failed:', error)
-    alert('Failed to verify the incident')
+    handleApiError(error, 'verify the incident')
   }
+}
+
+const getJobOrderDisplay = (incident: any) => {
+  if (!incident) return 'N/A';
+  
+  if (incident.hauling_job_order) {
+    return `JO-${incident.hauling_job_order.id}`;
+  }
+  
+  if (incident.job_order) {
+    return `JO-${incident.job_order.id}`;
+  }
+  
+  if (incident.job_order_id) {
+    return `JO-${incident.job_order_id}`;
+  }
+  
+  return 'N/A';
+}
+
+const getFormDataJobOrderDisplay = () => {
+  if (!formData.value.jobOrder) return 'N/A';
+  return `JO-${formData.value.jobOrder}`;
 }
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div class="flex h-full flex-col overflow-auto">
+    <div v-if="!incident" class="flex flex-1 flex-col items-center justify-center p-8 text-center">
+      <div class="mb-4 rounded-full bg-gray-100 p-4">
+        <Icon icon="lucide:file-text" class="size-8 text-gray-400" />
+      </div>
+      <h3 class="mb-2 text-lg font-medium">No Incident Report Selected</h3>
+      <p class="text-muted-foreground max-w-md">
+        Select an incident report from the list to view details or create a new report.
+      </p>
+    </div>
+
     <div
-      v-if="isEditing || !incident"
+      v-else-if="isEditing"
       class="flex flex-1 flex-col"
     >
       <div class="flex items-center justify-between p-4 border-b">
         <h2 class="text-lg font-semibold">
-          {{ isEditing ? 'Edit Incident Report' : 'Incident Report' }}
+          Edit Incident Report
         </h2>
         <Button
-          v-if="!isEditing"
           variant="outline"
           @click="markNoIncident"
           :disabled="!formData.jobOrder"
@@ -193,33 +200,25 @@ const verifyIncident = async (id: string) => {
       <Separator />
 
       <div class="space-y-6 p-5">
-        <!-- 2x2 Grid Section -->
         <div class="grid grid-cols-2 gap-4">
-          <!-- People Involved (Read-only for editing mode) -->
-        <div class="flex items-center gap-4">
-  <Label class="whitespace-nowrap">People Involved:</Label>
-  <div class="flex-1">
-    <Input
-      :value="getInvolvedPersonnel().join(', ')"
-      readonly
-      class="w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0"
-      placeholder="No personnel involved"
-    />
-  </div>
-</div>
+          <div class="flex items-center gap-4">
+            <Label class="whitespace-nowrap">People Involved:</Label>
+            <div class="flex-1">
+              <div class="w-full border-b pb-2">
+                {{ formData.involvedEmployees.map(e => e.name).join(', ') || 'No personnel involved' }}
+              </div>
+            </div>
+          </div>
 
           <div class="flex items-center gap-4">
             <Label class="whitespace-nowrap">Date and Time:</Label>
             <div class="flex-1">
-              <Input
-                type="datetime-local"
-                v-model="formData.dateTime"
-                class="w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0"
-              />
+              <div class="w-full border-b pb-2">
+                {{ formData.dateTime ? format(new Date(formData.dateTime), 'PPpp') : 'N/A' }}
+              </div>
             </div>
           </div>
 
-          <!-- Location of Infraction -->
           <div class="flex items-center gap-4">
             <Label class="whitespace-nowrap">Location:</Label>
             <div class="flex-1">
@@ -230,20 +229,15 @@ const verifyIncident = async (id: string) => {
             </div>
           </div>
 
-          <!-- Type of Infraction -->
           <div class="flex items-center gap-4">
             <Label class="whitespace-nowrap">Type of Infraction:</Label>
             <div class="flex-1">
               <Select
                 v-model="formData.infractionType"
-                @update:modelValue="
-                  showOtherInfractionInput = $event === 'Others'
-                "
+                @update:modelValue="showOtherInfractionInput = $event === 'Others'"
               >
-                <SelectTrigger
-                  class="w-full rounded-none border-0 border-b pb-2 shadow-none focus:ring-0 focus-visible:ring-0"
-                >
-                  <SelectValue placeholder="Select type" />
+                <SelectTrigger class="w-full rounded-none border-0 border-b pb-2 shadow-none focus:ring-0 focus-visible:ring-0">
+                  <SelectValue :placeholder="formData.infractionType || 'Select type'" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -266,32 +260,16 @@ const verifyIncident = async (id: string) => {
             </div>
           </div>
 
-          <!-- Type of Service -->
-          <div class="flex items-center gap-4">
-            <Label class="whitespace-nowrap">Type of Service:</Label>
-            <div class="flex-1">
-              <Input
-                :value="formData.serviceType"
-                readonly
-                class="w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0"
-              />
-            </div>
-          </div>
-          
-          <!-- Job Order (Read-only for editing mode) -->
           <div class="flex items-center gap-4">
             <Label class="whitespace-nowrap">Job Order:</Label>
             <div class="flex-1">
-              <Input
-                :value="formData.jobOrder ? `JO-${formData.jobOrder}` : 'No job order selected'"
-                readonly
-                class="w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0"
-              />
+              <div class="w-full border-b pb-2">
+                {{ getFormDataJobOrderDisplay() }}
+              </div>
             </div>
           </div>
         </div>
         
-        <!-- Subject (no border) -->
         <div class="flex items-center gap-4">
           <Label class="whitespace-nowrap">Subject:</Label>
           <div class="flex-1">
@@ -422,7 +400,6 @@ const verifyIncident = async (id: string) => {
                     class="size-4"
                   />
                 </Button>
-                <!-- Text Color Icon Dropdown -->
                 <div class="relative">
                   <Button
                     variant="ghost"
@@ -452,7 +429,6 @@ const verifyIncident = async (id: string) => {
                     ></div>
                   </div>
                 </div>
-                <!-- Font Size Icon Dropdown -->
                 <div class="relative">
                   <Button
                     variant="ghost"
@@ -499,16 +475,16 @@ const verifyIncident = async (id: string) => {
           variant="outline"
           @click="emit('cancel-edit')"
         >
-          {{ isEditing ? 'Cancel Edit' : 'Cancel' }}
+          Cancel Edit
         </Button>
         <Button @click="submitIncident">
-          {{ isEditing ? 'Update Report' : 'Submit Report' }}
+          Update Report
         </Button>
       </div>
     </div>
     
     <div
-      v-else-if="incident"
+      v-else
       class="flex flex-1 flex-col p-4"
     >
       <div class="flex items-start p-5">
@@ -545,6 +521,9 @@ const verifyIncident = async (id: string) => {
                   : 'N/A'
               }}
             </div>
+            <div class="text-xs text-muted-foreground">
+              Status: {{ incident.status }}
+            </div>
           </div>
         </div>
       </div>
@@ -559,16 +538,15 @@ const verifyIncident = async (id: string) => {
           </h3>
           <div class="mt-2 flex flex-wrap gap-2">
             <Badge
-              v-for="employee in (incident.haulers?.length ? incident.haulers : incident.involved_employees)"
-              :key="employee.id"
+              v-for="person in (incident.haulers?.length ? incident.haulers : incident.involved_employees)"
+              :key="person.id"
               class="flex items-center gap-1"
             >
-              <span>{{ employee.name }}</span>
+              <span>{{ person.name }}</span>
               <span
-                v-if="employee.email"
+                v-if="person.email"
                 class="text-xs opacity-75"
-                >({{ employee.email }})</span
-              >
+              >({{ person.email }})</span>
             </Badge>
           </div>
         </div>
@@ -602,14 +580,8 @@ const verifyIncident = async (id: string) => {
         </div>
 
         <div>
-          <h3 class="font-medium">Service Type</h3>
-          <p>{{ incident.job_order?.service_type || incident.hauling_job_order?.service_type || 'N/A' }}</p>
-        </div>
-
-        <div>
           <h3 class="font-medium">Job Order</h3>
-          <p>{{ incident.job_order ? `JO-${incident.job_order.id}` : 
-                 incident.hauling_job_order ? `JO-${incident.hauling_job_order.id}` : 'N/A' }}</p>
+          <p>{{ getJobOrderDisplay(incident) }}</p>
         </div>
 
         <div>
@@ -638,13 +610,6 @@ const verifyIncident = async (id: string) => {
           Verify Incident
         </Button>
       </div>
-    </div>
-    
-    <div
-      v-else
-      class="p-8 text-center text-muted-foreground"
-    >
-      No incident selected
     </div>
   </div>
 </template>

@@ -8,22 +8,24 @@ export function useIncidentData() {
     const selectedIncident = ref<string | null>(null)
     const selectedIncidents = ref<string[]>([])
 
-    // Get incidents from page props
     const page = usePage()
-    incidents.value = page.props.incidents || []
+    
+    if (page.props.incidents) {
+        incidents.value = page.props.incidents
+    }
 
     const fetchIncidents = async (filters = {}) => {
         loading.value = true
+        
         try {
             router.get(route('incidents.index'), filters, {
                 preserveState: true,
                 preserveScroll: true,
-                onSuccess: () => {
+                onSuccess: (page) => {
                     incidents.value = page.props.incidents || []
                 }
             })
         } catch (error) {
-            console.error('Failed to fetch incidents:', error)
         } finally {
             loading.value = false
         }
@@ -33,18 +35,17 @@ export function useIncidentData() {
         if (selectedIncidents.value.length === 0) return
 
         loading.value = true
+        
         try {
             router.post(route('incidents.archive'), {
                 ids: selectedIncidents.value
             }, {
                 onSuccess: () => {
                     selectedIncidents.value = []
-                    // Refresh the list
                     fetchIncidents()
                 }
             })
         } catch (error) {
-            console.error('Failed to archive:', error)
         } finally {
             loading.value = false
         }
@@ -52,9 +53,8 @@ export function useIncidentData() {
 
     const markAsRead = async (id: string) => {
         try {
-            router.patch(route('incidents.markAsRead', { incident: id }))
+            router.patch(route('incidents.markAsRead', { incident: id }), {})
         } catch (error) {
-            console.error('Failed to mark as read:', error)
         }
     }
 
