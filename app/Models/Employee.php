@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Policies\EmployeePolicy;
@@ -57,7 +58,7 @@ class Employee extends Model
     public function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value, array $attributes) => implode(' ',
+            get: fn (mixed $value, array $attributes) => implode(' ',
                 array_filter([
                     $this->first_name,
                     $this->middle_name,
@@ -180,7 +181,7 @@ class Employee extends Model
 
     public function getAvatarUrlAttribute()
     {
-        if (!$this->account || !$this->account->avatar) {
+        if (! $this->account || ! $this->account->avatar) {
             return null;
         }
 
@@ -206,5 +207,4 @@ class Employee extends Model
     {
         return $this->hasMany(Form3AssignedPersonnel::class, 'team_mechanic');
     }
-    
 }

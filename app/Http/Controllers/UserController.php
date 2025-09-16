@@ -34,7 +34,7 @@ class UserController extends Controller
                 'first_name'  => $user->employee->first_name,
                 'last_name'   => $user->employee->last_name,
                 'email'       => $user->email,
-                'avatar' => $user->avatar,
+                'avatar'      => $user->avatar,
                 'created_at'  => $user->created_at->format('F j, Y'),
                 'deleted_at'  => $user->deleted_at,
                 'position'    => $user->employee->position->name ?? 'N/A',
@@ -153,7 +153,7 @@ class UserController extends Controller
         });
 
         return response()->json([
-            'data' => $transformedUsers,
+            'data'         => $transformedUsers,
             'current_page' => $users->currentPage(),
             'last_page'    => $users->lastPage(),
             'per_page'     => $users->perPage(),
@@ -194,8 +194,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
-
 
     /**
      * Show the form for creating a new resource.
