@@ -6,15 +6,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User } from '@/types/user'
-import type { Row } from '@tanstack/vue-table'
+import { User } from '@/types'
+import { router } from '@inertiajs/vue3'
 import { Ellipsis } from 'lucide-vue-next'
 
-interface DataTableRowActionsProps {
-  row: Row<User>
+interface UserActionsProps {
+  user: User
 }
 
-const props = defineProps<DataTableRowActionsProps>()
+const props = defineProps<UserActionsProps>()
+
+const handleEdit = () => {
+  router.visit(route('users.settings', props.user.id))
+}
+
+
+
 </script>
 
 <template>
@@ -32,15 +39,13 @@ const props = defineProps<DataTableRowActionsProps>()
       align="end"
       class="w-[160px]"
     >
-      <DropdownMenuItem>Edit</DropdownMenuItem>
-      <DropdownMenuItem v-if="row.original.status === 'active'">
-        Deactivate
+      <DropdownMenuItem @click="handleEdit">
+        Edit
       </DropdownMenuItem>
-      <DropdownMenuItem v-else-if="row.original.status === 'deactivated'">
-        Activate
-      </DropdownMenuItem>
-      <DropdownMenuItem v-else> Create Account </DropdownMenuItem>
-      <DropdownMenuItem class="text-red-600"> Delete </DropdownMenuItem>
+
+   
+
+     
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
