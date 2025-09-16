@@ -58,7 +58,7 @@ class UserService
             $query->orderBy('users.created_at', 'desc');
         }
 
-        return $query->withTrashed()->paginate($perPage);
+        return $query->with('roles')->paginate($perPage);
     }
 
     public function getArchivedUsers(?int $perPage = 10, ?string $search = '', ?array $filters = []): mixed
