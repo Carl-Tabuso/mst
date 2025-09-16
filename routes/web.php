@@ -154,6 +154,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
         Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])->name('verify')->middleware(['can:verify,incident']);
         Route::put('/incidents/{incident}/mark-no-incident', [IncidentController::class, 'markNoIncident'])->name('markNoIncident');
+       Route::post('/create-secondary/{haulingId}', [IncidentController::class, 'createSecondary'])->name('createSecondary');
 
     });
 
