@@ -8,7 +8,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Spatie\Permission\Models\Role;
 
 class ArchivedUserController extends Controller
 {
@@ -16,7 +15,6 @@ class ArchivedUserController extends Controller
 
     public function index(Request $request): Response
     {
-        // dd(Role::all());
         $perPage = $request->input('per_page', 10);
 
         $search = $request->input('search', '');
