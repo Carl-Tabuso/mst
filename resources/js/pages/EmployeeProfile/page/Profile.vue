@@ -1,134 +1,66 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import CreatedJobOrder from '../components/CreatedJobOrder.vue'
+import ProfileHeader from '../components/ProfileHeader.vue'
+import PerformanceEvaluation from '../components/PerformanceEvaluation.vue'
+import JobOrdersTable from '../components/JobOrdersTable.vue'
 import ITServicesList from '../components/ITServicesList.vue'
 import JobOrderStats from '../components/JobOrderStats.vue'
+import TeamLeaderStats from '../components/TeamLeaderStats.vue'
 import { useProfile } from '../helpers/useProfile'
-import { JobOrder, ProfileProps } from '../types/types'
+import { EnhancedProfileProps } from '../types/types'
 
-const props = defineProps<
-  ProfileProps & {
-    createdJobOrders?: {
-      total: number
-      by_status: Record<string, number>
-    } | null
-    createdJobOrdersList?: JobOrder[] | null
-  }
->()
+const props = defineProps<EnhancedProfileProps>()
 
 const {
-  form,
   positionName,
   showJobOrders,
   showITServices,
   showPerformance,
+  showTeamLeaderStats,
+  showFrontlinerContent,
   formatStatus,
   getStatusColor,
-  submit,
 } = useProfile(props)
-
-console.log('Created Job Orders from backend:', props.createdJobOrdersList)
 </script>
 
 <template>
   <AppLayout>
-    <div class="mt-10 max-w-3xl p-6">
-      <h1 class="mb-2 text-2xl font-bold">Employee Profile</h1>
-      <div class="mb-6">
-        <div class="text-lg font-semibold">{{ props.employee.full_name }}</div>
-        <div class="text-gray-600">
-          {{ props.employee.position?.name || 'No Position' }}
+    <div class="min-h-screen bg-gray-50 dark:bg-zinc-900">
+      <div class="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+
+          <ProfileHeader :employee="props.employee" :profile-image-url="props.profileImageUrl" />
+
+          <div class="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2">
+
+            <div v-if="showPerformance" class="xl:col-span-1">
+              <PerformanceEvaluation :employee="props.employee" :performance-stats="props.performanceStats"
+                :performance-evaluations="props.performanceEvaluations" />
+            </div>
+
+            <div v-if="showFrontlinerContent" :class="showPerformance ? 'xl:col-span-1' : 'xl:col-span-2'">
+              <JobOrdersTable :job-orders="props.createdJobOrdersList ?? []" :position-name="positionName" />
+            </div>
+
+            <div v-if="showTeamLeaderStats" class="xl:col-span-2">
+              <TeamLeaderStats :team-stats="props.teamStats" :assigned-job-orders="props.assignedJobOrders"
+                :average-performance-rating="props.averagePerformanceRating" :format-status="formatStatus"
+                :get-status-color="getStatusColor" />
+            </div>
+
+            <div v-if="showITServices" class="xl:col-span-2">
+              <ITServicesList :services="props.itServices ?? []" />
+            </div>
+
+            <div v-if="showJobOrders && !showFrontlinerContent && !showTeamLeaderStats" class="xl:col-span-2">
+              <JobOrderStats :job-order-stats="props.jobOrderStats" :assigned-job-orders="props.assignedJobOrders"
+                :position-name="positionName" :format-status="formatStatus" :get-status-color="getStatusColor"
+                :average-performance-rating="props.averagePerformanceRating" />
+            </div>
+
+          </div>
         </div>
       </div>
-
-      <form
-        @submit.prevent="submit"
-        class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2"
-      >
-        <div>
-          <label class="block text-sm font-medium">First Name</label>
-          <input
-            v-model="form.first_name"
-            class="w-full rounded border px-2 py-1"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Middle Name</label>
-          <input
-            v-model="form.middle_name"
-            class="w-full rounded border px-2 py-1"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Last Name</label>
-          <input
-            v-model="form.last_name"
-            class="w-full rounded border px-2 py-1"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Suffix</label>
-          <input
-            v-model="form.suffix"
-            class="w-full rounded border px-2 py-1"
-          />
-        </div>
-        <div class="md:col-span-2">
-          <button
-            type="submit"
-            class="mt-2 rounded bg-blue-600 px-4 py-2 text-white"
-            :disabled="form.processing"
-          >
-            Update Profile
-          </button>
-        </div>
-      </form>
-
-      <div
-        v-if="showPerformance"
-        class="mt-2 font-semibold text-blue-700"
-      >
-        Total Performance Rate:
-        <span v-if="props.averagePerformanceRating !== null">{{
-          props.averagePerformanceRating
-        }}</span>
-        <span v-else>No ratings yet</span>
-      </div>
-
-      <div v-if="showITServices">
-        <ITServicesList
-          :services="props.employee.itServicesAsTechnician || []"
-        />
-      </div>
-
-      <div v-if="positionName === 'team leader'">
-        <JobOrderStats
-          :jobOrderStats="props.jobOrderStats"
-          :assignedJobOrders="props.assignedJobOrders"
-          :positionName="positionName"
-          :formatStatus="formatStatus"
-          :getStatusColor="getStatusColor"
-        />
-      </div>
-
-      <div v-else-if="showJobOrders">
-        <JobOrderStats
-          :jobOrderStats="props.jobOrderStats"
-          :assignedJobOrders="props.assignedJobOrders"
-          :positionName="positionName"
-          :formatStatus="formatStatus"
-          :getStatusColor="getStatusColor"
-        />
-      </div>
-
-      <CreatedJobOrder
-        v-if="positionName === 'frontliner'"
-        :createdJobOrders="props.createdJobOrders"
-        :createdJobOrdersList="props.createdJobOrdersList ?? []"
-        :positionName="positionName"
-        :formatStatus="formatStatus"
-        :getStatusColor="getStatusColor"
-      />
     </div>
   </AppLayout>
 </template>

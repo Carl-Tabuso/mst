@@ -34,6 +34,7 @@ class UserController extends Controller
                 'first_name'  => $user->employee->first_name,
                 'last_name'   => $user->employee->last_name,
                 'email'       => $user->email,
+                'avatar'      => $user->avatar,
                 'created_at'  => $user->created_at->format('F j, Y'),
                 'deleted_at'  => $user->deleted_at,
                 'position'    => $user->employee->position->name ?? 'N/A',
@@ -139,8 +140,20 @@ class UserController extends Controller
         $perPage = $request->per_page ?? 10;
         $users   = $query->paginate($perPage);
 
+        $transformedUsers = $users->getCollection()->map(function ($user) {
+            return [
+                'id'         => $user->id,
+                'email'      => $user->email,
+                'avatar'     => $user->avatar,
+                'employee'   => $user->employee,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'deleted_at' => $user->deleted_at,
+            ];
+        });
+
         return response()->json([
-            'data'         => $users->items(),
+            'data'         => $transformedUsers,
             'current_page' => $users->currentPage(),
             'last_page'    => $users->lastPage(),
             'per_page'     => $users->perPage(),
