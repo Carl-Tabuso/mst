@@ -10,51 +10,49 @@ import { ref } from 'vue'
 const props = defineProps<{
   jobOrders: Array<any>
   employeeId: number
+  teamMembersToRate?: Array<{
+    employee_id: number
+    employee: any
+    form3_id: number
+    role: string
+    avatar?: string
+  }>
 }>()
 
 const { ratings, setRating, setDescription } = useCoworkerRatings()
 const overallRemarks = ref('')
 
 function getCoworkers(order: any): Coworker[] {
-  const form3 = order.serviceable?.form3
-  if (!form3) return []
+  if (!props.teamMembersToRate) return []
 
-  const coworkers: Coworker[] = (form3.haulers || []).filter(
-    (h: any) => h.id !== props.employeeId,
-  )
-  const roles = ['team_leader', 'driver', 'safetyOfficer', 'mechanic']
-
-  roles.forEach((role) => {
-    const person = form3[role]
-    if (
-      person &&
-      person.id !== props.employeeId &&
-      !coworkers.some((c) => c.id === person.id)
-    ) {
-      coworkers.unshift(person)
-    }
-  })
-  return coworkers
+  const form3Id = order.serviceable?.form3?.id
+  return props.teamMembersToRate
+    .filter(member => member.form3_id === form3Id)
+    .map(member => member.employee)
 }
 
-function getRole(
-  order: any,
-  coworker: Coworker,
-): { role: string; department: string } {
-  const form3 = order.serviceable?.form3
-  if (!form3) return { role: '', department: 'Hauling Department' }
+function getRole(order: any, coworker: Coworker): { role: string; department: string } {
+  if (!props.teamMembersToRate) return { role: '', department: '' }
 
-  if (form3.team_leader?.id === coworker.id)
-    return { role: '(Team Leader)', department: 'Hauling Department' }
-  if (form3.driver?.id === coworker.id)
-    return { role: '(Driver)', department: 'Hauling Department' }
-  if (form3.safetyOfficer?.id === coworker.id)
-    return { role: '(Safety Officer)', department: 'Hauling Department' }
-  if (form3.mechanic?.id === coworker.id)
-    return { role: '(Mechanic)', department: 'Hauling Department' }
-  if ((form3.haulers || []).some((h: any) => h.id === coworker.id))
-    return { role: '(Hauler)', department: 'Hauling Department' }
-  return { role: '', department: 'Hauling Department' }
+  const form3Id = order.serviceable?.form3?.id
+  const member = props.teamMembersToRate.find(
+    m => m.form3_id === form3Id && m.employee.id === coworker.id
+  )
+
+  if (!member) return { role: '', department: '' }
+
+  const roleMap: Record<string, string> = {
+    'team_leader': '(Team Leader)',
+    'team_driver': '(Driver)',
+    'safety_officer': '(Safety Officer)',
+    'team_mechanic': '(Mechanic)',
+    'hauler': '(Hauler)'
+  }
+
+  return {
+    role: roleMap[member.role] || `(${member.role})`,
+    department: ''
+  }
 }
 
 function allRated(order: any): boolean {
@@ -111,9 +109,6 @@ function handleModalConfirm() {
         overallRemarks.value = ''
         showModal.value = false
       },
-      onError: (errors) => {
-        console.error('Rating submission failed:', errors)
-      },
     },
   )
 }
@@ -134,127 +129,87 @@ function formatDate(dateString: string) {
     })
   )
 }
+function getTicketDisplay(order: any): string {
+  return order.ticket || `JO #${order.id}`
+}
 </script>
 
 <template>
   <AppLayout>
-    <div
-      v-for="order in props.jobOrders"
-      :key="order.id"
-      class="p-12 px-32"
-    >
-      <!-- header -->
+    <div v-for="order in props.jobOrders" :key="order.id" class="container mx-auto p-4 sm:p-6 lg:p-12">
+
       <div class="mb-8 w-full">
-        <div class="mb-1 flex items-start justify-between">
-          <h1 class="text-2xl font-bold text-blue-900">
+        <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <h1 class="text-xl sm:text-2xl font-bold text-blue-900 dark:text-white">
             Performance Evaluation
           </h1>
-          <div class="text-right text-xl font-semibold text-blue-900">
-            Job Order: #{{ order.id }}
+          <div class="text-sm sm:text-lg font-semibold text-blue-900 dark:text-white">
+            Job Order: {{ getTicketDisplay(order) }}
           </div>
         </div>
 
-        <div class="flex items-center justify-between">
-          <p class="text-xs text-gray-500">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             Evaluate employees' performance based on previous assigned hauling
           </p>
-          <p class="text-xs text-gray-500">
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             Date and Time of Service: {{ formatDate(order.created_at) }}
           </p>
         </div>
       </div>
 
-      <!-- Coworker Rating Forms -->
-      <div class="px-12">
-        <div
-          v-if="getCoworkers(order).length"
-          class="divide-y divide-gray-100"
-        >
-          <CoworkerRatingForm
-            v-for="coworker in getCoworkers(order)"
-            :key="coworker.id"
-            :name="`${coworker.first_name} ${coworker.last_name}`"
-            :role="getRole(order, coworker).role"
-            :department="getRole(order, coworker).department"
-            :rating="
-              ratings[order.serviceable?.form3?.id]?.find(
-                (r) => r.evaluatee_id === coworker.id,
-              )?.performance_rating_id || 0
-            "
-            :description="
-              ratings[order.serviceable?.form3?.id]?.find(
-                (r) => r.evaluatee_id === coworker.id,
-              )?.description || ''
-            "
-            @update:rating="
-              (n) => setRating(order.serviceable?.form3?.id, coworker.id, n)
-            "
-            @update:description="
-              (val) =>
-                setDescription(order.serviceable?.form3?.id, coworker.id, val)
-            "
-          />
+      <div class="sm:px-4 lg:px-12">
+        <div v-if="getCoworkers(order).length" class="divide-y divide-gray-100 dark:divide-gray-700">
+          <CoworkerRatingForm v-for="coworker in getCoworkers(order)" :key="coworker.id"
+            :name="`${coworker.first_name} ${coworker.last_name}`" :role="getRole(order, coworker).role"
+            :department="getRole(order, coworker).department" :avatar="props.teamMembersToRate?.find(
+              m => m.employee_id === coworker.id &&
+                m.form3_id === order.serviceable?.form3?.id
+            )?.avatar || coworker.avatar || ''" :rating="ratings[order.serviceable?.form3?.id]?.find(
+            r => r.evaluatee_id === coworker.id
+          )?.performance_rating_id || 0" :description="ratings[order.serviceable?.form3?.id]?.find(
+            r => r.evaluatee_id === coworker.id
+          )?.description || ''" @update:rating="n => setRating(order.serviceable?.form3?.id, coworker.id, n)"
+            @update:description="val => setDescription(order.serviceable?.form3?.id, coworker.id, val)" />
+
         </div>
 
-        <div
-          v-else
-          class="p-8 text-center italic text-gray-500"
-        >
-          No co-workers to rate for this hauling. It means you were the only one
-          assigned to this job order HAHA.
+        <div v-else class="p-6 text-center italic text-gray-500 dark:text-gray-400">
+          No co-workers to rate for this hauling.
+          <br />
+          <span class="text-xs">(It means you were the only one assigned to this job order 😅)</span>
         </div>
       </div>
 
-      <!-- Overall Remarks -->
-      <div
-        v-if="getCoworkers(order).length"
-        class="mt-6"
-      >
-        <label class="mb-2 block text-sm font-medium text-gray-700">
+      <div v-if="getCoworkers(order).length" class="mt-6">
+        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Overall Remarks
         </label>
-        <textarea
-          v-model="overallRemarks"
-          class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-          rows="4"
-          placeholder="Enter your overall remarks here..."
-        />
+        <textarea v-model="overallRemarks" class="w-full resize-none rounded-lg border border-gray-300 dark:border-gray-600 
+                 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
+                 px-3 py-2 text-sm sm:text-base 
+                 focus:border-blue-500 focus:ring-2 focus:ring-blue-500" rows="4"
+          placeholder="Enter your overall remarks here..." />
       </div>
 
-      <!-- Action Buttons -->
-      <div
-        v-if="getCoworkers(order).length"
-        class="mt-6 flex justify-end gap-3"
-      >
-        <button
-          type="button"
-          class="rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-neutral-100"
-          @click="router.visit('/ratings')"
-        >
+      <div v-if="getCoworkers(order).length" class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
+        <button type="button" class="rounded-lg border border-gray-300 dark:border-gray-600 
+                 px-4 py-2 font-medium text-gray-700 dark:text-gray-200 
+                 transition-colors hover:bg-neutral-100 dark:hover:bg-gray-700" @click="router.visit('/ratings')">
           Cancel
         </button>
-        <button
-          type="button"
-          :disabled="!allRated(order)"
-          :class="[
-            'rounded-lg px-6 py-2 font-medium transition-colors',
-            !allRated(order)
-              ? 'cursor-not-allowed bg-gray-300 text-white'
-              : 'bg-blue-900 text-white hover:bg-blue-700',
-          ]"
-          @click="openConfirmModal(order)"
-        >
+        <button type="button" :disabled="!allRated(order)" :class="[
+          'rounded-lg px-6 py-2 font-medium transition-colors',
+          !allRated(order)
+            ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600 text-white'
+            : 'bg-blue-900 text-white hover:bg-blue-700',
+        ]" @click="openConfirmModal(order)">
           Submit
         </button>
       </div>
     </div>
 
-    <!-- Confirmation Modal -->
-    <ConfirmRatingModal
-      v-model:show="showModal"
-      :summary="modalSummary"
-      @confirm="handleModalConfirm"
-      @close="showModal = false"
-    />
+    <ConfirmRatingModal v-model:show="showModal" :summary="modalSummary" @confirm="handleModalConfirm"
+      @close="showModal = false" />
   </AppLayout>
 </template>

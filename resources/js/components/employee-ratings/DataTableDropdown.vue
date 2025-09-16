@@ -7,22 +7,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { JobOrder } from '@/types'
-import { router } from '@inertiajs/vue3'
 import { MoreVertical } from 'lucide-vue-next'
 
 defineProps<{
   jobOrder: JobOrder
 }>()
 
-function copy(id: string) {
-  navigator.clipboard.writeText(id)
-}
-
-const goToRating = () => {
-  router.get(route('employee.ratings.create'), {
-    job_order_id: props.jobOrder.id,
-  })
-}
 </script>
 
 <template>
@@ -37,11 +27,6 @@ const goToRating = () => {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <!-- <DropdownMenuLabel>Actions</DropdownMenuLabel> -->
-      <!-- <DropdownMenuItem @click="copy(payment.id)">
-        Copy Job Order ID
-      </DropdownMenuItem> -->
-      <!-- <DropdownMenuSeparator /> -->
       <DropdownMenuItem>View</DropdownMenuItem>
       <DropdownMenuItem>Edit</DropdownMenuItem>
       <DropdownMenuItem>Delete</DropdownMenuItem>
