@@ -83,6 +83,7 @@ enum UserPermission: string {
     {
         return [
             self::FillOutSafetyInspectionChecklist,
+            self::ManageIncidentReports,
             self::ViewAnyJobOrder,
             self::ViewAnyEmployeeRating,
             self::CreateEmployeeRating,
@@ -128,6 +129,7 @@ enum UserPermission: string {
     {
         return [
             self::ManageEmployees,
+            self::ManageIncidentReports,
         ];
     }
 

@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Enums\UserRole;
+use App\Models\Form3Hauling;
 use App\Models\EmployeeRating;
 use App\Models\User;
+use App\Observers\Form3HaulingObserver;
 use App\Policies\ActivityLogPolicy;
 use App\Policies\EmployeeRatingPolicy;
 use App\Policies\ReportPolicy;
@@ -50,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
             ->uncompromised()
             ->rules(['not_regex:/\s/'])
         );
-
+        Form3Hauling::observe(Form3HaulingObserver::class);
         Gate::define('viewPulse', fn (User $user) => $user->hasRole(UserRole::ITAdmin));
         Gate::define('viewActivityLogs', [ActivityLogPolicy::class, 'viewAny']);
         Gate::define('viewReports', [ReportPolicy::class, 'viewAny']);

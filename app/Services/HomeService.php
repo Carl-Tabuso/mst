@@ -436,9 +436,9 @@ class HomeService
             ->get()
             ->groupBy(fn (JobOrder $value) => $value->month)
             ->map(function (Collection $group, string $month) {
-                $wm  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form4)->total;
-                $its = $group->firstWhere('serviceable_type', JobOrderServiceType::ITService)->total;
-                $os  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form5)->total;
+                $wm  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form4)?->total;
+                $its = $group->firstWhere('serviceable_type', JobOrderServiceType::ITService)?->total;
+                $os  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form5)?->total;
 
                 return [
                     'month'                                    => $month,

@@ -14,6 +14,7 @@ class Incident extends Model
 
     protected $fillable = [
         'job_order_id',
+        'form3_hauling_id',
         'created_by',
         'subject',
         'location',
@@ -36,6 +37,11 @@ class Incident extends Model
     public function jobOrder(): BelongsTo
     {
         return $this->belongsTo(JobOrder::class);
+    }
+
+    public function hauling(): BelongsTo
+    {
+        return $this->belongsTo(Form3Hauling::class, 'form3_hauling_id');
     }
 
     public function creator(): BelongsTo

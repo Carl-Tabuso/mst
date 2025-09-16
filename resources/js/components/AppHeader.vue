@@ -39,6 +39,7 @@ import {
   Award,
   ChartPie,
   ClipboardList,
+  ClipboardPen,
   FilePenLine,
   History,
   Home,
@@ -63,7 +64,9 @@ withDefaults(defineProps<Props>(), {
 const page = usePage<SharedData>()
 const auth = computed(() => page.props.auth)
 
-const isCurrentRoute = computed(() => (url: string) => page.url === url)
+const isCurrentRoute = computed(() => {
+  return (url: string) => page.url.split('?')[0] === url
+})
 
 const activeItemStyles = computed(
   () => (url: string) => (isCurrentRoute.value(url) ? 'text-primary' : ''),
@@ -77,10 +80,22 @@ const archiveRoutes: Partial<Record<UserRoleType, string>> = {
   'it admin': 'archives/users',
 }
 
-const archiveUrl =
-  Object.entries(archiveRoutes).find((role) => {
+const archiveUrl = computed(() => {
+  return Object.entries(archiveRoutes).find((role) => {
     return role[0] === auth.value.user.roles[0].name
-  })?.[1] ?? '#'
+  })?.[1] ?? '#'  
+})
+
+
+const canAccessPerformanceMonitoring = computed(() => {
+  return can('view:performances')
+})
+
+const canAccessPerformanceRating = computed(() => {
+  return canAny({
+    roles: ['team leader', 'regular']
+  })
+})
 
 const canAccessPerformanceMonitoring = computed(() => {
   return can('view:performances')
@@ -96,11 +111,13 @@ const mainNavItems: NavItem[] = [
   {
     title: 'Home',
     href: '/',
+    icon: Home,
     can: true,
   },
   {
     title: 'Job Order List',
     href: '/job-orders',
+    icon: ClipboardList,
     can: canAny({
       roles: ['frontliner', 'head frontliner', 'team leader', 'dispatcher'],
     }),
@@ -108,21 +125,25 @@ const mainNavItems: NavItem[] = [
   {
     title: 'Job Order Corrections',
     href: '/job-orders/corrections',
+    icon: ClipboardPen,
     can: canAny({ roles: ['frontliner', 'head frontliner'] }),
   },
   {
     title: 'User Management',
     href: '/users',
+    icon: UserRoundCog,
     can: can('manage:users'),
   },
   {
     title: 'Employee Management',
     href: '/employee-management',
+    icon: UsersRound,
     can: can('manage:employees'),
   },
   {
     title: 'Incident Reports',
-    href: '/incidents/report',
+    href: '/incidents',
+    icon: FilePenLine,
     can: can('manage:incident_reports'),
   },
   {
@@ -140,21 +161,25 @@ const mainNavItems: NavItem[] = [
   {
     title: 'Reports and Analytics',
     href: '/reports',
+    icon: ChartPie,
     can: can('view:reports_analytics'),
   },
   {
     title: 'Archives',
-    href: archiveUrl,
-    can: archiveUrl !== undefined,
+    href: archiveUrl.value,
+    can: archiveUrl.value !== '#',
+    icon: Archive,
   },
   {
     title: 'Activity Logs',
     href: '/activities',
+    icon: History,
     can: can('view:activity_logs'),
   },
   {
     title: 'Truck Inventory',
     href: '/trucks',
+    icon: Truck,
     can: can('assign:hauling_personnel'),
   },
 ]
@@ -192,12 +217,21 @@ const rightNavItems: NavItem[] = [
               </SheetHeader>
               <div class="flex h-full flex-1 flex-col justify-between space-y-4 py-6">
                 <nav class="-mx-3 space-y-1">
-                  <Link v-for="item in mainNavItems" :key="item.title" :href="item.href"
-                    class="flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
-                    :class="activeItemStyles(item.href)">
-                  <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
-                  {{ item.title }}
-                  </Link>
+                  <template v-for="item in mainNavItems" :key="item.title">
+                    <Link
+                      v-if="item.can"
+                      :href="item.href"
+                      class="flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
+                      :class="activeItemStyles(item.href)"
+                    >
+                      <component
+                        v-if="item.icon"
+                        :is="item.icon"
+                        class="h-5 w-5"
+                      />
+                      {{ item.title }}
+                    </Link>                    
+                  </template>
                 </nav>
                 <div class="flex flex-col space-y-4">
                   <a v-for="item in rightNavItems" :key="item.title" :href="item.href" target="_blank"
