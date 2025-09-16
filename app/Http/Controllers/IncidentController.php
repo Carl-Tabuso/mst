@@ -39,23 +39,25 @@ class IncidentController extends Controller
             ],
         ]);
     }
-public function createSecondary($haulingId)
-{
-    $user = Auth::user();
-    
-    if (!$user->hasRole(UserRole::Consultant)) {
-        abort(403, 'Unauthorized action.');
+
+    public function createSecondary($haulingId)
+    {
+        $user = Auth::user();
+
+        if (! $user->hasRole(UserRole::Consultant)) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $newIncident = $this->incidentService->createSecondIncidentForHauling($haulingId, $user);
+
+            return redirect()->route('incident-report.edit', $newIncident->id)
+                ->with('success', 'Secondary incident created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
-    try {
-        $newIncident = $this->incidentService->createSecondIncidentForHauling($haulingId, $user);
-        
-        return redirect()->route('incident-report.edit', $newIncident->id)
-            ->with('success', 'Secondary incident created successfully.');
-    } catch (\Exception $e) {
-        return redirect()->back()->with('error', $e->getMessage());
-    }
-}
     public function archive(ArchiveIncidentsRequest $request)
     {
         Incident::whereIn('id', $request->ids)->delete();
@@ -106,15 +108,14 @@ public function createSecondary($haulingId)
         return redirect()->route('incidents.index')->with('success', 'Incident created successfully');
     }
 
-public function update(UpdateIncidentRequest $request, Incident $incident)
-{
-    if ($incident->status !== IncidentStatus::Draft) {
-        return back()->with('error', 'Only draft incidents can be updated');
+    public function update(UpdateIncidentRequest $request, Incident $incident)
+    {
+        if ($incident->status !== IncidentStatus::Draft) {
+            return back()->with('error', 'Only draft incidents can be updated');
+        }
+
+        $this->incidentService->updateIncident($incident, $request->validated(), $request->user());
+
+        return redirect()->route('incidents.index')->with('success', 'Incident updated successfully');
     }
-
-    $this->incidentService->updateIncident($incident, $request->validated(), $request->user());
-
-    return redirect()->route('incidents.index')->with('success', 'Incident updated successfully');
-}
-
 }

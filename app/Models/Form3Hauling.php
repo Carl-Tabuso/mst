@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Form3Hauling extends Model
 {
@@ -69,7 +68,7 @@ class Form3Hauling extends Model
         return $this->belongsTo(Truck::class);
     }
 
-  public function incidents(): HasMany
+    public function incidents(): HasMany
     {
         return $this->hasMany(Incident::class);
     }
@@ -98,5 +97,4 @@ class Form3Hauling extends Model
     {
         return $this->secondaryIncident();
     }
-
 }

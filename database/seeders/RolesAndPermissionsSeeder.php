@@ -24,7 +24,11 @@ class RolesAndPermissionsSeeder extends Seeder
         ], UserPermission::cases());
 
         DB::transaction(function () use ($permissions) {
-            Permission::insert($permissions);
+            Permission::upsert(
+                $permissions,
+                ['name', 'guard_name'],
+                ['updated_at']
+            );
 
             Role::firstOrCreate(['name' => UserRole::Frontliner])
                 ->givePermissionTo($this->useValue(UserPermission::getFrontlinerPermissions()));
@@ -50,7 +54,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Role::firstOrCreate(['name' => UserRole::Consultant])
                 ->givePermissionTo($this->useValue(UserPermission::getConsultantPermissions()));
 
-            Role::firstOrCreate(['name' => UserRole::Regular]);
+            Role::firstOrCreate(['name' => UserRole::Regular])
+                ->givePermissionTo($this->useValue(UserPermission::getRegularPermissions()));
         });
     }
 

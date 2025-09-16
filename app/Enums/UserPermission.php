@@ -22,6 +22,12 @@ enum UserPermission: string
     case ViewReportsAnalytics             = 'view:reports_analytics';
     case ViewPerformances                 = 'view:performances';
     case ViewAnyJobOrderCorrection        = 'view:any_job_order_correction';
+
+    case ViewAnyEmployeeRating            = 'view:any_employee_rating';
+    case CreateEmployeeRating             = 'create:employee_rating';
+    case UpdateEmployeeRating             = 'update:employee_rating';
+    case DeleteEmployeeRating             = 'delete:employee_rating';
+    case ExportEmployeeRating             = 'export:employee_rating';
     case RestoreArchivedJobOrder          = 'restore:archived_job_order';
     case ForceDeleteJobOrder              = 'force_delete:job_order';
 
@@ -42,7 +48,14 @@ enum UserPermission: string
             self::ManageIncidentReports            => 'Manage Incident Reports',
             self::ManageEmployees                  => 'Manage Employees',
             self::ViewReportsAnalytics             => 'View Reports And Analytics',
+            self::ViewPerformances                 => 'View Performances',
             self::ViewAnyJobOrderCorrection        => 'View Any Job Order Corrections',
+
+            self::ViewAnyEmployeeRating            => 'View Any Employee Rating',
+            self::CreateEmployeeRating             => 'Create Employee Rating',
+            self::UpdateEmployeeRating             => 'Update Employee Rating',
+            self::DeleteEmployeeRating             => 'Delete Employee Rating',
+            self::ExportEmployeeRating             => 'Export Employee Rating',
             self::RestoreArchivedJobOrder          => 'Restore Archived Job Order',
             self::ForceDeleteJobOrder              => 'Force Delete Job Order',
         };
@@ -73,6 +86,9 @@ enum UserPermission: string
             self::FillOutSafetyInspectionChecklist,
             self::ManageIncidentReports,
             self::ViewAnyJobOrder,
+            self::ViewAnyEmployeeRating,
+            self::CreateEmployeeRating,
+            self::UpdateEmployeeRating,
         ];
     }
 
@@ -105,6 +121,8 @@ enum UserPermission: string
             self::ManageIncidentReports,
             self::ViewReportsAnalytics,
             self::ViewPerformances,
+            self::ViewAnyEmployeeRating,
+            self::ExportEmployeeRating,
         ];
     }
 
@@ -120,6 +138,14 @@ enum UserPermission: string
     {
         return [
             self::ManageIncidentReports,
+        ];
+    }
+
+    public static function getRegularPermissions(): array
+    {
+        return [
+            self::ViewAnyEmployeeRating,
+            self::CreateEmployeeRating,
         ];
     }
 

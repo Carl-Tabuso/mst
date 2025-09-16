@@ -68,17 +68,18 @@ class Incident extends Model
     {
         $this->update(['is_read' => true]);
     }
+
     public function scopeWhereIsPrimary($query)
-{
-    return $query->where(function ($q) {
-        $q->whereHas('hauling', function ($haulingQuery) {
-            $haulingQuery->whereRaw('incidents.id = (
+    {
+        return $query->where(function ($q) {
+            $q->whereHas('hauling', function ($haulingQuery) {
+                $haulingQuery->whereRaw('incidents.id = (
                 SELECT i2.id FROM incidents i2 
                 WHERE i2.form3_hauling_id = form3_haulings.id 
                 ORDER BY i2.created_at ASC 
                 LIMIT 1
             )');
+            });
         });
-    });
-}
+    }
 }

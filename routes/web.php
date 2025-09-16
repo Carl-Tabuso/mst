@@ -105,19 +105,46 @@ Route::middleware(['auth'])->group(function () {
     | Employee Ratings
     |--------------------------------------------------------------------------
     */
+
     // Employee Routes
     Route::prefix('ratings')->name('employee.ratings.')->group(function () {
-        Route::get('/', [EmployeeRatingController::class, 'index'])->name('index');
-        Route::get('/create', [EmployeeRatingController::class, 'create'])->name('create');
-        Route::post('/store', [EmployeeRatingController::class, 'store'])->name('store');
-        Route::get('/view', [EmployeeRatingController::class, 'view'])->name('view');
-        Route::post('/archive', [EmployeeRatingController::class, 'archive'])->name('archive');
+        Route::get('/', [EmployeeRatingController::class, 'index'])
+            ->name('index')
+            ->can('viewAny', 'App\\Models\\EmployeeRating');
+
+        Route::get('/create', [EmployeeRatingController::class, 'create'])
+            ->name('create')
+            ->can('create', 'App\\Models\\EmployeeRating');
+
+        Route::post('/store', [EmployeeRatingController::class, 'store'])
+            ->name('store')
+            ->can('create', 'App\\Models\\EmployeeRating');
+
+        Route::get('/view', [EmployeeRatingController::class, 'view'])
+            ->name('view')
+            ->can('viewAny', 'App\\Models\\EmployeeRating');
     });
 
-    // Consultant & Admin Routes also
-    Route::get('ratings/table', [EmployeeRatingController::class, 'ratingsTable'])->name('table');
-    Route::get('/employee-ratings/{employee}/history', [EmployeeRatingController::class, 'ratingHistory'])->name('employee_ratings.history');
-    Route::get('/employee-ratings/{employee}/history-page', [EmployeeRatingController::class, 'historyPage'])->name('employee.ratings.history.page');
+    // Consultant & Admin Routes
+    Route::get('ratings/table', [EmployeeRatingController::class, 'ratingsTable'])
+        ->name('table')
+        ->can('viewAny', 'App\\Models\\EmployeeRating');
+
+    Route::get('/ratings/table/export', [EmployeeRatingController::class, 'export'])
+        ->name('employee.ratings.export')
+        ->can('export', 'App\\Models\\EmployeeRating');
+
+    Route::get('/employee-ratings/{employee}/history', [EmployeeRatingController::class, 'ratingHistory'])
+        ->name('employee_ratings.history')
+        ->can('viewAny', 'App\\Models\\EmployeeRating');
+
+    Route::get('/employee-ratings/{employee}/history-page', [EmployeeRatingController::class, 'historyPage'])
+        ->name('employee.ratings.history.page')
+        ->can('viewAny', 'App\\Models\\EmployeeRating');
+
+    Route::get('/employee-ratings/{employeeId}/history-page/export', [EmployeeRatingController::class, 'exportHistory'])
+        ->name('employee.ratings.history.export')
+        ->can('export', 'App\\Models\\EmployeeRating');
 
     /*
     |--------------------------------------------------------------------------
@@ -154,7 +181,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
         Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])->name('verify')->middleware(['can:verify,incident']);
         Route::put('/incidents/{incident}/mark-no-incident', [IncidentController::class, 'markNoIncident'])->name('markNoIncident');
-       Route::post('/create-secondary/{haulingId}', [IncidentController::class, 'createSecondary'])->name('createSecondary');
+        Route::post('/create-secondary/{haulingId}', [IncidentController::class, 'createSecondary'])->name('createSecondary');
 
     });
 

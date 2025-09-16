@@ -5,7 +5,6 @@ namespace App\Observers;
 use App\Enums\IncidentStatus;
 use App\Models\Form3Hauling;
 use App\Models\Incident;
-use Illuminate\Support\Facades\Auth;
 
 class Form3HaulingObserver
 {

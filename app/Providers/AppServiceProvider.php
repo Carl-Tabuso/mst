@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Enums\UserRole;
+use App\Models\EmployeeRating;
 use App\Models\Form3Hauling;
 use App\Models\User;
 use App\Observers\Form3HaulingObserver;
 use App\Policies\ActivityLogPolicy;
+use App\Policies\EmployeeRatingPolicy;
 use App\Policies\ReportPolicy;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -37,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
             'job_order'             => 'App\Models\JobOrder',
             'initial_onsite_report' => 'App\Models\InitialOnsiteReport',
             'final_onsite_report'   => 'App\Models\FinalOnsiteReport',
+            'employee_rating'       => 'App\Models\EmployeeRating',
         ]);
 
         JsonResource::withoutWrapping();
@@ -53,5 +56,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewPulse', fn (User $user) => $user->hasRole(UserRole::ITAdmin));
         Gate::define('viewActivityLogs', [ActivityLogPolicy::class, 'viewAny']);
         Gate::define('viewReports', [ReportPolicy::class, 'viewAny']);
+
+        Gate::policy(EmployeeRating::class, EmployeeRatingPolicy::class);
     }
 }
