@@ -88,7 +88,7 @@ class EmployeeProfileController extends Controller
                 'last_name'   => $employee->last_name,
                 'suffix'      => $employee->suffix,
                 'email'       => $employee->account->email ?? null,
-                'avatar_url'  => $employee->account && $employee->account->avatar
+                'avatar'      => $employee->account && $employee->account->avatar
                     ? Storage::url($employee->account->avatar)
                     : null,
                 'position'    => $employee->position,
@@ -130,57 +130,57 @@ class EmployeeProfileController extends Controller
     private function logTeamLeaderAssignments(Employee $employee)
     {
         Log::info('=== EMPLOYEE PROFILE TEAM LEADER ANALYSIS ===', [
-            'employee_id' => $employee->id,
+            'employee_id'   => $employee->id,
             'employee_name' => $employee->full_name,
-            'position' => $employee->position?->name,
+            'position'      => $employee->position?->name,
         ]);
 
         if ($employee->createdJobOrders->isNotEmpty()) {
             Log::info('Created Job Orders Team Leaders:', [
                 'total_created_job_orders' => $employee->createdJobOrders->count(),
-                'job_orders' => $employee->createdJobOrders->map(function ($jobOrder) {
+                'job_orders'               => $employee->createdJobOrders->map(function ($jobOrder) {
                     $teamLeaderData = $this->extractTeamLeaderInfo($jobOrder);
                     return [
                         'job_order_id' => $jobOrder->id,
-                        'ticket' => $jobOrder->ticket ?? "JO-{$jobOrder->id}",
-                        'status' => $jobOrder->status,
+                        'ticket'       => $jobOrder->ticket ?? "JO-{$jobOrder->id}",
+                        'status'           => $jobOrder->status,
                         'serviceable_type' => $jobOrder->serviceable_type,
                         'team_leader_info' => $teamLeaderData,
                     ];
-                })->toArray()
+                })->toArray(),
             ]);
         }
 
         if ($employee->form3sHauler->isNotEmpty()) {
             Log::info('Hauler Job Assignments Team Leaders:', [
                 'total_hauler_assignments' => $employee->form3sHauler->count(),
-                'assignments' => $employee->form3sHauler->map(function ($hauling) {
+                'assignments'              => $employee->form3sHauler->map(function ($hauling) {
                     $jobOrder = $hauling->form3?->form4?->jobOrder;
                     return [
-                        'hauling_id' => $hauling->id,
-                        'job_order_id' => $jobOrder?->id,
+                        'hauling_id'            => $hauling->id,
+                        'job_order_id'          => $jobOrder?->id,
                         'assigned_personnel_id' => $hauling->assignedPersonnel?->id,
-                        'team_leader' => $hauling->assignedPersonnel?->teamLeader?->full_name,
-                        'safety_officer' => $hauling->assignedPersonnel?->safetyOfficer?->full_name,
-                        'team_driver' => $hauling->assignedPersonnel?->teamDriver?->full_name,
+                        'team_leader'           => $hauling->assignedPersonnel?->teamLeader?->full_name,
+                        'safety_officer'        => $hauling->assignedPersonnel?->safetyOfficer?->full_name,
+                        'team_driver'           => $hauling->assignedPersonnel?->teamDriver?->full_name,
                     ];
-                })->toArray()
+                })->toArray(),
             ]);
         }
 
         if ($employee->assignedPersonnelAsTeamLeader->isNotEmpty()) {
             Log::info('Team Leader Role Assignments:', [
                 'total_team_leader_assignments' => $employee->assignedPersonnelAsTeamLeader->count(),
-                'assignments' => $employee->assignedPersonnelAsTeamLeader->map(function ($assignment) {
+                'assignments'                   => $employee->assignedPersonnelAsTeamLeader->map(function ($assignment) {
                     $jobOrder = $assignment->form3Hauling?->form3?->form4?->jobOrder;
                     return [
-                        'assignment_id' => $assignment->id,
-                        'hauling_id' => $assignment->form3Hauling?->id,
-                        'job_order_id' => $jobOrder?->id,
+                        'assignment_id'    => $assignment->id,
+                        'hauling_id'       => $assignment->form3Hauling?->id,
+                        'job_order_id'     => $jobOrder?->id,
                         'job_order_status' => $jobOrder?->status,
-                        'client' => $jobOrder?->client,
+                        'client'           => $jobOrder?->client,
                     ];
-                })->toArray()
+                })->toArray(),
             ]);
         }
     }
@@ -191,65 +191,65 @@ class EmployeeProfileController extends Controller
     private function extractTeamLeaderInfo($jobOrder)
     {
         $teamLeaderInfo = [
-            'has_serviceable' => !is_null($jobOrder->serviceable),
+            'has_serviceable'  => ! is_null($jobOrder->serviceable),
             'serviceable_type' => $jobOrder->serviceable_type,
-            'team_leader' => null,
-            'safety_officer' => null,
-            'team_driver' => null,
-            'haulings_count' => 0,
-            'debug_path' => []
+            'team_leader'      => null,
+            'safety_officer'   => null,
+            'team_driver'      => null,
+            'haulings_count'   => 0,
+            'debug_path'       => [],
         ];
 
         $isForm4 = false;
         if (is_object($jobOrder->serviceable_type)) {
             $enumValue = method_exists($jobOrder->serviceable_type, 'value') ? $jobOrder->serviceable_type->value : null;
-            $isForm4 = in_array($enumValue, ['form4', 'Form4', 'App\\Models\\Form4']) || 
-                      $jobOrder->serviceable_type instanceof \App\Enums\JobOrderServiceType;
+            $isForm4   = in_array($enumValue, ['form4', 'Form4', 'App\\Models\\Form4']) ||
+            $jobOrder->serviceable_type instanceof \App\Enums\JobOrderServiceType;
             $teamLeaderInfo['debug_path'][] = 'Serviceable type is enum with value: ' . ($enumValue ?? 'unknown');
             $teamLeaderInfo['debug_path'][] = 'Enum class: ' . get_class($jobOrder->serviceable_type);
 
         } else {
-            $isForm4 = in_array($jobOrder->serviceable_type, ['form4', 'Form4', 'App\\Models\\Form4']);
+            $isForm4                        = in_array($jobOrder->serviceable_type, ['form4', 'Form4', 'App\\Models\\Form4']);
             $teamLeaderInfo['debug_path'][] = 'Serviceable type is string: ' . $jobOrder->serviceable_type;
         }
 
-        $serviceableIsForm4 = $jobOrder->serviceable instanceof \App\Models\Form4;
+        $serviceableIsForm4             = $jobOrder->serviceable instanceof \App\Models\Form4;
         $teamLeaderInfo['debug_path'][] = 'Serviceable model is Form4 instance: ' . ($serviceableIsForm4 ? 'true' : 'false');
-        
+
         $isForm4 = $isForm4 || $serviceableIsForm4;
-        
+
         $teamLeaderInfo['debug_path'][] = 'Is Form4 check result: ' . ($isForm4 ? 'true' : 'false');
         $teamLeaderInfo['debug_path'][] = 'Has serviceable: ' . ($jobOrder->serviceable ? 'true' : 'false');
-        
+
         if ($jobOrder->serviceable) {
             $teamLeaderInfo['debug_path'][] = 'Serviceable class: ' . get_class($jobOrder->serviceable);
             $teamLeaderInfo['debug_path'][] = 'Serviceable ID: ' . $jobOrder->serviceable->id;
-            
+
             $teamLeaderInfo['debug_path'][] = 'Raw serviceable_type from DB: ' . $jobOrder->getRawOriginal('serviceable_type');
             $teamLeaderInfo['debug_path'][] = 'Raw serviceable_id from DB: ' . $jobOrder->getRawOriginal('serviceable_id');
         }
 
         if ($isForm4 && $jobOrder->serviceable) {
             $teamLeaderInfo['debug_path'][] = 'Found Form4 serviceable';
-            
+
             $form3 = $jobOrder->serviceable->form3;
             if ($form3) {
-                $teamLeaderInfo['debug_path'][] = 'Found Form3 with ID: ' . $form3->id;
+                $teamLeaderInfo['debug_path'][]   = 'Found Form3 with ID: ' . $form3->id;
                 $teamLeaderInfo['haulings_count'] = $form3->haulings->count();
-                $teamLeaderInfo['debug_path'][] = 'Haulings count: ' . $teamLeaderInfo['haulings_count'];
-                
-                $haulings = $form3->haulings;
+                $teamLeaderInfo['debug_path'][]   = 'Haulings count: ' . $teamLeaderInfo['haulings_count'];
+
+                $haulings                        = $form3->haulings;
                 $teamLeaderInfo['haulings_data'] = $haulings->map(function ($hauling, $index) {
                     $assignedPersonnel = $hauling->assignedPersonnel;
                     return [
-                        'hauling_index' => $index,
-                        'hauling_id' => $hauling->id,
-                        'has_assigned_personnel' => !is_null($assignedPersonnel),
-                        'assigned_personnel_id' => $assignedPersonnel?->id,
-                        'team_leader_id' => $assignedPersonnel?->team_leader,
-                        'team_leader_name' => $assignedPersonnel?->teamLeader?->full_name,
-                        'safety_officer_name' => $assignedPersonnel?->safetyOfficer?->full_name,
-                        'team_driver_name' => $assignedPersonnel?->teamDriver?->full_name,
+                        'hauling_index'          => $index,
+                        'hauling_id'             => $hauling->id,
+                        'has_assigned_personnel' => ! is_null($assignedPersonnel),
+                        'assigned_personnel_id'  => $assignedPersonnel?->id,
+                        'team_leader_id'         => $assignedPersonnel?->team_leader,
+                        'team_leader_name'       => $assignedPersonnel?->teamLeader?->full_name,
+                        'safety_officer_name'    => $assignedPersonnel?->safetyOfficer?->full_name,
+                        'team_driver_name'       => $assignedPersonnel?->teamDriver?->full_name,
                     ];
                 })->toArray();
 
@@ -258,13 +258,13 @@ class EmployeeProfileController extends Controller
                 $firstHauling = $haulings->first();
                 if ($firstHauling) {
                     $teamLeaderInfo['debug_path'][] = 'Found first hauling with ID: ' . $firstHauling->id;
-                    
+
                     if ($firstHauling->assignedPersonnel) {
-                        $teamLeaderInfo['debug_path'][] = 'Found assigned personnel with ID: ' . $firstHauling->assignedPersonnel->id;
-                        $teamLeaderInfo['team_leader'] = $firstHauling->assignedPersonnel->teamLeader?->full_name;
+                        $teamLeaderInfo['debug_path'][]   = 'Found assigned personnel with ID: ' . $firstHauling->assignedPersonnel->id;
+                        $teamLeaderInfo['team_leader']    = $firstHauling->assignedPersonnel->teamLeader?->full_name;
                         $teamLeaderInfo['safety_officer'] = $firstHauling->assignedPersonnel->safetyOfficer?->full_name;
-                        $teamLeaderInfo['team_driver'] = $firstHauling->assignedPersonnel->teamDriver?->full_name;
-                        
+                        $teamLeaderInfo['team_driver']    = $firstHauling->assignedPersonnel->teamDriver?->full_name;
+
                         $teamLeaderInfo['debug_path'][] = 'Team Leader ID: ' . ($firstHauling->assignedPersonnel->team_leader ?? 'null');
                         $teamLeaderInfo['debug_path'][] = 'Team Leader Name: ' . ($teamLeaderInfo['team_leader'] ?? 'null');
                     } else {
@@ -301,7 +301,7 @@ class EmployeeProfileController extends Controller
             ->get()
             ->map(function ($jobOrder) {
                 $teamLeaderInfo = $this->extractTeamLeaderInfo($jobOrder);
-                
+
                 return [
                     'id'               => $jobOrder->id,
                     'ticket'           => $jobOrder->ticket,
@@ -341,13 +341,13 @@ class EmployeeProfileController extends Controller
     private function getAssignedJobOrdersByPosition(Employee $employee, string $position)
     {
         return match ($position) {
-            'hauler' => $this->pluckJobOrdersFromHauler($employee->form3sHauler),
-            'team leader' => $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsTeamLeader),
-            'driver' => $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsDriver),
+            'hauler'         => $this->pluckJobOrdersFromHauler($employee->form3sHauler),
+            'team leader'    => $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsTeamLeader),
+            'driver'         => $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsDriver),
             'safety officer' => $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsSafetyOfficer),
-            'mechanic' => $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsMechanic),
-            'frontliner' => $employee->createdJobOrders,
-            default => collect(),
+            'mechanic'       => $this->pluckJobOrdersFromPersonnelAssignments($employee->assignedPersonnelAsMechanic),
+            'frontliner'     => $employee->createdJobOrders,
+            default          => collect(),
         };
     }
     private function pluckJobOrdersFromHauler($form3Haulers)
@@ -383,7 +383,7 @@ class EmployeeProfileController extends Controller
 
                 $transformedOrder = [
                     'id'               => $jobOrder->id,
-                    'ticket' => $jobOrder->ticket,
+                    'ticket'           => $jobOrder->ticket,
                     'status'           => $status,
                     'serviceable_type' => $jobOrder->serviceable_type ?? null,
                     'client'           => $jobOrder->client ?? null,
@@ -396,12 +396,12 @@ class EmployeeProfileController extends Controller
                 ];
 
                 Log::info("Transformed Job Order {$jobOrder->id}:", [
-                    'original_job_order_id' => $jobOrder->id,
-                    'serviceable_type' => $jobOrder->serviceable_type,
-                    'extracted_team_leader' => $teamLeaderInfo['team_leader'],
+                    'original_job_order_id'    => $jobOrder->id,
+                    'serviceable_type'         => $jobOrder->serviceable_type,
+                    'extracted_team_leader'    => $teamLeaderInfo['team_leader'],
                     'extracted_safety_officer' => $teamLeaderInfo['safety_officer'],
-                    'debug_info' => $teamLeaderInfo['debug_path'],
-                    'haulings_count' => $teamLeaderInfo['haulings_count'],
+                    'debug_info'               => $teamLeaderInfo['debug_path'],
+                    'haulings_count'           => $teamLeaderInfo['haulings_count'],
                 ]);
 
                 return $transformedOrder;
@@ -410,10 +410,10 @@ class EmployeeProfileController extends Controller
             ->values();
 
         Log::info('=== TRANSFORMED JOB ORDERS SUMMARY ===', [
-            'total_job_orders' => $transformedOrders->count(),
-            'with_team_leader' => $transformedOrders->where('team_leader', '!=', null)->count(),
+            'total_job_orders'    => $transformedOrders->count(),
+            'with_team_leader'    => $transformedOrders->where('team_leader', '!=', null)->count(),
             'without_team_leader' => $transformedOrders->where('team_leader', null)->count(),
-            'team_leaders_found' => $transformedOrders->pluck('team_leader')->filter()->unique()->values()->toArray(),
+            'team_leaders_found'  => $transformedOrders->pluck('team_leader')->filter()->unique()->values()->toArray(),
         ]);
 
         return $transformedOrders;
@@ -447,24 +447,18 @@ class EmployeeProfileController extends Controller
     {
         Log::info('Profile update request data:', [
             'all_data'   => $request->all(),
-            'first_name' => $request->get('first_name'),
-            'last_name'  => $request->get('last_name'),
             'has_avatar' => $request->hasFile('avatar'),
         ]);
 
         $employee = Employee::findOrFail($id);
-        $user     = $employee->account;
+        $user = $employee->account;
 
-        if (! $user) {
+        if (!$user) {
             return redirect()->back()->withErrors(['error' => 'User account not found']);
         }
 
         $validated = $request->validate([
-            'first_name'  => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name'   => 'required|string|max:255',
-            'suffix'      => 'nullable|string|max:10',
-            'avatar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         Log::info('Validated data:', $validated);
@@ -472,16 +466,19 @@ class EmployeeProfileController extends Controller
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
                 Storage::delete($user->avatar);
+                Log::info('Deleted old avatar:', ['old_path' => $user->avatar]);
             }
 
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
             $user->update(['avatar' => $avatarPath]);
+            
+            Log::info('New avatar saved:', [
+                'new_path' => $avatarPath,
+                'full_url' => Storage::url($avatarPath)
+            ]);
         }
 
-        $employeeData = collect($validated)->except('avatar')->toArray();
-        $employee->update($employeeData);
-
-        return redirect()->back()->with('success', 'Profile updated successfully!');
+        return redirect()->back()->with('success', 'Profile photo updated successfully!');
     }
 
     public function getPerformanceData(Request $request, $id)
@@ -553,14 +550,14 @@ class EmployeeProfileController extends Controller
         $successRate = $totalCreated > 0 ? round(($completedJobs / $totalCreated) * 100, 2) : 0;
 
         $stats = [
-            'total_created'     => $totalCreated,
-            'monthly_created'   => $monthlyCreated,
-            'completed_jobs'    => $completedJobs,
-            'corrections_count' => $jobOrdersWithCorrections,
-            'error_count'       => $totalErrorCount,
+            'total_created'       => $totalCreated,
+            'monthly_created'     => $monthlyCreated,
+            'completed_jobs'      => $completedJobs,
+            'corrections_count'   => $jobOrdersWithCorrections,
+            'error_count'         => $totalErrorCount,
             'monthly_error_count' => $monthlyErrorCount,
-            'success_rate'      => $successRate,
-            'current_month'     => \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y'),
+            'success_rate'        => $successRate,
+            'current_month'       => \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y'),
         ];
 
         return $stats;

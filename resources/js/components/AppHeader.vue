@@ -180,39 +180,26 @@ const rightNavItems: NavItem[] = [
           </Sheet>
         </div>
 
-        <Link
-          :href="route('home')"
-          class="flex items-center gap-x-2"
-        >
-          <AppLogo />
+        <Link :href="route('home')" class="flex items-center gap-x-2">
+        <AppLogo />
         </Link>
 
         <!-- Desktop Menu -->
         <div class="hidden h-full lg:flex lg:flex-1">
           <NavigationMenu class="ml-10 flex h-full items-stretch">
             <NavigationMenuList class="flex h-full items-stretch">
-              <template
-                v-for="(item, index) in mainNavItems"
-                :key="index"
-              >
-                <NavigationMenuItem
-                  v-if="item?.can"
-                  class="relative flex h-full items-center"
-                >
+              <template v-for="(item, index) in mainNavItems" :key="index">
+                <NavigationMenuItem v-if="item?.can" class="relative flex h-full items-center">
                   <Link :href="item.href">
-                    <NavigationMenuLink
-                      :class="[
+                  <NavigationMenuLink :class="[
                         navigationMenuTriggerStyle(),
                         activeItemStyles(item.href),
-                      ]"
-                    >
-                      {{ item.title }}
-                    </NavigationMenuLink>
+]">
+                    {{ item.title }}
+                  </NavigationMenuLink>
                   </Link>
-                  <div
-                    v-if="isCurrentRoute(item.href)"
-                    class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary"
-                  />
+                  <div v-if="isCurrentRoute(item.href)"
+                    class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary" />
                 </NavigationMenuItem>
               </template>
             </NavigationMenuList>
@@ -256,7 +243,7 @@ const rightNavItems: NavItem[] = [
               <Button variant="ghost" size="icon"
                 class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary">
                 <Avatar class="size-8 overflow-hidden rounded-full">
-                  <AvatarImage v-if="auth.user.avatar_url" :src="auth.user.avatar_url"
+                  <AvatarImage v-if="auth.user.avatar" :src="`/storage/${auth.user.avatar}`"
                     :alt="auth.user.employee?.full_name || 'User Avatar'" />
                   <AvatarFallback class="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                     {{ getInitials(auth.user.employee?.full_name || auth.user.email) }}

@@ -18,7 +18,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { getInitials } = useInitials()
 
-const avatarSrc = computed(() => props.user.avatar_url || props.user.avatar || '')
+const avatarSrc = computed(() => {
+  return props.user.avatar ? `/storage/${props.user.avatar}` : null
+})
 
 const fallbackInitials = computed(() =>
   getInitials(props.user.employee?.full_name || props.user.email || 'User')

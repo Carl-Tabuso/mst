@@ -34,7 +34,7 @@ class UserController extends Controller
                 'first_name'  => $user->employee->first_name,
                 'last_name'   => $user->employee->last_name,
                 'email'       => $user->email,
-                'avatar_url' => $user->avatar_url,
+                'avatar' => $user->avatar,
                 'created_at'  => $user->created_at->format('F j, Y'),
                 'deleted_at'  => $user->deleted_at,
                 'position'    => $user->employee->position->name ?? 'N/A',
@@ -144,7 +144,7 @@ class UserController extends Controller
             return [
                 'id'         => $user->id,
                 'email'      => $user->email,
-                'avatar_url' => $user->avatar_url,
+                'avatar'     => $user->avatar,
                 'employee'   => $user->employee,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,

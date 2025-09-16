@@ -13,9 +13,8 @@ export interface Auth {
 }
 
 export interface AuthUser {
-  avatar_url: any
   employee_id: number
-  avatar: string
+  avatar: any
   email: string
   employee: {
     first_name: string

@@ -41,7 +41,7 @@ export interface Employee {
   last_name: string
   suffix: string | null
   email?: string
-  avatar_url?: string | null
+  avatar?: string | null
   position: { name: string } | null
   itServicesAsTechnician?: ITService[]
 }

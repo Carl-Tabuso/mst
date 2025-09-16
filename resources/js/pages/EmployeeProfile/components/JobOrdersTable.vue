@@ -80,7 +80,7 @@ const viewJobOrder = (job: JobOrder) => {
 
         <!-- Job orders container -->
         <div class="overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
-            <div class="max-h-[400px] sm:max-h-[500px] lg:max-h-[643px] overflow-y-auto">
+            <div class="max-h-[400px] sm:max-h-[500px] lg:max-h-[648px] overflow-y-auto">
                 <div class="w-full">
                     <div class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                         <div v-for="job in filteredJobOrders" :key="job.id"
