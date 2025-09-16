@@ -21,35 +21,38 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index(Request $request)
-    {
-        $employees = Employee::whereDoesntHave('account')
-            ->with('position')
-            ->get();
+public function index(Request $request)
+{
+    $employees = Employee::whereDoesntHave('account')
+        ->with('position')
+        ->get();
 
-        $filters = $request->filters ?? [];
+    $filters = $request->filters ?? [];
 
-        $users = $this->userService->getAllUsers(
-            search: $filters['search']  ?? null,
-            status: $filters['status']  ?? null,
-            sort: $filters['sort']      ?? null,
-            perPage: $request->per_page ?? $filters['per_page'] ?? 10
-        );
+    $users = $this->userService->getAllUsers(
+        search: $filters['search']  ?? null,
+        role: $filters['role']      ?? null, 
+        sort: $filters['sort']      ?? null,
+        perPage: $request->per_page ?? $filters['per_page'] ?? 10
+    );
 
-        return Inertia::render('user-management/index', [
-            'data'      => UserResource::collection($users),
-            'employees' => $employees,
-            'meta'      => [
-                'current_page' => $users->currentPage(),
-                'last_page'    => $users->lastPage(),
-                'per_page'     => $users->perPage(),
-                'total'        => $users->total(),
-            ],
-            'emptySearchImg' => asset('images/empty-search.svg'),
-            'filters'        => $filters,
-        ]);
-
-    }
+    return Inertia::render('user-management/index', [
+        'data'      => UserResource::collection($users),
+        'employees' => $employees,
+        'roles'     => Position::all()->map(fn($p) => [ 
+            'id' => $p->id,
+            'name' => $p->name
+        ]),
+        'meta'      => [
+            'current_page' => $users->currentPage(),
+            'last_page'    => $users->lastPage(),
+            'per_page'     => $users->perPage(),
+            'total'        => $users->total(),
+        ],
+        'emptySearchImg' => asset('images/empty-search.svg'),
+        'filters'        => $filters,
+    ]);
+}
 
     public function settings(User $user)
     {

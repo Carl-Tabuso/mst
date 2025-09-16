@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppCalendar from '@/components/AppCalendar.vue'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -10,13 +9,14 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
-import { router, usePage } from '@inertiajs/vue3'
-import { Calendar, Filter } from 'lucide-vue-next'
+import { Calendar } from 'lucide-vue-next'
 import type { DateValue } from 'reka-ui'
-import { computed, ref } from 'vue'
+import { ref, watch } from 'vue'
 
 interface FilterPopoverProps {
   routeName?: string
+  roles?: Array<{ id: number; name: string }>
+  currentFilters?: Record<string, any>
 }
 
 interface FilterPopoverEmits {
@@ -26,125 +26,147 @@ interface FilterPopoverEmits {
 
 const props = withDefaults(defineProps<FilterPopoverProps>(), {
   routeName: 'users.index',
+  roles: () => [],
+  currentFilters: () => ({})
 })
 
 const emit = defineEmits<FilterPopoverEmits>()
 
-const page = usePage()
-const initialFilters = page.props.filters || {}
 const isParentPopoverOpen = ref(false)
+const isCalendarOpen = ref({ from: false, to: false })
 
-// Status filter options
-const statuses = [
-  { id: 'active', label: 'Active' },
-  { id: 'inactive', label: 'Inactive' },
-]
+const localSelectedRoles = ref<number[]>([])
+const localFromDateCreated = ref<DateValue | undefined>(undefined)
+const localToDateCreated = ref<DateValue | undefined>(undefined)
 
-// Local state for filters
-const selectedStatuses = ref<string[]>(initialFilters.status ?? [])
-const fromDateCreated = ref<DateValue | undefined>(
-  initialFilters.fromDateCreated ? new Date(initialFilters.fromDateCreated) : undefined,
-)
-const toDateCreated = ref<DateValue | undefined>(
-  initialFilters.toDateCreated ? new Date(initialFilters.toDateCreated) : undefined,
-)
+watch(() => props.currentFilters, (newFilters) => {
+  localSelectedRoles.value = Array.isArray(newFilters.role) 
+    ? newFilters.role.map(role => Number(role)) 
+    : []
+  
+  localFromDateCreated.value = newFilters.fromDateCreated 
+    ? new Date(newFilters.fromDateCreated) 
+    : undefined
+  
+  localToDateCreated.value = newFilters.toDateCreated 
+    ? new Date(newFilters.toDateCreated) 
+    : undefined
+}, { deep: true, immediate: true })
 
-const isCalendarOpen = ref<Record<string, boolean>>({
-  from: false,
-  to: false,
-})
-
-// Handle status selection
-const handleStatusSelection = (statusId: string, checked: boolean) => {
+const handleRoleSelection = (roleId: number, checked: boolean) => {
   if (checked) {
-    if (!selectedStatuses.value.includes(statusId)) {
-      selectedStatuses.value.push(statusId)
+    if (!localSelectedRoles.value.includes(roleId)) {
+      localSelectedRoles.value.push(roleId)
     }
   } else {
-    selectedStatuses.value = selectedStatuses.value.filter((id) => id !== statusId)
+    localSelectedRoles.value = localSelectedRoles.value.filter(id => id !== roleId)
   }
 }
 
-// Format date for display
 const formatToDateString = (date: DateValue | undefined) => {
   if (!date) return ''
-  if (typeof (date as any).toDate === 'function') {
-    return (date as any).toDate().toLocaleDateString('en-PH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-  return new Date(String(date)).toLocaleDateString('en-PH', {
+  
+  const dateObj = typeof (date as any).toDate === 'function' 
+    ? (date as any).toDate() 
+    : new Date(String(date))
+  
+  return dateObj.toLocaleDateString('en-PH', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
 }
 
-// Serialize date for API
 const serializeDate = (date: DateValue | undefined) => {
   if (!date) return ''
-  if (typeof (date as any).toDate === 'function') {
-    return (date as any).toDate().toISOString()
-  }
-  return new Date(String(date)).toISOString()
+  
+  const dateObj = typeof (date as any).toDate === 'function' 
+    ? (date as any).toDate() 
+    : new Date(String(date))
+  
+  return dateObj.toISOString()
 }
 
-// Apply filters
 const applyFilters = () => {
   isParentPopoverOpen.value = false
-  emit('filter-change', {
-    status: selectedStatuses.value.length > 0 ? selectedStatuses.value : null,
-    fromDateCreated: serializeDate(fromDateCreated.value),
-    toDateCreated: serializeDate(toDateCreated.value),
-  })
+  
+  const filters: any = {}
+  
+  if (localSelectedRoles.value.length > 0) {
+    filters.role = localSelectedRoles.value
+  } else {
+    filters.role = []
+  }
+  
+  const fromDate = serializeDate(localFromDateCreated.value)
+  const toDate = serializeDate(localToDateCreated.value)
+  
+  if (fromDate) {
+    filters.fromDateCreated = fromDate
+  } else {
+    filters.fromDateCreated = ''
+  }
+  
+  if (toDate) {
+    filters.toDateCreated = toDate
+  } else {
+    filters.toDateCreated = ''
+  }
+  
+  emit('filter-change', filters)
 }
 
-// Clear filters
 const clearFilters = () => {
-  selectedStatuses.value = []
-  fromDateCreated.value = undefined
-  toDateCreated.value = undefined
+  localSelectedRoles.value = []
+  localFromDateCreated.value = undefined
+  localToDateCreated.value = undefined
   isParentPopoverOpen.value = false
+  
   emit('clear-filters')
 }
 
-// Count selected filters for badge
-const selectedFilterCount = computed(() => {
-  let count = selectedStatuses.value.length
-  if (fromDateCreated.value) count++
-  if (toDateCreated.value) count++
-  return count
-})
+const resetLocalState = () => {
+  localSelectedRoles.value = Array.isArray(props.currentFilters.role) 
+    ? props.currentFilters.role.map(role => Number(role)) 
+    : []
+  
+  localFromDateCreated.value = props.currentFilters.fromDateCreated 
+    ? new Date(props.currentFilters.fromDateCreated) 
+    : undefined
+  
+  localToDateCreated.value = props.currentFilters.toDateCreated 
+    ? new Date(props.currentFilters.toDateCreated) 
+    : undefined
+}
 </script>
 
 <template>
-  <Popover v-model:open="isParentPopoverOpen">
+  <Popover v-model:open="isParentPopoverOpen" @open-auto="resetLocalState">
     <PopoverTrigger as-child>
       <slot />
     </PopoverTrigger>
     <PopoverContent class="w-96" align="start">
-      <!-- Status Filter -->
+      <!-- Role Filter -->
       <div class="mb-5 flex flex-col space-y-5">
-        <div class="text-sm font-semibold leading-none">Account Status</div>
-        <div class="grid grid-cols-2 gap-y-4">
+        <div class="text-sm font-semibold leading-none">Role</div>
+        <div class="grid grid-cols-3 gap-x-4 gap-y-3">
           <div
-            v-for="status in statuses"
-            :key="status.id"
+            v-for="role in roles"
+            :key="role.id"
             class="flex items-center gap-x-2"
           >
             <Checkbox
-              :id="status.id"
-              :checked="selectedStatuses.includes(status.id)"
-              @update:checked="(checked) => handleStatusSelection(status.id, checked)"
+              :id="`role-${role.id}`"
+              :checked="localSelectedRoles.includes(role.id)"
+              @update:checked="(checked) => handleRoleSelection(role.id, checked)"
               class="border-gray-400 dark:border-white"
             />
             <Label
-              :for="status.id"
-              class="text-sm font-normal"
+              :for="`role-${role.id}`"
+              class="text-sm font-normal truncate"
+              :title="role.name"
             >
-              {{ status.label }}
+              {{ role.name }}
             </Label>
           </div>
         </div>
@@ -167,17 +189,17 @@ const selectedFilterCount = computed(() => {
                   variant="outline"
                   :class="[
                     'w-full ps-3 text-start font-normal',
-                    { 'text-muted-foreground': !fromDateCreated },
+                    { 'text-muted-foreground': !localFromDateCreated },
                   ]"
                 >
                   <span>
-                    {{ formatToDateString(fromDateCreated) || 'Pick a date' }}
+                    {{ formatToDateString(localFromDateCreated) || 'Pick a date' }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-auto p-0">
-                <AppCalendar v-model="fromDateCreated" />
+                <AppCalendar v-model="localFromDateCreated" />
               </PopoverContent>
             </Popover>
           </div>
@@ -191,17 +213,17 @@ const selectedFilterCount = computed(() => {
                   variant="outline"
                   :class="[
                     'w-full ps-3 text-start font-normal',
-                    { 'text-muted-foreground': !toDateCreated },
+                    { 'text-muted-foreground': !localToDateCreated },
                   ]"
                 >
                   <span>
-                    {{ formatToDateString(toDateCreated) || 'Pick a date' }}
+                    {{ formatToDateString(localToDateCreated) || 'Pick a date' }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-auto p-0">
-                <AppCalendar v-model="toDateCreated" />
+                <AppCalendar v-model="localToDateCreated" />
               </PopoverContent>
             </Popover>
           </div>

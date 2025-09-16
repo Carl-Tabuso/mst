@@ -15,52 +15,51 @@ use Illuminate\Support\Str;
 
 class UserService
 {
-    public function getAllUsers($search = '', $status = null, $sort = null, $perPage = 10)
-    {
-        if (is_array($status)) {
-            $status = ! empty($status) ? $status[0] : null;
-        }
+public function getAllUsers($search = '', $role = null, $sort = null, $perPage = 10)
+{
+    $query = User::with(['employee' => function ($query) {
+        $query->select('id', 'first_name', 'middle_name', 'last_name', 'suffix', 'position_id', 'created_at', 'updated_at');
+    }])->select('users.*');
 
-        $query = User::with(['employee' => function ($query) {
-            $query->select('id', 'first_name', 'middle_name', 'last_name', 'suffix', 'position_id', 'created_at', 'updated_at');
-        }])->select('users.*');
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('email', 'like', "%{$search}%")
-                    ->orWhereHas('employee', function ($q) use ($search) {
-                        $q->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
-                    });
-            });
-        }
-
-        if ($status) {
-            if ($status === 'active') {
-                $query->whereNull('deleted_at');
-            } elseif ($status === 'inactive') {
-                $query->whereNotNull('deleted_at');
-            }
-        }
-
-        if ($sort) {
-            [$column, $direction] = explode(':', $sort);
-
-            if ($column === 'name') {
-                $query->join('employees', 'users.employee_id', '=', 'employees.id')
-                    ->orderBy('employees.last_name', $direction)
-                    ->orderBy('employees.first_name', $direction);
-            } else {
-                $query->orderBy($column === 'created_at' ? 'users.created_at' : $column, $direction);
-            }
-        } else {
-            $query->orderBy('users.created_at', 'desc');
-        }
-
-        return $query->with('roles')->paginate($perPage);
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('email', 'like', "%{$search}%")
+                ->orWhereHas('employee', function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                });
+        });
     }
 
+    if ($role) {
+        if (is_array($role)) {
+            $query->whereHas('employee', function ($q) use ($role) {
+                $q->whereIn('position_id', $role);
+            });
+        } else {
+            $query->whereHas('employee', function ($q) use ($role) {
+                $q->where('position_id', $role);
+            });
+        }
+    }
+
+    if ($sort) {
+        [$column, $direction] = explode(':', $sort);
+
+        if ($column === 'name') {
+            $query->join('employees', 'users.employee_id', '=', 'employees.id')
+                ->orderBy('employees.last_name', $direction)
+                ->orderBy('employees.first_name', $direction);
+        } else {
+            $query->orderBy($column === 'created_at' ? 'users.created_at' : $column, $direction);
+        }
+    } else {
+        $query->orderBy('users.created_at', 'desc');
+    }
+
+    return $query->with(['employee.position', 'roles'])->paginate($perPage);
+}
     public function getArchivedUsers(?int $perPage = 10, ?string $search = '', ?array $filters = []): mixed
     {
         $archivedAtColumn = new User()->getDeletedAtColumn();

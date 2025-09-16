@@ -10,13 +10,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { usePermissions } from '@/composables/usePermissions'
 import { User } from '@/types'
-import { router, usePage } from '@inertiajs/vue3'
+import { usePage } from '@inertiajs/vue3'
 import type { Table } from '@tanstack/vue-table'
 import { useDebounceFn } from '@vueuse/core'
 import { Filter, Search, Settings2 } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import FilterPopover from './FilterPopover.vue'
 
 interface DataTableToolbarProps {
@@ -29,29 +28,22 @@ const props = withDefaults(defineProps<DataTableToolbarProps>(), {
   routeName: 'users.index',
 })
 
+const emit = defineEmits<{
+  (e: 'filter-change', filters: any): void
+}>()
+
 const page = usePage()
-const { can } = usePermissions()
+
+const roles = computed(() => (page.props as any).roles || [])
+
+const currentFilters = computed(() => (page.props as any).filters ?? {})
 
 const handleOnSearch = (value: string | number) => {
   debounceSearch(value)
 }
 
 const debounceSearch = useDebounceFn((value) => {
-  const currentFilters = (page.props as any).filters ?? {}
-  router.get(
-    route(props.routeName),
-    {
-      filters: {
-        ...currentFilters,
-        search: value,
-      },
-    },
-    {
-      preserveState: true,
-      preserveScroll: true,
-      replace: true,
-    },
-  )
+  emit('filter-change', { search: value })
 }, 500)
 
 const visibleColumnCount = computed(
@@ -61,53 +53,51 @@ const visibleColumnCount = computed(
       .filter((column) => column.getCanHide() && column.getIsVisible()).length,
 )
 
-// Handle filter changes from FilterPopover
 const handleFilterChange = (newFilters: any) => {
-  const currentFilters = (page.props as any).filters ?? {}
-  router.get(
-    route(props.routeName),
-    {
-      filters: {
-        ...currentFilters,
-        ...newFilters,
-        search: currentFilters.search, // Preserve search
-      },
-    },
-    {
-      preserveState: true,
-      preserveScroll: true,
-      replace: true,
-    },
-  )
+  emit('filter-change', newFilters)
 }
 
-// Handle clear filters from FilterPopover
 const handleClearFilters = () => {
-  const currentFilters = (page.props as any).filters ?? {}
-  router.get(
-    route(props.routeName),
-    {
-      filters: {
-        search: currentFilters.search, // Only preserve search
-      },
-    },
-    {
-      preserveState: true,
-      preserveScroll: true,
-      replace: true,
-    },
-  )
+  emit('filter-change', {
+    search: '',
+    role: [],
+    fromDateCreated: '',
+    toDateCreated: ''
+  })
 }
 
-// Count active filters (excluding search)
 const activeFilterCount = computed(() => {
   const filters = (page.props as any).filters ?? {}
-  return Object.keys(filters).filter(key => 
-    key !== 'search' && 
-    filters[key] !== null && 
-    filters[key] !== undefined && 
-    filters[key] !== ''
-  ).length
+  let count = 0
+  
+  // Count search filter
+  if (filters.search && filters.search.trim() !== '') {
+    count++
+  }
+  
+  // Count role filters - each selected role counts as one
+  if (filters.role) {
+    if (Array.isArray(filters.role)) {
+      count += filters.role.filter(role => 
+        role !== null && role !== undefined && role !== ''
+      ).length
+    } else if (typeof filters.role === 'string') {
+      // Handle comma-separated values
+      const roles = filters.role.split(',').filter(r => r.trim() !== '')
+      count += roles.length
+    }
+  }
+  
+  // Count date filters
+  if (filters.fromDateCreated && filters.fromDateCreated !== '') {
+    count++
+  }
+  
+  if (filters.toDateCreated && filters.toDateCreated !== '') {
+    count++
+  }
+  
+  return count
 })
 </script>
 
@@ -131,7 +121,9 @@ const activeFilterCount = computed(() => {
 
     <!-- Filter Popover -->
     <FilterPopover
+      :roles="roles" 
       :route-name="props.routeName"
+      :current-filters="currentFilters"
       @filter-change="handleFilterChange"
       @clear-filters="handleClearFilters"
     >

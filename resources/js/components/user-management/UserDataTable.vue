@@ -49,6 +49,8 @@ const tableMeta = computed(() => {
   return props.meta || (Array.isArray(props.data) ? undefined : props.data.meta)
 })
 
+const currentFilters = computed(() => page.props.filters || {})
+
 const sorting = ref<SortingState>()
 const columnVisibility = ref<VisibilityState>({})
 const rowSelection = ref({})
@@ -56,13 +58,46 @@ const pagination = ref<PaginationState>({
   pageIndex: tableMeta.value ? tableMeta.value.current_page - 1 : 0,
   pageSize: tableMeta.value ? tableMeta.value.per_page : 10,
 })
-const globalFilter = ref<string>(page.props.filters?.search || '')
+
+const globalFilter = computed({
+  get: () => currentFilters.value.search || '',
+  set: (value) => {
+    handleFilterChange({ search: value })
+  }
+})
 
 const getFilters = () => ({
-  ...(page.props.filters || {}),
-  search: globalFilter.value,
+  ...currentFilters.value,
   per_page: pagination.value.pageSize,
 })
+
+const handleFilterChange = (newFilters: any) => {
+  router.get(
+    route(props.routeName),
+    {
+      filters: {
+        ...currentFilters.value,
+        ...newFilters,
+      },
+      page: newFilters.search !== undefined ? 1 : undefined, 
+    },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+    },
+  )
+}
+
+const handlePaginationChange = (updater: any) => {
+  valueUpdater(updater, pagination)
+  const { pageIndex } = pagination.value
+  router.get(
+    route(props.routeName),
+    { page: pageIndex + 1, filters: getFilters() },
+    { preserveState: true, preserveScroll: true, replace: true },
+  )
+}
 
 const table = useVueTable({
   get data() {
@@ -78,27 +113,12 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   onSortingChange: (updater) => valueUpdater(updater, sorting),
-  onColumnVisibilityChange: (updater) =>
-    valueUpdater(updater, columnVisibility),
+  onColumnVisibilityChange: (updater) => valueUpdater(updater, columnVisibility),
   onRowSelectionChange: (updater) => valueUpdater(updater, rowSelection),
-  onGlobalFilterChange: (updater) => {
-    valueUpdater(updater, globalFilter)
-    table.setPageIndex(0)
-    router.get(
-      route(props.routeName),
-      { filters: getFilters() },
-      { preserveState: true, preserveScroll: true, replace: true },
-    )
+  onGlobalFilterChange: (value) => {
+    globalFilter.value = value
   },
-  onPaginationChange: (updater) => {
-    valueUpdater(updater, pagination)
-    const { pageIndex } = pagination.value
-    router.get(
-      route(props.routeName),
-      { page: pageIndex + 1, filters: getFilters() },
-      { preserveState: true, preserveScroll: true, replace: true },
-    )
-  },
+  onPaginationChange: handlePaginationChange,
   state: {
     get sorting() {
       return sorting.value
@@ -117,6 +137,10 @@ const table = useVueTable({
     },
   },
 })
+
+defineExpose({
+  handleFilterChange
+})
 </script>
 
 <template>
@@ -124,6 +148,7 @@ const table = useVueTable({
     :table="table"
     :globalFilter="globalFilter"
     :routeName="routeName"
+    @filter-change="handleFilterChange"
   />
   <div class="rounded-md border">
     <Table>
