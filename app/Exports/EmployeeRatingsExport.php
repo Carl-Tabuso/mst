@@ -62,7 +62,6 @@ WithCustomStartCell
         return [
             'Employee ID',
             'Full Name',
-            'Department',
             'Position',
             'Average Rating',
             'Total Ratings',
@@ -78,7 +77,6 @@ WithCustomStartCell
         return [
             $employee->id,
             $employee->full_name,
-            'Hauling', // You might want to make this dynamic too
             $employee->position,
             $employee->average_rating ?? 'N/A',
             $employee->total_ratings,

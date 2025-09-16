@@ -83,18 +83,7 @@ const archiveRoutes: Partial<Record<UserRoleType, string>> = {
 const archiveUrl = computed(() => {
   return Object.entries(archiveRoutes).find((role) => {
     return role[0] === auth.value.user.roles[0].name
-  })?.[1] ?? '#'  
-})
-
-
-const canAccessPerformanceMonitoring = computed(() => {
-  return can('view:performances')
-})
-
-const canAccessPerformanceRating = computed(() => {
-  return canAny({
-    roles: ['team leader', 'regular']
-  })
+  })?.[1] ?? '#'
 })
 
 const canAccessPerformanceMonitoring = computed(() => {

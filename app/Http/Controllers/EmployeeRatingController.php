@@ -440,19 +440,22 @@ class EmployeeRatingController extends Controller
         return $this->formatJobOrdersForFrontend($filtered);
     }
 
-    // FIXED: This is the main method causing N+1 queries
     private function getValidJobOrderForRating($jobOrderId, $allForm3Ids, $alreadyRatedForm3Ids)
     {
-        // FIX: Eager load all necessary relationships in a single query
         $jobOrder = JobOrder::where('id', $jobOrderId)
             ->where('status', JobOrderStatus::Completed)
             ->where('serviceable_type', 'form4')
             ->with([
                 'serviceable.form3.haulings.haulers.position',
+                'serviceable.form3.haulings.haulers.account',
                 'serviceable.form3.haulings.assignedPersonnel.teamLeader.position',
+                'serviceable.form3.haulings.assignedPersonnel.teamLeader.account',
                 'serviceable.form3.haulings.assignedPersonnel.teamDriver.position',
+                'serviceable.form3.haulings.assignedPersonnel.teamDriver.account',
                 'serviceable.form3.haulings.assignedPersonnel.safetyOfficer.position',
+                'serviceable.form3.haulings.assignedPersonnel.safetyOfficer.account',
                 'serviceable.form3.haulings.assignedPersonnel.teamMechanic.position',
+                'serviceable.form3.haulings.assignedPersonnel.teamMechanic.account',
             ])
             ->first();
 
@@ -481,6 +484,7 @@ class EmployeeRatingController extends Controller
                 'employeePerformances' => fn($q) => $q->where('evaluator_id', $employee->id)
                     ->with([
                         'evaluatee.position',
+                        'evaluatee.account',
                         'ratings.performanceRating',
                     ]),
             ])
@@ -495,62 +499,98 @@ class EmployeeRatingController extends Controller
 
     // ==================== TEAM MEMBERS & RATINGS METHODS ====================
 
-    private function getTeamMembersToRate($jobOrder, $currentEmployee)
-    {
-        $form3       = $jobOrder->serviceable->form3;
-        $teamMembers = collect();
+private function getTeamMembersToRate($jobOrder, $currentEmployee)
+{
+    $form3       = $jobOrder->serviceable->form3;
+    $teamMembers = collect();
 
-        foreach ($form3->haulings as $hauling) {
-            foreach ($hauling->haulers as $hauler) {
-                if ($hauler->id !== $currentEmployee->id) {
+    foreach ($form3->haulings as $hauling) {
+        foreach ($hauling->haulers as $hauler) {
+            if ($hauler->id !== $currentEmployee->id) {
+                if (! $hauler->relationLoaded('account')) {
+                    $hauler->load('account');
+                }
+
+                // ✅ Log the avatar here
+                Log::info('Team member avatar', [
+                    'employee_id' => $hauler->id,
+                    'avatar'      => $hauler->account?->avatar,
+                ]);
+
+                $teamMembers->push([
+                    'employee_id'      => $hauler->id,
+                    'employee'         => $hauler,
+                    'avatar'           => $hauler->account?->avatar,
+                    'form3_id'         => $form3->id,
+                    'role'             => 'hauler',
+                    'job_order_ticket' => $jobOrder->ticket,
+                ]);
+            }
+        }
+
+        $personnel = $hauling->assignedPersonnel;
+        if ($personnel) {
+            $roles = [
+                'team_leader'    => $personnel->teamLeader,
+                'team_driver'    => $personnel->teamDriver,
+                'safety_officer' => $personnel->safetyOfficer,
+                'team_mechanic'  => $personnel->teamMechanic,
+            ];
+
+            foreach ($roles as $role => $person) {
+                if ($person && $person->id !== $currentEmployee->id) {
+                    if (! $person->relationLoaded('account')) {
+                        $person->load('account');
+                    }
+
+                    // ✅ Log the avatar here too
+                    Log::info('Team member avatar', [
+                        'employee_id' => $person->id,
+                        'role'        => $role,
+                        'avatar'      => $person->account?->avatar,
+                    ]);
+
                     $teamMembers->push([
-                        'employee_id'      => $hauler->id,
-                        'employee'         => $hauler,
+                        'employee_id'      => $person->id,
+                        'employee'         => $person,
+                        'avatar'           => $person->account?->avatar,
                         'form3_id'         => $form3->id,
-                        'role'             => 'hauler',
+                        'role'             => $role,
                         'job_order_ticket' => $jobOrder->ticket,
                     ]);
                 }
             }
-
-            $personnel = $hauling->assignedPersonnel;
-            if ($personnel) {
-                $roles = [
-                    'team_leader'    => $personnel->teamLeader,
-                    'team_driver'    => $personnel->teamDriver,
-                    'safety_officer' => $personnel->safetyOfficer,
-                    'team_mechanic'  => $personnel->teamMechanic,
-                ];
-
-                foreach ($roles as $role => $person) {
-                    if ($person && $person->id !== $currentEmployee->id) {
-                        $teamMembers->push([
-                            'employee_id'      => $person->id,
-                            'employee'         => $person,
-                            'form3_id'         => $form3->id,
-                            'role'             => $role,
-                            'job_order_ticket' => $jobOrder->ticket,
-                        ]);
-                    }
-                }
-            }
         }
-
-        return $teamMembers->unique('employee_id')->values();
     }
+
+    return $teamMembers->unique('employee_id')->values();
+}
 
     private function getRatedTeamMembers($jobOrder)
-    {
-        return $jobOrder->employeePerformances->map(function ($performance) use ($jobOrder) {
-            return [
-                'employee_id'      => $performance->evaluatee->id,
-                'employee'         => $performance->evaluatee,
-                'ratings'          => $performance->ratings,
-                'role'             => $this->determineEmployeeRole($jobOrder->serviceable->form3, $performance->evaluatee),
-                'job_order_ticket' => $jobOrder->ticket,
-            ];
-        });
-    }
+{
+    return $jobOrder->employeePerformances->map(function ($performance) use ($jobOrder) {
+        if (! $performance->evaluatee->relationLoaded('account')) {
+            $performance->evaluatee->load('account');
+        }
+
+        Log::info('Rated team member avatar', [
+            'employee_id' => $performance->evaluatee->id,
+            'avatar'      => $performance->evaluatee->account?->avatar,
+        ]);
+
+        return [
+            'employee_id'      => $performance->evaluatee->id,
+            'employee'         => $performance->evaluatee,
+            'avatar'           => $performance->evaluatee->account?->avatar,
+            'ratings'          => $performance->ratings,
+            'role'             => $this->determineEmployeeRole(
+                                    $jobOrder->serviceable->form3,
+                                    $performance->evaluatee
+                                ),
+            'job_order_ticket' => $jobOrder->ticket,
+        ];
+    });
+}
 
     private function determineEmployeeRole($form3, $employee)
     {

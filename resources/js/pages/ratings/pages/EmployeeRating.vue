@@ -15,6 +15,7 @@ const props = defineProps<{
     employee: any
     form3_id: number
     role: string
+    avatar?: string
   }>
 }>()
 
@@ -31,14 +32,14 @@ function getCoworkers(order: any): Coworker[] {
 }
 
 function getRole(order: any, coworker: Coworker): { role: string; department: string } {
-  if (!props.teamMembersToRate) return { role: '', department: 'Hauling Department' }
+  if (!props.teamMembersToRate) return { role: '', department: '' }
 
   const form3Id = order.serviceable?.form3?.id
   const member = props.teamMembersToRate.find(
     m => m.form3_id === form3Id && m.employee.id === coworker.id
   )
 
-  if (!member) return { role: '', department: 'Hauling Department' }
+  if (!member) return { role: '', department: '' }
 
   const roleMap: Record<string, string> = {
     'team_leader': '(Team Leader)',
@@ -50,7 +51,7 @@ function getRole(order: any, coworker: Coworker): { role: string; department: st
 
   return {
     role: roleMap[member.role] || `(${member.role})`,
-    department: 'Hauling Department'
+    department: ''
   }
 }
 
@@ -161,12 +162,16 @@ function getTicketDisplay(order: any): string {
         <div v-if="getCoworkers(order).length" class="divide-y divide-gray-100 dark:divide-gray-700">
           <CoworkerRatingForm v-for="coworker in getCoworkers(order)" :key="coworker.id"
             :name="`${coworker.first_name} ${coworker.last_name}`" :role="getRole(order, coworker).role"
-            :department="getRole(order, coworker).department" :rating="ratings[order.serviceable?.form3?.id]?.find(
-              (r) => r.evaluatee_id === coworker.id,
-            )?.performance_rating_id || 0" :description="ratings[order.serviceable?.form3?.id]?.find(
-              (r) => r.evaluatee_id === coworker.id,
-            )?.description || ''" @update:rating="(n) => setRating(order.serviceable?.form3?.id, coworker.id, n)"
-            @update:description="(val) => setDescription(order.serviceable?.form3?.id, coworker.id, val)" />
+            :department="getRole(order, coworker).department" :avatar="props.teamMembersToRate?.find(
+              m => m.employee_id === coworker.id &&
+                m.form3_id === order.serviceable?.form3?.id
+            )?.avatar || coworker.avatar || ''" :rating="ratings[order.serviceable?.form3?.id]?.find(
+            r => r.evaluatee_id === coworker.id
+          )?.performance_rating_id || 0" :description="ratings[order.serviceable?.form3?.id]?.find(
+            r => r.evaluatee_id === coworker.id
+          )?.description || ''" @update:rating="n => setRating(order.serviceable?.form3?.id, coworker.id, n)"
+            @update:description="val => setDescription(order.serviceable?.form3?.id, coworker.id, val)" />
+
         </div>
 
         <div v-else class="p-6 text-center italic text-gray-500 dark:text-gray-400">

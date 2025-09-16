@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import CoworkerRatingDisplay from '@/pages/ratings/components/CoworkerRatingDisplay.vue'
 import { router } from '@inertiajs/vue3'
@@ -7,6 +8,7 @@ type Coworker = {
   id: number
   first_name: string
   last_name: string
+  avatar: string | null
   position?: {
     name: string
   }
@@ -15,6 +17,7 @@ type Coworker = {
 type RatedTeamMember = {
   employee_id: number
   employee: Coworker
+  avatar: string | null
   ratings: Array<{
     performance_rating: {
       scale: number
@@ -29,6 +32,13 @@ const props = defineProps<{
   employeeId: number
   ratedTeamMembers?: RatedTeamMember[]
 }>()
+
+onMounted(() => {
+  console.log('All ratedTeamMembers:', props.ratedTeamMembers)
+  const emp26 = props.ratedTeamMembers?.find(m => m.employee_id === 26)
+  console.log('Employee 26 avatar path:', emp26?.avatar)
+  console.log('Employee 26 nested employee.avatar:', emp26?.employee.avatar)
+})
 
 function getCoworkers(order: any): Coworker[] {
   if (props.ratedTeamMembers && props.ratedTeamMembers.length > 0) {
@@ -115,11 +125,11 @@ function getRole(
       default:
         formattedRole = `(${ratedMember.role})`
     }
-    return { role: formattedRole, department: 'Hauling Department' }
+    return { role: formattedRole, department: '' }
   }
 
   const form3 = order.serviceable?.form3
-  if (!form3) return { role: '', department: 'Hauling Department' }
+  if (!form3) return { role: '', department: '' }
 
   let role = ''
   if (form3.team_leader?.id === coworker.id) role = '(Team Leader)'
@@ -129,7 +139,7 @@ function getRole(
   else if ((form3.haulers || []).some((h: any) => h.id === coworker.id))
     role = '(Hauler)'
 
-  const result = { role, department: 'Hauling Department' }
+  const result = { role, department: '' }
   return result
 }
 
@@ -179,11 +189,12 @@ function formatDate(dateString: string) {
         <div class="px-0 sm:px-4 md:px-8 lg:px-12">
           <div v-if="getCoworkers(order).length"
             class="divide-y divide-gray-100 dark:divide-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-
+            
             <CoworkerRatingDisplay v-for="coworker in getCoworkers(order)" :key="coworker.id"
-              :name="`${coworker.first_name} ${coworker.last_name}`" :role="getRole(order, coworker).role"
-              :department="getRole(order, coworker).department" :rating="getCoworkerRating(coworker).rating"
-              :description="getCoworkerRating(coworker).description" />
+              :name="`${coworker.first_name} ${coworker.last_name}`"
+              :avatar="props.ratedTeamMembers?.find(m => m.employee_id === coworker.id)?.avatar ?? undefined"
+              :role="getRole(order, coworker).role" :department="getRole(order, coworker).department"
+              :rating="getCoworkerRating(coworker).rating" :description="getCoworkerRating(coworker).description" />
           </div>
 
           <div v-else
@@ -199,7 +210,7 @@ function formatDate(dateString: string) {
           <div
             class="min-h-[3rem] w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100">
             {{
-              order.performance_summary?.overall_remarks || 'No remarks provided.'
+            order.performance_summary?.overall_remarks || 'No remarks provided.'
             }}
           </div>
         </div>

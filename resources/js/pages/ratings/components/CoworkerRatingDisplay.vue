@@ -3,8 +3,8 @@
     class="flex flex-col gap-2 border-b border-gray-100 bg-white p-4 last:border-b-0 dark:border-gray-700 dark:bg-zinc-900">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img :src="`https://ui-avatars.com/api/?name=${name}&background=random`" :alt="name"
-          class="h-10 w-10 rounded-full object-cover" />
+        <img v-if="avatar" :src="`/storage/${avatar}`" class="h-10 w-10 rounded-full object-cover" />
+        <img v-else src="/images/default-avatar.png" class="h-10 w-10 rounded-full object-cover" />
         <div>
           <div class="flex items-center gap-2">
             <span class="font-medium text-gray-900 dark:text-gray-100">{{ name }}</span>
@@ -44,6 +44,7 @@ defineProps<{
   role: string
   department: string
   rating: number
+  avatar?: string
   description?: string
 }>()
 </script>

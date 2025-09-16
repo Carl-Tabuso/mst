@@ -410,7 +410,7 @@ function getTicketDisplay(row: any): string {
                   <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Job Order</TableHead>
                   <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Evaluator</TableHead>
                   <TableHead class="hidden px-3 py-4 font-bold text-gray-900 sm:table-cell sm:px-6 dark:text-gray-100">
-                    Department & Position</TableHead>
+                    Position</TableHead>
                   <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Rating</TableHead>
                   <TableHead class="hidden px-3 py-4 font-bold text-gray-900 lg:table-cell sm:px-6 dark:text-gray-100">
                     Remarks</TableHead>

@@ -2,6 +2,7 @@ export interface Coworker {
   id: number
   first_name: string
   last_name: string
+  avatar: string | null
   position?: {
     name: string
   }

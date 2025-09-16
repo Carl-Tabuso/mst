@@ -457,7 +457,7 @@ const activeFiltersCount = computed(() => {
                 <TableRow class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
                   <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Name</TableHead>
                   <TableHead class="hidden px-3 py-4 font-bold text-gray-900 sm:table-cell sm:px-6 dark:text-gray-100">
-                    Department & Position
+                    Position
                   </TableHead>
                   <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Average Rating
                   </TableHead>
