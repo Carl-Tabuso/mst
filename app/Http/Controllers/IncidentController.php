@@ -106,14 +106,15 @@ public function createSecondary($haulingId)
         return redirect()->route('incidents.index')->with('success', 'Incident created successfully');
     }
 
-    public function update(UpdateIncidentRequest $request, Incident $incident)
-    {
-        if ($incident->status !== IncidentStatus::Draft) {
-            return back()->with('error', 'Only draft incidents can be updated');
-        }
-
-        $this->incidentService->updateIncident($incident, $request->validated());
-
-        return redirect()->route('incidents.index')->with('success', 'Incident updated successfully');
+public function update(UpdateIncidentRequest $request, Incident $incident)
+{
+    if ($incident->status !== IncidentStatus::Draft) {
+        return back()->with('error', 'Only draft incidents can be updated');
     }
+
+    $this->incidentService->updateIncident($incident, $request->validated(), $request->user());
+
+    return redirect()->route('incidents.index')->with('success', 'Incident updated successfully');
+}
+
 }
