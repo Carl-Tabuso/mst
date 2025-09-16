@@ -1,33 +1,67 @@
 <script setup lang="ts">
+import { Monitor, Cpu, HardDrive } from 'lucide-vue-next'
+
+interface ITService {
+  id: number
+  machine_type: string
+  model: string
+}
+
 defineProps<{
-  services: Array<{ id: number; machine_type: string; model: string }>
+  services: ITService[]
 }>()
+
+const getServiceIcon = (machineType: string) => {
+  const type = machineType.toLowerCase()
+  if (type.includes('computer') || type.includes('pc') || type.includes('laptop')) {
+    return Monitor
+  } else if (type.includes('server') || type.includes('cpu')) {
+    return Cpu
+  } else {
+    return HardDrive
+  }
+}
+
+const getServiceColor = (machineType: string) => {
+  const type = machineType.toLowerCase()
+  if (type.includes('computer') || type.includes('pc') || type.includes('laptop')) {
+    return 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+  } else if (type.includes('server') || type.includes('cpu')) {
+    return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+  } else {
+    return 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+  }
+}
 </script>
 
 <template>
-  <div>
-    <h2 class="mb-2 text-lg font-semibold">
+  <div class="dark:bg-gray-900 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-sky-700 mb-4">
       IT Services Handled
-      <span class="text-base font-normal text-gray-500"
-        >({{ services.length }})</span
-      >
-    </h2>
-    <ul
-      v-if="services.length"
-      class="ml-6 list-disc"
-    >
-      <li
-        v-for="service in services"
-        :key="service.id"
-      >
-        {{ service.machine_type }} - {{ service.model }}
-      </li>
-    </ul>
-    <div
-      v-else
-      class="text-gray-400"
-    >
-      No IT services handled.
+      <span class="text-base font-normal text-gray-500 dark:text-gray-400">({{ services.length }})</span>
+    </h3>
+
+    <div v-if="services.length" class="space-y-3">
+      <div v-for="service in services" :key="service.id"
+        class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+          :class="getServiceColor(service.machine_type)">
+          <component :is="getServiceIcon(service.machine_type)" class="w-5 h-5" />
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="font-medium text-gray-900 dark:text-sky-700 truncate">{{ service.machine_type }}</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ service.model }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="text-center py-6 sm:py-8 text-gray-400 dark:text-gray-500">
+      <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+        <Monitor class="w-8 h-8 text-gray-400 dark:text-gray-600" />
+      </div>
+      <p class="text-sm">No IT services handled yet.</p>
     </div>
   </div>
 </template>
