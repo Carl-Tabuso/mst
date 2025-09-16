@@ -60,6 +60,7 @@ public function index(Request $request)
 
         return Inertia::render('user-management/settings', [
             'user' => [
+
                 'id'         => $user->id,
                 'email'      => $user->email,
                 'created_at' => $user->created_at->format('F j, Y'),
@@ -70,6 +71,7 @@ public function index(Request $request)
                     'position'    => $user->employee->position->name ?? 'N/A',
                     'position_id' => $user->employee->position_id,
                 ],
+
             ],
             'positions' => Position::all()->map(fn ($p) => [
                 'id'   => $p->id,
@@ -135,6 +137,7 @@ public function index(Request $request)
         } catch (\Exception $e) {
             return redirect()->route('users.index')->with('error', 'Error deleting account: '.$e->getMessage());
         }
+
     }
 
     public function store(StoreUserRequest $request)
