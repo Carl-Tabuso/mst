@@ -4,96 +4,67 @@ import { User } from '@/types'
 import { Link } from '@inertiajs/vue3'
 import { ColumnDef } from '@tanstack/vue-table'
 import { h } from 'vue'
-import DataTableHeader from '@/pages/job-orders/components/DataTableHeader.vue'
+import DataTableHeader from './components/DataTableHeader.vue'
 import UserActions from '@/components/user-management/UserDataTableRowActions.vue'
+import UserFullNameAndEmail from '@/components/UserFullNameAndEmail.vue'
+import UserRoleBadge from '@/components/UserRoleBadge.vue'
+import { format } from 'date-fns'
 
 export const columns: ColumnDef<User>[] = [
-
   {
-    accessorKey: 'name',
-    meta: { label: 'Name' },
+    id: 'user',
+    meta: { label: 'User' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => h(UserFullNameAndEmail, { user: row.original }),
+    enableHiding: false
+  },
+  {
+    accessorKey: 'emailVerifiedAt',
+    meta: { label: 'Date Verified' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      const employee = row.original.employee
-      const name = employee 
-        ? `${employee.firstName} ${employee.lastName}`.trim()
-        : 'N/A'
-      
-      const userId = row.original?.id
+      const emailVerifiedAt: string = row.getValue('emailVerifiedAt')
 
-      if (!userId) {
-        return h('div', { class: 'text-sm font-medium' }, name)
+      if (!emailVerifiedAt) {
+        return h('div', { class: 'font-medium text-xs text-muted-foreground' }, 'Not verified yet')
       }
 
-      return h(
-        'div',
-        { class: 'text-sm font-medium' },
-        name
-      )
+      const dateVerified = new Date(emailVerifiedAt)
+      const formattedDate = format(dateVerified, 'MMMM dd, yyyy')
+      const formattedTime = format(dateVerified, 'hh:mm a')
+
+      return h('div', { class: 'text-xs' }, [
+        h('div', { class: 'font-medium' }, formattedDate),
+        h('div', { class: 'text-[11px] text-muted-foreground' }, formattedTime),
+      ])
     },
-    enableHiding: false,
   },
   {
-    accessorKey: 'email',
-    meta: { label: 'Email' },
+    accessorKey: 'roles',
+    meta: { label: 'Role' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      const email = row.original.email || 'N/A'
-      return h('div', { class: 'text-xs' }, email)
-    },
+      console.log(row.original)
+      return h(UserRoleBadge, { roleName: row.original.roles[0].name })
+    }
   },
   {
-    accessorKey: 'created_at',
+    accessorKey: 'createdAt',
     meta: { label: 'Date Created' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      const createdAt = row.original.createdAt
-      if (!createdAt)
-        return h(
-          'div',
-          { class: 'text-xs text-muted-foreground' },
-          'N/A'
-        )
+      const createdAt = new Date(row.getValue('createdAt'))
+      const formattedDate = format(createdAt, 'MMMM dd, yyyy')
+      const formattedTime = format(createdAt, 'hh:mm a')
 
-      try {
-        const formattedDate = new Date(createdAt as string).toLocaleDateString(
-          'en-PH',
-          {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          },
-        )
-        return h('div', { class: 'text-xs' }, formattedDate)
-      } catch (error) {
-        return h(
-          'div',
-          { class: 'text-xs text-muted-foreground' },
-          'Invalid date',
-        )
-      }
+      return h('div', { class: 'text-xs' }, [
+        h('div', { class: 'font-medium' }, formattedDate),
+        h('div', { class: 'text-[11px] text-muted-foreground' }, formattedTime),
+      ])
     },
   },
   {
-  accessorKey: 'status',
-  meta: { label: 'Status' },
-  header: ({ column }) => h(DataTableHeader, { column: column }),
-  cell: ({ row }) => {
-    const status = row.original.deletedAt ? 'inactive' : 'active'
-    const variant = status === 'active' ? 'default' : 'destructive'
-
-    return h(
-      Badge,
-      { variant },
-      () => status.charAt(0).toUpperCase() + status.slice(1)
-    )
-  },
-},
-
-  {
-    accessorKey: 'Action',
+    id: 'Action',
     meta: { label: 'Actions' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
