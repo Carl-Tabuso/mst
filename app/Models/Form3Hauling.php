@@ -67,5 +67,10 @@ class Form3Hauling extends Model
         return $this->belongsTo(Truck::class);
     }
 
+    public function incident(): HasOne
+    {
+        return $this->hasOne(Incident::class);
+    }
+
     // add listener for activity logging
 }

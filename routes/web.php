@@ -126,33 +126,34 @@ Route::middleware(['auth'])->group(function () {
     */
 
     Route::prefix('users')->group(function () {
-
-        Route::get('/', [UserController::class, 'index']);
-
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
         Route::get('/{user}/settings', [UserController::class, 'settings'])
             ->name('users.settings');
-
+        Route::post('/store', [UserController::class, 'store'])->name('users.store');
         Route::patch('/{user}', [UserController::class, 'update'])
             ->name('users.update');
         Route::patch('/{user}/role', [UserController::class, 'updateRole'])
             ->name('users.role.update');
         Route::delete('/{user}/deactivate', [UserController::class, 'deactivate'])
             ->name('users.deactivate');
+        Route::post('/{user}/restore', [UserController::class, 'restore'])
+            ->name('users.restore');
         Route::delete('/{user}', [UserController::class, 'destroy'])
             ->name('users.destroy');
     });
     Route::get('/roles-permissions', function () {
         return inertia('roles-and-permissions/RolesPermissions');
     })->name('roles-permissions');
+
     Route::post('/employees-with-account', [EmployeeController::class, 'storeWithAccount']);
     Route::prefix('incidents')->name('incidents.')->group(function () {
-        Route::get('report', [IncidentController::class, 'showReport'])->name('report');
-        Route::get('/', [IncidentController::class, 'index'])->name('index');
+        Route::get('/', action: [IncidentController::class, 'index'])->name('index');
+        Route::put('/{incident}', [IncidentController::class, 'update'])->name('update');
         Route::post('/', [IncidentController::class, 'store'])->name('store');
-        Route::patch('{incident}/read', [IncidentController::class, 'markAsRead'])->name('read');
+        Route::patch('{incident}/read', [IncidentController::class, 'markAsRead'])->name('markAsRead');
         Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
-        Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])
-            ->middleware(['can:verify,incident']);
+        Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])->name('verify')->middleware(['can:verify,incident']);
+        Route::put('/incidents/{incident}/mark-no-incident', [IncidentController::class, 'markNoIncident'])->name('markNoIncident');
 
     });
 

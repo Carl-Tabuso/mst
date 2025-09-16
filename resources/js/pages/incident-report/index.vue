@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { Button } from '@/components/ui/button'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem } from '@/types'
-import { ref } from 'vue'
-import Mail from '../../components/incident-report/components/Mail.vue'
+import Incident from '../../components/incident-report/components/Incident.vue'
+import MainContainer from '@/components/MainContainer.vue'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -15,24 +14,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/incident-report',
   },
 ]
-
-const isComposing = ref(false)
-
-const toggleCompose = () => {
-  isComposing.value = !isComposing.value
-}
 </script>
 
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="container p-5">
+    <MainContainer>
+    <div class="container">
       <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-3xl font-bold tracking-tight text-blue-900">
+        <h1 class="text-3xl text-primary font-bold tracking-tight">
           Incident Report
         </h1>
-        <Button @click="toggleCompose">
-          {{ isComposing ? 'Cancel' : 'Compose New' }}
-        </Button>
+
       </div>
 
       <div class="md:hidden">
@@ -46,12 +38,11 @@ const toggleCompose = () => {
       </div>
 
       <div class="hidden flex-col md:flex">
-        <Mail
+        <Incident
           :nav-collapsed-size="4"
-          :is-composing="isComposing"
-          @cancel-compose="isComposing = false"
         />
       </div>
     </div>
+    </MainContainer>
   </AppLayout>
 </template>

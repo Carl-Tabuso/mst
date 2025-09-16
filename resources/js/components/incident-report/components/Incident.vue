@@ -13,49 +13,32 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { useMailData } from '@/composables/useMailData'
-import { useMailFilters } from '@/composables/useMailFilters'
-import type { MailProps } from '@/types/incident'
+import { useIncidentData } from '@/composables/useIncidentData'
+import { useIncidentFilters } from '@/composables/useIncidentFilters'
+import type { IncidentProps, Incident } from '@/types/incident'
 import { Icon } from '@iconify/vue'
 import { refDebounced } from '@vueuse/core'
-import axios from 'axios'
 import { Search } from 'lucide-vue-next'
-import { computed, withDefaults } from 'vue'
-import MailDisplay from './MailDisplay.vue'
-import MailList from './MailList.vue'
+import { computed, withDefaults, ref, watch } from 'vue'
+import IncidentDisplay from './IncidentDisplay.vue'
+import IncidentList from './IncidentList.vue'
 
-const handleMarkAsRead = async (id: string) => {
-  try {
-    const item = mails.value.find((m) => m.id === id)
-    if (item) item.is_read = true
-
-    await axios.patch(`/incidents/${id}/read`)
-
-    await fetchIncidents()
-  } catch (err) {
-    console.error('Failed to mark as read:', err)
-    const item = mails.value.find((m) => m.id === id)
-    if (item) item.is_read = false
-  }
-}
-const props = withDefaults(defineProps<MailProps>(), {
+const props = withDefaults(defineProps<IncidentProps>(), {
   defaultCollapsed: false,
   defaultLayout: () => [30, 70],
 })
-const handleIncidentSubmitted = async () => {
-  await fetchIncidents()
-}
 
 const {
-  mails,
+  incidents,
   loading,
-  selectedMail,
-  selectedMails,
+  selectedIncident,
+  selectedIncidents,
   archiveSelected,
   fetchIncidents,
-} = useMailData()
+  markAsRead
+} = useIncidentData()
 
 const {
   searchValue,
@@ -63,33 +46,70 @@ const {
   sortBy,
   tempFilters,
   activeFilters,
-  filteredMailList,
   applyFilters,
   clearFilters,
-} = useMailFilters(mails)
+} = useIncidentFilters(incidents)
 
-const debouncedSearch = refDebounced(searchValue, 250)
-const selectedMailData = computed(() =>
-  mails.value.find((item) => item.id === selectedMail.value),
+const debouncedSearch = refDebounced(searchValue, 300)
+const incidentsRefreshKey = ref(0)
+const selectedIncidentData = computed(() =>
+  incidents.value.find((item) => item.id === selectedIncident.value),
 )
 
-defineEmits(['cancel-compose'])
+const isEditing = computed(() => {
+  if (!selectedIncident.value) return false
+  const incident = incidents.value.find(i => i.id === selectedIncident.value)
+  return incident?.status === 'draft'
+})
+
+const handleMarkAsRead = async (id: string) => {
+  try {
+    const item = incidents.value.find((m) => m.id === id)
+    if (item) item.is_read = true
+    await markAsRead(id)
+  } catch (err) {
+    console.error('Failed to mark as read:', err)
+    const item = incidents.value.find((m) => m.id === id)
+    if (item) item.is_read = false
+  }
+}
+
+const handleNoIncident = (updatedIncident: Incident) => {
+  const index = incidents.value.findIndex(i => i.id === updatedIncident.id)
+  if (index !== -1) {
+    incidents.value[index] = { ...incidents.value[index], ...updatedIncident }
+    incidentsRefreshKey.value++ 
+  }
+}
+
+const handleCancelEdit = () => {
+  fetchIncidents()
+}
+
+const handleIncidentUpdate = () => {
+  fetchIncidents()
+}
+
+const refreshIncidents = () => {
+  incidentsRefreshKey.value++
+  fetchIncidents()
+}
+
+watch([debouncedSearch, activeTab, activeFilters], () => {
+  fetchIncidents({
+    search: debouncedSearch.value,
+    tab: activeTab.value,
+    statuses: activeFilters.value.statuses,
+    dateFrom: activeFilters.value.dateFrom,
+    dateTo: activeFilters.value.dateTo
+  })
+})
+
+defineEmits(['cancel-edit', 'no-incident'])
 </script>
 
 <template>
-  <div class="mb-5 w-full border-b">
-    <Tabs v-model="activeTab">
-      <TabsList>
-        <TabsTrigger value="All">All</TabsTrigger>
-        <TabsTrigger value="Waste Management">Waste Management</TabsTrigger>
-        <TabsTrigger value="IT Services">IT Services</TabsTrigger>
-        <TabsTrigger value="Other Services">Other Services</TabsTrigger>
-      </TabsList>
-    </Tabs>
-  </div>
-
   <div class="flex items-center justify-between gap-2">
-    <!-- Search (immediate) -->
     <form class="w-full max-w-xs">
       <div class="relative">
         <Search class="absolute left-2 top-2.5 size-4 text-muted-foreground" />
@@ -118,7 +138,7 @@ defineEmits(['cancel-compose'])
               <p class="text-sm font-semibold">Status</p>
               <div class="mt-2 space-y-1">
                 <div
-                  v-for="status in ['verified', 'for verification', 'dropped']"
+                  v-for="status in ['draft', 'verified', 'for verification', 'dropped', 'no_incident']"
                   :key="status"
                 >
                   <label class="flex items-center space-x-2 text-sm">
@@ -128,7 +148,7 @@ defineEmits(['cancel-compose'])
                       :value="status"
                       :checked="tempFilters.statuses.includes(status)"
                     />
-                    <span>{{ status }}</span>
+                    <span>{{ status.replace('_', ' ').toUpperCase() }}</span>
                   </label>
                 </div>
               </div>
@@ -164,7 +184,6 @@ defineEmits(['cancel-compose'])
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <!-- Sort Dropdown (immediate) -->
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline">
@@ -189,10 +208,10 @@ defineEmits(['cancel-compose'])
       <Button
         variant="outline"
         @click="archiveSelected"
-        :disabled="selectedMails.length === 0"
+        :disabled="selectedIncidents.length === 0"
         :class="{
-          'cursor-not-allowed opacity-50': selectedMails.length === 0,
-          'hover:bg-gray-100': selectedMails.length > 0,
+          'cursor-not-allowed opacity-50': selectedIncidents.length === 0,
+          'hover:bg-gray-100': selectedIncidents.length > 0,
         }"
       >
         <Icon
@@ -201,21 +220,21 @@ defineEmits(['cancel-compose'])
         />
         Archive
         <span
-          v-if="selectedMails.length > 0"
+          v-if="selectedIncidents.length > 0"
           class="ml-1"
         >
-          ({{ selectedMails.length }})
+          ({{ selectedIncidents.length }})
         </span>
       </Button>
       <Button
         variant="outline"
-        @click="fetchIncidents"
+        @click="refreshIncidents"
       >
         <Icon
-          icon="lucide:download"
+          icon="lucide:refresh-cw"
           class="mr-2 size-4"
         />
-        Export
+        Refresh
       </Button>
     </div>
   </div>
@@ -226,7 +245,6 @@ defineEmits(['cancel-compose'])
         direction="horizontal"
         class="max-h-[800px] min-h-[500px] w-full rounded-lg border"
       >
-        <!-- Mail List Panel -->
         <ResizablePanel
           :default-size="20"
           :min-size="20"
@@ -242,12 +260,13 @@ defineEmits(['cancel-compose'])
                 value="all"
                 class="mt-0 flex-1 overflow-scroll"
               >
-                <MailList
+                <IncidentList
+                  :key="incidentsRefreshKey"
                   :on-mark-as-read="handleMarkAsRead"
-                  @item-click="selectedMail = $event"
-                  v-model:selected-mail="selectedMail"
-                  v-model:selected-mails="selectedMails"
-                  :items="filteredMailList"
+                  @item-click="selectedIncident = $event"
+                  v-model:selected-incident="selectedIncident"
+                  v-model:selected-incidents="selectedIncidents"
+                  :items="incidents"
                   :loading="loading"
                   :search-query="debouncedSearch"
                   :active-tab="activeTab"
@@ -268,12 +287,14 @@ defineEmits(['cancel-compose'])
           :min-size="30"
           class="relative overflow-auto"
         >
-          <MailDisplay
-            :mail="selectedMailData"
-            :is-composing="props.isComposing"
-            @cancel-compose="$emit('cancel-compose')"
-            @incident-submitted="handleIncidentSubmitted"
-          />
+         <IncidentDisplay
+  :key="selectedIncident" 
+  :incident="selectedIncidentData"
+  :is-editing="isEditing"
+  @cancel-edit="handleCancelEdit"
+  @no-incident="handleNoIncident"
+  @incident-updated="handleIncidentUpdate"
+/>
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>

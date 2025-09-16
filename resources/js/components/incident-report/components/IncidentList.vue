@@ -2,13 +2,13 @@
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
-import type { Mail } from '@/types/incident'
+import type { Incident } from '@/types/incident'
 import { format } from 'date-fns'
 import { Clock } from 'lucide-vue-next'
 import { computed } from 'vue'
 
-interface MailListProps {
-  items: Mail[]
+interface IncidentListProps {
+  items: Incident[]
   searchQuery?: string
   activeTab?: string
   selectedStatuses?: string[]
@@ -19,24 +19,18 @@ interface MailListProps {
 }
 
 const emit = defineEmits(['itemClick'])
-const props = defineProps<MailListProps>()
-const selectedMail = defineModel<string>('selectedMail', { required: false })
-const selectedMails = defineModel<string[]>('selectedMails', { default: [] })
+const props = defineProps<IncidentListProps>()
+const selectedIncident = defineModel<string | number>('selectedIncident', { required: false })
+const selectedIncidents = defineModel<Array<string | number>>('selectedIncidents', { default: [] })
 
-const getBadgeVariantFromLabel = (label: string) => {
-  const labelMap: Record<string, string> = {
-    'waste management': 'default',
-    'it services': 'secondary',
-    'other services': 'tertiary',
-  }
-  return labelMap[label.toLowerCase()] || 'secondary'
-}
 
 const getStatusBadgeVariant = (status: string) => {
   const statusMap: Record<string, string> = {
     'for verification': 'tertiary',
-    verified: 'default',
-    pending: 'secondary',
+    'verified': 'default',
+    'pending': 'secondary',
+    'draft': 'outline',
+    'no_incident': 'secondary',
   }
   return statusMap[status.toLowerCase()] || 'outline'
 }
@@ -49,7 +43,7 @@ const filteredItems = computed(() => {
     result = result.filter(
       (item) =>
         item.subject.toLowerCase().includes(searchTerm) ||
-        item.plainText.toLowerCase().includes(searchTerm) ||
+        item.plainText?.toLowerCase().includes(searchTerm) ||
         item.location?.toLowerCase().includes(searchTerm) ||
         item.infraction_type?.toLowerCase().includes(searchTerm) ||
         item.involved_employees?.some((emp) =>
@@ -100,12 +94,12 @@ const filteredItems = computed(() => {
   return result
 })
 
-const toggleSelection = (mailId: string) => {
-  const index = selectedMails.value.indexOf(mailId)
+const toggleSelection = (incidentId: string) => {
+  const index = selectedIncidents.value.indexOf(incidentId)
   if (index === -1) {
-    selectedMails.value.push(mailId)
+    selectedIncidents.value.push(incidentId)
   } else {
-    selectedMails.value.splice(index, 1)
+    selectedIncidents.value.splice(index, 1)
   }
 }
 
@@ -132,16 +126,16 @@ const handleItemClick = (itemId: string) => {
           :key="item.id"
           class="group relative flex items-start gap-3 border p-3 text-left text-sm transition-all hover:bg-accent"
           :class="{
-            'bg-accent': selectedMail === item.id || !item.is_read,
-            'bg-blue-50': selectedMails.includes(item.id),
+            'bg-accent': selectedIncident === item.id || !item.is_read,
+            'bg-blue-50': selectedIncidents.includes(item.id),
           }"
           @click="handleItemClick(item.id)"
         >
           <div
             class="absolute left-3 top-10 transition-opacity"
             :class="{
-              'opacity-100': selectedMails.includes(item.id),
-              'opacity-0 group-hover:opacity-100': !selectedMails.includes(
+              'opacity-100': selectedIncidents.includes(item.id),
+              'opacity-0 group-hover:opacity-100': !selectedIncidents.includes(
                 item.id,
               ),
             }"
@@ -149,7 +143,7 @@ const handleItemClick = (itemId: string) => {
           >
             <input
               type="checkbox"
-              :checked="selectedMails.includes(item.id)"
+              :checked="selectedIncidents.includes(item.id)"
               @change="toggleSelection(item.id)"
               class="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
             />
@@ -173,7 +167,7 @@ const handleItemClick = (itemId: string) => {
                 )
               "
             >
-              {{ item.plainText }}
+              {{ item.plainText || 'No description' }}
             </div>
 
             <div
@@ -190,13 +184,7 @@ const handleItemClick = (itemId: string) => {
               {{
                 format(new Date(item.occured_at), "MMMM d, yyyy 'at' hh:mmaaa")
               }}
-              <Badge
-                v-for="label of item.labels"
-                :key="label"
-                :variant="getBadgeVariantFromLabel(label)"
-              >
-                {{ label }}
-              </Badge>
+
               <Badge
                 v-if="item.status"
                 :variant="getStatusBadgeVariant(item.status)"

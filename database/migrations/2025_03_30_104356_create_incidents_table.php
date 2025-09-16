@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\JobOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,10 +13,6 @@ return new class extends Migration
     {
         Schema::create('incidents', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(JobOrder::class)
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
             $table->foreignId('created_by')
                 ->constrained('employees')
                 ->cascadeOnUpdate()
