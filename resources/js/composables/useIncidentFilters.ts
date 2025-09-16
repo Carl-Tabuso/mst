@@ -1,16 +1,16 @@
-import type { Mail, MailFilters } from '@/types/incident'
+import type { Incident, IncidentFilters } from '@/types/incident'
 import { computed, ref, type Ref } from 'vue'
 
-export function useMailFilters(mails: Ref<Mail[]>) {
+export function useIncidentFilters(incidents: Ref<Incident[]>) {
   const searchValue = ref('')
   const activeTab = ref('All')
   const sortBy = ref('recent')
-  const tempFilters = ref<MailFilters>({
+  const tempFilters = ref<IncidentFilters>({
     statuses: [],
     dateFrom: '',
     dateTo: '',
   })
-  const activeFilters = ref<MailFilters>({
+  const activeFilters = ref<IncidentFilters>({
     statuses: [],
     dateFrom: '',
     dateTo: '',
@@ -33,8 +33,8 @@ export function useMailFilters(mails: Ref<Mail[]>) {
     applyFilters()
   }
 
-  const filteredMailList = computed(() => {
-    let output = [...mails.value]
+  const filteredIncidentList = computed(() => {
+    let output = [...incidents.value]
 
     if (searchValue.value.trim()) {
       const searchTerm = searchValue.value.toLowerCase()
@@ -106,7 +106,7 @@ export function useMailFilters(mails: Ref<Mail[]>) {
     sortBy,
     tempFilters,
     activeFilters,
-    filteredMailList,
+    filteredIncidentList,
     applyFilters,
     clearFilters,
   }

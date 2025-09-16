@@ -7,12 +7,13 @@ export interface Employee {
 export interface JobOrder {
   id: number
   serviceable_type: string
+  service_type: string
   status: string
   label?: string
   creator?: string
 }
 
-export interface Mail {
+export interface Incident {
   id: string
   subject: string
   description: string
@@ -25,19 +26,21 @@ export interface Mail {
   status: string
   created_by: Employee
   involved_employees: Employee[]
-  job_order?: JobOrder
+  haulers: Employee[] // Only haulers now
+  hauling_job_order?: JobOrder
   labels?: string[]
+  hauling?: any
 }
 
-export interface MailProps {
+export interface IncidentProps {
   defaultLayout?: number[]
   defaultCollapsed?: boolean
   navCollapsedSize: number
-  isComposing?: boolean
+  isEditing?: boolean 
 }
 
-export interface MailListProps {
-  initialItems?: Mail[]
+export interface IncidentListProps {
+  initialItems?: Incident[]
   searchQuery?: string
   activeTab?: string
   selectedStatuses?: string[]
@@ -46,11 +49,12 @@ export interface MailListProps {
   sortBy?: string
 }
 
-export interface MailFilters {
+export interface IncidentFilters {
   statuses: string[]
   dateFrom: string
   dateTo: string
 }
+
 export interface EmployeeSelection {
   id: number
   name: string
@@ -62,14 +66,13 @@ export interface FormData {
   dateTime: string
   location: string
   infractionType: string
-  serviceType: string
   description: string
   jobOrder: number | null
 }
 
-export interface MailDisplayProps {
-  mail: Mail | undefined
-  isComposing?: boolean
+export interface IncidentDisplayProps {
+  incident: Incident | undefined
+  isEditing?: boolean
 }
 
 export interface JobOrderOption {

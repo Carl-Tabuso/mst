@@ -16,6 +16,7 @@ class EmployeeSeeder extends Seeder
         $this->seedFrontliners();
         $this->seedDispatchers();
         $this->seedTeamLeaders();
+        $this->seedSafetyOfficer();
         $this->seedHaulers();
         $this->seedConsultants();
         $this->seedHumanResources();
@@ -32,6 +33,13 @@ class EmployeeSeeder extends Seeder
     {
         Employee::factory(10)->create([
             'position_id' => $this->getPositionId('Dispatcher'),
+        ]);
+    }
+
+    private function seedSafetyOfficer(): void
+    {
+        Employee::factory(10)->create([
+            'position_id' => $this->getPositionId('Safety Officer'),
         ]);
     }
 
