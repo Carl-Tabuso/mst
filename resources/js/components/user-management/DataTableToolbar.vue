@@ -70,25 +70,21 @@ const activeFilterCount = computed(() => {
   const filters = (page.props as any).filters ?? {}
   let count = 0
   
-  // Count search filter
   if (filters.search && filters.search.trim() !== '') {
     count++
   }
   
-  // Count role filters - each selected role counts as one
   if (filters.role) {
     if (Array.isArray(filters.role)) {
       count += filters.role.filter(role => 
         role !== null && role !== undefined && role !== ''
       ).length
     } else if (typeof filters.role === 'string') {
-      // Handle comma-separated values
       const roles = filters.role.split(',').filter(r => r.trim() !== '')
       count += roles.length
     }
   }
   
-  // Count date filters
   if (filters.fromDateCreated && filters.fromDateCreated !== '') {
     count++
   }
