@@ -23,50 +23,40 @@ watch(
 </script>
 
 <template>
-  <div
-    v-if="show"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-4"
-  >
+  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-4">
     <div
-      class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-lg sm:p-6"
-    >
+      class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
       <button
-        class="absolute right-3 top-3 text-xl text-gray-400 hover:text-gray-600"
-        @click="$emit('close')"
-      >
+        class="absolute right-3 top-3 text-xl text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+        @click="$emit('close')">
         &times;
       </button>
-      <h2 class="mb-4 text-lg font-semibold sm:text-xl">
+      <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100 sm:text-xl">
         Rating History for {{ employee?.full_name }}
-        <span class="text-gray-500">({{ employee?.position }})</span>
+        <span class="text-gray-500 dark:text-gray-400">({{ employee?.position }})</span>
       </h2>
-      <div class="mb-4 max-h-96 overflow-auto rounded border">
+      <div class="mb-4 max-h-96 overflow-auto rounded border border-gray-200 dark:border-gray-700">
         <table class="w-full text-sm sm:text-base">
-          <thead class="sticky top-0 bg-gray-100">
+          <thead class="sticky top-0 bg-gray-100 dark:bg-gray-700">
             <tr>
-              <th class="px-3 py-2 text-left">From</th>
-              <th class="px-3 py-2 text-left">Position</th>
-              <th class="px-3 py-2 text-left">Scale</th>
-              <th class="px-3 py-2 text-left">Description</th>
-              <th class="px-3 py-2 text-left">Date</th>
+              <th class="px-3 py-2 text-left text-gray-900 dark:text-gray-100">From</th>
+              <th class="px-3 py-2 text-left text-gray-900 dark:text-gray-100">Position</th>
+              <th class="px-3 py-2 text-left text-gray-900 dark:text-gray-100">Scale</th>
+              <th class="px-3 py-2 text-left text-gray-900 dark:text-gray-100">Description</th>
+              <th class="px-3 py-2 text-left text-gray-900 dark:text-gray-100">Date</th>
             </tr>
           </thead>
-          <tbody>
-            <tr
-              v-for="row in received"
-              :key="row.from + row.date"
-            >
-              <td class="px-3 py-1">{{ row.from }}</td>
-              <td class="px-3 py-1">{{ row.from_position }}</td>
-              <td class="px-3 py-1">{{ row.scale }}</td>
-              <td class="px-3 py-1">{{ row.description }}</td>
-              <td class="px-3 py-1">{{ row.date }}</td>
+          <tbody class="bg-white dark:bg-gray-800">
+            <tr v-for="row in received" :key="row.from + row.date"
+              class="border-b border-gray-100 dark:border-gray-700">
+              <td class="px-3 py-1 text-gray-900 dark:text-gray-100">{{ row.from }}</td>
+              <td class="px-3 py-1 text-gray-900 dark:text-gray-100">{{ row.from_position }}</td>
+              <td class="px-3 py-1 text-gray-900 dark:text-gray-100">{{ row.scale }}</td>
+              <td class="px-3 py-1 text-gray-900 dark:text-gray-100">{{ row.description }}</td>
+              <td class="px-3 py-1 text-gray-900 dark:text-gray-100">{{ row.date }}</td>
             </tr>
             <tr v-if="!received.length">
-              <td
-                colspan="5"
-                class="text-center text-gray-400"
-              >
+              <td colspan="5" class="text-center text-gray-400 dark:text-gray-500">
                 No ratings received.
               </td>
             </tr>
