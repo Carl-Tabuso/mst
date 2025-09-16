@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 
 class Form3Hauling extends Model
 {
@@ -67,10 +69,34 @@ class Form3Hauling extends Model
         return $this->belongsTo(Truck::class);
     }
 
-    public function incident(): HasOne
+  public function incidents(): HasMany
     {
-        return $this->hasOne(Incident::class);
+        return $this->hasMany(Incident::class);
     }
 
-    // add listener for activity logging
+    public function primaryIncident()
+    {
+        return $this->incidents()->oldest()->first();
+    }
+
+    public function secondaryIncident()
+    {
+        return $this->incidents()->oldest()->skip(1)->first();
+    }
+
+    public function hasSecondaryIncident()
+    {
+        return $this->incidents()->count() > 1;
+    }
+
+    public function getPrimaryIncidentAttribute()
+    {
+        return $this->primaryIncident();
+    }
+
+    public function getSecondaryIncidentAttribute()
+    {
+        return $this->secondaryIncident();
+    }
+
 }
