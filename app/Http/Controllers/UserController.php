@@ -2,43 +2,76 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\NewUserCredentials;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Models\Employee;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        if ($request->expectsJson()) {
-            return $this->getUsersData($request);
-        }
+    protected UserService $userService;
 
-        return Inertia::render('user-management/index');
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
     }
+
+public function index(Request $request)
+{
+    $employees = Employee::whereDoesntHave('account')
+        ->with('position')
+        ->get();
+
+    $filters = $request->filters ?? [];
+
+    $users = $this->userService->getAllUsers(
+        search: $filters['search']  ?? null,
+        role: $filters['role']      ?? null, 
+        sort: $filters['sort']      ?? null,
+        perPage: $request->per_page ?? $filters['per_page'] ?? 10
+    );
+
+    return Inertia::render('user-management/index', [
+        'data'      => UserResource::collection($users),
+        'employees' => $employees,
+        'roles'     => Position::all()->map(fn($p) => [ 
+            'id' => $p->id,
+            'name' => $p->name
+        ]),
+        'meta'      => [
+            'current_page' => $users->currentPage(),
+            'last_page'    => $users->lastPage(),
+            'per_page'     => $users->perPage(),
+            'total'        => $users->total(),
+        ],
+        'emptySearchImg' => asset('images/empty-search.svg'),
+        'filters'        => $filters,
+    ]);
+}
 
     public function settings(User $user)
     {
         $user->load(['employee', 'employee.position']);
 
-        return inertia('user-management/settings', [
+        return Inertia::render('user-management/settings', [
             'user' => [
-                'id'          => $user->id,
-                'first_name'  => $user->employee->first_name,
-                'last_name'   => $user->employee->last_name,
-                'email'       => $user->email,
-                'avatar'      => $user->avatar,
-                'created_at'  => $user->created_at->format('F j, Y'),
-                'deleted_at'  => $user->deleted_at,
-                'position'    => $user->employee->position->name ?? 'N/A',
-                'position_id' => $user->employee->position_id,
+
+                'id'         => $user->id,
+                'email'      => $user->email,
+                'created_at' => $user->created_at->format('F j, Y'),
+                'deleted_at' => $user->deleted_at,
+                'employee'   => [
+                    'first_name'  => $user->employee->first_name,
+                    'last_name'   => $user->employee->last_name,
+                    'position'    => $user->employee->position->name ?? 'N/A',
+                    'position_id' => $user->employee->position_id,
+                ],
+
             ],
             'positions' => Position::all()->map(fn ($p) => [
                 'id'   => $p->id,
@@ -47,24 +80,15 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'email'      => 'required|email|unique:users,email,'.$user->id,
-        ]);
+        try {
+            $this->userService->updateUserProfile($user, $request->validated());
 
-        DB::transaction(function () use ($user, $validated) {
-            $user->employee()->update([
-                'first_name' => $validated['first_name'],
-                'last_name'  => $validated['last_name'],
-            ]);
-
-            $user->update(['email' => $validated['email']]);
-        });
-
-        return back()->with('success', 'Profile updated successfully');
+            return redirect()->route('users.index')->with('success', 'Profile updated successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error updating profile: '.$e->getMessage());
+        }
     }
 
     public function updateRole(Request $request, User $user)
@@ -73,153 +97,65 @@ class UserController extends Controller
             'position_id' => 'required|exists:positions,id',
         ]);
 
-        $user->employee()->update([
-            'position_id' => $request->position_id,
-        ]);
+        try {
+            $this->userService->updateUserRole($user, $request->position_id);
 
-        return back()->with('success', 'Role updated successfully');
+            return redirect()->route('users.index')->with('success', 'Role updated successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error updating role: '.$e->getMessage());
+        }
     }
 
     public function deactivate(User $user)
     {
-        $user->delete();
+        try {
+            $this->userService->deactivateUser($user);
 
-        return response()->json(['message' => 'Account deactivated successfully']);
+            return redirect()->route('users.index')->with('success', 'Account deactivated successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('users.index')->with('error', 'Error deactivating account: '.$e->getMessage());
+        }
+    }
+
+    public function restore(User $user)
+    {
+        try {
+            $user->restore();
+
+            return redirect()->route('users.index')->with('success', 'Account activated successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('users.index')->with('error', 'Error activating account: '.$e->getMessage());
+        }
     }
 
     public function destroy(User $user)
     {
-        DB::transaction(function () use ($user) {
-            $user->employee()->delete();
-            $user->forceDelete();
-        });
-
-        return response()->json(['message' => 'Account permanently deleted']);
-    }
-
-    public function getUsersData(Request $request)
-    {
-        $query = User::with(['employee' => function ($query) {
-            $query->select('id', 'first_name', 'middle_name', 'last_name', 'suffix', 'position_id', 'created_at', 'updated_at');
-        }])
-            ->select('users.*');
-
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('email', 'like', "%{$request->search}%")
-                    ->orWhereHas('employee', function ($q) use ($request) {
-                        $q->where('first_name', 'like', "%{$request->search}%")
-                            ->orWhere('last_name', 'like', "%{$request->search}%")
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$request->search}%"]);
-                    });
-            });
-        }
-
-        if ($request->status) {
-            if ($request->status === 'active') {
-                $query->whereNull('deleted_at');
-            } elseif ($request->status === 'inactive') {
-                $query->whereNotNull('deleted_at');
-            }
-        }
-
-        if ($request->sort) {
-            [$column, $direction] = explode(':', $request->sort);
-
-            if ($column === 'name') {
-                $query->join('employees', 'users.employee_id', '=', 'employees.id')
-                    ->orderBy('employees.last_name', $direction)
-                    ->orderBy('employees.first_name', $direction);
-            } else {
-                $query->orderBy($column === 'created_at' ? 'users.created_at' : $column, $direction);
-            }
-        } else {
-            $query->orderBy('users.created_at', 'desc');
-        }
-
-        $perPage = $request->per_page ?? 10;
-        $users   = $query->paginate($perPage);
-
-        $transformedUsers = $users->getCollection()->map(function ($user) {
-            return [
-                'id'         => $user->id,
-                'email'      => $user->email,
-                'avatar'     => $user->avatar,
-                'employee'   => $user->employee,
-                'created_at' => $user->created_at,
-                'updated_at' => $user->updated_at,
-                'deleted_at' => $user->deleted_at,
-            ];
-        });
-
-        return response()->json([
-            'data'         => $transformedUsers,
-            'current_page' => $users->currentPage(),
-            'last_page'    => $users->lastPage(),
-            'per_page'     => $users->perPage(),
-            'total'        => $users->total(),
-        ]);
-
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id|unique:users,employee_id',
-            'email'       => 'required|email|unique:users,email',
-            'role'        => 'required|string|max:255',
-        ]);
-
         try {
-            $password = \Illuminate\Support\Str::random(12);
+            $this->userService->permanentlyDeleteUser($user);
 
-            $user = User::create([
-                'employee_id' => $validated['employee_id'],
-                'email'       => $validated['email'],
-                'password'    => Hash::make($password),
-                'role'        => $validated['role'],
-            ]);
-
-            Mail::to($user->email)->send(new NewUserCredentials($user, $password));
-
-            return response()->json([
-                'message' => 'User created successfully. Credentials have been sent to the email.',
-                'user'    => $user,
-            ], 201);
-
+            return redirect()->route('users.index')->with('success', 'Account permanently deleted');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error creating user',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return redirect()->route('users.index')->with('error', 'Error deleting account: '.$e->getMessage());
+        }
+
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        try {
+            $result   = $this->userService->createUser($request->validated());
+            $user     = $result['user'];
+            $password = $result['password'];
+
+            $user->sendEmailVerificationNotificationWithPassword($password);
+
+            return redirect()->route('users.index')->with('success', 'User created successfully. Verification email with credentials has been sent.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error creating user: '.$e->getMessage());
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function show(User $user) {}
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function edit(User $user) {}
 }
