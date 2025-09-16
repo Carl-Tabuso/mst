@@ -24,6 +24,25 @@ import { router } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 
 import type { BreadcrumbItem } from '@/types'
+
+interface UserSettingsProps {
+  user: {
+    id: number
+    email: string
+    created_at: string
+    deleted_at: string | null
+    employee: {
+      first_name: string
+      last_name: string
+      position: string
+      position_id: number
+    }
+  }
+  positions: Array<{ id: number; name: string }>
+}
+
+const props = defineProps<UserSettingsProps>()
+
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Home',
@@ -35,31 +54,26 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Settings',
-    href: '/users/{id}/settings',
+    href: `/users/${props.user.id}/settings`,
   },
 ]
-
-const props = defineProps<{
-  user: {
-    id: number
-    first_name: string
-    last_name: string
-    email: string
-    created_at: string
-    deleted_at: string | null
-    position: string
-    position_id: number
-  }
-  positions: Array<{ id: number; name: string }>
-}>()
 
 const isEditingProfile = ref(false)
 const isEditingRole = ref(false)
 const showDeactivateModal = ref(false)
 const showDeleteModal = ref(false)
+const showReactivateModal = ref(false)
 const deactivateConfirmation = ref('')
 const deleteConfirmation = ref('')
-const localUser = ref({ ...props.user })
+const reactivateConfirmation = ref('')
+
+// Local state for editing
+const localUser = ref({
+  first_name: props.user.employee.first_name,
+  last_name: props.user.employee.last_name,
+  email: props.user.email,
+  position_id: props.user.employee.position_id
+})
 
 const statusVariant = computed(() =>
   props.user.deleted_at ? 'destructive' : 'default',
@@ -70,12 +84,17 @@ const statusText = computed(() =>
 )
 
 const resetForm = () => {
-  localUser.value = { ...props.user }
+  localUser.value = {
+    first_name: props.user.employee.first_name,
+    last_name: props.user.employee.last_name,
+    email: props.user.email,
+    position_id: props.user.employee.position_id
+  }
 }
 
 const saveProfile = async () => {
   try {
-    await router.patch(`/users/${props.user.id}`, {
+    await router.patch(route('users.update', props.user.id), {
       first_name: localUser.value.first_name,
       last_name: localUser.value.last_name,
       email: localUser.value.email,
@@ -88,7 +107,7 @@ const saveProfile = async () => {
 
 const saveRole = async () => {
   try {
-    await router.patch(`/users/${props.user.id}/role`, {
+    await router.patch(route('users.role.update', props.user.id), {
       position_id: localUser.value.position_id,
     })
     isEditingRole.value = false
@@ -100,7 +119,7 @@ const saveRole = async () => {
 const deactivateAccount = async () => {
   if (deactivateConfirmation.value === 'DEACTIVATE') {
     try {
-      await router.delete(`/users/${props.user.id}/deactivate`)
+      await router.delete(route('users.deactivate', props.user.id))
       showDeactivateModal.value = false
       deactivateConfirmation.value = ''
     } catch (error) {
@@ -112,7 +131,7 @@ const deactivateAccount = async () => {
 const deleteAccount = async () => {
   if (deleteConfirmation.value === 'DELETE') {
     try {
-      await router.delete(route('users.destroy', { user: props.user.id }))
+      await router.delete(route('users.destroy', props.user.id))
       showDeleteModal.value = false
       deleteConfirmation.value = ''
     } catch (error) {
@@ -141,7 +160,7 @@ const deleteAccount = async () => {
               v-else
               class="col-span-4 text-muted-foreground"
             >
-              {{ user.first_name }}
+              {{ user.employee.first_name }}
             </p>
           </div>
 
@@ -156,7 +175,7 @@ const deleteAccount = async () => {
               v-else
               class="col-span-4 text-muted-foreground"
             >
-              {{ user.last_name }}
+              {{ user.employee.last_name }}
             </p>
           </div>
 
@@ -262,7 +281,7 @@ const deleteAccount = async () => {
               v-else
               class="col-span-4 text-muted-foreground"
             >
-              {{ user.position }}
+              {{ user.employee.position }}
             </p>
           </div>
 
@@ -292,11 +311,11 @@ const deleteAccount = async () => {
             </div>
           </div>
         </div>
-
-        <Separator />
+<!-- 
+        <Separator /> -->
 
         <!-- Delete Account -->
-        <div class="space-y-6">
+        <!-- <div class="space-y-6">
           <div class="grid grid-cols-5 gap-4">
             <div class="col-span-4 space-y-4">
               <h2 class="text-2xl font-bold text-red-600">Delete Account</h2>
@@ -314,7 +333,7 @@ const deleteAccount = async () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 

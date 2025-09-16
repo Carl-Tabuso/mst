@@ -65,10 +65,12 @@ const archiveRoutes: Partial<Record<UserRoleType, string>> = {
   'it admin': 'archives/users',
 }
 
-const archiveUrl =
-  Object.entries(archiveRoutes).find((role) => {
+const archiveUrl = computed(() => {
+  return Object.entries(archiveRoutes).find((role) => {
     return role[0] === auth.value.user.roles[0].name
-  })?.[1] ?? '#'
+  })?.[1] ?? '#'  
+})
+
 
 const mainNavItems: NavItem[] = [
   {
@@ -115,8 +117,8 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Archives',
-    href: archiveUrl,
-    can: archiveUrl !== undefined,
+    href: archiveUrl.value,
+    can: archiveUrl.value !== '#',
   },
   {
     title: 'Activity Logs',

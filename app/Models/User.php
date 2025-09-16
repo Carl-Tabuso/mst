@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Collections\UserCollection;
+use App\Notifications\VerifyEmailWithPassword;
 use App\Policies\UserPolicy;
 use Illuminate\Database\Eloquent\Attributes\CollectedBy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -38,6 +39,11 @@ class User extends Authenticatable
     ];
 
     protected $guard_name = 'web';
+
+    public function sendEmailVerificationNotificationWithPassword($password)
+    {
+        $this->notify(new VerifyEmailWithPassword($password));
+    }
 
     public function employee(): BelongsTo
     {
