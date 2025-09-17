@@ -46,11 +46,19 @@ export const columns: ColumnDef<Employee>[] = [
           return '#'
         }
       }
+      const getProfileRoute = () => {
+        try {
+          return route('employees.profile.show', employeeId)
+        } catch (error) {
+          console.error('Error generating edit route:', error)
+          return '#'
+        }
+      }
 
       return h(
         Link,
         {
-          href: getEditRoute(),
+          href: getProfileRoute(),
           class: 'text-primary underline hover:opacity-80 text-sm font-medium',
         },
         () => fullName,

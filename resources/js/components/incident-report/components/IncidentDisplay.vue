@@ -24,8 +24,8 @@ import { computed, onMounted, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 
 const props = defineProps<IncidentDisplayProps>()
-const emit = defineEmits(['cancel-edit', 'no-incident', 'incident-updated'])
-const { canVerify } = useUserPermissions()
+const emit = defineEmits(['cancel-edit', 'no-incident', 'incident-updated', 'create-job-order'])
+const { canVerify, isConsultant, isCreatingRole } = useUserPermissions()
 
 const {
   formData,
@@ -45,7 +45,53 @@ const {
   formData.value.description = html
 })
 
+
+
 const isEditing = computed(() => props.incident?.status === 'draft')
+
+const canEditIncident = computed(() => {
+  
+  if (!props.incident) {
+
+    return false;
+  }
+
+  
+  if (!props.incident.hauling) {
+
+    return false;
+  }
+  
+
+  if (isConsultant.value) {
+    const haulingIncidents = props.incident.hauling.incidents || [];
+   
+    if (haulingIncidents.length !== 2) {
+      return false;
+    }
+ 
+    
+    const sortedIncidents = [...haulingIncidents].sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    
+
+    
+    const mostRecentIncident = sortedIncidents[0];
+
+    
+    const isMostRecent = props.incident.id === mostRecentIncident?.id;
+    const isDraft = props.incident.status === 'draft';
+    
+
+    return isMostRecent && isDraft;
+  }
+  
+  const canEdit = isCreatingRole.value && props.incident.status === 'draft';
+
+  return canEdit;
+});;
+
 
 onMounted(() => {
   if (props.incident) {
@@ -128,6 +174,10 @@ const markNoIncident = async () => {
   }
 }
 
+const createJobOrder = () => {
+  emit('create-job-order', props.incident?.hauling);
+};
+
 const verifyIncident = async (id: string) => {
   try {
     await router.patch(route('incidents.verify', { incident: id }), {}, {
@@ -166,10 +216,29 @@ const getFormDataJobOrderDisplay = () => {
   if (!formData.value.jobOrder) return 'N/A';
   return `JO-${formData.value.jobOrder}`;
 }
+
+const createSecondaryIncident = async () => {
+  try {
+    await router.post(route('incidents.createSecondary', { 
+      haulingId: props.incident?.hauling?.id  
+    }), {}, {
+      onSuccess: () => {
+        emit('incident-updated');
+        alert('Secondary incident created successfully!');
+      },
+      onError: (error) => {
+        handleApiError(error, 'create secondary incident');
+      }
+    });
+  } catch (error) {
+    handleApiError(error, 'create secondary incident');
+  }
+};
 </script>
 
 <template>
   <div class="flex h-full flex-col overflow-auto">
+   
     <div v-if="!incident" class="flex flex-1 flex-col items-center justify-center p-8 text-center">
       <div class="mb-4 rounded-full bg-gray-100 p-4">
         <Icon icon="lucide:file-text" class="size-8 text-gray-400" />
@@ -186,9 +255,21 @@ const getFormDataJobOrderDisplay = () => {
     >
       <div class="flex items-center justify-between p-4 border-b">
         <h2 class="text-lg font-semibold">
-          Edit Incident Report
+          {{ canEditIncident ? 'Edit Incident Report' : 'View Incident Report' }}
         </h2>
+        
+     <Button
+    v-if="isConsultant && !canEditIncident"
+    variant="outline"
+    @click="createSecondaryIncident"
+    :disabled="!props.incident?.hauling"
+  >
+    <Icon icon="lucide:file-plus" class="mr-2 size-4" />
+    Create Incident Report
+  </Button>
+        
         <Button
+          v-else-if="canEditIncident"
           variant="outline"
           @click="markNoIncident"
           :disabled="!formData.jobOrder"
@@ -224,7 +305,11 @@ const getFormDataJobOrderDisplay = () => {
             <div class="flex-1">
               <Input
                 v-model="formData.location"
-                class="w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0"
+                :readonly="!canEditIncident"
+                :class="[
+                  'w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0',
+                  !canEditIncident ? 'bg-gray-50' : ''
+                ]"
               />
             </div>
           </div>
@@ -234,9 +319,15 @@ const getFormDataJobOrderDisplay = () => {
             <div class="flex-1">
               <Select
                 v-model="formData.infractionType"
+                :disabled="!canEditIncident"
                 @update:modelValue="showOtherInfractionInput = $event === 'Others'"
               >
-                <SelectTrigger class="w-full rounded-none border-0 border-b pb-2 shadow-none focus:ring-0 focus-visible:ring-0">
+                <SelectTrigger 
+                  :class="[
+                    'w-full rounded-none border-0 border-b pb-2 shadow-none focus:ring-0 focus-visible:ring-0',
+                    !canEditIncident ? 'bg-gray-50' : ''
+                  ]"
+                >
                   <SelectValue :placeholder="formData.infractionType || 'Select type'" />
                 </SelectTrigger>
                 <SelectContent>
@@ -254,8 +345,12 @@ const getFormDataJobOrderDisplay = () => {
               <Input
                 v-if="showOtherInfractionInput"
                 v-model="formData.infractionType"
+                :readonly="!canEditIncident"
                 placeholder="Please specify"
-                class="mt-2 w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0"
+                :class="[
+                  'mt-2 w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0',
+                  !canEditIncident ? 'bg-gray-50' : ''
+                ]"
               />
             </div>
           </div>
@@ -275,7 +370,11 @@ const getFormDataJobOrderDisplay = () => {
           <div class="flex-1">
             <Input
               v-model="formData.subject"
-              class="w-full border-0 shadow-none focus-visible:ring-0"
+              :readonly="!canEditIncident"
+              :class="[
+                'w-full border-0 shadow-none focus-visible:ring-0',
+                !canEditIncident ? 'bg-gray-50' : ''
+              ]"
             />
           </div>
         </div>
@@ -288,7 +387,10 @@ const getFormDataJobOrderDisplay = () => {
               v-if="editor"
               class="border bg-white"
             >
-              <div class="flex flex-wrap items-center gap-1 bg-gray-50 p-2">
+              <div 
+                v-if="canEditIncident"
+                class="flex flex-wrap items-center gap-1 bg-gray-50 p-2"
+              >
                 <Button
                   size="sm"
                   variant="ghost"
@@ -463,14 +565,17 @@ const getFormDataJobOrderDisplay = () => {
 
               <EditorContent
                 :editor="editor"
-                class="prose min-h-[300px] max-w-[1200px] border-none p-3 outline-none"
+                :class="[
+                  'prose min-h-[300px] max-w-[1200px] border-none p-3 outline-none',
+                  !canEditIncident ? 'bg-gray-50' : ''
+                ]"
               />
             </div>
           </div>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 p-4">
+      <div v-if="canEditIncident" class="flex justify-end gap-2 p-4">
         <Button
           variant="outline"
           @click="emit('cancel-edit')"

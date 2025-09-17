@@ -11,9 +11,9 @@ class EmployeeProfileController extends Controller
 {
     public function show($id)
     {
-        if (auth()->user()->employee_id != $id) {
-            abort(403, 'Unauthorized');
-        }
+        // if (auth()->user()->employee_id != $id) {
+        //     abort(403, 'Unauthorized');
+        // }
 
         $employee = Employee::with([
             'position',

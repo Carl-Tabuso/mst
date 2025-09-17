@@ -1,8 +1,8 @@
 <?php
+
 namespace App\Exports;
 
 use App\Models\Employee;
-use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -15,18 +15,14 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EmployeeRatingsExport implements
-FromCollection,
-WithHeadings,
-WithMapping,
-WithStyles,
-WithTitle,
-ShouldAutoSize,
-WithCustomStartCell
+class EmployeeRatingsExport implements FromCollection, ShouldAutoSize, WithCustomStartCell, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $filteredData;
+
     protected $filters;
+
     protected $totalRecords;
+
     protected $originalTotalRecords;
 
     public function __construct($filteredData = null, $filters = [])
@@ -149,7 +145,7 @@ WithCustomStartCell
             ],
 
             // Data rows styling
-            'A6:H' . $lastDataRow => [
+            'A6:H'.$lastDataRow => [
                 'borders'   => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -161,7 +157,7 @@ WithCustomStartCell
                 ],
             ],
 
-                                                                                                      // Center align specific columns
+            // Center align specific columns
             'A:A'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Employee ID
             'E:E'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Average Rating
             'F:F'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Total Ratings
@@ -207,7 +203,7 @@ WithCustomStartCell
         $filterParts = [];
 
         if (! empty($this->filters['positions'])) {
-            $filterParts[] = 'Positions: ' . implode(', ', $this->filters['positions']);
+            $filterParts[] = 'Positions: '.implode(', ', $this->filters['positions']);
         }
 
         if (! empty($this->filters['evaluation_status'])) {
@@ -215,18 +211,18 @@ WithCustomStartCell
                 'has_ratings' => 'Has Ratings',
                 'no_ratings'  => 'No Ratings',
             ];
-            $statuses      = array_map(fn($s) => $statusMap[$s] ?? $s, $this->filters['evaluation_status']);
-            $filterParts[] = 'Status: ' . implode(', ', $statuses);
+            $statuses      = array_map(fn ($s) => $statusMap[$s] ?? $s, $this->filters['evaluation_status']);
+            $filterParts[] = 'Status: '.implode(', ', $statuses);
         }
 
         if ($this->filters['rating_from'] !== null || $this->filters['rating_to'] !== null) {
             $from          = $this->filters['rating_from'] ?? 'Min';
-            $to            = $this->filters['rating_to'] ?? 'Max';
+            $to            = $this->filters['rating_to']   ?? 'Max';
             $filterParts[] = "Rating Range: {$from} - {$to}";
         }
 
         if (! empty($this->filters['search'])) {
-            $filterParts[] = 'Search: "' . $this->filters['search'] . '"';
+            $filterParts[] = 'Search: "'.$this->filters['search'].'"';
         }
 
         if (! empty($this->filters['sort'])) {
@@ -236,12 +232,12 @@ WithCustomStartCell
                 'rating_asc'  => 'Rating (Low to High)',
                 'rating_desc' => 'Rating (High to Low)',
             ];
-            $filterParts[] = 'Sort: ' . ($sortMap[$this->filters['sort']] ?? $this->filters['sort']);
+            $filterParts[] = 'Sort: '.($sortMap[$this->filters['sort']] ?? $this->filters['sort']);
         }
 
         return empty($filterParts)
         ? 'Filters: All Records'
-        : 'Applied Filters: ' . implode(' | ', $filterParts);
+        : 'Applied Filters: '.implode(' | ', $filterParts);
     }
 
     private function generateSummaryInfo()
@@ -259,7 +255,7 @@ WithCustomStartCell
     {
         $allowedPositions = ['Team Leader', 'Driver', 'Hauler'];
 
-        return Employee::whereHas('position', fn($q) => $q->whereIn('name', $allowedPositions))->count();
+        return Employee::whereHas('position', fn ($q) => $q->whereIn('name', $allowedPositions))->count();
     }
 
     public function title(): string

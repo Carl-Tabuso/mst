@@ -4,7 +4,8 @@ namespace App\Enums;
 
 use Illuminate\Http\JsonResponse;
 
-enum UserPermission: string {
+enum UserPermission: string
+{
     case CreateJobOrder                   = 'create:job_order';
     case UpdateJobOrder                   = 'update:job_order';
     case CreateJobOrderCorrection         = 'create:job_order_correction';
@@ -22,39 +23,39 @@ enum UserPermission: string {
     case ViewPerformances                 = 'view:performances';
     case ViewAnyJobOrderCorrection        = 'view:any_job_order_correction';
 
-    case ViewAnyEmployeeRating = 'view:any_employee_rating';
-    case CreateEmployeeRating  = 'create:employee_rating';
-    case UpdateEmployeeRating  = 'update:employee_rating';
-    case DeleteEmployeeRating  = 'delete:employee_rating';
-    case ExportEmployeeRating  = 'export:employee_rating';
+    case ViewAnyEmployeeRating            = 'view:any_employee_rating';
+    case CreateEmployeeRating             = 'create:employee_rating';
+    case UpdateEmployeeRating             = 'update:employee_rating';
+    case DeleteEmployeeRating             = 'delete:employee_rating';
+    case ExportEmployeeRating             = 'export:employee_rating';
     case RestoreArchivedJobOrder          = 'restore:archived_job_order';
     case ForceDeleteJobOrder              = 'force_delete:job_order';
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::CreateJobOrder => 'Create Job Order',
-            self::UpdateJobOrder => 'Update Job Order',
-            self::CreateJobOrderCorrection => 'Create Job Order Correction',
-            self::UpdateJobOrderCorrection => 'Update Job Order Correction',
+            self::CreateJobOrder                   => 'Create Job Order',
+            self::UpdateJobOrder                   => 'Update Job Order',
+            self::CreateJobOrderCorrection         => 'Create Job Order Correction',
+            self::UpdateJobOrderCorrection         => 'Update Job Order Correction',
             self::FillOutSafetyInspectionChecklist => 'Fill-out Safety Inspection Checklist',
-            self::AssignHaulingPersonnel => 'Assign Hauling Personnel',
-            self::AssignAppraisers => 'Assign Hauling Appraisers',
-            self::SetHaulingDuration => 'Set Hauling Duration',
-            self::ViewActivityLogs => 'View Activity Logs',
-            self::ViewAnyJobOrder => 'View Any Job Order',
-            self::ManageUsers => 'Manage Employee Account',
-            self::ManageIncidentReports => 'Manage Incident Reports',
-            self::ManageEmployees => 'Manage Employees',
-            self::ViewReportsAnalytics => 'View Reports And Analytics',
-            self::ViewPerformances => 'View Performances',
-            self::ViewAnyJobOrderCorrection => 'View Any Job Order Corrections',
+            self::AssignHaulingPersonnel           => 'Assign Hauling Personnel',
+            self::AssignAppraisers                 => 'Assign Hauling Appraisers',
+            self::SetHaulingDuration               => 'Set Hauling Duration',
+            self::ViewActivityLogs                 => 'View Activity Logs',
+            self::ViewAnyJobOrder                  => 'View Any Job Order',
+            self::ManageUsers                      => 'Manage Employee Account',
+            self::ManageIncidentReports            => 'Manage Incident Reports',
+            self::ManageEmployees                  => 'Manage Employees',
+            self::ViewReportsAnalytics             => 'View Reports And Analytics',
+            self::ViewPerformances                 => 'View Performances',
+            self::ViewAnyJobOrderCorrection        => 'View Any Job Order Corrections',
 
-            self::ViewAnyEmployeeRating => 'View Any Employee Rating',
-            self::CreateEmployeeRating => 'Create Employee Rating',
-            self::UpdateEmployeeRating => 'Update Employee Rating',
-            self::DeleteEmployeeRating => 'Delete Employee Rating',
-            self::ExportEmployeeRating => 'Export Employee Rating',
+            self::ViewAnyEmployeeRating            => 'View Any Employee Rating',
+            self::CreateEmployeeRating             => 'Create Employee Rating',
+            self::UpdateEmployeeRating             => 'Update Employee Rating',
+            self::DeleteEmployeeRating             => 'Delete Employee Rating',
+            self::ExportEmployeeRating             => 'Export Employee Rating',
             self::RestoreArchivedJobOrder          => 'Restore Archived Job Order',
             self::ForceDeleteJobOrder              => 'Force Delete Job Order',
         };
@@ -150,7 +151,7 @@ enum UserPermission: string {
 
     public static function forFrontendMapping(): JsonResponse
     {
-        $permissions = array_map(fn($case) => [
+        $permissions = array_map(fn ($case) => [
             'id'    => $case->value,
             'label' => $case->getLabel(),
         ], self::cases());

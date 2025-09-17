@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
@@ -21,7 +22,9 @@ use Maatwebsite\Excel\Facades\Excel;
 class EmployeeRatingController extends Controller
 {
     private const ALLOWED_POSITIONS   = ['Driver', 'Hauler', 'Team Leader'];
+
     private const CONSULTANT_POSITION = 'Consultant';
+
     private const OVERALL_CATEGORY_ID = 1;
 
     // ==================== MAIN METHODS ====================
@@ -287,6 +290,7 @@ class EmployeeRatingController extends Controller
     {
         $formatted           = $jobOrder->toArray();
         $formatted['ticket'] = $jobOrder->ticket;
+
         return $formatted;
     }
 
@@ -363,6 +367,7 @@ class EmployeeRatingController extends Controller
             ->toArray();
 
         $cachedRatedForm3Ids[$employeeId] = $ratedForm3Ids;
+
         return $ratedForm3Ids;
     }
 
@@ -409,6 +414,7 @@ class EmployeeRatingController extends Controller
 
         $filtered = $completedJobOrders->filter(function ($jobOrder) use ($allForm3Ids) {
             $form3Id = optional(optional($jobOrder->serviceable)->form3)->id;
+
             return $form3Id && in_array($form3Id, $allForm3Ids);
         })->values();
 
@@ -418,6 +424,7 @@ class EmployeeRatingController extends Controller
                 ? 'Evaluation Done'
                 : 'To be Evaluated';
             $jobOrder->ticket = $jobOrder->ticket; // Ensure ticket is available
+
             return $jobOrder;
         });
 
@@ -430,6 +437,7 @@ class EmployeeRatingController extends Controller
         if ($filters['search']) {
             $filtered = $filtered->filter(function ($jobOrder) use ($filters) {
                 $search = strtolower($filters['search']);
+
                 return str_contains(strtolower($jobOrder->rating_status), $search)
                 || str_contains((string) $jobOrder->id, $search)
                 || str_contains(strtolower($jobOrder->ticket), $search)
@@ -481,7 +489,7 @@ class EmployeeRatingController extends Controller
             ->with([
                 'serviceable.form3',
                 'performanceSummary',
-                'employeePerformances' => fn($q) => $q->where('evaluator_id', $employee->id)
+                'employeePerformances' => fn ($q) => $q->where('evaluator_id', $employee->id)
                     ->with([
                         'evaluatee.position',
                         'evaluatee.account',
@@ -499,98 +507,98 @@ class EmployeeRatingController extends Controller
 
     // ==================== TEAM MEMBERS & RATINGS METHODS ====================
 
-private function getTeamMembersToRate($jobOrder, $currentEmployee)
-{
-    $form3       = $jobOrder->serviceable->form3;
-    $teamMembers = collect();
+    private function getTeamMembersToRate($jobOrder, $currentEmployee)
+    {
+        $form3       = $jobOrder->serviceable->form3;
+        $teamMembers = collect();
 
-    foreach ($form3->haulings as $hauling) {
-        foreach ($hauling->haulers as $hauler) {
-            if ($hauler->id !== $currentEmployee->id) {
-                if (! $hauler->relationLoaded('account')) {
-                    $hauler->load('account');
-                }
-
-                // ✅ Log the avatar here
-                Log::info('Team member avatar', [
-                    'employee_id' => $hauler->id,
-                    'avatar'      => $hauler->account?->avatar,
-                ]);
-
-                $teamMembers->push([
-                    'employee_id'      => $hauler->id,
-                    'employee'         => $hauler,
-                    'avatar'           => $hauler->account?->avatar,
-                    'form3_id'         => $form3->id,
-                    'role'             => 'hauler',
-                    'job_order_ticket' => $jobOrder->ticket,
-                ]);
-            }
-        }
-
-        $personnel = $hauling->assignedPersonnel;
-        if ($personnel) {
-            $roles = [
-                'team_leader'    => $personnel->teamLeader,
-                'team_driver'    => $personnel->teamDriver,
-                'safety_officer' => $personnel->safetyOfficer,
-                'team_mechanic'  => $personnel->teamMechanic,
-            ];
-
-            foreach ($roles as $role => $person) {
-                if ($person && $person->id !== $currentEmployee->id) {
-                    if (! $person->relationLoaded('account')) {
-                        $person->load('account');
+        foreach ($form3->haulings as $hauling) {
+            foreach ($hauling->haulers as $hauler) {
+                if ($hauler->id !== $currentEmployee->id) {
+                    if (! $hauler->relationLoaded('account')) {
+                        $hauler->load('account');
                     }
 
-                    // ✅ Log the avatar here too
+                    // ✅ Log the avatar here
                     Log::info('Team member avatar', [
-                        'employee_id' => $person->id,
-                        'role'        => $role,
-                        'avatar'      => $person->account?->avatar,
+                        'employee_id' => $hauler->id,
+                        'avatar'      => $hauler->account?->avatar,
                     ]);
 
                     $teamMembers->push([
-                        'employee_id'      => $person->id,
-                        'employee'         => $person,
-                        'avatar'           => $person->account?->avatar,
+                        'employee_id'      => $hauler->id,
+                        'employee'         => $hauler,
+                        'avatar'           => $hauler->account?->avatar,
                         'form3_id'         => $form3->id,
-                        'role'             => $role,
+                        'role'             => 'hauler',
                         'job_order_ticket' => $jobOrder->ticket,
                     ]);
                 }
             }
+
+            $personnel = $hauling->assignedPersonnel;
+            if ($personnel) {
+                $roles = [
+                    'team_leader'    => $personnel->teamLeader,
+                    'team_driver'    => $personnel->teamDriver,
+                    'safety_officer' => $personnel->safetyOfficer,
+                    'team_mechanic'  => $personnel->teamMechanic,
+                ];
+
+                foreach ($roles as $role => $person) {
+                    if ($person && $person->id !== $currentEmployee->id) {
+                        if (! $person->relationLoaded('account')) {
+                            $person->load('account');
+                        }
+
+                        // ✅ Log the avatar here too
+                        Log::info('Team member avatar', [
+                            'employee_id' => $person->id,
+                            'role'        => $role,
+                            'avatar'      => $person->account?->avatar,
+                        ]);
+
+                        $teamMembers->push([
+                            'employee_id'      => $person->id,
+                            'employee'         => $person,
+                            'avatar'           => $person->account?->avatar,
+                            'form3_id'         => $form3->id,
+                            'role'             => $role,
+                            'job_order_ticket' => $jobOrder->ticket,
+                        ]);
+                    }
+                }
+            }
         }
+
+        return $teamMembers->unique('employee_id')->values();
     }
 
-    return $teamMembers->unique('employee_id')->values();
-}
-
     private function getRatedTeamMembers($jobOrder)
-{
-    return $jobOrder->employeePerformances->map(function ($performance) use ($jobOrder) {
-        if (! $performance->evaluatee->relationLoaded('account')) {
-            $performance->evaluatee->load('account');
-        }
+    {
+        return $jobOrder->employeePerformances->map(function ($performance) use ($jobOrder) {
+            if (! $performance->evaluatee->relationLoaded('account')) {
+                $performance->evaluatee->load('account');
+            }
 
-        Log::info('Rated team member avatar', [
-            'employee_id' => $performance->evaluatee->id,
-            'avatar'      => $performance->evaluatee->account?->avatar,
-        ]);
+            Log::info('Rated team member avatar', [
+                'employee_id' => $performance->evaluatee->id,
+                'avatar'      => $performance->evaluatee->account?->avatar,
+            ]);
 
-        return [
-            'employee_id'      => $performance->evaluatee->id,
-            'employee'         => $performance->evaluatee,
-            'avatar'           => $performance->evaluatee->account?->avatar,
-            'ratings'          => $performance->ratings,
-            'role'             => $this->determineEmployeeRole(
-                                    $jobOrder->serviceable->form3,
-                                    $performance->evaluatee
-                                ),
-            'job_order_ticket' => $jobOrder->ticket,
-        ];
-    });
-}
+            return [
+                'employee_id'      => $performance->evaluatee->id,
+                'employee'         => $performance->evaluatee,
+                'avatar'           => $performance->evaluatee->account?->avatar,
+                'ratings'          => $performance->ratings,
+                'role'             => $this->determineEmployeeRole(
+                    $jobOrder->serviceable->form3,
+                    $performance->evaluatee
+                ),
+                'job_order_ticket' => $jobOrder->ticket,
+            ];
+        });
+    }
 
     private function determineEmployeeRole($form3, $employee)
     {
@@ -638,12 +646,12 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
                 $q->whereNull('deleted_at')
                     ->with('ratings.performanceRating');
             },
-        ])->whereHas('position', fn($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
+        ])->whereHas('position', fn ($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
 
         if ($filters['positions']) {
             $validPositions = array_intersect($filters['positions'], self::ALLOWED_POSITIONS);
             if ($validPositions) {
-                $query->whereHas('position', fn($q) => $q->whereIn('name', $validPositions));
+                $query->whereHas('position', fn ($q) => $q->whereIn('name', $validPositions));
             }
         }
 
@@ -655,7 +663,7 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
 
         $transformedEmployees = $employees->map(function ($employee) {
             $ratings = $employee->performancesAsEmployee
-                ->flatMap(fn($perf) => $perf->ratings)
+                ->flatMap(fn ($perf) => $perf->ratings)
                 ->pluck('performanceRating.scale')
                 ->filter();
 
@@ -680,7 +688,7 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
 
         return $employees->filter(function ($employee) use ($searchTerm) {
             return str_contains(strtolower($employee->full_name), $searchTerm) ||
-            str_contains(strtolower($employee->position), $searchTerm) ||
+            str_contains(strtolower($employee->position), $searchTerm)         ||
             str_contains((string) $employee->id, $searchTerm);
         })->values();
     }
@@ -692,6 +700,7 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
         if ($filters['evaluation_status']) {
             $filtered = $filtered->filter(function ($emp) use ($filters) {
                 $hasRatings = $emp->has_ratings;
+
                 return in_array('no_ratings', $filters['evaluation_status']) ? ! $hasRatings : $hasRatings;
             });
         }
@@ -735,7 +744,7 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
                 return [
                     'job_order_id'     => $perf->jobOrder?->id,
                     'job_order_ticket' => $perf->jobOrder?->ticket,
-                    'from'             => $perf->evaluator?->full_name ?? '',
+                    'from'             => $perf->evaluator?->full_name       ?? '',
                     'from_position'    => $perf->evaluator?->position?->name ?? '',
                     'scale'            => $rating->performanceRating?->scale ?? null,
                     'description'      => $rating->description,
@@ -785,10 +794,10 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
         $searchTerm = strtolower(trim($search));
 
         return $ratings->filter(function ($rating) use ($searchTerm) {
-            return str_contains(strtolower($rating['from']), $searchTerm) ||
-            str_contains(strtolower($rating['from_position']), $searchTerm) ||
-            str_contains(strtolower($rating['description'] ?? ''), $searchTerm) ||
-            str_contains((string) $rating['job_order_id'], $searchTerm) ||
+            return str_contains(strtolower($rating['from']), $searchTerm)            ||
+            str_contains(strtolower($rating['from_position']), $searchTerm)          ||
+            str_contains(strtolower($rating['description'] ?? ''), $searchTerm)      ||
+            str_contains((string) $rating['job_order_id'], $searchTerm)              ||
             str_contains(strtolower($rating['job_order_ticket'] ?? ''), $searchTerm) ||
             str_contains((string) $rating['scale'], $searchTerm);
         });
@@ -811,7 +820,7 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
 
         if ($filters['scale_from'] !== null || $filters['scale_to'] !== null) {
             $from    = $filters['scale_from'] ?? 'min';
-            $to      = $filters['scale_to'] ?? 'max';
+            $to      = $filters['scale_to']   ?? 'max';
             $parts[] = "rating-{$from}-to-{$to}";
         }
 
@@ -829,11 +838,11 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
                 'scale_desc' => 'rating-desc',
             ];
             if (isset($sortMap[$filters['sort']])) {
-                $parts[] = 'sort-' . $sortMap[$filters['sort']];
+                $parts[] = 'sort-'.$sortMap[$filters['sort']];
             }
         }
 
-        return $parts ? '_' . implode('_', $parts) : '';
+        return $parts ? '_'.implode('_', $parts) : '';
     }
 
     // ==================== VALIDATION & DATA PROCESSING ====================
@@ -904,9 +913,9 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
 
         return [
             'search'            => $request->get('search'),
-            'statuses'          => $filters['statuses'] ?? [],
+            'statuses'          => $filters['statuses']          ?? [],
             'fromDateOfService' => $filters['fromDateOfService'] ?? '',
-            'toDateOfService'   => $filters['toDateOfService'] ?? '',
+            'toDateOfService'   => $filters['toDateOfService']   ?? '',
         ];
     }
 
@@ -1002,6 +1011,7 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
             ->map(function ($row) {
                 $row['date'] = Carbon::parse($row['job_datetime'])->format('d F Y h:i A');
                 unset($row['job_datetime']);
+
                 return $row;
             })
             ->values();
@@ -1021,6 +1031,7 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
     {
         $timestamp    = now()->format('Y-m-d_H-i-s');
         $filterSuffix = $this->generateFilterSuffix($filters);
+
         return "employee_ratings_export_{$timestamp}{$filterSuffix}.xlsx";
     }
 
@@ -1029,23 +1040,23 @@ private function getTeamMembersToRate($jobOrder, $currentEmployee)
         $parts = [];
 
         if ($filters['positions']) {
-            $parts[] = 'pos-' . implode('-', array_map('strtolower', $filters['positions']));
+            $parts[] = 'pos-'.implode('-', array_map('strtolower', $filters['positions']));
         }
 
         if ($filters['evaluation_status']) {
-            $parts[] = 'eval-' . implode('-', $filters['evaluation_status']);
+            $parts[] = 'eval-'.implode('-', $filters['evaluation_status']);
         }
 
         if ($filters['rating_from'] !== null || $filters['rating_to'] !== null) {
             $from    = $filters['rating_from'] ?? 'min';
-            $to      = $filters['rating_to'] ?? 'max';
+            $to      = $filters['rating_to']   ?? 'max';
             $parts[] = "rating-{$from}-to-{$to}";
         }
 
         if ($filters['search']) {
-            $parts[] = 'search-' . preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
+            $parts[] = 'search-'.preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
         }
 
-        return $parts ? '_' . implode('_', $parts) : '';
+        return $parts ? '_'.implode('_', $parts) : '';
     }
 }
