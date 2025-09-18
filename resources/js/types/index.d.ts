@@ -145,11 +145,27 @@ export interface JobOrder {
   updatedAt: string
   archivedAt: string
   creator: Employee
-  serviceable: Form4 | ITService
+  serviceable: Form4 | ITService | Form5
   cancel: CancelledJobOrder
   corrections: JobOrderCorrection[]
 }
 
+export interface Form5Item {
+  id?: number;
+  form5_id?: number;
+  item_name: string;
+  quantity: number;
+  created_at?: string;
+  updated_at?: string;
+}
+export interface Form5 {
+  id?: number;
+  assigned_person: number | string;
+  purpose: string;
+  items: Form5Item[];
+  created_at?: string;
+  updated_at?: string;
+}
 export interface ITService {
   id: number
   technicianId: number
