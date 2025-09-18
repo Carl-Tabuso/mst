@@ -5,9 +5,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
 import { getInitials } from '@/composables/useInitials'
+import { usePermissions } from '@/composables/usePermissions'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { ActivityLog, BreadcrumbItem } from '@/types'
-import { router } from '@inertiajs/vue3'
+import { ActivityLog, BreadcrumbItem, SharedData, User } from '@/types'
+import { router, usePage } from '@inertiajs/vue3'
 import { format } from 'date-fns'
 import {
   Download,
@@ -62,6 +63,12 @@ const pushNewLogs = (newPayload: ActivityLog[]) => {
 }
 
 const onExportClick = () => window.open(route('activity.export'), '__blank')
+
+const canViewAllActivityLogs = usePermissions().can('view:activity_logs')
+
+const page = usePage<SharedData>()
+
+const isAuthUser = (user?: User) => user?.id === page.props.auth.user.id
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -130,16 +137,24 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="w-full rounded-md border bg-card p-4 shadow-md">
                   <div class="flex items-start justify-between">
                     <div class="flex flex-col gap-3">
-                      <p
-                        class="text-sm font-semibold text-primary sm:text-base"
-                      >
-                        {{ item.description }}
-                      </p>
+                      <span class="flex flex-row items-center gap-2">
+                        <p
+                          v-if="isAuthUser(item.causer)"
+                          class="text-xs font-bold text-muted-foreground"
+                        >
+                          You
+                        </p>
+                        <p
+                          class="text-sm font-semibold text-primary sm:text-base"
+                        >
+                          {{ item.description }}
+                        </p>
+                      </span>
                       <div
                         class="flex items-center gap-12 text-xs text-muted-foreground"
                       >
                         <div
-                          v-if="item.causer"
+                          v-if="item.causer && canViewAllActivityLogs"
                           class="flex items-center gap-3"
                         >
                           <Avatar class="h-8 w-8">

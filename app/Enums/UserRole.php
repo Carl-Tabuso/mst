@@ -28,4 +28,12 @@ enum UserRole: string
             self::ITAdmin        => 'IT Admin',
         };
     }
+
+    public static function adminRoles(): array
+    {
+        return [
+            self::HeadFrontliner,
+            self::ITAdmin,
+        ];
+    }
 }

@@ -161,16 +161,16 @@ const mainNavItems: NavItem[] = [
     icon: Archive,
   },
   {
-    title: 'Activity Logs',
-    href: '/activities',
-    icon: History,
-    can: can('view:activity_logs'),
-  },
-  {
     title: 'Truck Inventory',
     href: '/trucks',
     icon: Truck,
     can: can('assign:hauling_personnel'),
+  },
+  {
+    title: 'Activity Logs',
+    href: '/activities',
+    icon: History,
+    can: true,
   },
 ]
 

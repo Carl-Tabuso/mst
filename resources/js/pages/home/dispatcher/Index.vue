@@ -45,10 +45,7 @@ onMounted(() => {
             </div>
             <ParticipationOverview :data="data?.currentYearParticipation" />
           </div>
-          <MyRecentActivities
-            :data="data?.recentActivities"
-            content-height="h-[490px]"
-          />
+          <MyRecentActivities :data="data?.recentActivities" />
         </div>
       </div>
       <div class="mt-4 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

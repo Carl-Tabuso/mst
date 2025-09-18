@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { Link } from '@inertiajs/vue3'
 import { HTMLAttributes } from 'vue'
 import { MyRecentActivites } from '..'
 
@@ -21,15 +23,15 @@ const props = defineProps<MyRecentActivitiesProps>()
             Your Recent Activities
           </CardTitle>
         </div>
-        <!-- <Link :href="route('activity.index')">
-          <Button variant="outline"> View </Button>
-        </Link> -->
+        <Link :href="route('activity.index')">
+          <Button variant="outline"> View All </Button>
+        </Link>
       </div>
     </CardHeader>
     <Separator />
     <CardContent
       :class="[
-        'my-2 h-[490px] divide-y divide-border overflow-y-auto',
+        'my-2 h-[483px] divide-y divide-border overflow-y-auto',
         props.class,
       ]"
     >

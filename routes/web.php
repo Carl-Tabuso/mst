@@ -86,7 +86,7 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    Route::middleware(['can:viewActivityLogs'])->prefix('activities')->name('activity.')->group(function () {
+    Route::prefix('activities')->name('activity.')->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('export', ExportActivityLogController::class)->name('export');
     });
