@@ -22,14 +22,14 @@ import {
 import { formatToDateString } from '@/composables/useDateFormatter'
 import { getInitials } from '@/composables/useInitials'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
-import { usePermissions } from '@/composables/usePermissions'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { Employee } from '@/types'
+import type { Method } from '@inertiajs/core'
 import { useForm } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
 import { Calendar, ChevronsUpDown, UserRound, X } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { GroupedEmployeesByAccountRole } from '../..'
 import FormAreaInfo from '../FormAreaInfo.vue'
@@ -51,7 +51,6 @@ const appraisers = ref<Employee[]>(props.appraisers)
 const appraisedDate = ref<any>(props.appraisedDate)
 
 const form = useForm({
-  status: props.status,
   appraisers: appraisers.value,
   appraised_date: appraisedDate.value,
 })
@@ -62,16 +61,13 @@ const appraisedDateModel = computed(() => {
     : undefined
 })
 
-watch([appraisers, appraisedDate], ([newAppraisers, newAppraisedDate]) => {
-  form.appraisers = newAppraisers
-  form.appraised_date = newAppraisedDate
-})
-
-const { can } = usePermissions()
-const { isForAppraisal } = useWasteManagementStages()
+const { isForAppraisal, canUpdateAppraisalInformation } =
+  useWasteManagementStages()
 
 const forAppraisal = computed(() => isForAppraisal(props.status))
-const canEdit = computed(() => can('assign:appraisers') && forAppraisal.value)
+const canEdit = computed(() =>
+  canUpdateAppraisalInformation(props.status, props.dispatcher),
+)
 
 const removeAppraiser = (employee: Employee) => {
   const index = appraisers.value.findIndex((a) => a.id === employee.id)
@@ -117,15 +113,34 @@ const remainingEmployees = computed(() => {
   return new Set(filtered)
 })
 
+const getRequestRouteNameAndMethod = () => {
+  const routeNamePrefix = 'job_order.waste_management.appraisal'
+  const method: Method = forAppraisal.value ? 'post' : 'patch'
+  const routeName = forAppraisal.value
+    ? `${routeNamePrefix}.store`
+    : `${routeNamePrefix}.update`
+  return {
+    method,
+    routeName,
+  }
+}
+
 const onSubmit = () => {
-  form.patch(route('job_order.waste_management.update', props.serviceableId), {
-    preserveScroll: true,
-    onSuccess: (page: any) => {
-      toast.success(page.props.flash.message, {
-        position: 'top-right',
-      })
-    },
-  })
+  const { method, routeName } = getRequestRouteNameAndMethod()
+
+  form
+    .transform((data) => ({
+      appraisers: appraisers.value,
+      appraised_date: appraisedDate.value,
+    }))
+    .submit(method, route(routeName, props.serviceableId), {
+      preserveScroll: true,
+      onSuccess: (page: any) => {
+        toast.success(page.props.flash.message, {
+          position: 'top-right',
+        })
+      },
+    })
 }
 
 const { userRoleMap } = useJobOrderDicts()
@@ -247,7 +262,6 @@ const { userRoleMap } = useJobOrderDicts()
                             <EmployeePopoverSelection
                               :employee="appraiser"
                               is-selected
-                              is-disabled
                             />
                           </CommandItem>
                         </CommandGroup>

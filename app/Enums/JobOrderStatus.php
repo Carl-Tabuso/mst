@@ -93,4 +93,14 @@ enum JobOrderStatus: string
             self::Completed,
         ];
     }
+
+    public static function getCannotChangeAppraisalInformation(): array
+    {
+        return [
+            self::Failed,
+            self::Dropped,
+            self::Closed,
+            self::Completed,
+        ];
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\JobOrderStatus;
 use App\Http\Requests\StoreWasteManagementRequest;
 use App\Http\Requests\UpdateWasteManagementRequest;
 use App\Models\Form4;
@@ -60,15 +59,11 @@ class WasteManagementController extends Controller
 
     public function update(UpdateWasteManagementRequest $request, Form4 $form4): RedirectResponse
     {
-        $validated = array_merge($request->validated(), [
-            'user' => $request->user(),
-        ]);
+        $validated = $request->validated();
 
         $response = $this->service->updateWasteManagement($validated, $form4);
 
-        $status = $request->safe()->enum('status', JobOrderStatus::class);
-
-        $message = $status === JobOrderStatus::InProgress
+        $message = is_null($response)
             ? __('responses.change')
             : __('responses.status_update', ['status' => $response]);
 

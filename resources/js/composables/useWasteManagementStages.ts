@@ -1,4 +1,6 @@
 import { JobOrderStatus } from '@/constants/job-order-statuses'
+import { Employee, SharedData } from '@/types'
+import { usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
 import { usePermissions } from './usePermissions'
 
@@ -54,6 +56,31 @@ export function useWasteManagementStages() {
     return can('set:hauling_duration') && jobOrderStatus === validStatus
   }
 
+  const canUpdateAppraisalInformation = (
+    jobOrderStatus: JobOrderStatus,
+    dispatcher: Employee | null,
+  ) => {
+    const validStatuses: Array<JobOrderStatus> = [
+      'for viewing',
+      'for proposal',
+      'for approval',
+      'for verification',
+      'pre-hauling',
+      'in-progress',
+    ]
+
+    const isValidStatus: boolean = validStatuses.includes(jobOrderStatus)
+    const isSameDispatcher: boolean =
+      dispatcher?.id === usePage<SharedData>().props.auth.user.employee_id
+    const hasPermission: boolean = can('assign:appraisers')
+
+    const canAssignAppraisers: boolean = isForAppraisal(jobOrderStatus)
+      ? hasPermission
+      : isValidStatus && hasPermission && isSameDispatcher
+
+    return canAssignAppraisers
+  }
+
   return {
     isForAppraisal,
     isForProposal,
@@ -63,5 +90,6 @@ export function useWasteManagementStages() {
     isForStage,
     canUpdateProposalInformation,
     canUpdateHaulingDuration,
+    canUpdateAppraisalInformation,
   }
 }

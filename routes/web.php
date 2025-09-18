@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AppraisalController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
@@ -70,6 +71,14 @@ Route::middleware(['auth'])->group(function () {
 
             Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
                 ->name('safety_inspection.update');
+
+            Route::prefix('appraisals')->name('appraisal.')->group(function () {
+                Route::post('{form4}', [AppraisalController::class, 'store'])
+                    ->name('store');
+
+                Route::patch('{form4}', [AppraisalController::class, 'update'])
+                    ->name('update');
+            });
         });
 
         Route::prefix('cancels')->name('cancel.')->group(function () {
