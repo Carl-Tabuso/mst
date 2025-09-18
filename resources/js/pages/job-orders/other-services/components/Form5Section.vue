@@ -1,5 +1,24 @@
 <script setup lang="ts">
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { getInitials } from '@/composables/useInitials'
 import { type Employee } from '@/types'
+import { Check, ChevronsUpDown } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 interface Form5Item {
   item_name: string
@@ -16,9 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
   isEditing: false,
 })
 
-const assignedPerson = defineModel<number | null>('assignedPerson', {
-  required: true,
-})
+const assignedPerson = defineModel<number | null>('assignedPerson')
 const items = defineModel<Form5Item[]>('items', {
   required: true,
   default: () => [],
@@ -35,6 +52,10 @@ const purposeOptions = [
   'Payment Transaction',
   'Bid Bond Submission',
 ]
+
+const selectedEmployee = computed(() =>
+  props.employees.find(e => e.id === assignedPerson.value)
+)
 
 const addItem = () => {
   items.value = [...items.value, { item_name: '', quantity: 1 }]
@@ -54,7 +75,7 @@ if (items.value.length === 0 && props.isEditing) {
 </script>
 
 <template>
-  <div class="mt-8 space-y-6 border-t border-gray-200 pt-6">
+  <div class="pt-6 mt-8 space-y-6 border-t border-gray-200">
     <div class="mb-6">
       <div class="text-xl font-semibold leading-6">Form 5 Details</div>
       <p class="text-sm text-muted-foreground">
@@ -62,99 +83,192 @@ if (items.value.length === 0 && props.isEditing) {
       </p>
     </div>
 
-    <!-- Assigned Person and Purpose in same row -->
-    <div class="grid grid-cols-2 items-center gap-x-10 gap-y-3">
+    <div class="grid items-center grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
       <!-- Assigned Person -->
-      <div class="grid grid-cols-[auto,1fr] items-center gap-x-7 gap-y-3">
+      <div class="space-y-3">
         <label class="text-sm font-medium">Assigned Person</label>
-        <div class="w-full">
-          <select
-            v-model="assignedPerson"
+        <Popover>
+          <PopoverTrigger
+            as-child
             :disabled="!isEditing"
-            class="w-full rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
           >
-            <option :value="null">Select assigned person</option>
-            <option
-              v-for="employee in props.employees"
-              :key="employee.id"
-              :value="employee.id"
+            <Button
+              variant="outline"
+              class="justify-start w-full"
             >
-              {{ employee.name }}
-            </option>
-          </select>
-        </div>
+              <template v-if="assignedPerson && selectedEmployee">
+                <Avatar class="h-7 w-7 shrink-0">
+                  <AvatarImage
+                    v-if="selectedEmployee.account?.avatar"
+                    :src="selectedEmployee.account.avatar"
+                    :alt="selectedEmployee.fullName"
+                  />
+                  <AvatarFallback>
+                    {{ getInitials(selectedEmployee.fullName) }}
+                  </AvatarFallback>
+                </Avatar>
+                <span class="ml-2 text-xs">
+                  {{ selectedEmployee.fullName }}
+                </span>
+              </template>
+              <span
+                v-else
+                class="font-normal text-muted-foreground"
+              >
+                Select assigned person
+              </span>
+              <ChevronsUpDown class="w-4 h-4 ml-auto opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            class="w-full p-0"
+            align="start"
+          >
+            <Command>
+              <CommandInput placeholder="Search assigned person" />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    v-for="employee in props.employees"
+                    :key="employee.id"
+                    :value="employee.id"
+                    class="cursor-pointer"
+                    @select="assignedPerson = employee.id"
+                  >
+                    <Avatar class="h-7 w-7">
+                      <AvatarImage
+                        v-if="employee.account?.avatar"
+                        :src="employee.account.avatar"
+                        :alt="employee.fullName"
+                      />
+                      <AvatarFallback>
+                        {{ getInitials(employee.fullName) }}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div class="ml-2 text-sm">
+                      {{ employee.fullName }}
+                    </div>
+                    <Check
+                      :class="[
+                        'ml-auto h-4 w-4',
+                        employee.id === assignedPerson ? 'opacity-100' : 'opacity-0',
+                      ]"
+                    />
+                  </CommandItem>
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
-      <!-- Purpose -->
-      <div class="grid grid-cols-[auto,1fr] items-center gap-x-7 gap-y-3">
+      <div class="space-y-3">
         <label class="text-sm font-medium">Purpose</label>
-        <div class="w-full">
-          <select
-            v-model="purpose"
+        <Popover>
+          <PopoverTrigger
+            as-child
             :disabled="!isEditing"
-            class="w-full rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
           >
-            <option value="">Select purpose</option>
-            <option
-              v-for="option in purposeOptions"
-              :key="option"
-              :value="option"
+            <Button
+              variant="outline"
+              class="justify-start w-full"
             >
-              {{ option }}
-            </option>
-          </select>
-        </div>
+              <span
+                v-if="purpose"
+                class="truncate"
+              >
+                {{ purpose }}
+              </span>
+              <span
+                v-else
+                class="font-normal text-muted-foreground"
+              >
+                Select purpose
+              </span>
+              <ChevronsUpDown class="w-4 h-4 ml-auto opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            class="w-full p-0"
+            align="start"
+          >
+            <Command>
+              <CommandInput placeholder="Search purpose" />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    v-for="option in purposeOptions"
+                    :key="option"
+                    :value="option"
+                    class="cursor-pointer"
+                    @select="purpose = option"
+                  >
+                    <span class="truncate">
+                      {{ option }}
+                    </span>
+                    <Check
+                      :class="[
+                        'ml-auto h-4 w-4',
+                        option === purpose ? 'opacity-100' : 'opacity-0',
+                      ]"
+                    />
+                  </CommandItem>
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
 
-    <!-- Items Section -->
-    <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
-      <label class="self-start pt-2 text-sm font-medium">Items</label>
+    <div class="space-y-3">
+      <label class="text-sm font-medium">Items</label>
       <div class="space-y-3">
-        <!-- Editable items -->
         <div
           v-for="(item, index) in items"
           :key="index"
           class="flex items-center gap-3"
         >
-          <input
+          <Input
             v-model="item.item_name"
             :disabled="!isEditing"
             placeholder="Item name"
-            class="flex-1 rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+            class="flex-1"
             :required="isEditing"
           />
-          <input
+          <Input
             v-model.number="item.quantity"
             type="number"
             min="1"
             :disabled="!isEditing"
             placeholder="Qty"
-            class="w-20 rounded-md border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+            class="w-20"
             :required="isEditing"
           />
-          <button
+          <Button
             v-if="isEditing"
             type="button"
             @click="removeItem(index)"
-            class="rounded-md bg-red-100 px-3 py-2 text-red-700 transition-colors hover:bg-red-200"
-            :class="{ 'cursor-not-allowed opacity-50': items.length <= 1 }"
+            variant="destructive"
+            class="px-3 py-2"
             :disabled="items.length <= 1"
           >
             Remove
-          </button>
+          </Button>
         </div>
 
-        <button
+        <Button
           v-if="isEditing"
           type="button"
           @click="addItem"
-          class="mt-2 rounded-md bg-blue-100 px-4 py-2 text-blue-700 transition-colors hover:bg-blue-200"
+          variant="outline"
+          class="mt-2"
         >
           + Add Another Item
-        </button>
+        </Button>
 
-        <!-- Read-only display -->
         <div
           v-if="!isEditing"
           class="mt-4"
@@ -166,11 +280,11 @@ if (items.value.length === 0 && props.isEditing) {
             <div
               v-for="(item, index) in items"
               :key="index"
-              class="flex justify-between border-b py-2"
+              class="flex justify-between py-2 border-b"
             >
-              <span class="font-medium">{{
-                item.item_name || 'Unnamed item'
-              }}</span>
+              <span class="font-medium">
+                {{ item.item_name || 'Unnamed item' }}
+              </span>
               <span class="text-gray-600">Qty: {{ item.quantity }}</span>
             </div>
           </div>
@@ -185,3 +299,5 @@ if (items.value.length === 0 && props.isEditing) {
     </div>
   </div>
 </template>
+
+
