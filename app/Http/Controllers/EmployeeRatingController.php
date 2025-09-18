@@ -109,12 +109,6 @@ class EmployeeRatingController extends Controller
 
         $ratedTeamMembers = $this->getRatedTeamMembers($targetOrder);
 
-        Log::info('Viewing ratings for job order', [
-            'job_order_id'     => $targetOrder->id,
-            'job_order_ticket' => $targetOrder->ticket,
-            'employee_id'      => $employee->id,
-        ]);
-
         return Inertia::render('ratings/pages/ViewEmployeeRating', [
             'jobOrders'        => [$this->formatJobOrderForFrontend($targetOrder)],
             'employeeId'       => $employee->id,
@@ -519,12 +513,6 @@ class EmployeeRatingController extends Controller
                         $hauler->load('account');
                     }
 
-                    // ✅ Log the avatar here
-                    Log::info('Team member avatar', [
-                        'employee_id' => $hauler->id,
-                        'avatar'      => $hauler->account?->avatar,
-                    ]);
-
                     $teamMembers->push([
                         'employee_id'      => $hauler->id,
                         'employee'         => $hauler,
@@ -551,13 +539,6 @@ class EmployeeRatingController extends Controller
                             $person->load('account');
                         }
 
-                        // ✅ Log the avatar here too
-                        Log::info('Team member avatar', [
-                            'employee_id' => $person->id,
-                            'role'        => $role,
-                            'avatar'      => $person->account?->avatar,
-                        ]);
-
                         $teamMembers->push([
                             'employee_id'      => $person->id,
                             'employee'         => $person,
@@ -580,11 +561,6 @@ class EmployeeRatingController extends Controller
             if (! $performance->evaluatee->relationLoaded('account')) {
                 $performance->evaluatee->load('account');
             }
-
-            Log::info('Rated team member avatar', [
-                'employee_id' => $performance->evaluatee->id,
-                'avatar'      => $performance->evaluatee->account?->avatar,
-            ]);
 
             return [
                 'employee_id'      => $performance->evaluatee->id,

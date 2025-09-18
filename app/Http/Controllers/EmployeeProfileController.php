@@ -71,7 +71,7 @@ class EmployeeProfileController extends Controller
             'performancesAsEmployee.ratings.performanceRating',
         ])->findOrFail($id);
 
-        $this->logTeamLeaderAssignments($employee);
+        // $this->logTeamLeaderAssignments($employee);
 
         $position = strtolower($employee->position->name ?? '');
 
