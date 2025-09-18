@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Monitor, Cpu, HardDrive } from 'lucide-vue-next'
+import { Cpu, HardDrive, Monitor } from 'lucide-vue-next'
 
 interface ITService {
   id: number
@@ -13,7 +13,11 @@ defineProps<{
 
 const getServiceIcon = (machineType: string) => {
   const type = machineType.toLowerCase()
-  if (type.includes('computer') || type.includes('pc') || type.includes('laptop')) {
+  if (
+    type.includes('computer') ||
+    type.includes('pc') ||
+    type.includes('laptop')
+  ) {
     return Monitor
   } else if (type.includes('server') || type.includes('cpu')) {
     return Cpu
@@ -24,7 +28,11 @@ const getServiceIcon = (machineType: string) => {
 
 const getServiceColor = (machineType: string) => {
   const type = machineType.toLowerCase()
-  if (type.includes('computer') || type.includes('pc') || type.includes('laptop')) {
+  if (
+    type.includes('computer') ||
+    type.includes('pc') ||
+    type.includes('laptop')
+  ) {
     return 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
   } else if (type.includes('server') || type.includes('cpu')) {
     return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
@@ -35,31 +43,52 @@ const getServiceColor = (machineType: string) => {
 </script>
 
 <template>
-  <div class="dark:bg-gray-900 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-sky-700 mb-4">
+  <div class="rounded-lg p-3 shadow-sm dark:bg-gray-900 sm:p-4 lg:p-6">
+    <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-sky-700">
       IT Services Handled
-      <span class="text-base font-normal text-gray-500 dark:text-gray-400">({{ services.length }})</span>
+      <span class="text-base font-normal text-gray-500 dark:text-gray-400"
+        >({{ services.length }})</span
+      >
     </h3>
 
-    <div v-if="services.length" class="space-y-3">
-      <div v-for="service in services" :key="service.id"
-        class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-
-        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-          :class="getServiceColor(service.machine_type)">
-          <component :is="getServiceIcon(service.machine_type)" class="w-5 h-5" />
+    <div
+      v-if="services.length"
+      class="space-y-3"
+    >
+      <div
+        v-for="service in services"
+        :key="service.id"
+        class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
+      >
+        <div
+          class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg"
+          :class="getServiceColor(service.machine_type)"
+        >
+          <component
+            :is="getServiceIcon(service.machine_type)"
+            class="h-5 w-5"
+          />
         </div>
 
-        <div class="flex-1 min-w-0">
-          <div class="font-medium text-gray-900 dark:text-sky-700 truncate">{{ service.machine_type }}</div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ service.model }}</div>
+        <div class="min-w-0 flex-1">
+          <div class="truncate font-medium text-gray-900 dark:text-sky-700">
+            {{ service.machine_type }}
+          </div>
+          <div class="truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ service.model }}
+          </div>
         </div>
       </div>
     </div>
 
-    <div v-else class="text-center py-6 sm:py-8 text-gray-400 dark:text-gray-500">
-      <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-        <Monitor class="w-8 h-8 text-gray-400 dark:text-gray-600" />
+    <div
+      v-else
+      class="py-6 text-center text-gray-400 dark:text-gray-500 sm:py-8"
+    >
+      <div
+        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800"
+      >
+        <Monitor class="h-8 w-8 text-gray-400 dark:text-gray-600" />
       </div>
       <p class="text-sm">No IT services handled yet.</p>
     </div>

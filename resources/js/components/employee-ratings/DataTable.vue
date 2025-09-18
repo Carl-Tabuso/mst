@@ -11,20 +11,20 @@ import { valueUpdater } from '@/lib/utils'
 import { EloquentCollection } from '@/types'
 import type {
   ColumnDef,
+  ColumnFiltersState,
   PaginationState,
   SortingState,
   VisibilityState,
-  ColumnFiltersState,
 } from '@tanstack/vue-table'
 import {
   FlexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import DataTablePagination from './DataTablePagination.vue'
 import DataTableToolbar from './DataTableToolbar.vue'
 
@@ -53,7 +53,8 @@ const columnVisibility = ref<VisibilityState>({
 })
 const rowSelection = ref({})
 
-const searchQuery = new URLSearchParams(window.location.search).get('search') || ''
+const searchQuery =
+  new URLSearchParams(window.location.search).get('search') || ''
 const globalFilter = ref<string | number>(searchQuery)
 
 const pagination = ref<PaginationState>({
@@ -76,7 +77,8 @@ const table = useVueTable({
 
   onSortingChange: (updater) => valueUpdater(updater, sorting),
   onColumnFiltersChange: (updater) => valueUpdater(updater, columnFilters),
-  onColumnVisibilityChange: (updater) => valueUpdater(updater, columnVisibility),
+  onColumnVisibilityChange: (updater) =>
+    valueUpdater(updater, columnVisibility),
   onRowSelectionChange: (updater) => valueUpdater(updater, rowSelection),
 
   onGlobalFilterChange: (updater) => {
@@ -89,7 +91,13 @@ const table = useVueTable({
   },
 
   getRowId: (row) =>
-    (row as { id?: string | number; serviceableId?: string | number; ticket?: string }).ticket ??
+    (
+      row as {
+        id?: string | number
+        serviceableId?: string | number
+        ticket?: string
+      }
+    ).ticket ??
     (row as { id?: string | number; serviceableId?: string | number }).id ??
     (row as any).serviceableId,
 
@@ -117,7 +125,7 @@ const table = useVueTable({
   globalFilterFn: (row, value) => {
     const search = String(value).toLowerCase()
 
-    return row.getVisibleCells().some(cell => {
+    return row.getVisibleCells().some((cell) => {
       const cellValue = cell.getValue()
       if (cellValue == null) return false
 
@@ -132,8 +140,10 @@ const table = useVueTable({
         return true
       }
 
-      if (rowData.rating_status &&
-        String(rowData.rating_status).toLowerCase().includes(search)) {
+      if (
+        rowData.rating_status &&
+        String(rowData.rating_status).toLowerCase().includes(search)
+      ) {
         return true
       }
 
@@ -165,37 +175,65 @@ const filteredMeta = computed(() => ({
 </script>
 
 <template>
-  <DataTableToolbar :table="table" :globalFilter="globalFilter" :routeName="props.routeName" :filters="props.filters" />
+  <DataTableToolbar
+    :table="table"
+    :globalFilter="globalFilter"
+    :routeName="props.routeName"
+    :filters="props.filters"
+  />
 
-  <div class="rounded-md border mt-4">
+  <div class="mt-4 rounded-md border">
     <Table>
       <TableHeader>
-        <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="">
-          <TableHead v-for="header in headerGroup.headers" :key="header.id">
-            <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-              :props="header.getContext()" />
+        <TableRow
+          v-for="headerGroup in table.getHeaderGroups()"
+          :key="headerGroup.id"
+          class=""
+        >
+          <TableHead
+            v-for="header in headerGroup.headers"
+            :key="header.id"
+          >
+            <FlexRender
+              v-if="!header.isPlaceholder"
+              :render="header.column.columnDef.header"
+              :props="header.getContext()"
+            />
           </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         <template v-if="table.getRowModel().rows?.length">
-          <template v-for="row in table.getRowModel().rows" :key="row.id">
-            <TableRow :data-state="row.getIsSelected() ? 'selected' : undefined">
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-3">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+          <template
+            v-for="row in table.getRowModel().rows"
+            :key="row.id"
+          >
+            <TableRow
+              :data-state="row.getIsSelected() ? 'selected' : undefined"
+            >
+              <TableCell
+                v-for="cell in row.getVisibleCells()"
+                :key="cell.id"
+                class="py-3"
+              >
+                <FlexRender
+                  :render="cell.column.columnDef.cell"
+                  :props="cell.getContext()"
+                />
               </TableCell>
             </TableRow>
           </template>
         </template>
         <template v-else>
           <TableRow>
-            <TableCell :colspan="columns.length" class="h-24 text-center">
+            <TableCell
+              :colspan="columns.length"
+              class="h-24 text-center"
+            >
               <div v-if="globalFilter">
                 No results found for "{{ globalFilter }}"
               </div>
-              <div v-else>
-                No results.
-              </div>
+              <div v-else>No results.</div>
             </TableCell>
           </TableRow>
         </template>
@@ -203,5 +241,10 @@ const filteredMeta = computed(() => ({
     </Table>
   </div>
 
-  <DataTablePagination v-if="filteredMeta" :table="table" :lastPage="filteredMeta.last_page" :meta="filteredMeta" />
+  <DataTablePagination
+    v-if="filteredMeta"
+    :table="table"
+    :lastPage="filteredMeta.last_page"
+    :meta="filteredMeta"
+  />
 </template>

@@ -12,7 +12,6 @@ import { MoreVertical } from 'lucide-vue-next'
 defineProps<{
   jobOrder: JobOrder
 }>()
-
 </script>
 
 <template>

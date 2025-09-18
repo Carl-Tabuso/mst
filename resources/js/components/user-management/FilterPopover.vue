@@ -27,7 +27,7 @@ interface FilterPopoverEmits {
 const props = withDefaults(defineProps<FilterPopoverProps>(), {
   routeName: 'users.index',
   roles: () => [],
-  currentFilters: () => ({})
+  currentFilters: () => ({}),
 })
 
 const emit = defineEmits<FilterPopoverEmits>()
@@ -39,19 +39,23 @@ const localSelectedRoles = ref<number[]>([])
 const localFromDateCreated = ref<DateValue | undefined>(undefined)
 const localToDateCreated = ref<DateValue | undefined>(undefined)
 
-watch(() => props.currentFilters, (newFilters) => {
-  localSelectedRoles.value = Array.isArray(newFilters.role) 
-    ? newFilters.role.map(role => Number(role)) 
-    : []
-  
-  localFromDateCreated.value = newFilters.fromDateCreated 
-    ? new Date(newFilters.fromDateCreated) 
-    : undefined
-  
-  localToDateCreated.value = newFilters.toDateCreated 
-    ? new Date(newFilters.toDateCreated) 
-    : undefined
-}, { deep: true, immediate: true })
+watch(
+  () => props.currentFilters,
+  (newFilters) => {
+    localSelectedRoles.value = Array.isArray(newFilters.role)
+      ? newFilters.role.map((role) => Number(role))
+      : []
+
+    localFromDateCreated.value = newFilters.fromDateCreated
+      ? new Date(newFilters.fromDateCreated)
+      : undefined
+
+    localToDateCreated.value = newFilters.toDateCreated
+      ? new Date(newFilters.toDateCreated)
+      : undefined
+  },
+  { deep: true, immediate: true },
+)
 
 const handleRoleSelection = (roleId: number, checked: boolean) => {
   if (checked) {
@@ -59,17 +63,20 @@ const handleRoleSelection = (roleId: number, checked: boolean) => {
       localSelectedRoles.value.push(roleId)
     }
   } else {
-    localSelectedRoles.value = localSelectedRoles.value.filter(id => id !== roleId)
+    localSelectedRoles.value = localSelectedRoles.value.filter(
+      (id) => id !== roleId,
+    )
   }
 }
 
 const formatToDateString = (date: DateValue | undefined) => {
   if (!date) return ''
-  
-  const dateObj = typeof (date as any).toDate === 'function' 
-    ? (date as any).toDate() 
-    : new Date(String(date))
-  
+
+  const dateObj =
+    typeof (date as any).toDate === 'function'
+      ? (date as any).toDate()
+      : new Date(String(date))
+
   return dateObj.toLocaleDateString('en-PH', {
     year: 'numeric',
     month: 'long',
@@ -79,40 +86,41 @@ const formatToDateString = (date: DateValue | undefined) => {
 
 const serializeDate = (date: DateValue | undefined) => {
   if (!date) return ''
-  
-  const dateObj = typeof (date as any).toDate === 'function' 
-    ? (date as any).toDate() 
-    : new Date(String(date))
-  
+
+  const dateObj =
+    typeof (date as any).toDate === 'function'
+      ? (date as any).toDate()
+      : new Date(String(date))
+
   return dateObj.toISOString()
 }
 
 const applyFilters = () => {
   isParentPopoverOpen.value = false
-  
+
   const filters: any = {}
-  
+
   if (localSelectedRoles.value.length > 0) {
     filters.role = localSelectedRoles.value
   } else {
     filters.role = []
   }
-  
+
   const fromDate = serializeDate(localFromDateCreated.value)
   const toDate = serializeDate(localToDateCreated.value)
-  
+
   if (fromDate) {
     filters.fromDateCreated = fromDate
   } else {
     filters.fromDateCreated = ''
   }
-  
+
   if (toDate) {
     filters.toDateCreated = toDate
   } else {
     filters.toDateCreated = ''
   }
-  
+
   emit('filter-change', filters)
 }
 
@@ -121,31 +129,37 @@ const clearFilters = () => {
   localFromDateCreated.value = undefined
   localToDateCreated.value = undefined
   isParentPopoverOpen.value = false
-  
+
   emit('clear-filters')
 }
 
 const resetLocalState = () => {
-  localSelectedRoles.value = Array.isArray(props.currentFilters.role) 
-    ? props.currentFilters.role.map(role => Number(role)) 
+  localSelectedRoles.value = Array.isArray(props.currentFilters.role)
+    ? props.currentFilters.role.map((role) => Number(role))
     : []
-  
-  localFromDateCreated.value = props.currentFilters.fromDateCreated 
-    ? new Date(props.currentFilters.fromDateCreated) 
+
+  localFromDateCreated.value = props.currentFilters.fromDateCreated
+    ? new Date(props.currentFilters.fromDateCreated)
     : undefined
-  
-  localToDateCreated.value = props.currentFilters.toDateCreated 
-    ? new Date(props.currentFilters.toDateCreated) 
+
+  localToDateCreated.value = props.currentFilters.toDateCreated
+    ? new Date(props.currentFilters.toDateCreated)
     : undefined
 }
 </script>
 
 <template>
-  <Popover v-model:open="isParentPopoverOpen" @open-auto="resetLocalState">
+  <Popover
+    v-model:open="isParentPopoverOpen"
+    @open-auto="resetLocalState"
+  >
     <PopoverTrigger as-child>
       <slot />
     </PopoverTrigger>
-    <PopoverContent class="w-96" align="start">
+    <PopoverContent
+      class="w-96"
+      align="start"
+    >
       <!-- Role Filter -->
       <div class="mb-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">Role</div>
@@ -158,12 +172,14 @@ const resetLocalState = () => {
             <Checkbox
               :id="`role-${role.id}`"
               :checked="localSelectedRoles.includes(role.id)"
-              @update:checked="(checked) => handleRoleSelection(role.id, checked)"
+              @update:checked="
+                (checked) => handleRoleSelection(role.id, checked)
+              "
               class="border-gray-400 dark:border-white"
             />
             <Label
               :for="`role-${role.id}`"
-              class="text-sm font-normal truncate"
+              class="truncate text-sm font-normal"
               :title="role.name"
             >
               {{ role.name }}
@@ -193,7 +209,9 @@ const resetLocalState = () => {
                   ]"
                 >
                   <span>
-                    {{ formatToDateString(localFromDateCreated) || 'Pick a date' }}
+                    {{
+                      formatToDateString(localFromDateCreated) || 'Pick a date'
+                    }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -217,7 +235,9 @@ const resetLocalState = () => {
                   ]"
                 >
                   <span>
-                    {{ formatToDateString(localToDateCreated) || 'Pick a date' }}
+                    {{
+                      formatToDateString(localToDateCreated) || 'Pick a date'
+                    }}
                   </span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>

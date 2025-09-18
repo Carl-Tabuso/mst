@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue'
 import { usePermissions } from '@/composables/usePermissions'
-import { Link } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
 
 interface PageHeaderProps {
@@ -26,7 +25,7 @@ const cannotCreateUser = cannot('create:user_account')
         {{ subTitle }}
       </p>
     </div>
-      <Button @click="$emit('create')">
+    <Button @click="$emit('create')">
       <Plus class="mr-2 h-4 w-4" />
       Create User
     </Button>

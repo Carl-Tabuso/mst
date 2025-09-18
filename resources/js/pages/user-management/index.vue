@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem, EloquentCollection, User, Employee } from '@/types'
-import { columns } from './columns'
-import UserDataTable from '@/components/user-management/UserDataTable.vue'
 import PageHeader from '@/components/user-management/PageHeader.vue'
 import UserCreationModal from '@/components/user-management/UserCreationModal.vue'
+import UserDataTable from '@/components/user-management/UserDataTable.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import {
+  type BreadcrumbItem,
+  EloquentCollection,
+  Employee,
+  User,
+} from '@/types'
 import { ref } from 'vue'
+import { columns } from './columns'
 
 interface IndexProps {
   data: {

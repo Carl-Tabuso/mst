@@ -19,9 +19,6 @@ const props = defineProps<UserActionsProps>()
 const handleEdit = () => {
   router.visit(route('users.settings', props.user.id))
 }
-
-
-
 </script>
 
 <template>
@@ -39,13 +36,7 @@ const handleEdit = () => {
       align="end"
       class="w-[160px]"
     >
-      <DropdownMenuItem @click="handleEdit">
-        Edit
-      </DropdownMenuItem>
-
-   
-
-     
+      <DropdownMenuItem @click="handleEdit"> Edit </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>

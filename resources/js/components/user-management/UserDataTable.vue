@@ -63,7 +63,7 @@ const globalFilter = computed({
   get: () => currentFilters.value.search || '',
   set: (value) => {
     handleFilterChange({ search: value })
-  }
+  },
 })
 
 const getFilters = () => ({
@@ -79,7 +79,7 @@ const handleFilterChange = (newFilters: any) => {
         ...currentFilters.value,
         ...newFilters,
       },
-      page: newFilters.search !== undefined ? 1 : undefined, 
+      page: newFilters.search !== undefined ? 1 : undefined,
     },
     {
       preserveState: true,
@@ -113,7 +113,8 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   onSortingChange: (updater) => valueUpdater(updater, sorting),
-  onColumnVisibilityChange: (updater) => valueUpdater(updater, columnVisibility),
+  onColumnVisibilityChange: (updater) =>
+    valueUpdater(updater, columnVisibility),
   onRowSelectionChange: (updater) => valueUpdater(updater, rowSelection),
   onGlobalFilterChange: (value) => {
     globalFilter.value = value
@@ -139,7 +140,7 @@ const table = useVueTable({
 })
 
 defineExpose({
-  handleFilterChange
+  handleFilterChange,
 })
 </script>
 

@@ -194,10 +194,10 @@ function exportData() {
       'rating_from',
       'rating_to',
       'sort',
-      'search'
+      'search',
     ]
 
-    paramsToInclude.forEach(param => {
+    paramsToInclude.forEach((param) => {
       const value = currentUrl.searchParams.get(param)
       if (value) {
         exportUrl.searchParams.set(param, value)
@@ -209,7 +209,6 @@ function exportData() {
     }
 
     window.location.href = exportUrl.toString()
-
   } catch (error) {
     alert('Export failed. Please try again.')
   } finally {
@@ -257,7 +256,9 @@ function goToNextPage() {
 }
 
 const canGoPrevious = computed(() => props.employees.current_page > 1)
-const canGoNext = computed(() => props.employees.current_page < props.employees.last_page)
+const canGoNext = computed(
+  () => props.employees.current_page < props.employees.last_page,
+)
 
 watch(
   () => props.employees,
@@ -295,90 +296,141 @@ const activeFiltersCount = computed(() => {
 <template>
   <AppLayout>
     <div class="min-h-screen bg-white dark:bg-zinc-900">
-      <div class="border-gray-200 bg-white px-4 pt-8 sm:px-6 dark:border-gray-700 dark:bg-zinc-900">
+      <div
+        class="border-gray-200 bg-white px-4 pt-8 dark:border-gray-700 dark:bg-zinc-900 sm:px-6"
+      >
         <div class="mx-auto max-w-7xl">
           <div class="space-y-2">
-            <h1 class="text-2xl font-semibold text-blue-900 sm:text-3xl lg:text-4xl dark:text-white">
+            <h1
+              class="text-2xl font-semibold text-blue-900 dark:text-white sm:text-3xl lg:text-4xl"
+            >
               Performance Evaluation
             </h1>
-            <p class="text-base text-gray-500 sm:text-lg dark:text-gray-400">
+            <p class="text-base text-gray-500 dark:text-gray-400 sm:text-lg">
               Track and view ratings of all employees evaluations here.
             </p>
           </div>
         </div>
       </div>
 
-      <div class="mx-auto max-w-7xl py-6 px-6">
+      <div class="mx-auto max-w-7xl px-6 py-6">
         <div class="py-6">
           <div class="flex flex-col justify-between gap-3 lg:flex-row">
             <div class="flex flex-col flex-wrap gap-3 lg:flex-row">
               <div class="relative max-w-md flex-1">
                 <Search
-                  class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400 dark:text-gray-500" />
-                <Input v-model="search" placeholder="Search employees..."
-                  class="h-10 bg-white pl-10 text-gray-900 placeholder-gray-500  dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400" />
+                  class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400 dark:text-gray-500"
+                />
+                <Input
+                  v-model="search"
+                  placeholder="Search employees..."
+                  class="h-10 bg-white pl-10 text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
+                />
               </div>
               <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger as-child>
-                    <Button variant="outline"
-                      class="h-10 w-full border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50 sm:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                    <Button
+                      variant="outline"
+                      class="h-10 w-full border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 sm:w-auto"
+                    >
                       <Filter class="mr-2 h-4 w-4" />
                       Filter
-                      <span v-if="activeFiltersCount > 0"
-                        class="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      <span
+                        v-if="activeFiltersCount > 0"
+                        class="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      >
                         {{ activeFiltersCount }}
                       </span>
                       <ChevronDown class="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end"
-                    class="min-w-[280px] border-gray-200 bg-white p-0 dark:border-gray-700 dark:bg-gray-800">
+                  <DropdownMenuContent
+                    align="end"
+                    class="min-w-[280px] border-gray-200 bg-white p-0 dark:border-gray-700 dark:bg-gray-800"
+                  >
                     <div class="space-y-4 p-4">
                       <div>
-                        <h4 class="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <h4
+                          class="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100"
+                        >
                           Evaluation Status
                         </h4>
                         <div class="space-y-2">
                           <div class="flex items-center gap-3">
-                            <input type="checkbox" id="no-ratings" v-model="selectedEvaluationStatus" value="no_ratings"
-                              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-400" />
-                            <label for="no-ratings" class="cursor-pointer text-sm text-gray-700 dark:text-gray-300">
+                            <input
+                              type="checkbox"
+                              id="no-ratings"
+                              v-model="selectedEvaluationStatus"
+                              value="no_ratings"
+                              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-400"
+                            />
+                            <label
+                              for="no-ratings"
+                              class="cursor-pointer text-sm text-gray-700 dark:text-gray-300"
+                            >
                               No ratings yet
                             </label>
                           </div>
                         </div>
                       </div>
 
-                      <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
-                        <h4 class="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div
+                        class="border-t border-gray-200 pt-4 dark:border-gray-700"
+                      >
+                        <h4
+                          class="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100"
+                        >
                           Average Rating
                         </h4>
                         <div class="space-y-3">
                           <div>
-                            <label class="mb-1 block text-xs text-gray-500 dark:text-gray-400">From</label>
-                            <input type="number" v-model="ratingFrom" placeholder="Enter rating" min="0" max="5"
+                            <label
+                              class="mb-1 block text-xs text-gray-500 dark:text-gray-400"
+                              >From</label
+                            >
+                            <input
+                              type="number"
+                              v-model="ratingFrom"
+                              placeholder="Enter rating"
+                              min="0"
+                              max="5"
                               step="0.1"
-                              class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-blue-400" />
+                              class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-blue-400"
+                            />
                           </div>
                           <div>
-                            <label class="mb-1 block text-xs text-gray-500 dark:text-gray-400">To</label>
-                            <input type="number" v-model="ratingTo" placeholder="Enter rating" min="0" max="5"
+                            <label
+                              class="mb-1 block text-xs text-gray-500 dark:text-gray-400"
+                              >To</label
+                            >
+                            <input
+                              type="number"
+                              v-model="ratingTo"
+                              placeholder="Enter rating"
+                              min="0"
+                              max="5"
                               step="0.1"
-                              class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-blue-400" />
+                              class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-blue-400"
+                            />
                           </div>
                         </div>
                       </div>
 
-                      <div class="flex justify-between gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
-                        <Button variant="outline"
+                      <div
+                        class="flex justify-between gap-3 border-t border-gray-200 pt-4 dark:border-gray-700"
+                      >
+                        <Button
+                          variant="outline"
                           class="h-9 flex-1 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                          @click="clearAllFilters">
+                          @click="clearAllFilters"
+                        >
                           Clear
                         </Button>
                         <Button
                           class="h-9 flex-1 bg-sky-900 text-sm text-white hover:bg-sky-800 dark:bg-sky-900 dark:hover:bg-sky-800"
-                          @click="applyAllFilters">
+                          @click="applyAllFilters"
+                        >
                           Apply Filter
                         </Button>
                       </div>
@@ -388,45 +440,61 @@ const activeFiltersCount = computed(() => {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger as-child>
-                    <Button variant="outline"
-                      class="h-10 w-full border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50 sm:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                    <Button
+                      variant="outline"
+                      class="h-10 w-full border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 sm:w-auto"
+                    >
                       <SortAsc class="mr-2 h-4 w-4" />
                       Sort
                       <ChevronDown class="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end"
-                    class="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                    <DropdownMenuItem @click="
-                      () => {
-                        sort = 'name_asc'
-                        applyFilterSort(undefined, 'name_asc')
-                      }
-                    " class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+                  <DropdownMenuContent
+                    align="end"
+                    class="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                  >
+                    <DropdownMenuItem
+                      @click="
+                        () => {
+                          sort = 'name_asc'
+                          applyFilterSort(undefined, 'name_asc')
+                        }
+                      "
+                      class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
                       Name (A - Z)
                     </DropdownMenuItem>
-                    <DropdownMenuItem @click="
-                      () => {
-                        sort = 'name_desc'
-                        applyFilterSort(undefined, 'name_desc')
-                      }
-                    " class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+                    <DropdownMenuItem
+                      @click="
+                        () => {
+                          sort = 'name_desc'
+                          applyFilterSort(undefined, 'name_desc')
+                        }
+                      "
+                      class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
                       Name (Z - A)
                     </DropdownMenuItem>
-                    <DropdownMenuItem @click="
-                      () => {
-                        sort = 'rating_desc'
-                        applyFilterSort(undefined, 'rating_desc')
-                      }
-                    " class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+                    <DropdownMenuItem
+                      @click="
+                        () => {
+                          sort = 'rating_desc'
+                          applyFilterSort(undefined, 'rating_desc')
+                        }
+                      "
+                      class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
                       Highest Rated
                     </DropdownMenuItem>
-                    <DropdownMenuItem @click="
-                      () => {
-                        sort = 'rating_asc'
-                        applyFilterSort(undefined, 'rating_asc')
-                      }
-                    " class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+                    <DropdownMenuItem
+                      @click="
+                        () => {
+                          sort = 'rating_asc'
+                          applyFilterSort(undefined, 'rating_asc')
+                        }
+                      "
+                      class="text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
                       Lowest Rated
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -434,8 +502,11 @@ const activeFiltersCount = computed(() => {
               </div>
             </div>
             <div class="flex items-center gap-3">
-              <Button @click="exportData" :disabled="isExporting"
-                class="h-10 w-full bg-sky-900 px-4 text-white hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:bg-sky-900 dark:hover:bg-sky-800">
+              <Button
+                @click="exportData"
+                :disabled="isExporting"
+                class="h-10 w-full bg-sky-900 px-4 text-white hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-sky-900 dark:hover:bg-sky-800 sm:w-auto"
+              >
                 <Download class="mr-2 h-4 w-4" />
                 {{ isExporting ? 'Exporting...' : 'Export' }}
               </Button>
@@ -444,8 +515,13 @@ const activeFiltersCount = computed(() => {
         </div>
 
         <div class="overflow-hidden px-4 sm:px-0">
-          <div v-if="filteredEmployees.length === 0" class="py-16 text-center">
-            <div class="text-lg text-gray-400 dark:text-gray-500">No employees found</div>
+          <div
+            v-if="filteredEmployees.length === 0"
+            class="py-16 text-center"
+          >
+            <div class="text-lg text-gray-400 dark:text-gray-500">
+              No employees found
+            </div>
             <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
               Try adjusting your search or filter criteria
             </div>
@@ -454,46 +530,90 @@ const activeFiltersCount = computed(() => {
           <div v-else>
             <Table>
               <TableHeader>
-                <TableRow class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                  <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Name</TableHead>
-                  <TableHead class="hidden px-3 py-4 font-bold text-gray-900 sm:table-cell sm:px-6 dark:text-gray-100">
+                <TableRow
+                  class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800"
+                >
+                  <TableHead
+                    class="px-3 py-4 font-bold text-gray-900 dark:text-gray-100 sm:px-6"
+                    >Name</TableHead
+                  >
+                  <TableHead
+                    class="hidden px-3 py-4 font-bold text-gray-900 dark:text-gray-100 sm:table-cell sm:px-6"
+                  >
                     Position
                   </TableHead>
-                  <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Average Rating
+                  <TableHead
+                    class="px-3 py-4 font-bold text-gray-900 dark:text-gray-100 sm:px-6"
+                    >Average Rating
                   </TableHead>
-                  <TableHead class="px-3 py-4 font-bold text-gray-900 sm:px-6 dark:text-gray-100">Action</TableHead>
+                  <TableHead
+                    class="px-3 py-4 font-bold text-gray-900 dark:text-gray-100 sm:px-6"
+                    >Action</TableHead
+                  >
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow v-for="emp in filteredEmployees" :key="emp.id"
-                  class="border-b border-gray-100 bg-white transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-zinc-900 dark:hover:bg-gray-800">
-                  <TableCell class="px-3 py-4 text-gray-900 sm:px-6 dark:text-gray-100">
+                <TableRow
+                  v-for="emp in filteredEmployees"
+                  :key="emp.id"
+                  class="border-b border-gray-100 bg-white transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-zinc-900 dark:hover:bg-gray-800"
+                >
+                  <TableCell
+                    class="px-3 py-4 text-gray-900 dark:text-gray-100 sm:px-6"
+                  >
                     <div class="space-y-1">
-                      <div class="font-medium text-gray-900 dark:text-gray-100">{{ emp.full_name }}</div>
-                      <div class="text-sm text-gray-500 sm:hidden dark:text-gray-400">{{ emp.position }}</div>
+                      <div class="font-medium text-gray-900 dark:text-gray-100">
+                        {{ emp.full_name }}
+                      </div>
+                      <div
+                        class="text-sm text-gray-500 dark:text-gray-400 sm:hidden"
+                      >
+                        {{ emp.position }}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell class="hidden px-3 py-4 text-gray-900 sm:table-cell sm:px-6 dark:text-gray-100">
+                  <TableCell
+                    class="hidden px-3 py-4 text-gray-900 dark:text-gray-100 sm:table-cell sm:px-6"
+                  >
                     <div class="space-y-1">
-                      <div class="text-sm font-medium text-gray-900 dark:text-gray-100">Waste Management</div>
-                      <div class="text-sm text-gray-500 dark:text-gray-400">{{ emp.position }}</div>
+                      <div
+                        class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                      >
+                        Waste Management
+                      </div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">
+                        {{ emp.position }}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell class="px-3 py-4 sm:px-6">
-                    <span v-if="emp.average_rating !== null"
-                      class="inline-flex items-center rounded-full px-2 py-1 text-sm font-medium" :class="{
-                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': emp.average_rating >= 4,
+                    <span
+                      v-if="emp.average_rating !== null"
+                      class="inline-flex items-center rounded-full px-2 py-1 text-sm font-medium"
+                      :class="{
+                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200':
+                          emp.average_rating >= 4,
                         'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200':
                           emp.average_rating >= 3 && emp.average_rating < 4,
-                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': emp.average_rating < 3,
-                      }">
+                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200':
+                          emp.average_rating < 3,
+                      }"
+                    >
                       {{ emp.average_rating }}
                     </span>
-                    <span v-else class="text-sm text-gray-400 dark:text-gray-500">No ratings yet</span>
+                    <span
+                      v-else
+                      class="text-sm text-gray-400 dark:text-gray-500"
+                      >No ratings yet</span
+                    >
                   </TableCell>
-                  <TableCell class="px-3 py-4 text-gray-500 sm:px-6 dark:text-gray-400">
-                    <a :href="`/employee-ratings/${emp.id}/history-page`"
-                      class="text-sm font-medium text-zinc-500 underline hover:text-blue-800 dark:text-zinc-400 dark:hover:text-blue-400">
+                  <TableCell
+                    class="px-3 py-4 text-gray-500 dark:text-gray-400 sm:px-6"
+                  >
+                    <a
+                      :href="`/employee-ratings/${emp.id}/history-page`"
+                      class="text-sm font-medium text-zinc-500 underline hover:text-blue-800 dark:text-zinc-400 dark:hover:text-blue-400"
+                    >
                       View History
                     </a>
                   </TableCell>
@@ -501,28 +621,57 @@ const activeFiltersCount = computed(() => {
               </TableBody>
             </Table>
 
-            <div class="flex flex-col items-center justify-between gap-4 border-t border-gray-200 bg-white p-3 sm:flex-row sm:gap-8 dark:border-gray-700 dark:bg-zinc-900">
-              <div class="mb-4 px-4 text-sm text-gray-600 sm:px-0 dark:text-gray-400">
-                Showing {{
+            <div
+              class="flex flex-col items-center justify-between gap-4 border-t border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-zinc-900 sm:flex-row sm:gap-8"
+            >
+              <div
+                class="mb-4 px-4 text-sm text-gray-600 dark:text-gray-400 sm:px-0"
+              >
+                Showing
+                {{
                   props.employees.total === 0
                     ? 0
-                    : (props.employees.current_page - 1) * props.employees.per_page + 1
-                }} - {{
-                  Math.min(props.employees.current_page * props.employees.per_page, props.employees.total)
-                }} of {{ props.employees.total }} employees
+                    : (props.employees.current_page - 1) *
+                        props.employees.per_page +
+                      1
+                }}
+                -
+                {{
+                  Math.min(
+                    props.employees.current_page * props.employees.per_page,
+                    props.employees.total,
+                  )
+                }}
+                of {{ props.employees.total }} employees
               </div>
 
               <div class="flex flex-col items-center gap-4 sm:flex-row">
                 <div class="flex items-center gap-2">
-                  <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <p
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Rows per page
                   </p>
-                  <Select :model-value="props.employees.per_page.toString()" @update:model-value="changePerPage">
-                    <SelectTrigger class="h-8 w-[70px] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
-                      <SelectValue :placeholder="props.employees.per_page.toString()" />
+                  <Select
+                    :model-value="props.employees.per_page.toString()"
+                    @update:model-value="changePerPage"
+                  >
+                    <SelectTrigger
+                      class="h-8 w-[70px] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                    >
+                      <SelectValue
+                        :placeholder="props.employees.per_page.toString()"
+                      />
                     </SelectTrigger>
-                    <SelectContent side="top" class="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
-                      <SelectItem v-for="pageSize in perPageOptions" :key="pageSize" :value="pageSize.toString()">
+                    <SelectContent
+                      side="top"
+                      class="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                    >
+                      <SelectItem
+                        v-for="pageSize in perPageOptions"
+                        :key="pageSize"
+                        :value="pageSize.toString()"
+                      >
                         {{ pageSize }}
                       </SelectItem>
                     </SelectContent>
@@ -530,27 +679,46 @@ const activeFiltersCount = computed(() => {
                 </div>
 
                 <div class="flex items-center gap-4">
-                  <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Page {{ props.employees.current_page }} of {{ props.employees.last_page }}
+                  <div
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Page {{ props.employees.current_page }} of
+                    {{ props.employees.last_page }}
                   </div>
                   <div class="flex items-center gap-2">
-                    <Button variant="outline" class="hidden h-8 w-8 p-0 sm:flex dark:border-gray-700 dark:text-gray-200"
-                      :disabled="!canGoPrevious" @click="goToFirstPage">
+                    <Button
+                      variant="outline"
+                      class="hidden h-8 w-8 p-0 dark:border-gray-700 dark:text-gray-200 sm:flex"
+                      :disabled="!canGoPrevious"
+                      @click="goToFirstPage"
+                    >
                       <span class="sr-only">Go to first page</span>
                       <ChevronsLeft class="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" class="h-8 w-8 p-0 dark:border-gray-700 dark:text-gray-200"
-                      :disabled="!canGoPrevious" @click="goToPreviousPage">
+                    <Button
+                      variant="outline"
+                      class="h-8 w-8 p-0 dark:border-gray-700 dark:text-gray-200"
+                      :disabled="!canGoPrevious"
+                      @click="goToPreviousPage"
+                    >
                       <span class="sr-only">Go to previous page</span>
                       <ChevronLeft class="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" class="h-8 w-8 p-0 dark:border-gray-700 dark:text-gray-200"
-                      :disabled="!canGoNext" @click="goToNextPage">
+                    <Button
+                      variant="outline"
+                      class="h-8 w-8 p-0 dark:border-gray-700 dark:text-gray-200"
+                      :disabled="!canGoNext"
+                      @click="goToNextPage"
+                    >
                       <span class="sr-only">Go to next page</span>
                       <ChevronRight class="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" class="hidden h-8 w-8 p-0 sm:flex dark:border-gray-700 dark:text-gray-200"
-                      :disabled="!canGoNext" @click="goToLastPage">
+                    <Button
+                      variant="outline"
+                      class="hidden h-8 w-8 p-0 dark:border-gray-700 dark:text-gray-200 sm:flex"
+                      :disabled="!canGoNext"
+                      @click="goToLastPage"
+                    >
                       <span class="sr-only">Go to last page</span>
                       <ChevronsRight class="h-4 w-4" />
                     </Button>

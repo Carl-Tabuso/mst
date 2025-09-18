@@ -62,37 +62,37 @@ const handleClearFilters = () => {
     search: '',
     role: [],
     fromDateCreated: '',
-    toDateCreated: ''
+    toDateCreated: '',
   })
 }
 
 const activeFilterCount = computed(() => {
   const filters = (page.props as any).filters ?? {}
   let count = 0
-  
+
   if (filters.search && filters.search.trim() !== '') {
     count++
   }
-  
+
   if (filters.role) {
     if (Array.isArray(filters.role)) {
-      count += filters.role.filter(role => 
-        role !== null && role !== undefined && role !== ''
+      count += filters.role.filter(
+        (role) => role !== null && role !== undefined && role !== '',
       ).length
     } else if (typeof filters.role === 'string') {
-      const roles = filters.role.split(',').filter(r => r.trim() !== '')
+      const roles = filters.role.split(',').filter((r) => r.trim() !== '')
       count += roles.length
     }
   }
-  
+
   if (filters.fromDateCreated && filters.fromDateCreated !== '') {
     count++
   }
-  
+
   if (filters.toDateCreated && filters.toDateCreated !== '') {
     count++
   }
-  
+
   return count
 })
 </script>
@@ -117,13 +117,16 @@ const activeFilterCount = computed(() => {
 
     <!-- Filter Popover -->
     <FilterPopover
-      :roles="roles" 
+      :roles="roles"
       :route-name="props.routeName"
       :current-filters="currentFilters"
       @filter-change="handleFilterChange"
       @clear-filters="handleClearFilters"
     >
-      <Button variant="outline" class="mx-1">
+      <Button
+        variant="outline"
+        class="mx-1"
+      >
         <Filter class="mr-2 size-4" />
         Filter
         <Badge

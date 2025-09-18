@@ -19,7 +19,9 @@ export const columns: ColumnDef<JobOrder>[] = [
     header: ({ column }) => h(DataTableHeader, { column }),
     cell: ({ row }) => {
       const ticket = row.getValue('ticket')
-      return h('div', { class: 'text-sm font-medium' }, [ticket || `JO #${row.original.id}`])
+      return h('div', { class: 'text-sm font-medium' }, [
+        ticket || `JO #${row.original.id}`,
+      ])
     },
   },
   {
@@ -28,7 +30,12 @@ export const columns: ColumnDef<JobOrder>[] = [
     header: ({ column }) => h(DataTableHeader, { column }),
     cell: ({ row }) => {
       const rawDate = row.getValue('date_time')
-      if (!rawDate || typeof rawDate !== 'string' && typeof rawDate !== 'number' && !(rawDate instanceof Date)) {
+      if (
+        !rawDate ||
+        (typeof rawDate !== 'string' &&
+          typeof rawDate !== 'number' &&
+          !(rawDate instanceof Date))
+      ) {
         return h('div', '—')
       }
 
@@ -84,10 +91,10 @@ export const columns: ColumnDef<JobOrder>[] = [
         'button',
         {
           onClick: () => {
-            const params = jobOrderTicket 
+            const params = jobOrderTicket
               ? { job_order_ticket: jobOrderTicket }
               : { job_order_id: jobOrderId }
-            
+
             router.get(route(routeName), params)
           },
           class: [

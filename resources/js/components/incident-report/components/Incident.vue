@@ -17,11 +17,11 @@ import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useIncidentData } from '@/composables/useIncidentData'
 import { useIncidentFilters } from '@/composables/useIncidentFilters'
-import type { IncidentProps, Incident } from '@/types/incident'
+import type { Incident, IncidentProps } from '@/types/incident'
 import { Icon } from '@iconify/vue'
 import { refDebounced } from '@vueuse/core'
 import { Search } from 'lucide-vue-next'
-import { computed, withDefaults, ref, watch } from 'vue'
+import { computed, ref, watch, withDefaults } from 'vue'
 import IncidentDisplay from './IncidentDisplay.vue'
 import IncidentList from './IncidentList.vue'
 
@@ -37,7 +37,7 @@ const {
   selectedIncidents,
   archiveSelected,
   fetchIncidents,
-  markAsRead
+  markAsRead,
 } = useIncidentData()
 
 const {
@@ -58,7 +58,7 @@ const selectedIncidentData = computed(() =>
 
 const isEditing = computed(() => {
   if (!selectedIncident.value) return false
-  const incident = incidents.value.find(i => i.id === selectedIncident.value)
+  const incident = incidents.value.find((i) => i.id === selectedIncident.value)
   return incident?.status === 'draft'
 })
 
@@ -75,10 +75,10 @@ const handleMarkAsRead = async (id: string) => {
 }
 
 const handleNoIncident = (updatedIncident: Incident) => {
-  const index = incidents.value.findIndex(i => i.id === updatedIncident.id)
+  const index = incidents.value.findIndex((i) => i.id === updatedIncident.id)
   if (index !== -1) {
     incidents.value[index] = { ...incidents.value[index], ...updatedIncident }
-    incidentsRefreshKey.value++ 
+    incidentsRefreshKey.value++
   }
 }
 
@@ -101,7 +101,7 @@ watch([debouncedSearch, activeTab, activeFilters], () => {
     tab: activeTab.value,
     statuses: activeFilters.value.statuses,
     dateFrom: activeFilters.value.dateFrom,
-    dateTo: activeFilters.value.dateTo
+    dateTo: activeFilters.value.dateTo,
   })
 })
 
@@ -138,7 +138,13 @@ defineEmits(['cancel-edit', 'no-incident'])
               <p class="text-sm font-semibold">Status</p>
               <div class="mt-2 space-y-1">
                 <div
-                  v-for="status in ['draft', 'verified', 'for verification', 'dropped', 'no_incident']"
+                  v-for="status in [
+                    'draft',
+                    'verified',
+                    'for verification',
+                    'dropped',
+                    'no_incident',
+                  ]"
                   :key="status"
                 >
                   <label class="flex items-center space-x-2 text-sm">
@@ -287,14 +293,14 @@ defineEmits(['cancel-edit', 'no-incident'])
           :min-size="30"
           class="relative overflow-auto"
         >
-         <IncidentDisplay
-  :key="selectedIncident" 
-  :incident="selectedIncidentData"
-  :is-editing="isEditing"
-  @cancel-edit="handleCancelEdit"
-  @no-incident="handleNoIncident"
-  @incident-updated="handleIncidentUpdate"
-/>
+          <IncidentDisplay
+            :key="selectedIncident"
+            :incident="selectedIncidentData"
+            :is-editing="isEditing"
+            @cancel-edit="handleCancelEdit"
+            @no-incident="handleNoIncident"
+            @incident-updated="handleIncidentUpdate"
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>

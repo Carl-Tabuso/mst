@@ -30,32 +30,52 @@ const displayRating = computed(() => {
 
 <template>
   <div class="space-y-4 sm:space-y-6">
-    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance Evaluation</h3>
+    <div
+      class="rounded-lg bg-white p-3 shadow-sm dark:bg-gray-900 sm:p-4 lg:p-6"
+    >
+      <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        Performance Evaluation
+      </h3>
       <div
-        class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 sm:p-6 text-center">
-        <div class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+        class="rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-4 text-center dark:from-blue-900/20 dark:to-indigo-900/20 sm:p-6"
+      >
+        <div
+          class="mb-2 text-2xl font-bold text-blue-600 dark:text-blue-400 sm:text-3xl"
+        >
           {{ displayRating ? displayRating.toFixed(2) : 'N/A' }}
         </div>
-        <div class="text-sm text-gray-600 dark:text-gray-300">Average Performance Rating</div>
+        <div class="text-sm text-gray-600 dark:text-gray-300">
+          Average Performance Rating
+        </div>
         <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
           {{ displayRating ? 'Out of 5.0' : 'No ratings available' }}
         </div>
       </div>
     </div>
 
-    <div v-if="jobOrderStats" class="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Job Order Statistics</h3>
-      <div class="rounded-lg bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4">
-        <div class="mb-4 text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 text-center sm:text-left">
+    <div
+      v-if="jobOrderStats"
+      class="rounded-lg bg-white p-3 shadow-sm dark:bg-gray-900 sm:p-4 lg:p-6"
+    >
+      <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        Job Order Statistics
+      </h3>
+      <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50 sm:p-4">
+        <div
+          class="mb-4 text-center text-xl font-bold text-blue-600 dark:text-blue-400 sm:text-left sm:text-2xl"
+        >
           {{ jobOrderStats.total }} Total Job Orders
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <div v-for="(count, status) in jobOrderStats.by_status" :key="status"
-            class="rounded-lg p-3 text-center transition-all hover:scale-105" :class="getStatusColor(status)">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            v-for="(count, status) in jobOrderStats.by_status"
+            :key="status"
+            class="rounded-lg p-3 text-center transition-all hover:scale-105"
+            :class="getStatusColor(status)"
+          >
             <div class="text-lg font-semibold">{{ count }}</div>
-            <div class="text-sm truncate">{{ formatStatus(status) }}</div>
+            <div class="truncate text-sm">{{ formatStatus(status) }}</div>
           </div>
         </div>
       </div>

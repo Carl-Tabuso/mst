@@ -1,23 +1,19 @@
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { User } from '@/types'
-import { Link } from '@inertiajs/vue3'
-import { ColumnDef } from '@tanstack/vue-table'
-import { h } from 'vue'
-import DataTableHeader from './components/DataTableHeader.vue'
 import UserActions from '@/components/user-management/UserDataTableRowActions.vue'
 import UserFullNameAndEmail from '@/components/UserFullNameAndEmail.vue'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
+import { User } from '@/types'
+import { ColumnDef } from '@tanstack/vue-table'
 import { format } from 'date-fns'
+import { h } from 'vue'
+import DataTableHeader from './components/DataTableHeader.vue'
 
 export const columns: ColumnDef<User>[] = [
-
   {
     id: 'user',
     meta: { label: 'User' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => h(UserFullNameAndEmail, { user: row.original }),
-    enableHiding: false
+    enableHiding: false,
   },
   {
     accessorKey: 'emailVerifiedAt',
@@ -27,7 +23,11 @@ export const columns: ColumnDef<User>[] = [
       const emailVerifiedAt: string = row.getValue('emailVerifiedAt')
 
       if (!emailVerifiedAt) {
-        return h('div', { class: 'font-medium text-xs text-muted-foreground' }, 'Not verified yet')
+        return h(
+          'div',
+          { class: 'font-medium text-xs text-muted-foreground' },
+          'Not verified yet',
+        )
       }
 
       const dateVerified = new Date(emailVerifiedAt)
@@ -47,7 +47,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       console.log(row.original)
       return h(UserRoleBadge, { roleName: row.original.roles[0].name })
-    }
+    },
   },
   {
     accessorKey: 'createdAt',
@@ -76,5 +76,4 @@ export const columns: ColumnDef<User>[] = [
       }
     },
   },
-
 ]

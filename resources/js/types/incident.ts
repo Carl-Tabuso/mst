@@ -36,7 +36,7 @@ export interface IncidentProps {
   defaultLayout?: number[]
   defaultCollapsed?: boolean
   navCollapsedSize: number
-  isEditing?: boolean 
+  isEditing?: boolean
 }
 
 export interface IncidentListProps {

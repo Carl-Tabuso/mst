@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import CoworkerRatingDisplay from '@/pages/ratings/components/CoworkerRatingDisplay.vue'
 import { router } from '@inertiajs/vue3'
+import { onMounted } from 'vue'
 
 type Coworker = {
   id: number
@@ -35,7 +35,7 @@ const props = defineProps<{
 
 onMounted(() => {
   console.log('All ratedTeamMembers:', props.ratedTeamMembers)
-  const emp26 = props.ratedTeamMembers?.find(m => m.employee_id === 26)
+  const emp26 = props.ratedTeamMembers?.find((m) => m.employee_id === 26)
   console.log('Employee 26 avatar path:', emp26?.avatar)
   console.log('Employee 26 nested employee.avatar:', emp26?.employee.avatar)
 })
@@ -43,10 +43,10 @@ onMounted(() => {
 function getCoworkers(order: any): Coworker[] {
   if (props.ratedTeamMembers && props.ratedTeamMembers.length > 0) {
     const coworkers = props.ratedTeamMembers
-      .filter(member => {
+      .filter((member) => {
         return member.employee_id !== props.employeeId
       })
-      .map(member => {
+      .map((member) => {
         return member.employee
       })
 
@@ -77,7 +77,7 @@ function getCoworkers(order: any): Coworker[] {
 
 function getCoworkerRating(coworker: any) {
   const ratedMember = props.ratedTeamMembers?.find(
-    member => member.employee_id === coworker.id
+    (member) => member.employee_id === coworker.id,
   )
 
   if (ratedMember && ratedMember.ratings && ratedMember.ratings.length > 0) {
@@ -102,7 +102,7 @@ function getRole(
   coworker: Coworker,
 ): { role: string; department: string } {
   const ratedMember = props.ratedTeamMembers?.find(
-    member => member.employee_id === coworker.id
+    (member) => member.employee_id === coworker.id,
   )
   if (ratedMember && ratedMember.role) {
     let formattedRole = ''
@@ -159,66 +159,94 @@ function formatDate(dateString: string) {
     })
   )
 }
-
 </script>
 
 <template>
   <AppLayout>
     <div class="min-h-screen bg-white dark:bg-zinc-900">
-      <div v-for="order in props.jobOrders" :key="order.id" class="p-4 sm:p-6 md:p-8 lg:p-12 max-w-7xl mx-auto">
-
-        <div class="mb-6 sm:mb-8 w-full">
-          <div class="mb-2 sm:mb-1 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-900 dark:text-white">
+      <div
+        v-for="order in props.jobOrders"
+        :key="order.id"
+        class="mx-auto max-w-7xl p-4 sm:p-6 md:p-8 lg:p-12"
+      >
+        <div class="mb-6 w-full sm:mb-8">
+          <div
+            class="mb-2 flex flex-col gap-2 sm:mb-1 sm:flex-row sm:items-start sm:justify-between"
+          >
+            <h1
+              class="text-xl font-bold text-blue-900 dark:text-white sm:text-2xl lg:text-3xl"
+            >
               Performance Evaluation
             </h1>
-            <div class="text-right text-lg sm:text-xl font-semibold text-blue-900 dark:text-white">
+            <div
+              class="text-right text-lg font-semibold text-blue-900 dark:text-white sm:text-xl"
+            >
               Job Order: {{ order.ticket }}
             </div>
           </div>
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+          <div
+            class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-0"
+          >
+            <p class="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
               Employee performance rating overview
             </p>
-            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
               Date and Time of Service: {{ formatDate(order.created_at) }}
             </p>
           </div>
         </div>
 
         <div class="px-0 sm:px-4 md:px-8 lg:px-12">
-          <div v-if="getCoworkers(order).length"
-            class="divide-y divide-gray-100 dark:divide-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-            
-            <CoworkerRatingDisplay v-for="coworker in getCoworkers(order)" :key="coworker.id"
+          <div
+            v-if="getCoworkers(order).length"
+            class="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800"
+          >
+            <CoworkerRatingDisplay
+              v-for="coworker in getCoworkers(order)"
+              :key="coworker.id"
               :name="`${coworker.first_name} ${coworker.last_name}`"
-              :avatar="props.ratedTeamMembers?.find(m => m.employee_id === coworker.id)?.avatar ?? undefined"
-              :role="getRole(order, coworker).role" :department="getRole(order, coworker).department"
-              :rating="getCoworkerRating(coworker).rating" :description="getCoworkerRating(coworker).description" />
+              :avatar="
+                props.ratedTeamMembers?.find(
+                  (m) => m.employee_id === coworker.id,
+                )?.avatar ?? undefined
+              "
+              :role="getRole(order, coworker).role"
+              :department="getRole(order, coworker).department"
+              :rating="getCoworkerRating(coworker).rating"
+              :description="getCoworkerRating(coworker).description"
+            />
           </div>
 
-          <div v-else
-            class="p-6 sm:p-8 text-center italic text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div
+            v-else
+            class="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center italic text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 sm:p-8"
+          >
             No co-workers were rated in this hauling.
           </div>
         </div>
 
         <div class="mt-6 sm:mt-8">
-          <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Overall Remarks
           </label>
           <div
-            class="min-h-[3rem] w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100">
+            class="min-h-[3rem] w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+          >
             {{
-            order.performance_summary?.overall_remarks || 'No remarks provided.'
+              order.performance_summary?.overall_remarks ||
+              'No remarks provided.'
             }}
           </div>
         </div>
 
-        <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-end gap-3">
-          <button type="button"
-            class="w-full sm:w-auto rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-            @click="router.visit('/ratings')">
+        <div class="mt-6 flex flex-col justify-end gap-3 sm:mt-8 sm:flex-row">
+          <button
+            type="button"
+            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900 sm:w-auto"
+            @click="router.visit('/ratings')"
+          >
             Close
           </button>
         </div>

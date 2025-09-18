@@ -21,8 +21,12 @@ export const useUserPermissions = () => {
   })
 
   const canVerify = computed(() => isHR.value)
-  const canCompose = computed(() => isHR.value || isTeamLeader.value || isSafetyOfficer.value)
-  const isCreatingRole = computed(() => isTeamLeader.value || isSafetyOfficer.value)
+  const canCompose = computed(
+    () => isHR.value || isTeamLeader.value || isSafetyOfficer.value,
+  )
+  const isCreatingRole = computed(
+    () => isTeamLeader.value || isSafetyOfficer.value,
+  )
 
   return {
     isHR,

@@ -72,7 +72,7 @@ const localUser = ref({
   first_name: props.user.employee.first_name,
   last_name: props.user.employee.last_name,
   email: props.user.email,
-  position_id: props.user.employee.position_id
+  position_id: props.user.employee.position_id,
 })
 
 const statusVariant = computed(() =>
@@ -88,7 +88,7 @@ const resetForm = () => {
     first_name: props.user.employee.first_name,
     last_name: props.user.employee.last_name,
     email: props.user.email,
-    position_id: props.user.employee.position_id
+    position_id: props.user.employee.position_id,
   }
 }
 
@@ -311,7 +311,7 @@ const deleteAccount = async () => {
             </div>
           </div>
         </div>
-<!-- 
+        <!-- 
         <Separator /> -->
 
         <!-- Delete Account -->

@@ -20,17 +20,21 @@ interface IncidentListProps {
 
 const emit = defineEmits(['itemClick'])
 const props = defineProps<IncidentListProps>()
-const selectedIncident = defineModel<string | number>('selectedIncident', { required: false })
-const selectedIncidents = defineModel<Array<string | number>>('selectedIncidents', { default: [] })
-
+const selectedIncident = defineModel<string | number>('selectedIncident', {
+  required: false,
+})
+const selectedIncidents = defineModel<Array<string | number>>(
+  'selectedIncidents',
+  { default: [] },
+)
 
 const getStatusBadgeVariant = (status: string) => {
   const statusMap: Record<string, string> = {
     'for verification': 'tertiary',
-    'verified': 'default',
-    'pending': 'secondary',
-    'draft': 'outline',
-    'no_incident': 'secondary',
+    verified: 'default',
+    pending: 'secondary',
+    draft: 'outline',
+    no_incident: 'secondary',
   }
   return statusMap[status.toLowerCase()] || 'outline'
 }
