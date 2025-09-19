@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { useForm } from '@inertiajs/vue3'
-import { Camera, Mail, User } from 'lucide-vue-next'
+import { Camera, Mail } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
 interface Employee {
@@ -105,33 +107,29 @@ const cancelAvatarEdit = () => {
     </h1>
 
     <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-      <!-- Profile Image -->
+      <!-- <Card>
+        <CardHeader>
+          <CardTitle>
+            Profile
+          </CardTitle>
+        </CardHeader>
+      </Card> -->
       <div class="flex justify-center lg:justify-start">
         <div class="relative">
-          <div
-            class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-blue-500"
-          >
-            <img
-              v-if="displayImage"
-              :src="displayImage"
-              alt="Profile"
-              class="h-full w-full object-cover"
-            />
-            <User
-              v-else
-              class="h-10 w-10 text-white"
-            />
-          </div>
-
-          <!-- Always show camera button for avatar editing -->
-          <button
+          <UserAvatar
+            :avatar-path="displayImage"
+            :fallback="employee.full_name"
+            class="flex h-32 w-32 text-5xl"
+          />
+          <Button
             type="button"
+            size="icon"
             @click="triggerImageUpload"
-            class="absolute -bottom-1 -right-1 rounded-full bg-blue-600 p-1 text-white shadow-lg transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            class="absolute -right-1 top-24 h-7 w-7 rounded-full"
             :disabled="form.processing"
           >
             <Camera class="h-3 w-3" />
-          </button>
+          </Button>
 
           <input
             ref="imageInput"

@@ -2,7 +2,6 @@
 import AppCalendar from '@/components/AppCalendar.vue'
 import EmployeePopoverSelection from '@/components/EmployeePopoverSelection.vue'
 import InputError from '@/components/InputError.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -19,8 +18,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { formatToDateString } from '@/composables/useDateFormatter'
-import { getInitials } from '@/composables/useInitials'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { useWasteManagementStages } from '@/composables/useWasteManagementStages'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
@@ -199,16 +198,10 @@ const { userRoleMap } = useJobOrderDicts()
                       class="flex items-center justify-between gap-2 rounded-md text-xs"
                     >
                       <div class="flex items-center gap-2 overflow-hidden">
-                        <Avatar class="h-7 w-7 shrink-0 rounded-full">
-                          <AvatarImage
-                            v-if="appraisers[0]?.account?.avatar"
-                            :src="appraisers[0].account.avatar"
-                            :alt="appraisers[0].fullName"
-                          />
-                          <AvatarFallback>
-                            {{ getInitials(appraisers[0].fullName) }}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserAvatar
+                          :avatar-path="appraisers[0]?.account?.avatar"
+                          :fallback="appraisers[0].fullName"
+                        />
                         <span class="truncate">
                           <template v-if="appraisers.length < 2">
                             {{ appraisers[0].fullName }}

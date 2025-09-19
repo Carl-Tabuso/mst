@@ -66,22 +66,22 @@ class WasteManagementService
     public function getWasteManagementData(JobOrder $ticket): JobOrderResource
     {
         $loads = $ticket->load([
-            'creator'     => ['account:avatar'],
+            'creator'     => ['account'],
             'cancel',
             'corrections',
             'serviceable' => [
-                'dispatcher' => ['account:avatar'],
-                'appraisers' => ['account:avatar'],
+                'dispatcher' => ['account'],
+                'appraisers' => ['account'],
                 'form3'      => [
                     'haulings' => [
                         'checklist',
                         'truck',
-                        'haulers'           => ['account:avatar'],
+                        'haulers'           => ['account'],
                         'assignedPersonnel' => [
-                            'teamLeader'    => ['account:avatar'],
-                            'teamDriver'    => ['account:avatar'],
-                            'safetyOfficer' => ['account:avatar'],
-                            'teamMechanic'  => ['account:avatar'],
+                            'teamLeader'    => ['account'],
+                            'teamDriver'    => ['account'],
+                            'safetyOfficer' => ['account'],
+                            'teamMechanic'  => ['account'],
                         ],
                     ],
                 ],

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import EmployeePopoverSelection from '@/components/EmployeePopoverSelection.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -17,9 +16,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { getInitials } from '@/composables/useInitials'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { Employee, Form3Hauling } from '@/types'
-import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
+import { ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
 import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
@@ -43,10 +42,6 @@ const props = withDefaults(defineProps<HaulersSelectionProps>(), {
 defineEmits<HaulersSelectionEmits>()
 
 const haulers = computed(() => props.hauling.haulers)
-
-const isExistingHauler = (employeeId: number) => {
-  return haulers.value.map((hauler) => hauler.id).includes(employeeId)
-}
 
 const remainingEmployees = computed(() => {
   const filtered = props.employees?.filter(
@@ -79,16 +74,10 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
             class="flex items-center justify-between gap-2 rounded-md text-xs"
           >
             <div class="flex items-center gap-2 overflow-hidden">
-              <Avatar class="h-7 w-7 shrink-0 rounded-full">
-                <AvatarImage
-                  v-if="firstHauler?.account?.avatar"
-                  :src="firstHauler.account.avatar"
-                  :alt="firstHauler.fullName"
-                />
-                <AvatarFallback>
-                  {{ getInitials(firstHauler.fullName) }}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                :avatar-path="firstHauler?.account?.avatar"
+                :fallback="firstHauler.fullName"
+              />
               <span class="truncate">
                 <template v-if="haulers.length < 2">
                   {{ firstHauler.fullName }}
@@ -156,27 +145,7 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
                   class="cursor-pointer"
                   @select="$emit('onHaulerSelect', employee, index)"
                 >
-                  <div
-                    v-if="!isExistingHauler(employee.id)"
-                    class="mr-1 flex h-4 w-4 items-center justify-center rounded-sm border border-primary opacity-50 [&_svg]:invisible"
-                  >
-                    <Check :class="['h-4 w-4']" />
-                  </div>
-                  <Avatar class="h-7 w-7 overflow-hidden rounded-full">
-                    <AvatarImage
-                      v-if="employee?.account?.avatar"
-                      :src="employee.account.avatar"
-                      :alt="employee.fullName"
-                    />
-                    <AvatarFallback class="rounded-full">
-                      {{ getInitials(employee.fullName) }}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div class="grid flex-1 text-left text-[13px] leading-tight">
-                    <span class="truncate">
-                      {{ employee.fullName }}
-                    </span>
-                  </div>
+                  <EmployeePopoverSelection :employee="employee" />
                 </CommandItem>
               </template>
             </CommandGroup>

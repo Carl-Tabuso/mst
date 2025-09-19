@@ -45,7 +45,6 @@ export const columns: ColumnDef<User>[] = [
     meta: { label: 'Role' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      console.log(row.original)
       return h(UserRoleBadge, { roleName: row.original.roles[0].name })
     },
   },

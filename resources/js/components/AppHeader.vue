@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue'
 import AppLogoIcon from '@/components/AppLogoIcon.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -29,7 +28,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import UserMenuContent from '@/components/UserMenuContent.vue'
-import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
 import { UserRoleType } from '@/constants/user-role'
 import { SharedData, type BreadcrumbItem, type NavItem } from '@/types'
@@ -51,6 +49,7 @@ import {
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import DarkModeToggle from './DarkModeToggle.vue'
+import UserAvatar from './UserAvatar.vue'
 
 interface Props {
   breadcrumbs?: BreadcrumbItem[]
@@ -352,22 +351,11 @@ const rightNavItems: NavItem[] = [
                 size="icon"
                 class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
               >
-                <Avatar class="size-8 overflow-hidden rounded-full">
-                  <AvatarImage
-                    v-if="auth.user.avatar"
-                    :src="`/storage/${auth.user.avatar}`"
-                    :alt="auth.user.employee?.full_name || 'User Avatar'"
-                  />
-                  <AvatarFallback
-                    class="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                  >
-                    {{
-                      getInitials(
-                        auth.user.employee?.full_name || auth.user.email,
-                      )
-                    }}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  :avatar-path="auth.user.avatar"
+                  :fallback="auth.user.employee.full_name"
+                  class="size-8"
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent

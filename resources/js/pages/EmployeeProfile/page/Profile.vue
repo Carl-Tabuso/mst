@@ -11,6 +11,8 @@ import { EnhancedProfileProps } from '../types/types'
 
 const props = defineProps<EnhancedProfileProps>()
 
+// console.log(props)
+
 const {
   positionName,
   showJobOrders,
@@ -30,7 +32,7 @@ const {
         <div class="mx-auto max-w-7xl space-y-4 sm:space-y-6">
           <ProfileHeader
             :employee="props.employee"
-            :profile-image-url="props.profileImageUrl"
+            :avatar="props.employee.avatar"
           />
 
           <div class="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2">

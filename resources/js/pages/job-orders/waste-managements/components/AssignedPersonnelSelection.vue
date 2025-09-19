@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -15,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { getInitials } from '@/composables/useInitials'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
@@ -76,16 +75,10 @@ const Roles = [
       >
         <Button variant="outline">
           <template v-if="hauling?.assignedPersonnel?.[role]">
-            <Avatar class="h-7 w-7 shrink-0 rounded-full">
-              <AvatarImage
-                v-if="firstPersonnel?.account?.avatar"
-                :src="firstPersonnel.account.avatar"
-                :alt="firstPersonnel.fullName"
-              />
-              <AvatarFallback>
-                {{ getInitials(hauling?.assignedPersonnel[role]?.fullName) }}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              :avatar-path="firstPersonnel?.account?.avatar"
+              :fallback="firstPersonnel!.fullName"
+            />
             <div
               class="flex items-center justify-between gap-2 rounded-md text-xs"
             >
@@ -130,16 +123,10 @@ const Roles = [
                   class="cursor-pointer"
                   @select="$emit('clicked', role, employee, index)"
                 >
-                  <Avatar class="h-7 w-7 overflow-hidden rounded-full">
-                    <AvatarImage
-                      v-if="employee?.account?.avatar"
-                      :src="employee.account.avatar"
-                      :alt="employee.fullName"
-                    />
-                    <AvatarFallback class="rounded-full">
-                      {{ getInitials(employee.fullName) }}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    :avatar-path="employee?.account?.avatar"
+                    :fallback="employee.fullName"
+                  />
                   <div class="grid flex-1 text-left text-[13px] leading-tight">
                     <span class="truncate">
                       {{ employee.fullName }}
