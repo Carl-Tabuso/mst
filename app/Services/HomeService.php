@@ -200,6 +200,7 @@ class HomeService
         ];
 
         return JobOrder::query()
+            ->withTrashed()
             ->fromPastMonth()
             ->get()
             ->groupByServiceType()

@@ -32,7 +32,6 @@ interface DataTableProps<TData> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   meta: EloquentCollection
-  emptyImgUri: string
 }
 
 const props = defineProps<DataTableProps<JobOrder>>()
@@ -170,31 +169,12 @@ const table = useVueTable({
           </TableRow>
         </template>
         <template v-else>
-          <TableRow class="h-[40dvh] hover:bg-transparent">
+          <TableRow>
             <TableCell
               :colspan="columns.length"
-              class="text-center align-middle"
+              class="h-24 text-center"
             >
-              <div
-                class="my-10 flex h-full flex-col items-center justify-center gap-8"
-              >
-                <img
-                  v-if="emptyImgUri"
-                  :src="emptyImgUri"
-                  alt="No results found"
-                  class="h-[130px] w-[130px]"
-                />
-                <div class="flex w-[290px] flex-col gap-2">
-                  <div class="text-3xl font-extrabold text-primary">
-                    No results found
-                  </div>
-                  <div class="">
-                    Couldn’t find
-                    <span class="font-semibold">“{{ globalFilter }}”.</span>
-                    Please ensure that you have entered the correct keyword.
-                  </div>
-                </div>
-              </div>
+              No results found.
             </TableCell>
           </TableRow>
         </template>
