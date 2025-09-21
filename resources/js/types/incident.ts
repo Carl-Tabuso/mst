@@ -26,7 +26,7 @@ export interface Incident {
   status: string
   created_by: Employee
   involved_employees: Employee[]
-  haulers: Employee[] // Only haulers now
+  haulers: Employee[]
   hauling_job_order?: JobOrder
   labels?: string[]
   hauling?: any
