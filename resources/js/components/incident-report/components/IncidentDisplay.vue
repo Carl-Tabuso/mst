@@ -15,13 +15,14 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { useEditorSetup } from '@/composables/useEditorSetup'
 import { useIncidentForm } from '@/composables/useIncidentForm'
+import { useIncidentStatus } from '@/composables/useIncidentStatus'
 import { useUserPermissions } from '@/composables/useUserPermissions'
 import type { Incident, IncidentDisplayProps } from '@/types/incident'
 import { Icon } from '@iconify/vue'
 import { router } from '@inertiajs/vue3'
 import { EditorContent } from '@tiptap/vue-3'
 import { format } from 'date-fns'
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps<IncidentDisplayProps>()
 const emit = defineEmits([
@@ -31,7 +32,7 @@ const emit = defineEmits([
   'create-job-order',
 ])
 const { canVerify, isConsultant, isCreatingRole } = useUserPermissions()
-
+const { getStatusDisplay } = useIncidentStatus()
 const {
   formData,
   infractionTypes,
@@ -48,6 +49,20 @@ const {
   fontSizes,
 } = useEditorSetup(formData.value.description, (html) => {
   formData.value.description = html
+})
+
+const isMobile = ref(false)
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
 })
 
 const isEditing = computed(() => props.incident?.status === 'draft')
@@ -85,6 +100,22 @@ const canEditIncident = computed(() => {
 
   return canEdit
 })
+
+const involvedPeopleBadges = computed(() => {
+  if (!props.incident) return { visible: [], hiddenCount: 0, all: [] }
+
+  const people = props.incident.involved_employees || []
+
+  const limit = isMobile.value ? 2 : 3
+
+  return {
+    visible: people.slice(0, limit),
+    hiddenCount: Math.max(0, people.length - limit),
+    all: people,
+  }
+})
+
+const showAllPeople = ref(false)
 
 onMounted(() => {
   if (props.incident) {
@@ -155,16 +186,29 @@ const markNoIncident = async () => {
   try {
     await router.put(
       route('incidents.markNoIncident', {
-        incident: props.incident.id,
+        incident: props.incident?.id,
       }),
       {},
       {
         onSuccess: () => {
           const updatedIncident: Incident = {
             ...props.incident,
+            id: props.incident?.id ?? '',
             status: 'no_incident',
             subject: 'No Incident Reported',
-            completed_at: new Date().toISOString(),
+            description: props.incident?.description ?? '',
+            plainText: props.incident?.plainText ?? '',
+            html: props.incident?.html ?? '',
+            occured_at: props.incident?.occured_at ?? '',
+            location: props.incident?.location ?? '',
+            infraction_type: props.incident?.infraction_type ?? '',
+            created_by: props.incident?.created_by ?? {
+              id: 0,
+              name: 'Unknown',
+              email: '',
+            },
+            involved_employees: props.incident?.involved_employees ?? [],
+            haulers: props.incident?.haulers ?? [],
           }
 
           emit('no-incident', updatedIncident)
@@ -177,10 +221,6 @@ const markNoIncident = async () => {
   } catch (error) {
     handleApiError(error, 'mark as no incident')
   }
-}
-
-const createJobOrder = () => {
-  emit('create-job-order', props.incident?.hauling)
 }
 
 const verifyIncident = async (id: string) => {
@@ -247,6 +287,18 @@ const createSecondaryIncident = async () => {
     handleApiError(error, 'create secondary incident')
   }
 }
+const involvedEmployeesBadges = computed(() => {
+  const people = formData.value.involvedEmployees || []
+
+  const limit = isMobile.value ? 2 : 3
+
+  return {
+    visible: people.slice(0, limit),
+    hiddenCount: Math.max(0, people.length - limit),
+    all: people,
+  }
+})
+const showAllPeopleEdit = ref(false)
 </script>
 
 <template>
@@ -272,7 +324,9 @@ const createSecondaryIncident = async () => {
       v-else-if="isEditing"
       class="flex flex-1 flex-col"
     >
-      <div class="flex items-center justify-between border-b p-4">
+      <div
+        class="flex flex-col gap-2 border-b p-4 md:flex-row md:items-center md:justify-between"
+      >
         <h2 class="text-lg font-semibold">
           {{
             canEditIncident ? 'Edit Incident Report' : 'View Incident Report'
@@ -284,6 +338,7 @@ const createSecondaryIncident = async () => {
           variant="outline"
           @click="createSecondaryIncident"
           :disabled="!props.incident?.hauling"
+          class="w-full md:w-auto"
         >
           <Icon
             icon="lucide:file-plus"
@@ -297,6 +352,7 @@ const createSecondaryIncident = async () => {
           variant="outline"
           @click="markNoIncident"
           :disabled="!formData.jobOrder"
+          class="w-full md:w-auto"
         >
           <Icon
             icon="lucide:check-circle"
@@ -307,24 +363,61 @@ const createSecondaryIncident = async () => {
       </div>
       <Separator />
 
-      <div class="space-y-6 p-5">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex items-center gap-4">
-            <Label class="whitespace-nowrap">People Involved:</Label>
+      <div class="space-y-6 p-4 md:p-5">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div class="flex flex-col gap-2 md:flex-row md:items-center">
+            <Label class="w-full whitespace-nowrap md:w-40"
+              >People Involved:</Label
+            >
             <div class="flex-1">
-              <div class="w-full border-b pb-2">
-                {{
-                  formData.involvedEmployees.map((e) => e.name).join(', ') ||
-                  'No personnel involved'
-                }}
+              <div class="flex flex-wrap gap-2 pb-2">
+                <Badge
+                  v-for="person in involvedEmployeesBadges.visible"
+                  :key="person.id"
+                  variant="secondary"
+                  class="flex items-center gap-1"
+                >
+                  <span>{{ person.name }}</span>
+                </Badge>
+                <Badge
+                  v-if="involvedEmployeesBadges.hiddenCount > 0"
+                  variant="outline"
+                  class="relative cursor-pointer"
+                  @mouseenter="showAllPeopleEdit = true"
+                  @mouseleave="showAllPeopleEdit = false"
+                >
+                  +{{ involvedEmployeesBadges.hiddenCount }} more
+                  <div
+                    v-if="showAllPeopleEdit"
+                    class="z-60 mb-2w-max absolute left-0 top-full max-h-24 max-w-xs overflow-auto rounded border bg-white p-2 shadow"
+                  >
+                    <div
+                      v-for="person in involvedEmployeesBadges.all.slice(
+                        isMobile ? 2 : 3,
+                      )"
+                      :key="person.id"
+                      class="whitespace-nowrap py-1 text-sm"
+                    >
+                      {{ person.name }}
+                    </div>
+                  </div>
+                </Badge>
+                <span
+                  v-if="formData.involvedEmployees.length === 0"
+                  class="text-muted-foreground"
+                >
+                  No personnel involved
+                </span>
               </div>
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
-            <Label class="whitespace-nowrap">Date and Time:</Label>
+          <div class="flex flex-col gap-2 md:flex-row md:items-center">
+            <Label class="w-full whitespace-nowrap md:w-40"
+              >Date and Time:</Label
+            >
             <div class="flex-1">
-              <div class="w-full border-b pb-2">
+              <div class="w-full pb-2">
                 {{
                   formData.dateTime
                     ? format(new Date(formData.dateTime), 'PPpp')
@@ -334,8 +427,8 @@ const createSecondaryIncident = async () => {
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
-            <Label class="whitespace-nowrap">Location:</Label>
+          <div class="flex flex-col gap-2 md:flex-row md:items-center">
+            <Label class="w-full whitespace-nowrap md:w-40">Location:</Label>
             <div class="flex-1">
               <Input
                 v-model="formData.location"
@@ -348,8 +441,10 @@ const createSecondaryIncident = async () => {
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
-            <Label class="whitespace-nowrap">Type of Infraction:</Label>
+          <div class="flex flex-col gap-2 md:flex-row md:items-center">
+            <Label class="w-full whitespace-nowrap md:w-40"
+              >Type of Infraction:</Label
+            >
             <div class="flex-1">
               <Select
                 v-model="formData.infractionType"
@@ -393,18 +488,18 @@ const createSecondaryIncident = async () => {
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
-            <Label class="whitespace-nowrap">Job Order:</Label>
+          <div class="flex flex-col gap-2 md:flex-row md:items-center">
+            <Label class="w-full whitespace-nowrap md:w-40">Job Order:</Label>
             <div class="flex-1">
-              <div class="w-full border-b pb-2">
+              <div class="w-full pb-2">
                 {{ getFormDataJobOrderDisplay() }}
               </div>
             </div>
           </div>
         </div>
 
-        <div class="flex items-center gap-4">
-          <Label class="whitespace-nowrap">Subject:</Label>
+        <div class="flex flex-col gap-2 md:flex-row md:items-center">
+          <Label class="w-full whitespace-nowrap md:w-40">Subject:</Label>
           <div class="flex-1">
             <Input
               v-model="formData.subject"
@@ -615,15 +710,21 @@ const createSecondaryIncident = async () => {
 
       <div
         v-if="canEditIncident"
-        class="flex justify-end gap-2 p-4"
+        class="flex flex-col gap-2 p-4 md:flex-row md:justify-end"
       >
         <Button
           variant="outline"
           @click="emit('cancel-edit')"
+          class="w-full md:w-auto"
         >
           Cancel Edit
         </Button>
-        <Button @click="submitIncident"> Update Report </Button>
+        <Button
+          @click="submitIncident"
+          class="w-full md:w-auto"
+        >
+          Update Report
+        </Button>
       </div>
     </div>
 
@@ -631,7 +732,7 @@ const createSecondaryIncident = async () => {
       v-else
       class="flex flex-1 flex-col p-4"
     >
-      <div class="flex items-start p-5">
+      <div class="flex items-start p-4 md:p-5">
         <div class="text-xl font-bold">{{ incident.subject }}</div>
       </div>
 
@@ -666,13 +767,13 @@ const createSecondaryIncident = async () => {
               }}
             </div>
             <div class="text-xs text-muted-foreground">
-              Status: {{ incident.status }}
+              Status: {{ getStatusDisplay(incident.status).label }}
             </div>
           </div>
         </div>
       </div>
 
-      <div class="space-y-4 p-5">
+      <div class="space-y-4 p-4 md:p-5">
         <div
           v-if="incident.haulers?.length || incident.involved_employees?.length"
           class="mt-4"
@@ -705,39 +806,45 @@ const createSecondaryIncident = async () => {
           <p class="text-sm text-muted-foreground">No personnel involved</p>
         </div>
 
-        <div>
-          <h3 class="font-medium">Date and Time of Incident</h3>
-          <p>
-            {{
-              incident?.occured_at
-                ? format(new Date(incident.occured_at), 'PPpp')
-                : 'N/A'
-            }}
-          </p>
-        </div>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <h3 class="font-medium">Date and Time of Incident</h3>
+            <p class="text-sm md:text-base">
+              {{
+                incident?.occured_at
+                  ? format(new Date(incident.occured_at), 'PPpp')
+                  : 'N/A'
+              }}
+            </p>
+          </div>
 
-        <div>
-          <h3 class="font-medium">Location</h3>
-          <p>{{ incident.location }}</p>
-        </div>
+          <div>
+            <h3 class="font-medium">Location</h3>
+            <p class="text-sm md:text-base">{{ incident.location }}</p>
+          </div>
 
-        <div>
-          <h3 class="font-medium">Type of Infraction</h3>
-          <p>{{ incident.infraction_type }}</p>
-        </div>
+          <div>
+            <h3 class="font-medium">Type of Infraction</h3>
+            <p class="text-sm md:text-base">{{ incident.infraction_type }}</p>
+          </div>
 
-        <div>
-          <h3 class="font-medium">Job Order</h3>
-          <p>{{ getJobOrderDisplay(incident) }}</p>
-        </div>
+          <div>
+            <h3 class="font-medium">Job Order</h3>
+            <p class="text-sm md:text-base">
+              {{ getJobOrderDisplay(incident) }}
+            </p>
+          </div>
 
-        <div>
-          <h3 class="font-medium">Status</h3>
-          <Badge
-            :variant="incident.status === 'resolved' ? 'default' : 'secondary'"
-          >
-            {{ incident.status }}
-          </Badge>
+          <div>
+            <h3 class="font-medium">Status</h3>
+            <Badge
+              :variant="
+                incident.status === 'resolved' ? 'default' : 'secondary'
+              "
+            >
+              {{ getStatusDisplay(incident.status).label }}
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -748,11 +855,12 @@ const createSecondaryIncident = async () => {
 
       <div
         v-if="canVerify && incident.status === 'for verification'"
-        class="flex justify-end gap-2 p-4"
+        class="flex justify-end p-4"
       >
         <Button
           variant="default"
           @click="verifyIncident(incident.id)"
+          class="w-full md:w-auto"
         >
           Verify Incident
         </Button>
