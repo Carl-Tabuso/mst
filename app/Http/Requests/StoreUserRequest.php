@@ -16,6 +16,7 @@ class StoreUserRequest extends FormRequest
         return [
             'employee_id' => 'required|exists:employees,id|unique:users,employee_id',
             'email'       => 'required|email|unique:users,email',
+            'role' => 'required|string|in:frontliner,dispatcher,team leader,head frontliner,safety officer,human resource,consultant,regular,it admin'
         ];
     }
 }

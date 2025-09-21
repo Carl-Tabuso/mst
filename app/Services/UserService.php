@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Filters\ApplyDateOfArchivalRange;
 use App\Filters\FilterOnlyArchived;
 use App\Filters\User\FilterRole;
@@ -93,6 +94,21 @@ class UserService
                 'email'       => $validated['email'],
                 'password'    => Hash::make($password),
             ]);
+
+            $roleMapping = [
+                'frontliner' => UserRole::Frontliner,
+                'dispatcher' => UserRole::Dispatcher,
+                'team leader' => UserRole::TeamLeader,
+                'head frontliner' => UserRole::HeadFrontliner,
+                'safety officer' => UserRole::SafetyOfficer,
+                'human resource' => UserRole::HumanResource,
+                'consultant' => UserRole::Consultant,
+                'regular' => UserRole::Regular,
+                'it admin' => UserRole::ITAdmin,
+            ];
+
+            $backendRole = $roleMapping[$validated['role']] ?? UserRole::Regular;
+            $user->assignRole($backendRole->value);
 
             return [
                 'user'     => $user,

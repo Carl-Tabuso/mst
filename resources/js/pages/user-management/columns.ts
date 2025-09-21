@@ -40,15 +40,18 @@ export const columns: ColumnDef<User>[] = [
       ])
     },
   },
-  {
-    accessorKey: 'roles',
-    meta: { label: 'Role' },
-    header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) => {
-      console.log(row.original)
-      return h(UserRoleBadge, { roleName: row.original.roles[0].name })
-    },
+{
+  accessorKey: 'roles',
+  meta: { label: 'Role' },
+  header: ({ column }) => h(DataTableHeader, { column: column }),
+  cell: ({ row }) => {
+    const roles = row.original.roles
+    if (!roles || roles.length === 0) {
+      return h('div', { class: 'text-xs text-muted-foreground' }, 'No role')
+    }
+    return h(UserRoleBadge, { roleName: roles[0].name })
   },
+},
   {
     accessorKey: 'createdAt',
     meta: { label: 'Date Created' },
