@@ -59,27 +59,11 @@ class UserController extends Controller
 
     public function settings(User $user)
     {
-        $user->load(['employee', 'employee.position']);
+        $user->load(['employee', 'employee.position',]);
 
         return Inertia::render('user-management/settings', [
-            'user' => [
+            'user' => new UserResource($user),
 
-                'id'         => $user->id,
-                'email'      => $user->email,
-                'created_at' => $user->created_at->format('F j, Y'),
-                'deleted_at' => $user->deleted_at,
-                'employee'   => [
-                    'first_name'  => $user->employee->first_name,
-                    'last_name'   => $user->employee->last_name,
-                    'position'    => $user->employee->position->name ?? 'N/A',
-                    'position_id' => $user->employee->position_id,
-                ],
-
-            ],
-            'positions' => Position::all()->map(fn($p) => [
-                'id'   => $p->id,
-                'name' => $p->name,
-            ]),
         ]);
     }
 
@@ -97,18 +81,17 @@ class UserController extends Controller
     public function updateRole(Request $request, User $user)
     {
         $request->validate([
-            'position_id' => 'required|exists:positions,id',
+            'role' => 'required|string|in:frontliner,dispatcher,team leader,head frontliner,safety officer,human resource,consultant,regular,it admin'
         ]);
 
         try {
-            $this->userService->updateUserRole($user, $request->position_id);
+            $this->userService->updateUserRole($user, $request->role);
 
-            return redirect()->route('users.index')->with('success', 'Role updated successfully');
+            return redirect()->back()->with('success', 'User role updated successfully');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error updating role: ' . $e->getMessage());
         }
     }
-
     public function deactivate(User $user)
     {
         try {

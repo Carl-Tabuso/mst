@@ -131,11 +131,25 @@ class UserService
         });
     }
 
-    public function updateUserRole(User $user, int $positionId)
+    public function updateUserRole(User $user, string $role)
     {
-        return $user->employee()->update([
-            'position_id' => $positionId,
-        ]);
+        $roleMapping = [
+            'frontliner' => UserRole::Frontliner,
+            'dispatcher' => UserRole::Dispatcher,
+            'team leader' => UserRole::TeamLeader,
+            'head frontliner' => UserRole::HeadFrontliner,
+            'safety officer' => UserRole::SafetyOfficer,
+            'human resource' => UserRole::HumanResource,
+            'consultant' => UserRole::Consultant,
+            'regular' => UserRole::Regular,
+            'it admin' => UserRole::ITAdmin,
+        ];
+
+        $backendRole = $roleMapping[$role] ?? UserRole::Regular;
+
+        $user->syncRoles([$backendRole->value]);
+
+        return $user;
     }
 
     public function deactivateUser(User $user)
