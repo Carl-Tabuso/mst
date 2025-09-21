@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\UserResource;
 use App\Models\Employee;
 use App\Models\Position;
@@ -23,9 +24,11 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $employees = Employee::whereDoesntHave('account')
-            ->with('position')
-            ->get();
+        $employees = EmployeeResource::collection(
+            Employee::whereDoesntHave('account')
+                ->with('position')
+                ->get()
+        );
 
         $filters = $request->filters ?? [];
 
@@ -39,7 +42,7 @@ class UserController extends Controller
         return Inertia::render('user-management/index', [
             'data'      => UserResource::collection($users),
             'employees' => $employees,
-            'roles'     => Position::all()->map(fn ($p) => [
+            'roles'     => Position::all()->map(fn($p) => [
                 'id'   => $p->id,
                 'name' => $p->name,
             ]),
@@ -73,7 +76,7 @@ class UserController extends Controller
                 ],
 
             ],
-            'positions' => Position::all()->map(fn ($p) => [
+            'positions' => Position::all()->map(fn($p) => [
                 'id'   => $p->id,
                 'name' => $p->name,
             ]),
@@ -87,7 +90,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Profile updated successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error updating profile: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Error updating profile: ' . $e->getMessage());
         }
     }
 
@@ -102,7 +105,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Role updated successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error updating role: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Error updating role: ' . $e->getMessage());
         }
     }
 
@@ -113,7 +116,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account deactivated successfully');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error deactivating account: '.$e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error deactivating account: ' . $e->getMessage());
         }
     }
 
@@ -124,7 +127,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account activated successfully');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error activating account: '.$e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error activating account: ' . $e->getMessage());
         }
     }
 
@@ -135,9 +138,8 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account permanently deleted');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error deleting account: '.$e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error deleting account: ' . $e->getMessage());
         }
-
     }
 
     public function store(StoreUserRequest $request)
@@ -151,7 +153,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'User created successfully. Verification email with credentials has been sent.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error creating user: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Error creating user: ' . $e->getMessage());
         }
     }
 
