@@ -101,22 +101,6 @@ const canEditIncident = computed(() => {
   return canEdit
 })
 
-const involvedPeopleBadges = computed(() => {
-  if (!props.incident) return { visible: [], hiddenCount: 0, all: [] }
-
-  const people = props.incident.involved_employees || []
-
-  const limit = isMobile.value ? 2 : 3
-
-  return {
-    visible: people.slice(0, limit),
-    hiddenCount: Math.max(0, people.length - limit),
-    all: people,
-  }
-})
-
-const showAllPeople = ref(false)
-
 onMounted(() => {
   if (props.incident) {
     loadIncidentData(props.incident)
@@ -307,7 +291,7 @@ const showAllPeopleEdit = ref(false)
       v-if="!incident"
       class="flex flex-1 flex-col items-center justify-center p-8 text-center"
     >
-      <div class="mb-4 rounded-full bg-gray-100 p-4">
+      <div class="mb-4 rounded-full bg-gray-100 p-4 dark:bg-zinc-800">
         <Icon
           icon="lucide:file-text"
           class="size-8 text-gray-400"
@@ -389,7 +373,7 @@ const showAllPeopleEdit = ref(false)
                   +{{ involvedEmployeesBadges.hiddenCount }} more
                   <div
                     v-if="showAllPeopleEdit"
-                    class="z-60 mb-2w-max absolute left-0 top-full max-h-24 max-w-xs overflow-auto rounded border bg-white p-2 shadow"
+                    class="z-60 mb-2w-max absolute left-0 top-full max-h-24 max-w-xs overflow-auto rounded border bg-white p-2 shadow dark:bg-zinc-800"
                   >
                     <div
                       v-for="person in involvedEmployeesBadges.all.slice(
@@ -435,7 +419,6 @@ const showAllPeopleEdit = ref(false)
                 :readonly="!canEditIncident"
                 :class="[
                   'w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0',
-                  !canEditIncident ? 'bg-gray-50' : '',
                 ]"
               />
             </div>
@@ -456,7 +439,6 @@ const showAllPeopleEdit = ref(false)
                 <SelectTrigger
                   :class="[
                     'w-full rounded-none border-0 border-b pb-2 shadow-none focus:ring-0 focus-visible:ring-0',
-                    !canEditIncident ? 'bg-gray-50' : '',
                   ]"
                 >
                   <SelectValue
@@ -482,7 +464,6 @@ const showAllPeopleEdit = ref(false)
                 placeholder="Please specify"
                 :class="[
                   'mt-2 w-full rounded-none border-0 border-b pb-2 shadow-none focus-visible:ring-0',
-                  !canEditIncident ? 'bg-gray-50' : '',
                 ]"
               />
             </div>
@@ -504,10 +485,7 @@ const showAllPeopleEdit = ref(false)
             <Input
               v-model="formData.subject"
               :readonly="!canEditIncident"
-              :class="[
-                'w-full border-0 shadow-none focus-visible:ring-0',
-                !canEditIncident ? 'bg-gray-50' : '',
-              ]"
+              :class="['w-full border-0 shadow-none focus-visible:ring-0']"
             />
           </div>
         </div>
@@ -518,11 +496,11 @@ const showAllPeopleEdit = ref(false)
           <div class="flex-1 space-y-2">
             <div
               v-if="editor"
-              class="border bg-white"
+              class="border bg-white dark:bg-zinc-800"
             >
               <div
                 v-if="canEditIncident"
-                class="flex flex-wrap items-center gap-1 bg-gray-50 p-2"
+                class="flex flex-wrap items-center gap-1 bg-gray-50 p-2 dark:bg-zinc-800"
               >
                 <Button
                   size="sm"
@@ -548,7 +526,9 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('bold') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800': editor.isActive('bold'),
+                  }"
                   @click="editor.chain().focus().toggleBold().run()"
                 >
                   <Icon
@@ -559,7 +539,9 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('italic') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800': editor.isActive('italic'),
+                  }"
                   @click="editor.chain().focus().toggleItalic().run()"
                 >
                   <Icon
@@ -570,7 +552,10 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('underline') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800':
+                      editor.isActive('underline'),
+                  }"
                   @click="editor.chain().focus().toggleUnderline().run()"
                 >
                   <Icon
@@ -581,7 +566,9 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('strike') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800': editor.isActive('strike'),
+                  }"
                   @click="editor.chain().focus().toggleStrike().run()"
                 >
                   <Icon
@@ -593,7 +580,10 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('bulletList') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800':
+                      editor.isActive('bulletList'),
+                  }"
                   @click="editor.chain().focus().toggleBulletList().run()"
                 >
                   <Icon
@@ -604,7 +594,10 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('orderedList') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800':
+                      editor.isActive('orderedList'),
+                  }"
                   @click="editor.chain().focus().toggleOrderedList().run()"
                 >
                   <Icon
@@ -616,7 +609,10 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('blockquote') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800':
+                      editor.isActive('blockquote'),
+                  }"
                   @click="editor.chain().focus().toggleBlockquote().run()"
                 >
                   <Icon
@@ -627,7 +623,10 @@ const showAllPeopleEdit = ref(false)
                 <Button
                   size="sm"
                   variant="ghost"
-                  :class="{ 'bg-gray-200': editor.isActive('codeBlock') }"
+                  :class="{
+                    'bg-gray-200 dark:bg-zinc-800':
+                      editor.isActive('codeBlock'),
+                  }"
                   @click="editor.chain().focus().toggleCodeBlock().run()"
                 >
                   <Icon
@@ -648,7 +647,7 @@ const showAllPeopleEdit = ref(false)
                   </Button>
                   <div
                     v-if="showColorDropdown"
-                    class="absolute z-50 mt-2 grid w-36 grid-cols-4 gap-1 rounded border bg-white p-2 shadow"
+                    class="absolute z-50 mt-2 grid w-36 grid-cols-4 gap-1 rounded border bg-white p-2 shadow dark:bg-zinc-800"
                   >
                     <div
                       v-for="color in textColors"
@@ -677,7 +676,7 @@ const showAllPeopleEdit = ref(false)
                   </Button>
                   <div
                     v-if="showFontSizeDropdown"
-                    class="absolute z-50 mt-2 w-28 rounded border bg-white p-2 shadow"
+                    class="absolute z-50 mt-2 w-28 rounded border bg-white p-2 shadow dark:bg-zinc-800"
                   >
                     <div
                       v-for="size in fontSizes"
