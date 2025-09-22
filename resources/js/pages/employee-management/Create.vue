@@ -162,7 +162,7 @@ const onSubmit = () => {
             'employment',
             'compensation',
           ]"
-          class="divide-y divide-border rounded-lg border border-border bg-zinc-50"
+          class="divide-y divide-border rounded-lg border border-border bg-zinc-50 dark:bg-zinc-800"
         >
           <AccordionItem
             value="employee-info"
