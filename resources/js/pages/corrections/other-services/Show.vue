@@ -3,15 +3,15 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { correctionStatuses } from '@/constants/correction-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { BreadcrumbItem, JobOrderCorrection } from '@/types'
+import { BreadcrumbItem, Employee, JobOrderCorrection } from '@/types'
 import { computed, onMounted, provide } from 'vue'
 import ChangesModal from './components/ChangesModal.vue'
 import FirstSection from './components/FirstSection.vue'
 import ReasonCard from './components/ReasonCard.vue'
 import SecondSection from './components/SecondSection.vue'
-
 interface ShowProps {
   data: JobOrderCorrection
+  employees?: Employee[]
 }
 
 const props = defineProps<ShowProps>()
@@ -31,9 +31,15 @@ const correctionStatus = computed(() => {
   return correctionStatuses.find((status) => status.id === props.data.status)
 })
 
+interface CorrectionProperties {
+  before?: { serviceable?: Record<string, any> }
+  after?: { serviceable?: Record<string, any> }
+}
+
 const form5Changes = computed(() => {
-  const beforeServiceable = props.data.properties.before?.serviceable || {}
-  const afterServiceable = props.data.properties.after?.serviceable || {}
+  const properties = props.data.properties as CorrectionProperties
+  const beforeServiceable = properties.before?.serviceable || {}
+  const afterServiceable = properties.after?.serviceable || {}
 
   return {
     before: beforeServiceable,
@@ -44,7 +50,7 @@ const form5Changes = computed(() => {
 provide<number, string>('correctionId', props.data.id)
 
 onMounted(() => {
-  const properties = props.data.properties
+  const properties = props.data.properties as { [key: string]: any }
   for (const key in properties) {
     if (properties.hasOwnProperty(key)) {
       if (typeof properties[key] === 'object' && properties[key] !== null) {
@@ -82,6 +88,7 @@ onMounted(() => {
           <ChangesModal
             :changes="data.properties"
             :status="data.status"
+            :employees="employees"
           />
         </div>
         <ReasonCard :correction="data" />
@@ -94,6 +101,7 @@ onMounted(() => {
       <SecondSection
         :changes="form5Changes"
         :job-order="data.jobOrder"
+        :employees="employees"
       />
     </div>
   </AppLayout>

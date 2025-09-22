@@ -15,7 +15,9 @@ import {
   useCorrections,
 } from '@/composables/useCorrections'
 import { formatToDateDisplay } from '@/composables/useDateFormatter'
+import { usePermissions } from '@/composables/usePermissions'
 import { CorrectionStatusType } from '@/constants/correction-statuses'
+import { type Employee } from '@/types' // Import Employee type
 import { CircleArrowRight, FileClock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmStatus from './ConfirmStatus.vue'
@@ -23,6 +25,7 @@ import ConfirmStatus from './ConfirmStatus.vue'
 interface ChangesModalProps {
   changes: any
   status: CorrectionStatusType
+  employees?: Employee[]
 }
 
 const props = defineProps<ChangesModalProps>()
@@ -33,15 +36,36 @@ const { before, after } = props.changes
 
 const { fieldMap, isDateString } = useCorrections()
 
-// Handle regular changes (non-serviceable)
+const getEmployeeName = (employeeId: number | string | null) => {
+  if (!employeeId) return 'Not assigned'
+
+  const id =
+    typeof employeeId === 'string' ? parseInt(employeeId, 10) : employeeId
+
+  if (props.employees && props.employees.length > 0) {
+    const employee = props.employees.find((emp) => emp.id === id)
+    return employee ? employee.fullName : `Employee #${id}`
+  }
+
+  return `Employee #${id}`
+}
+
+const formatAssignedPerson = (value: any) => {
+  if (!value) return 'Not assigned'
+
+  if (typeof value === 'object') {
+    return value.fullName || value.name || 'Unknown'
+  }
+
+  return getEmployeeName(value)
+}
+
 const regularChanges = computed(() => {
   const changes = []
 
   for (const key in before) {
-    // Skip serviceable changes as they're handled separately
     if (key === 'serviceable') continue
 
-    // Check if this is a regular field that exists in fieldMap
     if (fieldMap[key as CorrectionFieldKey]) {
       changes.push({
         field: fieldMap[key as CorrectionFieldKey].label,
@@ -53,7 +77,6 @@ const regularChanges = computed(() => {
           : after[key],
       })
     } else {
-      // Fallback for any unexpected fields
       changes.push({
         field: key.replace(/_/g, ' ').toUpperCase(),
         oldValue: before[key] ?? 'N/A',
@@ -65,14 +88,12 @@ const regularChanges = computed(() => {
   return changes
 })
 
-// Handle Form5 serviceable changes
 const serviceableChanges = computed(() => {
   const changes = []
 
   if (after?.serviceable) {
     for (const field in after.serviceable) {
       if (field === 'items') {
-        // Special handling for items array
         const oldItems = before?.serviceable?.items || []
         const newItems = after?.serviceable?.items || []
 
@@ -81,15 +102,27 @@ const serviceableChanges = computed(() => {
           oldValue:
             oldItems.length > 0
               ? oldItems
-                  .map((item) => `${item.item_name} (Qty: ${item.quantity})`)
+                  .map(
+                    (item: { item_name: string; quantity: number }) =>
+                      `${item.item_name} (Qty: ${item.quantity})`,
+                  )
                   .join(', ')
               : 'No items',
           newValue:
             newItems.length > 0
               ? newItems
-                  .map((item) => `${item.item_name} (Qty: ${item.quantity})`)
+                  .map(
+                    (item: { item_name: string; quantity: number }) =>
+                      `${item.item_name} (Qty: ${item.quantity})`,
+                  )
                   .join(', ')
               : 'No items',
+        })
+      } else if (field === 'assigned_person') {
+        changes.push({
+          field: 'Assigned Person',
+          oldValue: formatAssignedPerson(before?.serviceable?.[field]),
+          newValue: formatAssignedPerson(after?.serviceable?.[field]),
         })
       } else {
         changes.push({
@@ -108,10 +141,10 @@ const allChanges = computed(() => [
   ...regularChanges.value,
   ...serviceableChanges.value,
 ])
+const { can } = usePermissions()
 
-const isApprovable = computed(() => {
-  return props.status === 'pending'
-})
+const isApprovable =
+  props.status === 'pending' && can('update:job_order_correction')
 </script>
 
 <template>
