@@ -8,6 +8,7 @@ use App\Enums\JobOrderServiceType;
 use App\Http\Requests\StoreJobOrderCorrectionRequest;
 use App\Http\Requests\UpdateJobOrderCorrectionRequest;
 use App\Http\Resources\JobOrderCorrectionResource;
+use App\Models\Employee;
 use App\Models\JobOrder;
 use App\Models\JobOrderCorrection;
 use App\Services\JobOrderCorrectionService;
@@ -78,9 +79,31 @@ class JobOrderCorrectionController extends Controller
 
         $component = sprintf('%s/%s/%s', 'corrections', $subFolder, 'Show');
 
-        return Inertia::render($component, [
+        $data = [
             'data' => JobOrderCorrectionResource::make($correction),
-        ]);
+        ];
+
+        if ($serviceType === JobOrderServiceType::Form5) {
+            $data['employees'] = $this->getForm5Employees();
+        }
+
+        return Inertia::render($component, $data);
+    }
+    private function getForm5Employees(): array
+    {
+        return Employee::query()
+            ->with('account')
+            ->get()
+            ->map(function ($employee) {
+                return [
+                    'id' => $employee->id,
+                    'fullName' => $employee->full_name,
+                    'account' => [
+                        'avatar' => $employee->account->avatar ?? null,
+                    ],
+                ];
+            })
+            ->toArray();
     }
 
     public function showInitialOnsiteReportTempFile(JobOrderCorrection $correction): RedirectResponse
@@ -119,7 +142,7 @@ class JobOrderCorrectionController extends Controller
     {
         $correctionIds = $request->array('correctionIds');
 
-        activity()->withoutLogs(fn () => $this->service->batchDeleteJobOrderCorrections($correctionIds));
+        activity()->withoutLogs(fn() => $this->service->batchDeleteJobOrderCorrections($correctionIds));
 
         $user = $request->user();
 
