@@ -11,7 +11,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Incident Report',
-    href: '/incident-report',
+    href: '/incidents',
   },
 ]
 </script>
