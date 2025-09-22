@@ -54,7 +54,7 @@ const purposeOptions = [
 ]
 
 const selectedEmployee = computed(() =>
-  props.employees.find(e => e.id === assignedPerson.value)
+  props.employees.find((e) => e.id === assignedPerson.value),
 )
 
 const addItem = () => {
@@ -75,7 +75,7 @@ if (items.value.length === 0 && props.isEditing) {
 </script>
 
 <template>
-  <div class="pt-6 mt-8 space-y-6 border-t border-gray-200">
+  <div class="mt-8 space-y-6 border-t border-gray-200 pt-6">
     <div class="mb-6">
       <div class="text-xl font-semibold leading-6">Form 5 Details</div>
       <p class="text-sm text-muted-foreground">
@@ -83,7 +83,7 @@ if (items.value.length === 0 && props.isEditing) {
       </p>
     </div>
 
-    <div class="grid items-center grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+    <div class="grid grid-cols-1 items-center gap-x-10 gap-y-6 md:grid-cols-2">
       <!-- Assigned Person -->
       <div class="space-y-3">
         <label class="text-sm font-medium">Assigned Person</label>
@@ -94,7 +94,7 @@ if (items.value.length === 0 && props.isEditing) {
           >
             <Button
               variant="outline"
-              class="justify-start w-full"
+              class="w-full justify-start"
             >
               <template v-if="assignedPerson && selectedEmployee">
                 <Avatar class="h-7 w-7 shrink-0">
@@ -117,7 +117,7 @@ if (items.value.length === 0 && props.isEditing) {
               >
                 Select assigned person
               </span>
-              <ChevronsUpDown class="w-4 h-4 ml-auto opacity-50" />
+              <ChevronsUpDown class="ml-auto h-4 w-4 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent
@@ -152,7 +152,9 @@ if (items.value.length === 0 && props.isEditing) {
                     <Check
                       :class="[
                         'ml-auto h-4 w-4',
-                        employee.id === assignedPerson ? 'opacity-100' : 'opacity-0',
+                        employee.id === assignedPerson
+                          ? 'opacity-100'
+                          : 'opacity-0',
                       ]"
                     />
                   </CommandItem>
@@ -172,7 +174,7 @@ if (items.value.length === 0 && props.isEditing) {
           >
             <Button
               variant="outline"
-              class="justify-start w-full"
+              class="w-full justify-start"
             >
               <span
                 v-if="purpose"
@@ -186,7 +188,7 @@ if (items.value.length === 0 && props.isEditing) {
               >
                 Select purpose
               </span>
-              <ChevronsUpDown class="w-4 h-4 ml-auto opacity-50" />
+              <ChevronsUpDown class="ml-auto h-4 w-4 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent
@@ -280,7 +282,7 @@ if (items.value.length === 0 && props.isEditing) {
             <div
               v-for="(item, index) in items"
               :key="index"
-              class="flex justify-between py-2 border-b"
+              class="flex justify-between border-b py-2"
             >
               <span class="font-medium">
                 {{ item.item_name || 'Unnamed item' }}
@@ -299,5 +301,3 @@ if (items.value.length === 0 && props.isEditing) {
     </div>
   </div>
 </template>
-
-
