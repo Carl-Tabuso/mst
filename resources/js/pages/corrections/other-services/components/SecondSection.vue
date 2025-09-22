@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useCorrections } from '@/composables/useCorrections'
-import { JobOrder } from '@/types'
+import { JobOrder, type Employee } from '@/types'
 import { computed } from 'vue'
 
 interface SecondSectionProps {
   jobOrder: JobOrder
   changes: any
+  employees?: Employee[]
 }
 
 const props = defineProps<SecondSectionProps>()
-
-const { getNestedObject } = useCorrections()
 
 const hasServiceableChanges = computed(() => {
   return props.changes.before && props.changes.after
@@ -26,17 +24,34 @@ const serviceableChangedFields = computed(() => {
 const serviceableBefore = computed(() => props.changes.before || {})
 const serviceableAfter = computed(() => props.changes.after || {})
 
+const getEmployeeName = (employeeId: number | string | null) => {
+  if (!employeeId) return 'Not assigned'
+
+  const id =
+    typeof employeeId === 'string' ? parseInt(employeeId, 10) : employeeId
+
+  if (props.employees && props.employees.length > 0) {
+    const employee = props.employees.find((emp) => emp.id === id)
+    return employee ? employee.fullName : `Employee #${id}`
+  }
+
+  return `Employee #${id}`
+}
+
 const getAssignedPersonDisplay = (value: any) => {
   if (!value) return 'Not assigned'
 
   if (typeof value === 'object') {
-    return value.name || value.full_name || 'Unknown'
+    return value.fullName || value.name || 'Unknown'
   }
-  return `Employee #${value}`
+
+  return getEmployeeName(value)
 }
 
 const getCurrentAssignedPerson = () => {
-  const assignedPerson = props.jobOrder.serviceable?.assigned_person
+  const assignedPerson = (
+    props.jobOrder.serviceable as { assigned_person?: any }
+  )?.assigned_person
   return getAssignedPersonDisplay(assignedPerson)
 }
 
@@ -56,9 +71,10 @@ const getAssignedPersonClass = () => {
 
 const getPurposeValue = () => {
   if (serviceableChangedFields.value.includes('purpose')) {
-    return serviceableAfter.value.purpose
+    return serviceableAfter.value?.purpose
   }
-  return props.jobOrder.serviceable?.purpose
+
+  return (props.jobOrder.serviceable as { purpose?: string })?.purpose || ''
 }
 
 const getPurposeClass = () => {
@@ -71,11 +87,12 @@ const getPurposeClass = () => {
 const getDisplayItems = () => {
   if (
     serviceableChangedFields.value.includes('items') &&
-    serviceableAfter.value.items
+    serviceableAfter.value?.items
   ) {
     return serviceableAfter.value.items
   }
-  return props.jobOrder.serviceable?.items || []
+
+  return (props.jobOrder.serviceable as { items?: any[] })?.items || []
 }
 
 const itemsChanged = computed(() =>
