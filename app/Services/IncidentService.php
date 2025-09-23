@@ -177,10 +177,12 @@ class IncidentService
             'id'        => $incident->id,
             'job_order' => $jobOrder ? [
                 'id'     => $jobOrder->id,
+                'ticket' => $jobOrder->ticket,
                 'status' => $jobOrder->status->value,
             ] : null,
             'hauling_job_order' => $haulingJobOrder ? [
-                'id' => $haulingJobOrder->id,
+                'id'     => $haulingJobOrder->id,
+                'ticket' => $haulingJobOrder->ticket,
             ] : null,
             'haulers'            => $haulers,
             'assigned_personnel' => $assignedPersonnel,
@@ -204,6 +206,7 @@ class IncidentService
                     'form4' => $incident->hauling->form3->form4 ? [
                         'id'           => $incident->hauling->form3->form4->id,
                         'job_order_id' => $incident->hauling->form3->form4->jobOrder->id ?? null,
+                        'job_order_ticket' => $incident->hauling->form3->form4->jobOrder->ticket ?? null,
                     ] : null,
                 ] : null,
                 'incidents' => $haulingIncidents,
