@@ -20,7 +20,7 @@ import { toast } from 'vue-sonner'
 import TicketHeader from '../components/TicketHeader.vue'
 import Form5Section from '../other-services/components/Form5Section.vue'
 import FirstSection from '../waste-managements/components/sections/FirstSection.vue'
-import StatusUpdater from '../waste-managements/components/StatusUpdater.vue'
+import StatusUpdater from './components/StatusUpdater.vue'
 
 interface Form5EditProps {
   data: {

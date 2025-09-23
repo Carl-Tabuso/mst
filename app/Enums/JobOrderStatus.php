@@ -70,6 +70,7 @@ enum JobOrderStatus: string
             self::Failed,
             self::ForVerification,
             self::Closed,
+            self::Completed,
         ];
     }
 
