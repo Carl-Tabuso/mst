@@ -40,7 +40,6 @@ export const columns: ColumnDef<User>[] = [
       ])
     },
   },
-
   {
     accessorKey: 'roles',
     meta: { label: 'Role' },
@@ -53,9 +52,6 @@ export const columns: ColumnDef<User>[] = [
       return h(UserRoleBadge, { roleName: roles[0].name })
     },
   },
-
-  },
-},
   {
     accessorKey: 'createdAt',
     meta: { label: 'Date Created' },
@@ -78,7 +74,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       try {
         return h(UserActions, { user: row.original })
-      } catch (error) {
+      } catch  {
         return h('div', { class: 'text-xs text-muted-foreground' }, 'N/A')
       }
     },
