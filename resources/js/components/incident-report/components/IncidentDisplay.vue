@@ -230,6 +230,14 @@ const verifyIncident = async (id: string) => {
 const getJobOrderDisplay = (incident: any) => {
   if (!incident) return 'N/A'
 
+  if (incident.hauling_job_order?.ticket) {
+    return incident.hauling_job_order.ticket
+  }
+
+  if (incident.job_order?.ticket) {
+    return incident.job_order.ticket
+  }
+
   if (incident.hauling_job_order) {
     return `JO-${incident.hauling_job_order.id}`
   }
@@ -247,9 +255,8 @@ const getJobOrderDisplay = (incident: any) => {
 
 const getFormDataJobOrderDisplay = () => {
   if (!formData.value.jobOrder) return 'N/A'
-  return `JO-${formData.value.jobOrder}`
+  return formData.value.jobOrderTicket || `JO-${formData.value.jobOrder}`
 }
-
 const createSecondaryIncident = async () => {
   try {
     await router.post(
