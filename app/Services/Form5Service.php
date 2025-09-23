@@ -73,11 +73,11 @@ class Form5Service
     public function getForm5Data(JobOrder $ticket): array
     {
         $loads = $ticket->load([
-            'creator' => ['account:avatar'],
+            'creator' => ['account'],
             'cancel',
             'corrections',
             'serviceable' => [
-                'assignedPerson' => ['account:avatar'],
+                'assignedPerson' => ['account'],
                 'items',
             ],
         ]);

@@ -33,7 +33,7 @@ class JobOrderService
         return Pipeline::send(JobOrder::query())
             ->through($pipes)
             ->then(function (Builder $query) use ($perPage, $archivedOnly) {
-                return $query->with('creator')
+                return $query->with('creator.account')
                     ->latest($archivedOnly ? new JobOrder()->getDeletedAtColumn() : 'created_at')
                     ->paginate($perPage)
                     ->withQueryString()

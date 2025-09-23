@@ -26,11 +26,7 @@ class WasteManagementController extends Controller
 
         $data = $this->service->getAllWasteManagementJobOrders($perPage, $search, $filters);
 
-        return Inertia::render('job-orders/waste-managements/Index', [
-            'data'           => $data,
-            'emptySearchImg' => asset('state/search-empty.svg'),
-            'emptyJobOrders' => asset('state/task-empty.svg'),
-        ]);
+        return Inertia::render('job-orders/waste-managements/Index', compact('data'));
     }
 
     public function store(StoreWasteManagementRequest $request): RedirectResponse

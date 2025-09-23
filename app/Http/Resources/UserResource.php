@@ -19,7 +19,7 @@ class UserResource extends JsonResource
             'updatedAt'       => $this->updated_at,
             'deletedAt'       => $this->deleted_at,
             'employee'        => EmployeeResource::make($this->whenLoaded('employee')),
-            'roles'           => RoleResource::collection($this->roles),
+            'roles'           => RoleResource::collection($this->whenLoaded('roles')),
         ];
     }
 }

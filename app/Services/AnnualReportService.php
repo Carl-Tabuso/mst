@@ -218,7 +218,7 @@ class AnnualReportService
             'created' => $value,
         ])->values();
 
-        $frontlinerModels = Employee::with('account:avatar')->findMany($frontliners->keys());
+        $frontlinerModels = Employee::with('account')->findMany($frontliners->keys());
 
         $rankings = $wrapped->map(fn ($item, $index) => [
             'employee'              => EmployeeResource::make($frontlinerModels->firstWhere('id', $item->id)),

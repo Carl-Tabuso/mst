@@ -90,7 +90,7 @@ class EmployeeProfileController extends Controller
                 'suffix'      => $employee->suffix,
                 'email'       => $employee->account->email ?? null,
                 'avatar'      => $employee->account && $employee->account->avatar
-                    ? Storage::url($employee->account->avatar)
+                    ? $employee->account->avatar
                     : null,
                 'position'    => $employee->position,
             ],

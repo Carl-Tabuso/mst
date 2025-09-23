@@ -33,11 +33,7 @@ class JobOrderController extends Controller
 
         $data = $this->service->getAllJobOrders($perPage, $search, $filters);
 
-        return Inertia::render('job-orders/Index', [
-            'data'           => $data,
-            'emptySearchImg' => asset('state/search-empty.svg'),
-            'emptyJobOrders' => asset('state/task-empty.svg'),
-        ]);
+        return Inertia::render('job-orders/Index', compact('data'));
     }
 
     public function create(): Response

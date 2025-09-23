@@ -179,15 +179,6 @@ class Employee extends Model
         return $this->hasMany(TeamLeaderPerformance::class, 'evaluatee_id');
     }
 
-    public function getAvatarUrlAttribute()
-    {
-        if (! $this->account || ! $this->account->avatar) {
-            return null;
-        }
-
-        return route('employees.profile.avatar', $this->id);
-    }
-
     public function assignedPersonnelAsTeamLeader(): HasMany
     {
         return $this->hasMany(Form3AssignedPersonnel::class, 'team_leader');

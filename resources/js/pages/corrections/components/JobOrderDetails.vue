@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { useCorrections } from '@/composables/useCorrections'
-import { getInitials } from '@/composables/useInitials'
 import { JobOrder } from '@/types'
 import { Calendar } from 'lucide-vue-next'
 
@@ -155,16 +154,10 @@ const technicianAvatar = technician.defaultValue.hasOwnProperty('account')
                   class="pointer-events-none w-full justify-start"
                   :class="technician.class"
                 >
-                  <Avatar class="h-7 w-7 shrink-0">
-                    <AvatarImage
-                      v-if="technicianAvatar"
-                      :src="technicianAvatar"
-                      :alt="technician.defaultValue.fullName"
-                    />
-                    <AvatarFallback>
-                      {{ getInitials(technician.defaultValue.fullName) }}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    :avatar-path="technicianAvatar"
+                    :fallback="technician.defaultValue.fullName"
+                  />
                   <span class="text-xs">
                     {{ technician.defaultValue.fullName }}
                   </span>

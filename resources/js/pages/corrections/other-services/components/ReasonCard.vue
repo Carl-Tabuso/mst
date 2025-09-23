@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
-import { getInitials } from '@/composables/useInitials'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { JobOrderCorrection } from '@/types'
 import { format } from 'date-fns'
 
@@ -16,16 +15,11 @@ defineProps<ReasonCardProps>()
   <Card>
     <CardContent class="px-3 py-3">
       <div class="flex items-start gap-3">
-        <Avatar size="sm">
-          <AvatarImage
-            v-if="correction.jobOrder.creator.account?.avatar"
-            :src="correction.jobOrder.creator.account.avatar"
-            :alt="correction.jobOrder.creator.fullName"
-          />
-          <AvatarFallback>
-            {{ getInitials(correction.jobOrder.creator.fullName) }}
-          </AvatarFallback>
-        </Avatar>
+        <UserAvatar
+          :avatar-path="correction.jobOrder.creator.account?.avatar"
+          :fallback="correction.jobOrder.creator.fullName"
+          class="size-10 text-xs"
+        />
         <div class="flex flex-col">
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <span>

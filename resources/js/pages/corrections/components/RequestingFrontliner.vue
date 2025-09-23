@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { getInitials } from '@/composables/useInitials'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { JobOrderCorrection } from '@/types'
 import { Row } from '@tanstack/vue-table'
 import { computed } from 'vue'
@@ -19,16 +18,11 @@ const changesCount = computed(() => {
 <template>
   <div>
     <div class="flex items-center gap-2">
-      <Avatar class="h-9 w-9 shrink-0">
-        <AvatarImage
-          v-if="row.original.jobOrder.creator.account?.avatar"
-          :src="row.original.jobOrder.creator.account.avatar"
-          :alt="row.original.jobOrder.creator.fullName"
-        />
-        <AvatarFallback>
-          {{ getInitials(row.original.jobOrder.creator.fullName) }}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        :avatar-path="row.original.jobOrder.creator.account?.avatar"
+        :fallback="row.original.jobOrder.creator.fullName"
+        class="size-9"
+      />
       <div>
         <div class="text-xs font-medium">
           {{ row.original.jobOrder.creator?.fullName }}

@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { JobOrderStatuses } from '@/constants/job-order-statuses'
 import { Filter } from 'lucide-vue-next'
 import { useArchivedJobOrderTable } from '../../composables/useArchivedJobOrderTable'
@@ -17,6 +18,8 @@ import DateOfServiceFilter from './DateOfServiceFilter.vue'
 
 const { dataTable, onStatusSelect, applyFilters, clearFilters } =
   useArchivedJobOrderTable()
+
+const { statusMap } = useJobOrderDicts()
 </script>
 
 <template>
@@ -54,11 +57,13 @@ const { dataTable, onStatusSelect, applyFilters, clearFilters } =
               :checked="dataTable.statuses.value.includes(id)"
               @update:checked="(event) => onStatusSelect(id, event)"
             />
-            <Label
-              :for="id"
-              class="font-normal"
-            >
-              {{ label }}
+            <Label :for="id">
+              <Badge
+                :variant="statusMap[id].badge"
+                class="border-0 p-0"
+              >
+                {{ label }}
+              </Badge>
             </Label>
           </div>
         </div>

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import MainContainer from '@/components/MainContainer.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import UserAvatar from '@/components/UserAvatar.vue'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
-import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { ActivityLog, BreadcrumbItem, SharedData, User } from '@/types'
@@ -94,6 +93,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           </p>
         </div>
         <Button
+          v-if="canViewAllActivityLogs"
           @click="onExportClick"
           variant="outline"
         >
@@ -157,16 +157,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                           v-if="item.causer && canViewAllActivityLogs"
                           class="flex items-center gap-3"
                         >
-                          <Avatar class="h-8 w-8">
-                            <AvatarImage
-                              v-if="item.causer.avatar"
-                              :src="item.causer.avatar"
-                              alt="User"
-                            />
-                            <AvatarFallback>
-                              {{ getInitials(item.causer.employee.fullName) }}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar
+                            :avatar-path="item.causer.avatar"
+                            :fallback="item.causer.employee.fullName"
+                          />
                           <div class="flex flex-col leading-tight">
                             <p class="text-sm font-medium">
                               {{ item.causer.employee.fullName }}

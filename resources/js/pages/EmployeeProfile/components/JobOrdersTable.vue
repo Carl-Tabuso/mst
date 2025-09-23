@@ -21,7 +21,7 @@ const props = defineProps<{
   positionName: string
 }>()
 
-console.log(props.jobOrders)
+// console.log(props.jobOrders)
 
 const searchQuery = ref('')
 

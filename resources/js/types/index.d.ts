@@ -15,7 +15,7 @@ export interface Auth {
 export interface AuthUser {
   id: number
   employee_id: number
-  avatar: any
+  avatar: string
   email: string
   employee: {
     first_name: string
@@ -60,7 +60,7 @@ export interface User {
   employee_id: any
   id: number
   email: string
-  avatar?: string
+  avatar: string | null
   emailVerifiedAt?: string
   createdAt: string
   updatedAt: string

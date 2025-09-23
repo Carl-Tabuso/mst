@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppCalendar from '@/components/AppCalendar.vue'
 import InputError from '@/components/InputError.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -20,8 +19,8 @@ import {
 } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { formatToDateString } from '@/composables/useDateFormatter'
-import { getInitials } from '@/composables/useInitials'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
 import { Calendar, Check, ChevronsUpDown } from 'lucide-vue-next'
@@ -267,16 +266,10 @@ const handleDateOfServiceChange = (value: any) => {
               >
                 <Button variant="outline">
                   <template v-if="technician">
-                    <Avatar class="h-7 w-7 shrink-0">
-                      <AvatarImage
-                        v-if="technician?.account?.avatar"
-                        :src="technician.account.avatar"
-                        :alt="technician.fullName"
-                      />
-                      <AvatarFallback>
-                        {{ getInitials(technician?.fullName) }}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      :avatar-path="technician?.account?.avatar"
+                      :fallback="technician.fullName"
+                    />
                     <span
                       class="flex items-center justify-between gap-2 rounded-md text-xs"
                     >
@@ -308,16 +301,10 @@ const handleDateOfServiceChange = (value: any) => {
                         class="cursor-pointer"
                         @select="technician = availableTechnician"
                       >
-                        <Avatar class="h-7 w-7 overflow-hidden rounded-full">
-                          <AvatarImage
-                            v-if="availableTechnician?.account?.avatar"
-                            :src="availableTechnician.account.avatar"
-                            :alt="availableTechnician.fullName"
-                          />
-                          <AvatarFallback class="rounded-full">
-                            {{ getInitials(availableTechnician.fullName) }}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserAvatar
+                          :avatar-path="availableTechnician?.account?.avatar"
+                          :fallback="availableTechnician.fullName"
+                        />
                         <div
                           class="grid flex-1 text-left text-[13px] leading-tight"
                         >

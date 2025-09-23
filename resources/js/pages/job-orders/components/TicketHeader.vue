@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { getInitials } from '@/composables/useInitials'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { useJobOrderDicts } from '@/composables/useJobOrderDicts'
 import { JobOrder } from '@/types'
 import { compareDesc, format } from 'date-fns'
@@ -90,16 +89,10 @@ const isJobOrderUpdated = computed(() => {
       </template>
     </div>
     <div class="flex items-center gap-2">
-      <Avatar class="h-7 w-7 shrink-0 rounded-full">
-        <AvatarImage
-          v-if="jobOrder.creator?.account?.avatar"
-          :src="jobOrder.creator.account.avatar"
-          :alt="jobOrder.creator.fullName"
-        />
-        <AvatarFallback>
-          {{ getInitials(jobOrder.creator?.fullName) }}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        :avatar-path="jobOrder.creator?.account?.avatar"
+        :fallback="jobOrder.creator.fullName"
+      />
       <div class="flex items-center gap-3 text-sm text-muted-foreground">
         <span>{{ `${jobOrder.creator?.fullName}` }}</span>
         <span>•</span>
