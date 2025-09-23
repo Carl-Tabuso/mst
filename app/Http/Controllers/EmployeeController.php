@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\EmployeeDataExport;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Http\Resources\EmployeeResource;
@@ -9,7 +10,10 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Services\EmployeeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -32,6 +36,8 @@ class EmployeeController extends Controller
             filters: $filters
         );
 
+        $positions = Position::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('employee-management/Index', [
             'data' => [
                 'data' => EmployeeResource::collection($employees),
@@ -44,6 +50,7 @@ class EmployeeController extends Controller
             ],
             'emptySearchImg' => asset('images/empty-search.svg'),
             'filters'        => $filters,
+            'positions'      => $positions,
         ]);
     }
 
@@ -56,6 +63,83 @@ class EmployeeController extends Controller
         ]);
     }
 
+    public function export(Request $request)
+    {
+        try {
+            $positionIds = $request->input('filters.positions', []);
+
+            $positionNames = [];
+            if (!empty($positionIds)) {
+                $positionNames = Position::whereIn('id', $positionIds)
+                    ->pluck('name')
+                    ->toArray();
+            }
+
+            $filters = [
+                'positions' => $positionNames,
+                'search' => $request->input('filters.search', ''),
+            ];
+
+            $employees = $this->employeeService->getEmployeesForRatingsExport($filters);
+
+            if (!empty($filters['search'])) {
+                $employees = $this->applySearch($employees, $filters['search']);
+            }
+
+            $filename = $this->generateExportFilename($filters);
+
+            return Excel::download(
+                new EmployeeDataExport($employees, $filters),
+                $filename,
+                \Maatwebsite\Excel\Excel::XLSX,
+                [
+                    'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+                ]
+            );
+        } catch (\Exception $e) {
+            Log::error('Export failed', [
+                'error'   => $e->getMessage(),
+                'user_id' => auth()->id(),
+                'filters' => $filters ?? [],
+            ]);
+
+            return back()->with('error', 'Export failed. Please try again.');
+        }
+    }
+
+    private function applySearch($employees, $search)
+    {
+        $searchTerm = strtolower(trim($search));
+
+        return $employees->filter(function ($employee) use ($searchTerm) {
+            return str_contains(strtolower($employee->full_name), $searchTerm) ||
+                str_contains(strtolower($employee->position), $searchTerm) ||
+                str_contains((string) $employee->id, $searchTerm);
+        })->values();
+    }
+
+    private function generateExportFilename($filters)
+    {
+        $timestamp = now()->format('Y-m-d_H-i-s');
+
+        $parts = [];
+        if (!empty($filters['positions'])) {
+            $positionSlugs = array_map(function ($name) {
+                return Str::slug(strtolower($name));
+            }, $filters['positions']);
+
+            $parts[] = 'positions-' . implode('-', $positionSlugs);
+        }
+        if (!empty($filters['search'])) {
+            $parts[] = 'search-' . preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
+        }
+
+        $filterSuffix = $parts ? '_' . implode('_', $parts) : '';
+
+        return "employee_ratings_export_{$timestamp}{$filterSuffix}.xlsx";
+    }
+
     public function store(StoreEmployeeRequest $request)
     {
         try {
@@ -65,7 +149,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee created successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error creating employee: '.$e->getMessage());
+            return back()->with('error', 'Error creating employee: ' . $e->getMessage());
         }
     }
 
@@ -82,6 +166,32 @@ class EmployeeController extends Controller
         return Inertia::render('employee-management/Edit', [
             'employee' => new EmployeeResource($employee),
         ]);
+    }
+    public function bulkArchive(Request $request)
+    {
+        $request->validate([
+            'employeeIds' => 'required|array',
+            'employeeIds.*' => 'exists:employees,id',
+        ]);
+
+        try {
+            $employeeIds = $request->input('employeeIds');
+            $result = $this->employeeService->bulkArchiveEmployees($employeeIds);
+
+            return redirect()
+                ->route('employee-management.index')
+                ->with('success', count($employeeIds) . ' employee(s) archived successfully.');
+        } catch (\Exception $e) {
+            Log::error('Bulk archive failed', [
+                'error' => $e->getMessage(),
+                'employee_ids' => $request->input('employee_ids'),
+                'user_id' => auth()->id(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to archive employees. Please try again.');
+        }
     }
 
     public function edit(Employee $employee)
@@ -110,7 +220,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error updating employee: '.$e->getMessage());
+            return back()->with('error', 'Error updating employee: ' . $e->getMessage());
         }
     }
 
@@ -123,7 +233,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error deleting employee: '.$e->getMessage());
+            return back()->with('error', 'Error deleting employee: ' . $e->getMessage());
         }
     }
 
@@ -132,7 +242,7 @@ class EmployeeController extends Controller
         $employees = Employee::select('id', 'first_name', 'last_name')
             ->orderBy('last_name')
             ->get()
-            ->map(fn ($e) => [
+            ->map(fn($e) => [
                 'id'   => $e->id,
                 'name' => "{$e->first_name} {$e->last_name}",
             ]);
