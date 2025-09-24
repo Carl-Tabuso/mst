@@ -41,10 +41,12 @@ interface DataTableToolbarProps {
   table: Table<Employee>
   globalFilter: string | number
   routeName?: string
+  positions?: Array<{ id: number; name: string }>
 }
 
 const props = withDefaults(defineProps<DataTableToolbarProps>(), {
   routeName: 'employee-management.index',
+  positions: () => [],
 })
 
 const page = usePage()
@@ -91,29 +93,45 @@ const employeeIds = computed(() => {
 const isLoading = ref(false)
 
 const handleExport = () => {
-  window.open(
-    route('employee-management.export', {
-      employeeIds: employeeIds.value,
-    }),
-    '_blank',
+  const currentFilters = (page.props as any).filters ?? {}
+
+  const exportFilters = {
+    positions: currentFilters.positions || [],
+    search: currentFilters.search || '',
+  }
+
+  const query = new URLSearchParams()
+  exportFilters.positions.forEach((pos: string | number) =>
+    query.append('filters[positions][]', String(pos)),
   )
-  props.table.resetRowSelection()
+  if (exportFilters.search) {
+    query.append('filters[search]', exportFilters.search)
+  }
+
+  const url = route('employee-management.export') + '?' + query.toString()
+
+  // same tab
+  window.location.href = url
 }
 
 const handleBulkArchive = () => {
-  router.visit(route('employee-management.bulk_archive'), {
+  router.visit(route('employee-management.bulk-archive'), {
     method: 'post',
     data: { employeeIds: employeeIds.value },
     preserveScroll: true,
     onBefore: () => (isLoading.value = true),
-    onSuccess: (page: any) => {
+    onSuccess: () => {
       isLoading.value = false
       props.table.resetRowSelection()
-      toast.success(page.props.flash.message, { position: 'top-center' })
+      toast.success('Successfully archived employees', {
+        position: 'top-center',
+      })
     },
-    onError: () => {
+    onError: (error) => {
       isLoading.value = false
-      toast.error('Failed to archive employees', { position: 'top-center' })
+      toast.error('Failed to archive employees' + error, {
+        position: 'top-center',
+      })
     },
   })
 }
@@ -157,7 +175,10 @@ const { can } = usePermissions()
       </span>
     </div>
 
-    <FilterPopover :routeName="routeName" />
+    <FilterPopover
+      :routeName="routeName"
+      :positions="positions"
+    />
 
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
@@ -194,21 +215,9 @@ const { can } = usePermissions()
     <Button
       @click="handleExport"
       variant="ghost"
-      :disabled="!hasRowSelection"
     >
       <Download class="mr-2 size-4" />
-      Export
-      <div
-        v-show="hasRowSelection"
-        class="hidden space-x-1 lg:flex"
-      >
-        <Badge
-          variant="secondary"
-          class="rounded-full font-extrabold"
-        >
-          {{ table.getSelectedRowModel().rows.length }}
-        </Badge>
-      </div>
+      Export Performance Data
     </Button>
 
     <Button
@@ -230,7 +239,7 @@ const { can } = usePermissions()
     </Button>
 
     <div
-      v-if="hasRowSelection && can('archive:employee')"
+      v-if="hasRowSelection && can('manage:employees')"
       class="ml-auto"
     >
       <Dialog>

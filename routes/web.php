@@ -53,7 +53,6 @@ Route::middleware(['auth'])->group(function () {
                 ->can('view', 'ticket');
             Route::post('/', [Form5Controller::class, 'store'])->name('store');
             Route::patch('{form5}', [Form5Controller::class, 'update'])->name('update');
-
         });
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])
@@ -191,12 +190,15 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])->name('verify')->middleware(['can:verify,incident']);
         Route::put('/incidents/{incident}/mark-no-incident', [IncidentController::class, 'markNoIncident'])->name('markNoIncident');
         Route::post('/create-secondary/{haulingId}', [IncidentController::class, 'createSecondary'])->name('createSecondary');
-
     });
-
+    Route::get('/employee-management/export', [EmployeeController::class, 'export'])
+        ->name('employee-management.export');
+    Route::post('/employee-management/bulk-archive', [EmployeeController::class, 'bulkArchive'])
+        ->name('employee-management.bulk-archive');
     Route::resource('employee-management', EmployeeController::class)
         ->parameters(['employee-management' => 'employee']);
     Route::post('employee-management/{employee}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
+
 
     Route::prefix('data')->group(function () {
         Route::get('employees/dropdown', [EmployeeController::class, 'dropdown'])->name('employees.dropdown');
@@ -207,12 +209,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 if (app()->isLocal()) {
-    require __DIR__.'/sandbox.php';
+    require __DIR__ . '/sandbox.php';
 }
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
-require __DIR__.'/corrections.php';
-require __DIR__.'/trucks.php';
-require __DIR__.'/itservice.php';
-require __DIR__.'/archives.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/corrections.php';
+require __DIR__ . '/trucks.php';
+require __DIR__ . '/itservice.php';
+require __DIR__ . '/archives.php';

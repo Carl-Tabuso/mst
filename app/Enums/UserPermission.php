@@ -102,6 +102,7 @@ enum UserPermission: string
             self::ViewPerformances,
             self::ViewAnyJobOrderCorrection,
             self::UpdateJobOrderCorrection,
+            self::ManageIncidentReports,
             self::RestoreArchivedJobOrder,
             self::ForceDeleteJobOrder,
         ];
@@ -151,7 +152,7 @@ enum UserPermission: string
 
     public static function forFrontendMapping(): JsonResponse
     {
-        $permissions = array_map(fn ($case) => [
+        $permissions = array_map(fn($case) => [
             'id'    => $case->value,
             'label' => $case->getLabel(),
         ], self::cases());

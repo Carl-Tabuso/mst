@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\UserResource;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -23,9 +26,11 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $employees = Employee::whereDoesntHave('account')
-            ->with('position')
-            ->get();
+        $employees = EmployeeResource::collection(
+            Employee::whereDoesntHave('account')
+                ->with('position')
+                ->get()
+        );
 
         $filters = $request->filters ?? [];
 
@@ -39,7 +44,7 @@ class UserController extends Controller
         return Inertia::render('user-management/index', [
             'data'      => UserResource::collection($users),
             'employees' => $employees,
-            'roles'     => Position::all()->map(fn ($p) => [
+            'roles'     => Position::all()->map(fn($p) => [
                 'id'   => $p->id,
                 'name' => $p->name,
             ]),
@@ -56,27 +61,11 @@ class UserController extends Controller
 
     public function settings(User $user)
     {
-        $user->load(['employee', 'employee.position']);
+        $user->load(['employee', 'employee.position', 'roles']);
 
         return Inertia::render('user-management/settings', [
-            'user' => [
+            'user' => new UserResource($user),
 
-                'id'         => $user->id,
-                'email'      => $user->email,
-                'created_at' => $user->created_at->format('F j, Y'),
-                'deleted_at' => $user->deleted_at,
-                'employee'   => [
-                    'first_name'  => $user->employee->first_name,
-                    'last_name'   => $user->employee->last_name,
-                    'position'    => $user->employee->position->name ?? 'N/A',
-                    'position_id' => $user->employee->position_id,
-                ],
-
-            ],
-            'positions' => Position::all()->map(fn ($p) => [
-                'id'   => $p->id,
-                'name' => $p->name,
-            ]),
         ]);
     }
 
@@ -87,25 +76,24 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Profile updated successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error updating profile: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Error updating profile: ' . $e->getMessage());
         }
     }
 
     public function updateRole(Request $request, User $user)
     {
         $request->validate([
-            'position_id' => 'required|exists:positions,id',
+            'role' => 'required|string|' . Rule::in(UserRole::cases())
         ]);
 
         try {
-            $this->userService->updateUserRole($user, $request->position_id);
+            $this->userService->updateUserRole($user, $request->role);
 
-            return redirect()->route('users.index')->with('success', 'Role updated successfully');
+            return redirect()->back()->with('success', 'User role updated successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error updating role: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Error updating role: ' . $e->getMessage());
         }
     }
-
     public function deactivate(User $user)
     {
         try {
@@ -113,7 +101,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account deactivated successfully');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error deactivating account: '.$e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error deactivating account: ' . $e->getMessage());
         }
     }
 
@@ -124,7 +112,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account activated successfully');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error activating account: '.$e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error activating account: ' . $e->getMessage());
         }
     }
 
@@ -135,9 +123,8 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account permanently deleted');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error deleting account: '.$e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error deleting account: ' . $e->getMessage());
         }
-
     }
 
     public function store(StoreUserRequest $request)
@@ -151,7 +138,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'User created successfully. Verification email with credentials has been sent.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error creating user: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Error creating user: ' . $e->getMessage());
         }
     }
 

@@ -11,7 +11,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Incident Report',
-    href: '/incident-report',
+    href: '/incidents',
   },
 ]
 </script>
@@ -26,17 +26,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           </h1>
         </div>
 
-        <div class="md:hidden">
-          <!-- Mobile view placeholder -->
-          <div class="rounded-lg border bg-background p-4">
-            <p class="text-sm text-muted-foreground">
-              Incident reporting is optimized for desktop view. Please switch to
-              a larger screen.
-            </p>
-          </div>
-        </div>
-
-        <div class="hidden flex-col md:flex">
+        <div>
           <Incident :nav-collapsed-size="4" />
         </div>
       </div>

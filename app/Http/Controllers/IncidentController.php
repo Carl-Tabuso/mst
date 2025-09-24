@@ -34,9 +34,7 @@ class IncidentController extends Controller
         return Inertia::render('incident-report/index', [
             'incidents' => $incidents,
             'filters'   => $request->only(['search', 'statuses', 'dateFrom', 'dateTo', 'tab']),
-            'auth'      => [
-                'user' => $request->user()->load('employee.position'),
-            ],
+
         ]);
     }
 
@@ -79,10 +77,11 @@ class IncidentController extends Controller
         }
 
         $incident->update([
-            'status'       => 'no incident',
+            'status'       => IncidentStatus::NoIncident,
             'subject'      => 'No Incident Reported',
             'description'  => 'This incident has been reviewed and marked as no incident.',
             'completed_at' => now(),
+            'created_by'  => Auth::id(),
         ]);
 
         return redirect()->back()->with('success', 'Marked as no incident.');
@@ -90,7 +89,7 @@ class IncidentController extends Controller
 
     public function verify(Incident $incident)
     {
-        $incident->update(['status' => 'verified']);
+        $incident->update(['status' => IncidentStatus::Verified]);
 
         return redirect()->back()->with('success', 'Incident verified successfully');
     }

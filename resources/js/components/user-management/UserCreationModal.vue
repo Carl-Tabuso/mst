@@ -8,6 +8,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { userRoles, type UserRoleType } from '@/constants/user-role'
 import { Employee } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import { Mail } from 'lucide-vue-next'
@@ -23,6 +31,7 @@ const emit = defineEmits(['close'])
 const form = useForm({
   employee_id: null as number | null,
   email: '',
+  role: null as UserRoleType | null,
 })
 
 const handleSubmit = () => {
@@ -37,6 +46,7 @@ const handleSubmit = () => {
 
 const resetForm = () => {
   form.reset()
+  form.role = null
 }
 
 const handleClose = () => {
@@ -44,14 +54,9 @@ const handleClose = () => {
   emit('close')
 }
 
-// Helpers
-const getEmail = (employee: Employee): string =>
-  employee.email ||
-  `${employee.first_name.toLowerCase()}.${employee.last_name.toLowerCase()}@example.com`
-
+const getEmail = (employee: Employee): string => employee.email || 'No email'
 const getFullName = (employee: Employee): string =>
-  `${employee.first_name} ${employee.last_name}`
-
+  employee.fullName || 'No name'
 const getPositionName = (employee: Employee): string =>
   employee.position?.name || 'No position'
 
@@ -68,13 +73,12 @@ const getDisplayValue = (employee: Employee): string =>
       <DialogHeader>
         <DialogTitle>Create User Account</DialogTitle>
         <DialogDescription>
-          Select an employee to create a user account. Credentials will be sent
-          via email.
+          Select an employee and assign a role to create a user account.
+          Credentials will be sent via email.
         </DialogDescription>
       </DialogHeader>
 
       <div class="grid gap-6 py-4">
-        <!-- Employee Select -->
         <div class="grid grid-cols-4 items-center gap-4">
           <Label
             for="employee"
@@ -82,38 +86,73 @@ const getDisplayValue = (employee: Employee): string =>
             >Employee *</Label
           >
           <div class="col-span-3">
-            <select
-              id="employee"
+            <Select
               v-model="form.employee_id"
-              class="w-full rounded-md border px-3 py-2"
-              @change="
-                (e) => {
+              @update:modelValue="
+                (val) => {
                   const emp = props.employees.find(
-                    (emp) => emp.id === Number(e.target.value),
+                    (emp) => emp.id === Number(val),
                   )
                   if (emp) form.email = getEmail(emp)
                 }
               "
             >
-              <option
-                disabled
-                value=""
+              <SelectTrigger
+                id="employee"
+                class="w-full"
               >
-                Select employee...
-              </option>
-              <option
-                v-for="employee in employees"
-                :key="employee.id"
-                :value="employee.id"
-              >
-                {{ getDisplayValue(employee) }} — {{ getEmail(employee) }}
-              </option>
-            </select>
+                <SelectValue placeholder="Select employee..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  v-for="employee in employees"
+                  :key="employee.id"
+                  :value="employee.id"
+                >
+                  {{ getDisplayValue(employee) }} — {{ getEmail(employee) }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
             <div
               v-if="form.errors.employee_id"
               class="mt-1 text-sm text-red-500"
             >
               {{ form.errors.employee_id }}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label
+            for="role"
+            class="text-right"
+            >Role *</Label
+          >
+          <div class="col-span-3">
+            <Select v-model="form.role">
+              <SelectTrigger
+                id="role"
+                class="w-full"
+              >
+                <SelectValue placeholder="Select role..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  v-for="role in userRoles"
+                  :key="role.id"
+                  :value="role.id"
+                >
+                  {{ role.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div
+              v-if="form.errors.role"
+              class="mt-1 text-sm text-red-500"
+            >
+              {{ form.errors.role }}
             </div>
           </div>
         </div>
@@ -126,7 +165,7 @@ const getDisplayValue = (employee: Employee): string =>
           >Cancel</Button
         >
         <Button
-          :disabled="!form.employee_id || form.processing"
+          :disabled="!form.employee_id || !form.role || form.processing"
           @click="handleSubmit"
         >
           <Mail class="mr-2 h-4 w-4" />

@@ -9,14 +9,7 @@ import {
 import { usePermissions } from '@/composables/usePermissions'
 import { Employee } from '@/types'
 import { router } from '@inertiajs/vue3'
-import {
-  Archive,
-  Edit,
-  MoreVertical,
-  User,
-  UserPlus,
-  UserX,
-} from 'lucide-vue-next'
+import { Edit, MoreVertical, User, UserX } from 'lucide-vue-next'
 
 interface Props {
   employee: Employee
@@ -25,24 +18,6 @@ interface Props {
 defineProps<Props>()
 
 const { can } = usePermissions()
-
-const getEditRoute = (employee: Employee) => {
-  try {
-    return route('employee-management.edit', employee.id)
-  } catch (error) {
-    console.error('Error generating edit route:', error)
-    return '#'
-  }
-}
-
-const getShowRoute = (employee: Employee) => {
-  try {
-    return route('employee-management.show', employee.id)
-  } catch (error) {
-    console.error('Error generating show route:', error)
-    return '#'
-  }
-}
 
 const isAccountDeactivated = (employee: Employee) => {
   return (
@@ -68,6 +43,27 @@ const navigateToShow = (employee: Employee) => {
     router.visit(route('employee-management.show', employee.id))
   } catch (error) {
     console.error('Error navigating to show:', error)
+  }
+}
+
+const archiveEmployee = (employee: Employee) => {
+  if (!confirm('Are you sure you want to archive this employee?')) {
+    return
+  }
+
+  try {
+    router.delete(route('employee-management.destroy', employee.id), {
+      onSuccess: () => {
+        console.log('Employee archived successfully')
+      },
+      onError: (errors) => {
+        console.error('Error archiving employee:', errors)
+        alert('Failed to archive employee. Please try again.')
+      },
+    })
+  } catch (error) {
+    console.error('Error archiving employee:', error)
+    alert('An unexpected error occurred.')
   }
 }
 </script>
@@ -97,46 +93,16 @@ const navigateToShow = (employee: Employee) => {
         Edit
       </DropdownMenuItem>
 
-      <!-- Account management actions -->
-      <DropdownMenuItem
-        v-if="!hasAccount(employee) && can('create:user_account')"
-        @click="() => {}"
-      >
-        <UserPlus class="mr-2 h-4 w-4" />
-        Create Account
-      </DropdownMenuItem>
-
       <DropdownMenuItem
         v-if="
           hasAccount(employee) &&
           !isAccountDeactivated(employee) &&
-          can('deactivate:user_account')
+          can('manage:employees')
         "
-        @click="() => {}"
+        @click="archiveEmployee(employee)"
         class="text-destructive"
       >
         <UserX class="mr-2 h-4 w-4" />
-        Deactivate Account
-      </DropdownMenuItem>
-
-      <DropdownMenuItem
-        v-if="
-          hasAccount(employee) &&
-          isAccountDeactivated(employee) &&
-          can('activate:user_account')
-        "
-        @click="() => {}"
-      >
-        <User class="mr-2 h-4 w-4" />
-        Reactivate Account
-      </DropdownMenuItem>
-
-      <DropdownMenuItem
-        v-if="can('archive:employee')"
-        @click="() => {}"
-        class="text-destructive"
-      >
-        <Archive class="mr-2 h-4 w-4" />
         Archive Employee
       </DropdownMenuItem>
     </DropdownMenuContent>

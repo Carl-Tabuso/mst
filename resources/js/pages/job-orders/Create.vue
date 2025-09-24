@@ -43,6 +43,10 @@ const timeOfService = ref('')
 const isForm5 = computed(() => form.service_type === 'form5')
 
 const onSubmit = () => {
+  if (form.contact_no && form.contact_no.length !== 11) {
+    form.setError('contact_no', 'Contact number must be exactly 11 digits')
+    return
+  }
   const [hours, min] = timeOfService.value.split(':')
   const epoch = new Date(form.date_time).setHours(Number(hours), Number(min))
   const formatted = new Date(epoch).toJSON().split('.')[0].split('T').join(' ')

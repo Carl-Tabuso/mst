@@ -17,10 +17,12 @@ import { computed, ref } from 'vue'
 
 interface DataTableFacetedFilterProps {
   routeName?: string
+  positions?: Array<{ id: number; name: string }>
 }
 
 const props = withDefaults(defineProps<DataTableFacetedFilterProps>(), {
   routeName: 'employee-management.index',
+  positions: () => [],
 })
 
 const page = usePage()
@@ -33,6 +35,7 @@ const accountStatuses = [
 ]
 
 const statuses = ref<string[]>(initialFilters.statuses ?? [])
+const selectedPositions = ref<number[]>(initialFilters.positions ?? [])
 
 const fromDateCreated = ref<DateValue | undefined>(
   initialFilters.from ? new Date(initialFilters.from) : undefined,
@@ -57,6 +60,18 @@ const handleStatusSelection = (statusId: string, checked: boolean) => {
     }
   } else {
     statuses.value = statuses.value.filter((id) => id !== statusId)
+  }
+}
+
+const handlePositionSelection = (positionId: number, checked: boolean) => {
+  if (checked) {
+    if (!selectedPositions.value.includes(positionId)) {
+      selectedPositions.value.push(positionId)
+    }
+  } else {
+    selectedPositions.value = selectedPositions.value.filter(
+      (id) => id !== positionId,
+    )
   }
 }
 
@@ -92,6 +107,7 @@ const applyFilters = () => {
     {
       filters: {
         accountStatuses: statuses.value,
+        positions: selectedPositions.value,
         fromDateCreated: serializeDate(fromDateCreated.value),
         toDateCreated: serializeDate(toDateCreated.value),
       },
@@ -106,6 +122,7 @@ const applyFilters = () => {
 
 const clearFilters = () => {
   statuses.value = []
+  selectedPositions.value = []
   fromDateCreated.value = undefined
   toDateCreated.value = undefined
 
@@ -132,13 +149,15 @@ const clearFilters = () => {
       >
         <Filter class="mr-2 size-4" />
         Filter
-        <template v-if="selectedStatuses.size > 0">
+        <template
+          v-if="selectedStatuses.size > 0 || selectedPositions.length > 0"
+        >
           <div class="hidden lg:flex">
             <Badge
               variant="secondary"
               class="rounded-full font-normal"
             >
-              {{ selectedStatuses.size }}
+              {{ selectedStatuses.size + selectedPositions.length }}
             </Badge>
           </div>
         </template>
@@ -170,6 +189,38 @@ const clearFilters = () => {
               class="text-sm font-normal"
             >
               {{ status.label }}
+            </Label>
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      <!-- Position Filter -->
+      <div
+        v-if="positions.length > 0"
+        class="my-5 flex flex-col space-y-5"
+      >
+        <div class="text-sm font-semibold leading-none">Position</div>
+        <div class="grid grid-cols-2 gap-x-10 gap-y-4">
+          <div
+            v-for="position in positions"
+            :key="position.id"
+            class="flex items-center gap-x-2"
+          >
+            <Checkbox
+              :id="`position-${position.id}`"
+              :checked="selectedPositions.includes(position.id)"
+              @update:checked="
+                (checked) => handlePositionSelection(position.id, checked)
+              "
+              class="border-gray-400 dark:border-white"
+            />
+            <Label
+              :for="`position-${position.id}`"
+              class="text-sm font-normal"
+            >
+              {{ position.name }}
             </Label>
           </div>
         </div>

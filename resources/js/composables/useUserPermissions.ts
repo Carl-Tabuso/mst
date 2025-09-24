@@ -5,19 +5,35 @@ export const useUserPermissions = () => {
   const user = computed(() => usePage().props.auth.user)
 
   const isHR = computed(() => {
-    return user.value?.employee?.position?.name === 'Human Resource'
+    return user.value?.roles?.[0]?.name === 'human resource'
   })
 
   const isTeamLeader = computed(() => {
-    return user.value?.employee?.position?.name === 'Team Leader'
+    return user.value?.roles?.[0]?.name === 'team leader'
   })
 
   const isSafetyOfficer = computed(() => {
-    return user.value?.employee?.position?.name === 'Safety Officer'
+    return user.value?.roles?.[0]?.name === 'safety officer'
   })
 
   const isConsultant = computed(() => {
-    return user.value?.employee?.position?.name === 'Consultant'
+    return user.value?.roles?.[0]?.name === 'consultant'
+  })
+
+  const isHeadFrontliner = computed(() => {
+    return user.value?.roles?.[0]?.name === 'head frontliner'
+  })
+
+  const isFrontliner = computed(() => {
+    return user.value?.roles?.[0]?.name === 'frontliner'
+  })
+
+  const isDispatcher = computed(() => {
+    return user.value?.roles?.[0]?.name === 'dispatcher'
+  })
+
+  const isITAdmin = computed(() => {
+    return user.value?.roles?.[0]?.name === 'it admin'
   })
 
   const canVerify = computed(() => isHR.value)
@@ -33,6 +49,10 @@ export const useUserPermissions = () => {
     isTeamLeader,
     isSafetyOfficer,
     isConsultant,
+    isHeadFrontliner,
+    isFrontliner,
+    isDispatcher,
+    isITAdmin,
     canVerify,
     canCompose,
     isCreatingRole,

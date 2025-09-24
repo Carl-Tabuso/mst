@@ -35,6 +35,11 @@ export function useIncidentForm() {
       incident.job_order_id ||
       null
 
+      const jobOrderTicket =
+    incident.hauling_job_order?.ticket ||
+    incident.job_order?.ticket ||
+    null
+
     let involvedEmployees: any[] = []
 
     if (incident.haulers && incident.haulers.length > 0) {
@@ -73,6 +78,7 @@ export function useIncidentForm() {
 
     formData.value = {
       jobOrder: jobOrderId,
+       jobOrderTicket: jobOrderTicket,
       subject: incident.subject || '',
       location: incident.location || '',
       infractionType: incident.infraction_type || '',

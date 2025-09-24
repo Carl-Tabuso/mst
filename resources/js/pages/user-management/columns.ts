@@ -45,7 +45,11 @@ export const columns: ColumnDef<User>[] = [
     meta: { label: 'Role' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      return h(UserRoleBadge, { roleName: row.original.roles[0].name })
+      const roles = row.original.roles
+      if (!roles || roles.length === 0) {
+        return h('div', { class: 'text-xs text-muted-foreground' }, 'No role')
+      }
+      return h(UserRoleBadge, { roleName: roles[0].name })
     },
   },
   {
@@ -70,7 +74,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       try {
         return h(UserActions, { user: row.original })
-      } catch (error) {
+      } catch  {
         return h('div', { class: 'text-xs text-muted-foreground' }, 'N/A')
       }
     },

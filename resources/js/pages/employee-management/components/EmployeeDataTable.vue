@@ -43,6 +43,10 @@ const props = withDefaults(defineProps<DataTableProps>(), {
 const { can } = usePermissions()
 const page = usePage()
 
+const positions = computed(() => {
+  return page.props.positions || []
+})
+
 const tableData = computed(() => {
   return Array.isArray(props.data) ? props.data : props.data.data
 })
@@ -134,6 +138,7 @@ const table = useVueTable({
 <template>
   <DataTableToolbar
     :table="table"
+    :positions="positions"
     :globalFilter="globalFilter"
     :routeName="routeName"
   />

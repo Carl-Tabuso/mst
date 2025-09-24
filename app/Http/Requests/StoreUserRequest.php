@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
@@ -16,6 +18,11 @@ class StoreUserRequest extends FormRequest
         return [
             'employee_id' => 'required|exists:employees,id|unique:users,employee_id',
             'email'       => 'required|email|unique:users,email',
+            'role' => [
+                'required',
+                'string',
+                Rule::in(array_column(UserRole::cases(), 'value'))
+            ]
         ];
     }
 }
