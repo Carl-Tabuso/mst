@@ -56,7 +56,7 @@ const dataTableStateRequestPayload = computed(() => {
   }
 })
 
-export function useJobOrderTable() {
+export function useJobOrderTable(routeName?: string) {
   dataTable.columnVisibility.value.archive =
     usePermissions().can('update:job_order')
 
@@ -81,7 +81,8 @@ export function useJobOrderTable() {
   }
 
   const applyFilters = () => {
-    router.get(route('job_order.index'), dataTableStateRequestPayload.value, {
+    const url = route(routeName ?? 'job_order.index')
+    router.get(url, dataTableStateRequestPayload.value, {
       preserveState: true,
       preserveScroll: true,
       replace: true,
