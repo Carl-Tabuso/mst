@@ -133,23 +133,24 @@ class UserService
 
     public function updateUserRole(User $user, string $role)
     {
-        $roleMapping = [
-            'frontliner' => UserRole::Frontliner,
-            'dispatcher' => UserRole::Dispatcher,
-            'team leader' => UserRole::TeamLeader,
-            'head frontliner' => UserRole::HeadFrontliner,
-            'safety officer' => UserRole::SafetyOfficer,
-            'human resource' => UserRole::HumanResource,
-            'consultant' => UserRole::Consultant,
-            'regular' => UserRole::Regular,
-            'it admin' => UserRole::ITAdmin,
-        ];
+        return DB::transaction(function () use ($user, $role) {
+            $roleMapping = [
+                'frontliner' => UserRole::Frontliner,
+                'dispatcher' => UserRole::Dispatcher,
+                'team leader' => UserRole::TeamLeader,
+                'head frontliner' => UserRole::HeadFrontliner,
+                'safety officer' => UserRole::SafetyOfficer,
+                'human resource' => UserRole::HumanResource,
+                'consultant' => UserRole::Consultant,
+                'regular' => UserRole::Regular,
+                'it admin' => UserRole::ITAdmin,
+            ];
 
-        $backendRole = $roleMapping[$role] ?? UserRole::Regular;
+            $backendRole = $roleMapping[$role] ?? UserRole::Regular;
+            $user->syncRoles([$backendRole->value]);
 
-        $user->syncRoles([$backendRole->value]);
-
-        return $user;
+            return $user;
+        });
     }
 
     public function deactivateUser(User $user)
