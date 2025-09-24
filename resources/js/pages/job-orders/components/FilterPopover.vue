@@ -19,13 +19,13 @@ interface DataTableFacetedFilterProps {
   routeName?: string
 }
 
-withDefaults(defineProps<DataTableFacetedFilterProps>(), {
+const props = withDefaults(defineProps<DataTableFacetedFilterProps>(), {
   routeName: 'job_order.index',
 })
 
 const { statusMap } = useJobOrderDicts()
 const { dataTable, onStatusSelect, applyFilters, clearFilters } =
-  useJobOrderTable()
+  useJobOrderTable(props.routeName)
 </script>
 
 <template>
