@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\EmployeeResource;
@@ -11,6 +12,7 @@ use App\Models\Position;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -59,7 +61,7 @@ class UserController extends Controller
 
     public function settings(User $user)
     {
-        $user->load(['employee', 'employee.position',]);
+        $user->load(['employee', 'employee.position', 'roles']);
 
         return Inertia::render('user-management/settings', [
             'user' => new UserResource($user),
@@ -81,7 +83,7 @@ class UserController extends Controller
     public function updateRole(Request $request, User $user)
     {
         $request->validate([
-            'role' => 'required|string|in:frontliner,dispatcher,team leader,head frontliner,safety officer,human resource,consultant,regular,it admin'
+            'role' => 'required|string|' . Rule::in(UserRole::cases())
         ]);
 
         try {
