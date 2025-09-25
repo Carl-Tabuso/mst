@@ -304,6 +304,7 @@ const getIconColor = (section: string) => {
 </script>
 
 <template>
+  <Head :title="String(employee.lastName).concat(' | Employee')" />
   <AppLayout>
     <div class="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between">
