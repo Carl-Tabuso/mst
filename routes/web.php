@@ -199,7 +199,6 @@ Route::middleware(['auth'])->group(function () {
         ->parameters(['employee-management' => 'employee']);
     Route::post('employee-management/{employee}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
 
-
     Route::prefix('data')->group(function () {
         Route::get('employees/dropdown', [EmployeeController::class, 'dropdown'])->name('employees.dropdown');
         Route::get('/job-orders/dropdown', [JobOrderController::class, 'dropdownOptions']);
@@ -209,12 +208,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 if (app()->isLocal()) {
-    require __DIR__ . '/sandbox.php';
+    require __DIR__.'/sandbox.php';
 }
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
-require __DIR__ . '/corrections.php';
-require __DIR__ . '/trucks.php';
-require __DIR__ . '/itservice.php';
-require __DIR__ . '/archives.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';
+require __DIR__.'/corrections.php';
+require __DIR__.'/trucks.php';
+require __DIR__.'/itservice.php';
+require __DIR__.'/archives.php';

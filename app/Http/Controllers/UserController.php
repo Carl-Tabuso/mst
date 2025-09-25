@@ -44,7 +44,7 @@ class UserController extends Controller
         return Inertia::render('user-management/index', [
             'data'      => UserResource::collection($users),
             'employees' => $employees,
-            'roles'     => Position::all()->map(fn($p) => [
+            'roles'     => Position::all()->map(fn ($p) => [
                 'id'   => $p->id,
                 'name' => $p->name,
             ]),
@@ -76,14 +76,14 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Profile updated successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error updating profile: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating profile: '.$e->getMessage());
         }
     }
 
     public function updateRole(Request $request, User $user)
     {
         $request->validate([
-            'role' => 'required|string|' . Rule::in(UserRole::cases())
+            'role' => 'required|string|'.Rule::in(UserRole::cases()),
         ]);
 
         try {
@@ -91,9 +91,10 @@ class UserController extends Controller
 
             return redirect()->back()->with('success', 'User role updated successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error updating role: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating role: '.$e->getMessage());
         }
     }
+
     public function deactivate(User $user)
     {
         try {
@@ -101,7 +102,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account deactivated successfully');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error deactivating account: ' . $e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error deactivating account: '.$e->getMessage());
         }
     }
 
@@ -112,7 +113,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account activated successfully');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error activating account: ' . $e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error activating account: '.$e->getMessage());
         }
     }
 
@@ -123,7 +124,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'Account permanently deleted');
         } catch (\Exception $e) {
-            return redirect()->route('users.index')->with('error', 'Error deleting account: ' . $e->getMessage());
+            return redirect()->route('users.index')->with('error', 'Error deleting account: '.$e->getMessage());
         }
     }
 
@@ -138,7 +139,7 @@ class UserController extends Controller
 
             return redirect()->route('users.index')->with('success', 'User created successfully. Verification email with credentials has been sent.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error creating user: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error creating user: '.$e->getMessage());
         }
     }
 

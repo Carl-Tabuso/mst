@@ -89,6 +89,7 @@ class JobOrderCorrectionController extends Controller
 
         return Inertia::render($component, $data);
     }
+
     private function getForm5Employees(): array
     {
         return Employee::query()
@@ -96,9 +97,9 @@ class JobOrderCorrectionController extends Controller
             ->get()
             ->map(function ($employee) {
                 return [
-                    'id' => $employee->id,
+                    'id'       => $employee->id,
                     'fullName' => $employee->full_name,
-                    'account' => [
+                    'account'  => [
                         'avatar' => $employee->account->avatar ?? null,
                     ],
                 ];
@@ -142,7 +143,7 @@ class JobOrderCorrectionController extends Controller
     {
         $correctionIds = $request->array('correctionIds');
 
-        activity()->withoutLogs(fn() => $this->service->batchDeleteJobOrderCorrections($correctionIds));
+        activity()->withoutLogs(fn () => $this->service->batchDeleteJobOrderCorrections($correctionIds));
 
         $user = $request->user();
 

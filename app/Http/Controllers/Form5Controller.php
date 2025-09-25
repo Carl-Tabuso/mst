@@ -9,8 +9,8 @@ use App\Http\Requests\UpdateForm5Request;
 use App\Models\Employee;
 use App\Models\Form5;
 use App\Models\JobOrder;
-use Illuminate\Database\Eloquent\Builder;
 use App\Services\Form5Service;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -57,9 +57,10 @@ class Form5Controller extends Controller
         $data      = $this->service->getForm5Data($ticket);
         $employees = Employee::query()
             ->with('account.roles')
-            ->whereHas('account', fn(Builder $query) => $query->role(UserRole::Regular))
+            ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Regular))
             ->get()
             ->toResourceCollection();
+
         return Inertia::render('job-orders/other-services/Edit', [
             'data'      => $data,
             'employees' => $employees,

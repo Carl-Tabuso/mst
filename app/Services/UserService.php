@@ -96,15 +96,15 @@ class UserService
             ]);
 
             $roleMapping = [
-                'frontliner' => UserRole::Frontliner,
-                'dispatcher' => UserRole::Dispatcher,
-                'team leader' => UserRole::TeamLeader,
+                'frontliner'      => UserRole::Frontliner,
+                'dispatcher'      => UserRole::Dispatcher,
+                'team leader'     => UserRole::TeamLeader,
                 'head frontliner' => UserRole::HeadFrontliner,
-                'safety officer' => UserRole::SafetyOfficer,
-                'human resource' => UserRole::HumanResource,
-                'consultant' => UserRole::Consultant,
-                'regular' => UserRole::Regular,
-                'it admin' => UserRole::ITAdmin,
+                'safety officer'  => UserRole::SafetyOfficer,
+                'human resource'  => UserRole::HumanResource,
+                'consultant'      => UserRole::Consultant,
+                'regular'         => UserRole::Regular,
+                'it admin'        => UserRole::ITAdmin,
             ];
 
             $backendRole = $roleMapping[$validated['role']] ?? UserRole::Regular;
@@ -135,15 +135,15 @@ class UserService
     {
         return DB::transaction(function () use ($user, $role) {
             $roleMapping = [
-                'frontliner' => UserRole::Frontliner,
-                'dispatcher' => UserRole::Dispatcher,
-                'team leader' => UserRole::TeamLeader,
+                'frontliner'      => UserRole::Frontliner,
+                'dispatcher'      => UserRole::Dispatcher,
+                'team leader'     => UserRole::TeamLeader,
                 'head frontliner' => UserRole::HeadFrontliner,
-                'safety officer' => UserRole::SafetyOfficer,
-                'human resource' => UserRole::HumanResource,
-                'consultant' => UserRole::Consultant,
-                'regular' => UserRole::Regular,
-                'it admin' => UserRole::ITAdmin,
+                'safety officer'  => UserRole::SafetyOfficer,
+                'human resource'  => UserRole::HumanResource,
+                'consultant'      => UserRole::Consultant,
+                'regular'         => UserRole::Regular,
+                'it admin'        => UserRole::ITAdmin,
             ];
 
             $backendRole = $roleMapping[$role] ?? UserRole::Regular;

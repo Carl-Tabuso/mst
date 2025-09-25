@@ -18,11 +18,11 @@ class StoreUserRequest extends FormRequest
         return [
             'employee_id' => 'required|exists:employees,id|unique:users,employee_id',
             'email'       => 'required|email|unique:users,email',
-            'role' => [
+            'role'        => [
                 'required',
                 'string',
-                Rule::in(array_column(UserRole::cases(), 'value'))
-            ]
+                Rule::in(array_column(UserRole::cases(), 'value')),
+            ],
         ];
     }
 }

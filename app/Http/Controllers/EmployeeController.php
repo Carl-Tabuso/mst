@@ -10,8 +10,8 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Services\EmployeeService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -69,7 +69,7 @@ class EmployeeController extends Controller
             $positionIds = $request->input('filters.positions', []);
 
             $positionNames = [];
-            if (!empty($positionIds)) {
+            if (! empty($positionIds)) {
                 $positionNames = Position::whereIn('id', $positionIds)
                     ->pluck('name')
                     ->toArray();
@@ -77,12 +77,12 @@ class EmployeeController extends Controller
 
             $filters = [
                 'positions' => $positionNames,
-                'search' => $request->input('filters.search', ''),
+                'search'    => $request->input('filters.search', ''),
             ];
 
             $employees = $this->employeeService->getEmployeesForRatingsExport($filters);
 
-            if (!empty($filters['search'])) {
+            if (! empty($filters['search'])) {
                 $employees = $this->applySearch($employees, $filters['search']);
             }
 
@@ -114,7 +114,7 @@ class EmployeeController extends Controller
 
         return $employees->filter(function ($employee) use ($searchTerm) {
             return str_contains(strtolower($employee->full_name), $searchTerm) ||
-                str_contains(strtolower($employee->position), $searchTerm) ||
+                str_contains(strtolower($employee->position), $searchTerm)     ||
                 str_contains((string) $employee->id, $searchTerm);
         })->values();
     }
@@ -124,18 +124,18 @@ class EmployeeController extends Controller
         $timestamp = now()->format('Y-m-d_H-i-s');
 
         $parts = [];
-        if (!empty($filters['positions'])) {
+        if (! empty($filters['positions'])) {
             $positionSlugs = array_map(function ($name) {
                 return Str::slug(strtolower($name));
             }, $filters['positions']);
 
-            $parts[] = 'positions-' . implode('-', $positionSlugs);
+            $parts[] = 'positions-'.implode('-', $positionSlugs);
         }
-        if (!empty($filters['search'])) {
-            $parts[] = 'search-' . preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
+        if (! empty($filters['search'])) {
+            $parts[] = 'search-'.preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
         }
 
-        $filterSuffix = $parts ? '_' . implode('_', $parts) : '';
+        $filterSuffix = $parts ? '_'.implode('_', $parts) : '';
 
         return "employee_ratings_export_{$timestamp}{$filterSuffix}.xlsx";
     }
@@ -149,7 +149,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee created successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error creating employee: ' . $e->getMessage());
+            return back()->with('error', 'Error creating employee: '.$e->getMessage());
         }
     }
 
@@ -167,25 +167,26 @@ class EmployeeController extends Controller
             'employee' => new EmployeeResource($employee),
         ]);
     }
+
     public function bulkArchive(Request $request)
     {
         $request->validate([
-            'employeeIds' => 'required|array',
+            'employeeIds'   => 'required|array',
             'employeeIds.*' => 'exists:employees,id',
         ]);
 
         try {
             $employeeIds = $request->input('employeeIds');
-            $result = $this->employeeService->bulkArchiveEmployees($employeeIds);
+            $result      = $this->employeeService->bulkArchiveEmployees($employeeIds);
 
             return redirect()
                 ->route('employee-management.index')
-                ->with('success', count($employeeIds) . ' employee(s) archived successfully.');
+                ->with('success', count($employeeIds).' employee(s) archived successfully.');
         } catch (\Exception $e) {
             Log::error('Bulk archive failed', [
-                'error' => $e->getMessage(),
+                'error'        => $e->getMessage(),
                 'employee_ids' => $request->input('employee_ids'),
-                'user_id' => auth()->id(),
+                'user_id'      => auth()->id(),
             ]);
 
             return redirect()
@@ -220,7 +221,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error updating employee: ' . $e->getMessage());
+            return back()->with('error', 'Error updating employee: '.$e->getMessage());
         }
     }
 
@@ -233,7 +234,7 @@ class EmployeeController extends Controller
                 ->route('employee-management.index')
                 ->with('success', 'Employee deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error deleting employee: ' . $e->getMessage());
+            return back()->with('error', 'Error deleting employee: '.$e->getMessage());
         }
     }
 
@@ -242,7 +243,7 @@ class EmployeeController extends Controller
         $employees = Employee::select('id', 'first_name', 'last_name')
             ->orderBy('last_name')
             ->get()
-            ->map(fn($e) => [
+            ->map(fn ($e) => [
                 'id'   => $e->id,
                 'name' => "{$e->first_name} {$e->last_name}",
             ]);

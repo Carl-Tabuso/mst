@@ -17,15 +17,18 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomStartCell, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $employees;
+
     protected $filters;
+
     protected $totalRecords;
+
     protected $originalTotalRecords;
 
     public function __construct($employees = null, $filters = [])
     {
-        $this->employees = $employees;
-        $this->filters = $filters;
-        $this->totalRecords = $employees ? $employees->count() : 0;
+        $this->employees            = $employees;
+        $this->filters              = $filters;
+        $this->totalRecords         = $employees ? $employees->count() : 0;
         $this->originalTotalRecords = $this->getOriginalTotalCount();
     }
 
@@ -60,13 +63,13 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomSt
 
     public function map($employee): array
     {
-        $ratingStatus = $employee->has_ratings ? 'Has Ratings' : 'No Ratings Yet';
+        $ratingStatus   = $employee->has_ratings ? 'Has Ratings' : 'No Ratings Yet';
         $completionRate = $employee->completion_rate > 0
-            ? $employee->completion_rate . '%'
+            ? $employee->completion_rate.'%'
             : 'N/A';
 
         $successRateCreated = $employee->success_rate_created > 0
-            ? $employee->success_rate_created . '%'
+            ? $employee->success_rate_created.'%'
             : 'N/A';
 
         return [
@@ -95,8 +98,8 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomSt
         return [
             1 => [
                 'font' => [
-                    'bold' => true,
-                    'size' => 16,
+                    'bold'  => true,
+                    'size'  => 16,
                     'color' => ['rgb' => '1E40AF'],
                 ],
                 'alignment' => [
@@ -105,7 +108,7 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomSt
             ],
             2 => [
                 'font' => [
-                    'size' => 10,
+                    'size'   => 10,
                     'italic' => true,
                 ],
                 'alignment' => [
@@ -123,11 +126,11 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomSt
             ],
             5 => [
                 'font' => [
-                    'bold' => true,
+                    'bold'  => true,
                     'color' => ['rgb' => 'FFFFFF'],
                 ],
                 'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
+                    'fillType'   => Fill::FILL_SOLID,
                     'startColor' => ['rgb' => '1E40AF'],
                 ],
                 'alignment' => [
@@ -136,15 +139,15 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomSt
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'],
+                        'color'       => ['rgb' => '000000'],
                     ],
                 ],
             ],
-            'A6:P' . $lastDataRow => [
+            'A6:P'.$lastDataRow => [
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => 'CCCCCC'],
+                        'color'       => ['rgb' => 'CCCCCC'],
                     ],
                 ],
                 'alignment' => [
@@ -189,17 +192,17 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomSt
     {
         $filterParts = [];
 
-        if (!empty($this->filters['positions'])) {
-            $filterParts[] = 'Positions: ' . implode(', ', $this->filters['positions']);
+        if (! empty($this->filters['positions'])) {
+            $filterParts[] = 'Positions: '.implode(', ', $this->filters['positions']);
         }
 
-        if (!empty($this->filters['search'])) {
-            $filterParts[] = 'Search: "' . $this->filters['search'] . '"';
+        if (! empty($this->filters['search'])) {
+            $filterParts[] = 'Search: "'.$this->filters['search'].'"';
         }
 
         return empty($filterParts)
             ? 'Filters: All Performance Roles (Driver, Hauler, Team Leader, Frontliner)'
-            : 'Applied Filters: ' . implode(' | ', $filterParts);
+            : 'Applied Filters: '.implode(' | ', $filterParts);
     }
 
     private function generateSummaryInfo()
@@ -216,7 +219,8 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithCustomSt
     private function getOriginalTotalCount()
     {
         $allowedPositions = ['Driver', 'Hauler', 'Team Leader', 'Frontliner'];
-        return \App\Models\Employee::whereHas('position', fn($q) => $q->whereIn('name', $allowedPositions))->count();
+
+        return \App\Models\Employee::whereHas('position', fn ($q) => $q->whereIn('name', $allowedPositions))->count();
     }
 
     public function title(): string

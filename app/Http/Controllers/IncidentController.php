@@ -81,7 +81,7 @@ class IncidentController extends Controller
             'subject'      => 'No Incident Reported',
             'description'  => 'This incident has been reviewed and marked as no incident.',
             'completed_at' => now(),
-            'created_by'  => Auth::id(),
+            'created_by'   => Auth::id(),
         ]);
 
         return redirect()->back()->with('success', 'Marked as no incident.');

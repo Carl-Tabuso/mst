@@ -76,12 +76,12 @@ class EmployeeService
             'evaluatedTeamLeaders.jobOrder',
             'evaluatedTeamLeaders.ratings.performanceRating',
             'createdJobOrders',
-        ])->whereHas('position', fn($q) => $q->whereIn('name', $allowedPositions));
+        ])->whereHas('position', fn ($q) => $q->whereIn('name', $allowedPositions));
 
-        if (!empty($filters['positions'])) {
+        if (! empty($filters['positions'])) {
             $validPositions = array_intersect($filters['positions'], $allowedPositions);
             if ($validPositions) {
-                $query->whereHas('position', fn($q) => $q->whereIn('name', $validPositions));
+                $query->whereHas('position', fn ($q) => $q->whereIn('name', $validPositions));
             }
         }
 
@@ -94,22 +94,22 @@ class EmployeeService
 
             $jobOrderStats = $this->getEmployeeJobOrderStats($employee);
 
-            $averageRating = $this->calculateAverageRating($employee);
+            $averageRating  = $this->calculateAverageRating($employee);
             $completionRate = $jobOrderStats['total_job_orders'] > 0
                 ? round(($jobOrderStats['completed_job_orders'] / $jobOrderStats['total_job_orders']) * 100, 2)
                 : 0;
 
             return (object) array_merge([
-                'id' => $employee->id,
-                'full_name' => $employee->full_name,
-                'position' => $employee->position->name ?? 'Unknown',
-                'average_rating' => $averageRating,
-                'total_ratings' => $this->getTotalRatings($employee),
-                'has_ratings' => $this->getTotalRatings($employee) > 0,
-                'total_job_orders' => $jobOrderStats['total_job_orders'],
+                'id'                   => $employee->id,
+                'full_name'            => $employee->full_name,
+                'position'             => $employee->position->name ?? 'Unknown',
+                'average_rating'       => $averageRating,
+                'total_ratings'        => $this->getTotalRatings($employee),
+                'has_ratings'          => $this->getTotalRatings($employee) > 0,
+                'total_job_orders'     => $jobOrderStats['total_job_orders'],
                 'completed_job_orders' => $jobOrderStats['completed_job_orders'],
-                'dropped_job_orders' => $jobOrderStats['dropped_job_orders'],
-                'completion_rate' => $completionRate,
+                'dropped_job_orders'   => $jobOrderStats['dropped_job_orders'],
+                'completion_rate'      => $completionRate,
             ], $performanceStats);
         });
     }
@@ -117,18 +117,18 @@ class EmployeeService
     private function getPerformanceStatistics($employee, $position)
     {
         $stats = [
-            'job_orders_created' => 0,
+            'job_orders_created'           => 0,
             'completed_job_orders_created' => 0,
-            'corrections_made' => 0,
-            'total_errors' => 0,
-            'success_rate_created' => 0,
+            'corrections_made'             => 0,
+            'total_errors'                 => 0,
+            'success_rate_created'         => 0,
         ];
 
         // Frontliner-specific statistics (job orders they created)
         if ($position === 'frontliner' && $employee->createdJobOrders) {
             $createdJobOrders = $employee->createdJobOrders;
 
-            $stats['job_orders_created'] = $createdJobOrders->count();
+            $stats['job_orders_created']           = $createdJobOrders->count();
             $stats['completed_job_orders_created'] = $createdJobOrders->where('status', 'completed')->count();
 
             // Count job orders with corrections
@@ -150,17 +150,21 @@ class EmployeeService
 
     private function getEmployeeJobOrderStats($employee)
     {
-        $total = 0;
+        $total     = 0;
         $completed = 0;
-        $dropped = 0;
+        $dropped   = 0;
 
         // Count from performancesAsEmployee (when employee is being evaluated)
         if ($employee->performancesAsEmployee) {
             foreach ($employee->performancesAsEmployee as $performance) {
                 if ($performance->jobOrder) {
                     $total++;
-                    if ($performance->jobOrder->status === 'completed') $completed++;
-                    if (in_array($performance->jobOrder->status, ['cancelled', 'dropped'])) $dropped++;
+                    if ($performance->jobOrder->status === 'completed') {
+                        $completed++;
+                    }
+                    if (in_array($performance->jobOrder->status, ['cancelled', 'dropped'])) {
+                        $dropped++;
+                    }
                 }
             }
         }
@@ -170,16 +174,20 @@ class EmployeeService
             foreach ($employee->evaluatedTeamLeaders as $performance) {
                 if ($performance->jobOrder) {
                     $total++;
-                    if ($performance->jobOrder->status === 'completed') $completed++;
-                    if (in_array($performance->jobOrder->status, ['cancelled', 'dropped'])) $dropped++;
+                    if ($performance->jobOrder->status === 'completed') {
+                        $completed++;
+                    }
+                    if (in_array($performance->jobOrder->status, ['cancelled', 'dropped'])) {
+                        $dropped++;
+                    }
                 }
             }
         }
 
         return [
-            'total_job_orders' => $total,
+            'total_job_orders'     => $total,
             'completed_job_orders' => $completed,
-            'dropped_job_orders' => $dropped,
+            'dropped_job_orders'   => $dropped,
         ];
     }
 
@@ -206,6 +214,7 @@ class EmployeeService
         }
 
         $filteredRatings = $ratings->filter();
+
         return $filteredRatings->count() > 0 ? round($filteredRatings->avg(), 2) : null;
     }
 
@@ -406,6 +415,7 @@ class EmployeeService
             ->whereIn('id', $employeeIds)
             ->delete();
     }
+
     public function permanentlyDeleteEmployee(Employee $employee): ?bool
     {
         return $employee->forceDelete();
