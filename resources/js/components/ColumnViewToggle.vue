@@ -26,9 +26,11 @@ defineProps<ColumnViewToggleProps>()
         variant="ghost"
         class="mx-1"
       >
-        <Settings2 class="mr-2" />
-        View
-        <div class="hidden space-x-1 lg:flex">
+        <Settings2 class="sm:mr-2" />
+        <span class="hidden sm:inline">
+          View
+        </span>
+        <div class="flex space-x-1">
           <Badge
             variant="secondary"
             class="rounded-full font-extrabold"

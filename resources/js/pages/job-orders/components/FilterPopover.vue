@@ -35,8 +35,10 @@ const { dataTable, onStatusSelect, applyFilters, clearFilters } =
         variant="ghost"
         class="ml-1"
       >
-        <Filter class="mr-2" />
-        Filter
+        <Filter class="sm:mr-2" />
+        <span class="hidden sm:inline">
+          Filter
+        </span>
         <Badge
           v-if="dataTable.statuses.value.length"
           variant="secondary"

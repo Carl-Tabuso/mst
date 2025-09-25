@@ -17,19 +17,23 @@ defineProps<DataTableToolbarProps>()
 </script>
 
 <template>
-  <div class="flex items-center py-1">
+  <div class="flex flex-col sm:flex-row sm:py-1 gap-1 sm:gap-0">
     <SearchBar :table="table" />
-    <FilterPopover :routeName="routeName" />
-    <ColumnViewToggle :table="table" />
-    <ExportJobOrder :table="table" />
-    <div
-      v-if="
-        table.getSelectedRowModel().rows.length &&
-        usePermissions().can('update:job_order')
-      "
-      class="ml-auto"
-    >
-      <BulkArchiveJobOrder :table="table" />
+    <div class="flex w-full items-center">
+      <div class="flex items-center">
+        <FilterPopover :routeName="routeName" />
+        <ColumnViewToggle :table="table" />
+        <ExportJobOrder :table="table" />        
+      </div>
+      <div
+        v-if="
+          table.getSelectedRowModel().rows.length &&
+          usePermissions().can('update:job_order')
+        "
+        class="ml-auto"
+      >
+        <BulkArchiveJobOrder :table="table" />
+      </div>      
     </div>
   </div>
 </template>

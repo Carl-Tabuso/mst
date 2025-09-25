@@ -165,7 +165,7 @@ class EmployeeController extends Controller
         $positions = Position::orderBy('name')->get();
 
         return Inertia::render('employee-management/Edit', [
-            'employee' => new EmployeeResource($employee),
+            'employee'  => new EmployeeResource($employee),
             'positions' => $positions,
         ]);
     }

@@ -8,8 +8,8 @@ const isFrontliner = page.props.auth.user.roles[0].name === 'head frontliner'
 
 <template>
   <div
-    class="mx-auto mb-6 mt-3 w-full max-w-screen-xl"
-    :class="[isFrontliner ? 'pl-3 pr-6' : 'px-6']"
+    class="mx-auto mb-6 w-full max-w-screen-xl"
+    :class="[isFrontliner ? 'pl-3 pr-6 mt-3' : 'px-6']"
   >
     <slot />
   </div>

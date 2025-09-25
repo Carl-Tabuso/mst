@@ -36,7 +36,7 @@ const canGoNextPage = computed(() => currentPage.value < props.lastPage)
 </script>
 
 <template>
-  <div class="flex items-center justify-between p-3">
+  <div class="flex flex-row items-center justify-between p-3">
     <div class="flex-1 text-sm text-muted-foreground">
       {{ table.getFilteredSelectedRowModel().rows.length }} of
       {{ table.getFilteredRowModel().rows.length }} row(s) selected.

@@ -51,11 +51,13 @@ const onBulkArchive = () => {
     <DialogTrigger>
       <Button
         variant="warning"
-        class="mx-3"
+        class="ml-3"
       >
         <Archive class="mr-2" />
-        Archive
-        <div class="hidden pl-3 font-extrabold lg:flex">
+        <span class="hidden sm:flex">
+          Archive
+        </span>
+        <div class="flex sm:pl-3 font-extrabold">
           {{ table.getSelectedRowModel().rows.length }}
         </div>
       </Button>

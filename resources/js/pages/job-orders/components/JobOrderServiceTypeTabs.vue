@@ -8,11 +8,13 @@ import { Link } from '@inertiajs/vue3'
     :model-value="route().current()"
     class="w-full"
   >
-    <TabsList class="flex justify-start">
+    <TabsList
+      class="flex justify-start overflow-x-auto whitespace-nowrap scrollbar-hide"
+    >
       <Link :href="route('job_order.index')">
         <TabsTrigger
           value="job_order.index"
-          class="px-7"
+          class="px-5 sm:px-7"
         >
           All
         </TabsTrigger>
@@ -20,7 +22,7 @@ import { Link } from '@inertiajs/vue3'
       <Link :href="route('job_order.waste_management.index')">
         <TabsTrigger
           value="job_order.waste_management.index"
-          class="px-7"
+          class="px-5 sm:px-7"
         >
           Waste Management
         </TabsTrigger>
@@ -28,7 +30,7 @@ import { Link } from '@inertiajs/vue3'
       <Link :href="route('job_order.it_service.index')">
         <TabsTrigger
           value="job_order.it_service.index"
-          class="px-7"
+          class="px-5 sm:px-7"
         >
           IT Services
         </TabsTrigger>
@@ -36,7 +38,7 @@ import { Link } from '@inertiajs/vue3'
       <Link :href="route('job_order.other_services.index')">
         <TabsTrigger
           value="job_order.other_services.index"
-          class="px-7"
+          class="px-5 sm:px-7"
         >
           Other Services
         </TabsTrigger>

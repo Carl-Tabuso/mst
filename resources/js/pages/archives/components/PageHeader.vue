@@ -12,7 +12,7 @@ defineProps<PageHeaderProps>()
     <h3
       class="flex flex-row items-center gap-3 text-3xl font-bold text-muted-foreground"
     >
-      Archives
+      Archive Records
       <span>•</span>
       <p class="text-foreground">
         {{ archiveType }}
