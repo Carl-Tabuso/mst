@@ -74,7 +74,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       try {
         return h(UserActions, { user: row.original })
-      } catch  {
+      } catch {
         return h('div', { class: 'text-xs text-muted-foreground' }, 'N/A')
       }
     },

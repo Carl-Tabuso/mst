@@ -68,8 +68,7 @@ export interface FormData {
   infractionType: string
   description: string
   jobOrder: number | null
-    jobOrderTicket?: '',
-
+  jobOrderTicket?: ''
 }
 
 export interface IncidentDisplayProps {

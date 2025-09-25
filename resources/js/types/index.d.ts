@@ -151,20 +151,20 @@ export interface JobOrder {
 }
 
 export interface Form5Item {
-  id?: number;
-  form5_id?: number;
-  item_name: string;
-  quantity: number;
-  created_at?: string;
-  updated_at?: string;
+  id?: number
+  form5_id?: number
+  item_name: string
+  quantity: number
+  created_at?: string
+  updated_at?: string
 }
 export interface Form5 {
-  id?: number;
-  assigned_person: number | string;
-  purpose: string;
-  items: Form5Item[];
-  created_at?: string;
-  updated_at?: string;
+  id?: number
+  assigned_person: number | string
+  purpose: string
+  items: Form5Item[]
+  created_at?: string
+  updated_at?: string
 }
 export interface ITService {
   id: number
