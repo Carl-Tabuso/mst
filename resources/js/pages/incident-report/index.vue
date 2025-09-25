@@ -17,6 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
+  <Head title="Incident Reports" />
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
       <div class="container">
