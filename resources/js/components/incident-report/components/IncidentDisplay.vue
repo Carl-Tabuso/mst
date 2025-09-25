@@ -706,7 +706,7 @@ const showAllPeopleEdit = ref(false)
                 :editor="editor"
                 :class="[
                   'prose min-h-[300px] max-w-[1200px] border-none p-3 outline-none',
-                  !canEditIncident ? 'bg-gray-50' : '',
+                  !canEditIncident ? 'bg-gray-50 dark:bg-zinc-800' : '',
                 ]"
               />
             </div>
