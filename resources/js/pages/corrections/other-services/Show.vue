@@ -9,6 +9,7 @@ import ChangesModal from './components/ChangesModal.vue'
 import FirstSection from './components/FirstSection.vue'
 import ReasonCard from './components/ReasonCard.vue'
 import SecondSection from './components/SecondSection.vue'
+import MainContainer from '@/components/MainContainer.vue'
 interface ShowProps {
   data: JobOrderCorrection
   employees?: Employee[]
@@ -19,7 +20,11 @@ const props = defineProps<ShowProps>()
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Job Order Corrections',
-    href: '/job-orders/corrections',
+    href: route('job_order.correction.index'),
+  },
+  {
+    title: 'List',
+    href: route('job_order.correction.index'),
   },
   {
     title: props.data.jobOrder.ticket,
@@ -66,7 +71,7 @@ onMounted(() => {
   />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div>
         <div class="flex flex-row items-center justify-between gap-4 pb-2">
           <div class="flex flex-col gap-1">
@@ -102,7 +107,7 @@ onMounted(() => {
         :changes="form5Changes"
         :job-order="data.jobOrder"
         :employees="employees"
-      />
-    </div>
+      />      
+    </MainContainer>
   </AppLayout>
 </template>

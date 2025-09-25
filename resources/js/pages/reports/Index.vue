@@ -101,6 +101,10 @@ const onExport = () => {
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
+    title: 'Home',
+    href: route('home'),
+  },
+  {
     title: 'Reports and Analytics',
     href: route('report.index'),
   },

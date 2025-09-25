@@ -71,6 +71,10 @@ const isAuthUser = (user?: User) => user?.id === page.props.auth.user.id
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
+    title: 'Home',
+    href: route('home'),
+  },
+  {
     title: 'Activity Logs',
     href: route('activity.index'),
   },
