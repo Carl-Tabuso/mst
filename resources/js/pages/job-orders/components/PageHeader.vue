@@ -19,10 +19,10 @@ const cannotCreateJobOrder = cannot('create:job_order')
 <template>
   <div class="mb-1 flex flex-col gap-2 sm:flex-row sm:items-center">
     <div class="flex flex-col">
-      <h3 class="scroll-m-20 text-2xl sm:text-3xl font-bold text-primary">
+      <h3 class="scroll-m-20 text-2xl font-bold text-primary sm:text-3xl">
         {{ title }}
       </h3>
-      <p class="text-muted-foreground text-sm sm:text-base">
+      <p class="text-sm text-muted-foreground sm:text-base">
         {{ subTitle }}
       </p>
     </div>

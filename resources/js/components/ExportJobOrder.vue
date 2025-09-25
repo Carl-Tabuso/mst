@@ -33,9 +33,7 @@ const onExport = () => {
     :disabled="!selectedRowModels.length"
   >
     <Download class="sm:mr-2" />
-    <span class="hidden sm:inline">
-      Export
-    </span>
+    <span class="hidden sm:inline"> Export </span>
     <Badge
       v-if="selectedRowModels.length"
       variant="secondary"

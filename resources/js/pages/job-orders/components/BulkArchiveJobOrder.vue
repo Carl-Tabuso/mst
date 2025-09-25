@@ -54,10 +54,8 @@ const onBulkArchive = () => {
         class="ml-3"
       >
         <Archive class="mr-2" />
-        <span class="hidden sm:flex">
-          Archive
-        </span>
-        <div class="flex sm:pl-3 font-extrabold">
+        <span class="hidden sm:flex"> Archive </span>
+        <div class="flex font-extrabold sm:pl-3">
           {{ table.getSelectedRowModel().rows.length }}
         </div>
       </Button>

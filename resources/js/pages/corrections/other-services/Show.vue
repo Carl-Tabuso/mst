@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { correctionStatuses } from '@/constants/correction-statuses'
@@ -9,7 +10,6 @@ import ChangesModal from './components/ChangesModal.vue'
 import FirstSection from './components/FirstSection.vue'
 import ReasonCard from './components/ReasonCard.vue'
 import SecondSection from './components/SecondSection.vue'
-import MainContainer from '@/components/MainContainer.vue'
 interface ShowProps {
   data: JobOrderCorrection
   employees?: Employee[]
@@ -107,7 +107,7 @@ onMounted(() => {
         :changes="form5Changes"
         :job-order="data.jobOrder"
         :employees="employees"
-      />      
+      />
     </MainContainer>
   </AppLayout>
 </template>

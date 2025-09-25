@@ -17,13 +17,13 @@ defineProps<DataTableToolbarProps>()
 </script>
 
 <template>
-  <div class="flex flex-col sm:flex-row sm:py-1 gap-1 sm:gap-0">
+  <div class="flex flex-col gap-1 sm:flex-row sm:gap-0 sm:py-1">
     <SearchBar :table="table" />
     <div class="flex w-full items-center">
       <div class="flex items-center">
         <FilterPopover :routeName="routeName" />
         <ColumnViewToggle :table="table" />
-        <ExportJobOrder :table="table" />        
+        <ExportJobOrder :table="table" />
       </div>
       <div
         v-if="
@@ -33,7 +33,7 @@ defineProps<DataTableToolbarProps>()
         class="ml-auto"
       >
         <BulkArchiveJobOrder :table="table" />
-      </div>      
+      </div>
     </div>
   </div>
 </template>

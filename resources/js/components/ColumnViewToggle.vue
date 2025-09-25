@@ -27,9 +27,7 @@ defineProps<ColumnViewToggleProps>()
         class="mx-1"
       >
         <Settings2 class="sm:mr-2" />
-        <span class="hidden sm:inline">
-          View
-        </span>
+        <span class="hidden sm:inline"> View </span>
         <div class="flex space-x-1">
           <Badge
             variant="secondary"

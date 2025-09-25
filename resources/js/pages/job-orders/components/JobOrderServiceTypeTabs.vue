@@ -9,7 +9,7 @@ import { Link } from '@inertiajs/vue3'
     class="w-full"
   >
     <TabsList
-      class="flex justify-start overflow-x-auto whitespace-nowrap scrollbar-hide"
+      class="scrollbar-hide flex justify-start overflow-x-auto whitespace-nowrap"
     >
       <Link :href="route('job_order.index')">
         <TabsTrigger

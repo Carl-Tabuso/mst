@@ -42,9 +42,9 @@ import {
   UsersRound,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
+import Breadcrumbs from './Breadcrumbs.vue'
 import DarkModeToggle from './DarkModeToggle.vue'
 import UserAvatar from './UserAvatar.vue'
-import Breadcrumbs from './Breadcrumbs.vue'
 
 interface Props {
   breadcrumbs?: BreadcrumbItem[]
@@ -301,6 +301,9 @@ const mainNavItems: NavItem[] = [
         <Breadcrumbs :breadcrumbs="breadcrumbs" />
       </div>
     </div>
-    <div v-else class="mb-3" />
+    <div
+      v-else
+      class="mb-3"
+    />
   </div>
 </template>
