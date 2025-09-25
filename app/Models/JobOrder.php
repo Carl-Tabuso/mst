@@ -61,6 +61,11 @@ class JobOrder extends Model
         return 'archived_at';
     }
 
+    public function getTicketPrefixAttribute(): string
+    {
+        return $this->ticketPrefix;
+    }
+
     public function getTicketAttribute(): string
     {
         return $this->ticketPrefix.str_pad($this->id, 7, 0, STR_PAD_LEFT);

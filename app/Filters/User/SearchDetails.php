@@ -27,6 +27,7 @@ class SearchDetails
                         'last_name',
                         'suffix',
                     ], 'like', "%{$this->search}%")
+                        ->orWhere(fn (Builder $sssubQuery) => $sssubQuery->searchName($this->search))
                         ->orWhereRaw("concat_ws(' ', first_name, middle_name, last_name, suffix) like ?", "%{$this->search}%");
                 });
         });

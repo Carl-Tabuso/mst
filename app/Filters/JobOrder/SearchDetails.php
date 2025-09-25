@@ -2,6 +2,7 @@
 
 namespace App\Filters\JobOrder;
 
+use App\Models\JobOrder;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -20,12 +21,14 @@ class SearchDetails
                         'contact_no',
                         'contact_person',
                     ], 'like', "%{$this->searchQuery}%")
-                    ->orWhereHas('creator', fn (Builder $ssubQuery) => $ssubQuery->whereAny([
-                        'first_name',
-                        'middle_name',
-                        'last_name',
-                        'suffix',
-                    ], 'like', "%{$this->searchQuery}%"));
+                    ->orWhereHas('creator', fn (Builder $ssubQuery) => $ssubQuery->searchName($this->searchQuery));
+
+                $ticketFormat   = (new JobOrder)->ticketPrefix;
+                $isTicketSearch = str_contains($this->searchQuery, $ticketFormat);
+                if ($isTicketSearch) {
+                    $actualJobOrderId = (int) str_replace($ticketFormat, '', $this->searchQuery);
+                    $subQuery->orWhere('id', $actualJobOrderId);
+                }
             });
         });
 

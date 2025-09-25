@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Policies\EmployeePolicy;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,6 +69,14 @@ class Employee extends Model
                 ])
             )
         );
+    }
+
+    #[Scope]
+    public function searchName(Builder $query, string $searchQuery): Builder
+    {
+        $sql = "concat_ws(' ', first_name, middle_name, last_name, suffix) like ?";
+
+        return $query->whereRaw($sql, "%{$searchQuery}%");
     }
 
     public function emergencyContact()
