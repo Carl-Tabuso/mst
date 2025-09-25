@@ -64,7 +64,7 @@ class UserService
 
     public function getArchivedUsers(?int $perPage = 10, ?string $search = '', ?array $filters = []): mixed
     {
-        $archivedAtColumn = new User()->getDeletedAtColumn();
+        $archivedAtColumn = (new User)->getDeletedAtColumn();
 
         $pipes = [
             new FilterOnlyArchived,

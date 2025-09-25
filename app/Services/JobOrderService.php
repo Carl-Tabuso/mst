@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
+use App\Filters\ApplyDateOfArchivalRange;
 use App\Filters\FilterOnlyArchived;
-use App\Filters\JobOrder\ApplyDateOfArchivalRange;
 use App\Filters\JobOrder\ApplyDateOfServiceRange;
 use App\Filters\JobOrder\FilterOnlyChecklist;
 use App\Filters\JobOrder\FilterOnlyCreated;
@@ -20,6 +20,8 @@ class JobOrderService
     {
         $user = request()->user();
 
+        $jobOrderInstance = new JobOrder;
+
         $pipes = [
             ...($archivedOnly ? [new FilterOnlyArchived] : []),
             new FilterOnlyCreated($user),
@@ -27,14 +29,18 @@ class JobOrderService
             new FilterStatuses($filters),
             new ApplyDateOfServiceRange($filters),
             new SearchDetails($search),
-            new ApplyDateOfArchivalRange($filters),
+            new ApplyDateOfArchivalRange($jobOrderInstance->getDeletedAtColumn(), $filters),
         ];
 
         return Pipeline::send(JobOrder::query())
             ->through($pipes)
-            ->then(function (Builder $query) use ($perPage, $archivedOnly) {
+            ->then(function (Builder $query) use ($perPage, $archivedOnly, $jobOrderInstance) {
+                $orderByDescColumn = $archivedOnly
+                    ? $jobOrderInstance->getDeletedAtColumn()
+                    : $jobOrderInstance->getCreatedAtColumn();
+
                 return $query->with('creator.account')
-                    ->latest($archivedOnly ? (new JobOrder)->getDeletedAtColumn() : 'created_at')
+                    ->latest($orderByDescColumn)
                     ->paginate($perPage)
                     ->withQueryString()
                     ->toResourceCollection();

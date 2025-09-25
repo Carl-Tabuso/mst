@@ -45,7 +45,7 @@ class EmployeeService
 
     public function getArchivedEmployees(int $perPage = 10, ?string $search = '', ?array $filters = [])
     {
-        $archivedAtColumn = new Employee()->getDeletedAtColumn();
+        $archivedAtColumn = (new Employee)->getDeletedAtColumn();
 
         $pipes = [
             new FilterOnlyArchived,
