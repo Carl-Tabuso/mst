@@ -37,6 +37,7 @@ defineProps<RecentActivitiesProps>()
       >
         <div class="flex items-start gap-3">
           <UserAvatar
+            v-if="activity.causer"
             :avatar-path="activity.causer.avatar"
             :fallback="activity.causer.employee.fullName"
             class="size-8"
