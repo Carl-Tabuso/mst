@@ -19,6 +19,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { Position } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import {
   CheckCircle2,
@@ -27,11 +28,6 @@ import {
   LoaderCircle,
 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-
-interface Position {
-  id: number
-  name: string
-}
 
 interface Props {
   positions: Position[]
@@ -197,6 +193,7 @@ const onSubmit = () => {
 </script>
 
 <template>
+  <Head :title="'Add Employee'" />
   <AppLayout>
     <div class="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
       <div>

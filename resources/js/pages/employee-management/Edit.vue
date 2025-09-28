@@ -19,6 +19,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { Employee, Position } from '@/types'
 import { useForm } from '@inertiajs/vue3'
 import {
   CheckCircle2,
@@ -30,50 +31,6 @@ import {
 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
-
-interface Position {
-  id: number
-  name: string
-}
-
-interface Employee {
-  id: number
-  firstName: string
-  middleName?: string
-  lastName: string
-  suffix?: string
-  dateOfBirth?: string
-  email?: string
-  contactNumber?: string
-  positionId: number
-  position?: Position
-  region?: string
-  province?: string
-  city?: string
-  zipCode?: string
-  detailedAddress?: string
-  emergencyContact?: {
-    lastName: string
-    firstName: string
-    middleName?: string
-    suffix?: string
-    contactNumber: string
-    relation: string
-  }
-  employmentDetails?: {
-    sssNumber?: string
-    philhealthNumber?: string
-    pagibigNumber?: string
-    tin?: string
-    dateHired?: string
-    regularizationDate?: string
-    endOfContract?: string
-  }
-  compensation?: {
-    salary?: number
-    allowance?: number
-  }
-}
 
 interface Props {
   employee: Employee
