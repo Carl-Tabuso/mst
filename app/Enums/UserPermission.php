@@ -50,7 +50,6 @@ enum UserPermission: string
             self::ViewReportsAnalytics             => 'View Reports And Analytics',
             self::ViewPerformances                 => 'View Performances',
             self::ViewAnyJobOrderCorrection        => 'View Any Job Order Corrections',
-
             self::ViewAnyEmployeeRating            => 'View Any Employee Rating',
             self::CreateEmployeeRating             => 'Create Employee Rating',
             self::UpdateEmployeeRating             => 'Update Employee Rating',
@@ -105,6 +104,7 @@ enum UserPermission: string
             self::ManageIncidentReports,
             self::RestoreArchivedJobOrder,
             self::ForceDeleteJobOrder,
+            self::ExportEmployeeRating,
         ];
     }
 

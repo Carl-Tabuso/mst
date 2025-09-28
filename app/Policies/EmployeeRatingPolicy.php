@@ -13,9 +13,9 @@ class EmployeeRatingPolicy
     public function viewAny(User $user): Response
     {
         return $user->hasPermissionTo(UserPermission::ViewAnyEmployeeRating) ||
-        $user->hasAnyRole([UserRole::TeamLeader, UserRole::Regular, UserRole::Consultant])
-        ? Response::allow()
-        : Response::deny();
+            $user->hasAnyRole([UserRole::TeamLeader, UserRole::Regular, UserRole::Consultant, UserRole::HeadFrontliner])
+                ? Response::allow()
+                : Response::deny();
     }
 
     public function view(User $user, EmployeeRating $employeeRating): Response
@@ -24,48 +24,46 @@ class EmployeeRatingPolicy
         $user->hasPermissionTo(UserPermission::ViewAnyEmployeeRating);
 
         return $isAuthorized
-        ? Response::allow()
-        : Response::deny();
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function create(User $user): Response
     {
         return $user->hasPermissionTo(UserPermission::CreateEmployeeRating)
-        ? Response::allow()
-        : Response::deny();
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function update(User $user, EmployeeRating $employeeRating): Response
     {
         $isCreatedByUser = $user->employee->id === $employeeRating->rater_id;
 
-        $isAuthorized = $isCreatedByUser &&
-        $user->hasPermissionTo(UserPermission::UpdateEmployeeRating);
+        $isAuthorized = $isCreatedByUser && $user->hasPermissionTo(UserPermission::UpdateEmployeeRating);
 
         return $isAuthorized
-        ? Response::allow()
-        : Response::deny();
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function delete(User $user, ?EmployeeRating $employeeRating = null): Response
     {
         $isCreatedByUser = $employeeRating
-        ? $user->employee->id === $employeeRating->rater_id
-        : true;
+            ? $user->employee->id === $employeeRating->rater_id
+            : true;
 
-        $isAuthorized = $isCreatedByUser &&
-        $user->hasPermissionTo(UserPermission::DeleteEmployeeRating);
+        $isAuthorized = $isCreatedByUser && $user->hasPermissionTo(UserPermission::DeleteEmployeeRating);
 
         return $isAuthorized
-        ? Response::allow()
-        : Response::deny();
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function export(User $user): Response
     {
         return $user->hasPermissionTo(UserPermission::ExportEmployeeRating)
-        ? Response::allow()
-        : Response::deny();
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function restore(User $user, EmployeeRating $employeeRating): bool
