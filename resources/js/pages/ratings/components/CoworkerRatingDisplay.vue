@@ -8,7 +8,7 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="font-medium text-gray-900 dark:text-gray-100">{{ name }}</span>
-            <span class="text-sm text-gray-500 dark:text-gray-400">{{ role }}</span>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ role }}</span>
           </div>
           <div class="text-sm text-gray-500 dark:text-gray-400">{{ department }}</div>
         </div>

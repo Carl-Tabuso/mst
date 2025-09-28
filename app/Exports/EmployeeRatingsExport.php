@@ -65,6 +65,7 @@ WithCustomStartCell
             'Position',
             'Average Rating',
             'Total Ratings',
+            'Job Orders Attended',
             'Rating Status',
             'Export Date',
         ];
@@ -80,6 +81,7 @@ WithCustomStartCell
             $employee->position,
             $employee->average_rating ?? 'N/A',
             $employee->total_ratings,
+            $employee->job_orders_attended ?? 0,
             $ratingStatus,
             now()->format('Y-m-d H:i:s'),
         ];
@@ -149,7 +151,7 @@ WithCustomStartCell
             ],
 
             // Data rows styling
-            'A6:H' . $lastDataRow => [
+            'A6:I' . $lastDataRow => [
                 'borders'   => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -165,32 +167,28 @@ WithCustomStartCell
             'A:A'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Employee ID
             'E:E'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Average Rating
             'F:F'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Total Ratings
-            'G:G'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Rating Status
-            'H:H'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Export Date
+            'G:G'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Job Orders Attended
+            'H:H'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Rating Status
+            'I:I'                 => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Export Date
         ];
     }
 
     private function addHeaderInformation(Worksheet $sheet)
     {
-        // Add title
         $sheet->setCellValue('A1', 'Employee Performance Ratings Export');
-        $sheet->mergeCells('A1:H1');
+        $sheet->mergeCells('A1:I1');
 
-        // Add filter information
         $filterInfo = $this->generateFilterInfo();
         $sheet->setCellValue('A2', $filterInfo);
-        $sheet->mergeCells('A2:H2');
+        $sheet->mergeCells('A2:I2');
 
-        // Add summary with filter impact
         $summaryInfo = $this->generateSummaryInfo();
         $sheet->setCellValue('A3', $summaryInfo);
-        $sheet->mergeCells('A3:H3');
+        $sheet->mergeCells('A3:I3');
 
-        // Add empty row for spacing
         $sheet->setCellValue('A4', '');
-        $sheet->mergeCells('A4:H4');
+        $sheet->mergeCells('A4:I4');
 
-        // Style the summary row
         $sheet->getStyle('A3')->applyFromArray([
             'font'      => [
                 'size' => 9,
@@ -240,8 +238,8 @@ WithCustomStartCell
         }
 
         return empty($filterParts)
-        ? 'Filters: All Records'
-        : 'Applied Filters: ' . implode(' | ', $filterParts);
+            ? 'Filters: All Records'
+            : 'Applied Filters: ' . implode(' | ', $filterParts);
     }
 
     private function generateSummaryInfo()
