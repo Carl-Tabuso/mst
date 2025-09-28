@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AppraisalController;
 use App\Http\Controllers\CancelledJobOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
@@ -52,7 +53,6 @@ Route::middleware(['auth'])->group(function () {
                 ->can('view', 'ticket');
             Route::post('/', [Form5Controller::class, 'store'])->name('store');
             Route::patch('{form5}', [Form5Controller::class, 'update'])->name('update');
-
         });
         Route::prefix('waste-managements')->name('waste_management.')->group(function () {
             Route::get('/', [WasteManagementController::class, 'index'])
@@ -70,6 +70,14 @@ Route::middleware(['auth'])->group(function () {
 
             Route::patch('{checklist}/safety-inspection', [SafetyInspectionController::class, 'update'])
                 ->name('safety_inspection.update');
+
+            Route::prefix('appraisals')->name('appraisal.')->group(function () {
+                Route::post('{form4}', [AppraisalController::class, 'store'])
+                    ->name('store');
+
+                Route::patch('{form4}', [AppraisalController::class, 'update'])
+                    ->name('update');
+            });
         });
 
         Route::prefix('cancels')->name('cancel.')->group(function () {
@@ -77,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    Route::middleware(['can:viewActivityLogs'])->prefix('activities')->name('activity.')->group(function () {
+    Route::prefix('activities')->name('activity.')->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('export', ExportActivityLogController::class)->name('export');
     });
@@ -146,7 +154,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('employee.ratings.history.export')
         ->can('export', 'App\\Models\\EmployeeRating');
 
-
     /*
     |--------------------------------------------------------------------------
     | User Management
@@ -156,7 +163,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
         Route::get('/{user}/settings', [UserController::class, 'settings'])
-            ->name('users.settings');
+            ->name('users.settings')->withTrashed();
         Route::post('/store', [UserController::class, 'store'])->name('users.store');
         Route::patch('/{user}', [UserController::class, 'update'])
             ->name('users.update');
@@ -165,7 +172,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{user}/deactivate', [UserController::class, 'deactivate'])
             ->name('users.deactivate');
         Route::post('/{user}/restore', [UserController::class, 'restore'])
-            ->name('users.restore');
+            ->name('users.restore')->withTrashed();
         Route::delete('/{user}', [UserController::class, 'destroy'])
             ->name('users.destroy');
     });
@@ -182,9 +189,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
         Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])->name('verify')->middleware(['can:verify,incident']);
         Route::put('/incidents/{incident}/mark-no-incident', [IncidentController::class, 'markNoIncident'])->name('markNoIncident');
-
+        Route::post('/create-secondary/{haulingId}', [IncidentController::class, 'createSecondary'])->name('createSecondary');
     });
-
+    Route::get('/employee-management/export', [EmployeeController::class, 'export'])
+        ->name('employee-management.export');
+    Route::post('/employee-management/bulk-archive', [EmployeeController::class, 'bulkArchive'])
+        ->name('employee-management.bulk-archive');
     Route::resource('employee-management', EmployeeController::class)
         ->parameters(['employee-management' => 'employee']);
     Route::post('employee-management/{employee}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');

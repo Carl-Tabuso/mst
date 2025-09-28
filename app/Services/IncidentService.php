@@ -16,8 +16,11 @@ class IncidentService
         $isSafetyOfficer = $user->hasRole(UserRole::SafetyOfficer);
         $isTeamLeader    = $user->hasRole(UserRole::TeamLeader);
         $isHumanResource = $user->hasRole(UserRole::HumanResource);
+        $isAdmin         = $user->hasRole([UserRole::ITAdmin, UserRole::HeadFrontliner]);
+        $isConsultant    = $user->hasRole(UserRole::Consultant);
         $isCreatingRole  = $isSafetyOfficer || $isTeamLeader;
         $isVerifyingRole = $isHumanResource;
+        $isViewingRole   = $isAdmin;
 
         $query = Incident::with([
             'jobOrder',
@@ -28,10 +31,12 @@ class IncidentService
             'hauling.assignedPersonnel.teamDriver',
             'hauling.assignedPersonnel.safetyOfficer',
             'hauling.assignedPersonnel.teamMechanic',
+            'hauling.incidents',
         ])->orderBy('occured_at', 'desc');
 
         if (! $user->hasRole('admin')) {
-            if ($isCreatingRole && $employeeId) {
+            if ($isConsultant || $isViewingRole) {
+            } elseif ($isCreatingRole && $employeeId) {
                 $query->where(function ($q) use ($employeeId) {
                     $q->whereHas('hauling.assignedPersonnel', function ($subQuery) use ($employeeId) {
                         $subQuery->where('team_leader', $employeeId)
@@ -39,7 +44,7 @@ class IncidentService
                             ->orWhere('safety_officer', $employeeId)
                             ->orWhere('team_mechanic', $employeeId);
                     });
-                });
+                })->whereIsPrimary();
             } elseif ($isVerifyingRole) {
                 $query->whereNotIn('status', [IncidentStatus::Draft]);
             } elseif ($employeeId) {
@@ -50,7 +55,7 @@ class IncidentService
                             ->orWhere('safety_officer', $employeeId)
                             ->orWhere('team_mechanic', $employeeId);
                     });
-                });
+                })->whereIsPrimary();
             }
         }
 
@@ -132,7 +137,18 @@ class IncidentService
             }
         }
 
-        $incidentCreator = $incident->creator ?? null;
+        $incidentCreator  = $incident->creator ?? null;
+        $haulingIncidents = [];
+        if ($incident->hauling && $incident->hauling->relationLoaded('incidents')) {
+            $haulingIncidents = $incident->hauling->incidents->map(function ($inc) {
+                return [
+                    'id'         => $inc->id,
+                    'status'     => $inc->status->value,
+                    'subject'    => $inc->subject,
+                    'created_at' => $inc->created_at->toIso8601String(),
+                ];
+            })->toArray();
+        }
 
         $assignedPersonnel = [];
         if ($incident->hauling && $incident->hauling->assignedPersonnel) {
@@ -161,10 +177,12 @@ class IncidentService
             'id'        => $incident->id,
             'job_order' => $jobOrder ? [
                 'id'     => $jobOrder->id,
+                'ticket' => $jobOrder->ticket,
                 'status' => $jobOrder->status->value,
             ] : null,
             'hauling_job_order' => $haulingJobOrder ? [
-                'id' => $haulingJobOrder->id,
+                'id'     => $haulingJobOrder->id,
+                'ticket' => $haulingJobOrder->ticket,
             ] : null,
             'haulers'            => $haulers,
             'assigned_personnel' => $assignedPersonnel,
@@ -186,12 +204,44 @@ class IncidentService
                 'form3' => $incident->hauling->form3 ? [
                     'id'    => $incident->hauling->form3->id,
                     'form4' => $incident->hauling->form3->form4 ? [
-                        'id'           => $incident->hauling->form3->form4->id,
-                        'job_order_id' => $incident->hauling->form3->form4->jobOrder->id ?? null,
+                        'id'               => $incident->hauling->form3->form4->id,
+                        'job_order_id'     => $incident->hauling->form3->form4->jobOrder->id     ?? null,
+                        'job_order_ticket' => $incident->hauling->form3->form4->jobOrder->ticket ?? null,
                     ] : null,
                 ] : null,
+                'incidents' => $haulingIncidents,
             ] : null,
         ];
+    }
+
+    public function createSecondIncidentForHauling($haulingId, $user)
+    {
+        if (! $user->hasRole(UserRole::Consultant)) {
+            throw new \Exception('Only consultants can create secondary incidents');
+        }
+
+        $hauling = \App\Models\Form3Hauling::with('incidents')->findOrFail($haulingId);
+
+        $existingSecondary = $hauling->incidents->sortBy('created_at')->skip(1)->first();
+        if ($existingSecondary) {
+            throw new \Exception('A secondary incident already exists for this hauling');
+        }
+
+        $primaryIncident = $hauling->primaryIncident();
+
+        $newIncident = Incident::create([
+            'form3_hauling_id' => $haulingId,
+            'created_by'       => $user->employee_id,
+            'status'           => IncidentStatus::Draft,
+            'subject'          => 'Secondary Report - '.($primaryIncident->subject ?? 'Hauling Incident'),
+            'location'         => $primaryIncident->location        ?? 'To be determined',
+            'infraction_type'  => $primaryIncident->infraction_type ?? 'To be determined',
+            'occured_at'       => now(),
+            'description'      => $primaryIncident->description ?? 'Secondary incident report for hauling operation',
+            'is_read'          => false,
+        ]);
+
+        return $newIncident;
     }
 
     public function createIncident(array $data, $user)
@@ -211,17 +261,23 @@ class IncidentService
         });
     }
 
-    public function updateIncident(Incident $incident, array $data)
+    public function updateIncident(Incident $incident, array $data, $user = null)
     {
-        return DB::transaction(function () use ($incident, $data) {
-            $incident->update([
+        return DB::transaction(function () use ($incident, $data, $user) {
+            $updateData = [
                 'subject'         => $data['subject'],
                 'location'        => $data['location'],
                 'infraction_type' => $data['infraction_type'],
                 'occured_at'      => $data['occured_at'],
                 'description'     => $data['description'],
                 'status'          => IncidentStatus::ForVerification,
-            ]);
+            ];
+
+            if ($user && empty($incident->created_by)) {
+                $updateData['created_by'] = $user->employee_id;
+            }
+
+            $incident->update($updateData);
 
             return $incident;
         });

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import MainContainer from '@/components/MainContainer.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import UserAvatar from '@/components/UserAvatar.vue'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
-import { getInitials } from '@/composables/useInitials'
+import { usePermissions } from '@/composables/usePermissions'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { ActivityLog, BreadcrumbItem } from '@/types'
-import { router } from '@inertiajs/vue3'
+import { ActivityLog, BreadcrumbItem, SharedData, User } from '@/types'
+import { router, usePage } from '@inertiajs/vue3'
 import { format } from 'date-fns'
 import {
   Download,
@@ -63,7 +63,17 @@ const pushNewLogs = (newPayload: ActivityLog[]) => {
 
 const onExportClick = () => window.open(route('activity.export'), '__blank')
 
+const canViewAllActivityLogs = usePermissions().can('view:activity_logs')
+
+const page = usePage<SharedData>()
+
+const isAuthUser = (user?: User) => user?.id === page.props.auth.user.id
+
 const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: 'Home',
+    href: route('home'),
+  },
   {
     title: 'Activity Logs',
     href: route('activity.index'),
@@ -87,6 +97,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           </p>
         </div>
         <Button
+          v-if="canViewAllActivityLogs"
           @click="onExportClick"
           variant="outline"
         >
@@ -130,28 +141,30 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="w-full rounded-md border bg-card p-4 shadow-md">
                   <div class="flex items-start justify-between">
                     <div class="flex flex-col gap-3">
-                      <p
-                        class="text-sm font-semibold text-primary sm:text-base"
-                      >
-                        {{ item.description }}
-                      </p>
+                      <span class="flex flex-row items-center gap-2">
+                        <p
+                          v-if="isAuthUser(item.causer)"
+                          class="text-xs font-bold text-muted-foreground"
+                        >
+                          You
+                        </p>
+                        <p
+                          class="text-sm font-semibold text-primary sm:text-base"
+                        >
+                          {{ item.description }}
+                        </p>
+                      </span>
                       <div
                         class="flex items-center gap-12 text-xs text-muted-foreground"
                       >
                         <div
-                          v-if="item.causer"
+                          v-if="item.causer && canViewAllActivityLogs"
                           class="flex items-center gap-3"
                         >
-                          <Avatar class="h-8 w-8">
-                            <AvatarImage
-                              v-if="item.causer.avatar"
-                              :src="item.causer.avatar"
-                              alt="User"
-                            />
-                            <AvatarFallback>
-                              {{ getInitials(item.causer.employee.fullName) }}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar
+                            :avatar-path="item.causer.avatar"
+                            :fallback="item.causer.employee.fullName"
+                          />
                           <div class="flex flex-col leading-tight">
                             <p class="text-sm font-medium">
                               {{ item.causer.employee.fullName }}

@@ -200,6 +200,7 @@ class HomeService
         ];
 
         return JobOrder::query()
+            ->withTrashed()
             ->fromPastMonth()
             ->get()
             ->groupByServiceType()
@@ -421,11 +422,11 @@ class HomeService
                 }
 
                 if ($currentModel instanceof ITService) {
-                    //
+                    $this->applyITServiceInvolvementFilter($query, $employeeId);
                 }
 
                 if ($currentModel instanceof Form5) {
-                    //
+                    $this->applyOtherServicesInvolvementFilter($query, $employeeId);
                 }
             })
             ->select('serviceable_type')
@@ -436,9 +437,9 @@ class HomeService
             ->get()
             ->groupBy(fn (JobOrder $value) => $value->month)
             ->map(function (Collection $group, string $month) {
-                $wm  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form4)?->total;
-                $its = $group->firstWhere('serviceable_type', JobOrderServiceType::ITService)?->total;
-                $os  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form5)?->total;
+                $wm  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form4)?->total     ?? 0;
+                $its = $group->firstWhere('serviceable_type', JobOrderServiceType::ITService)?->total ?? 0;
+                $os  = $group->firstWhere('serviceable_type', JobOrderServiceType::Form5)?->total     ?? 0;
 
                 return [
                     'month'                                    => $month,
@@ -467,6 +468,16 @@ class HomeService
                         $ssubQuery->where('hauler', $employeeId);
                     });
             });
+    }
+
+    private function applyITServiceInvolvementFilter(Builder $query, int $employeeId): Builder
+    {
+        return $query->where('technician_id', $employeeId);
+    }
+
+    private function applyOtherServicesInvolvementFilter(Builder $query, int $employeeId): Builder
+    {
+        return $query->where('assigned_person', $employeeId);
     }
 
     public function getFrontlinerCreatedJobOrderStatistics(): array

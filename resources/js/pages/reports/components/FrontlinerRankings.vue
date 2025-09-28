@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { getInitials } from '@/composables/useInitials'
+import UserAvatar from '@/components/UserAvatar.vue'
 import { Employee } from '@/types'
 import { computed } from 'vue'
 
@@ -44,15 +43,11 @@ const top3Arrangement = computed(() => temp.toSpliced(1, 0, top3.value[0]))
           >
             {{ top.rank }}
           </div>
-          <Avatar
-            :src="top.employee.account?.avatar"
-            :alt="top.employee.fullName"
-            :size="index === 1 ? 'base' : 'sm'"
-          >
-            <AvatarFallback>
-              {{ getInitials(top.employee.fullName) }}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            :avatar-path="top.employee.account?.avatar"
+            :fallback="top.employee.fullName"
+            :class="[index === 1 ? 'h-16 w-16 text-2xl' : 'h-10 w-10 text-xs']"
+          />
           <div
             class="mt-2 min-h-[28px] w-[60px] truncate break-words text-center text-xs font-medium leading-tight text-muted-foreground"
           >

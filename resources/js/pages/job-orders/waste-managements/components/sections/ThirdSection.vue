@@ -188,7 +188,7 @@ const formatDisplayDate = (date?: string) => {
             for="orNumber"
             class="mt-3 w-44 shrink-0"
           >
-            OR Number
+            Sales Invoice
           </Label>
           <div class="flex w-full flex-col gap-1">
             <Input

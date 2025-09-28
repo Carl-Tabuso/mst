@@ -1,4 +1,5 @@
 import { Checkbox } from '@/components/ui/checkbox'
+import UserFullNameAndEmail from '@/components/UserFullNameAndEmail.vue'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
 import { User } from '@/types'
 import { ColumnDef } from '@tanstack/vue-table'
@@ -7,7 +8,6 @@ import { h } from 'vue'
 import DataTableHeader from './DataTableHeader.vue'
 import ForceDeleteUser from './ForceDeleteUser.vue'
 import RestoreUser from './RestoreUser.vue'
-import UserFullNameAndEmail from './UserFullNameAndEmail.vue'
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -54,8 +54,9 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: 'roles',
     meta: { label: 'Role' },
     header: ({ column }) => h(DataTableHeader, { column: column }),
-    cell: ({ row }) =>
-      h(UserRoleBadge, { roleName: row.original.roles[0].name }),
+    cell: ({ row }) => {
+      return h(UserRoleBadge, { roleName: row.original.roles[0].name })
+    },
   },
   {
     accessorKey: 'createdAt',

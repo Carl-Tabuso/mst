@@ -5,7 +5,6 @@ namespace App\Observers;
 use App\Enums\IncidentStatus;
 use App\Models\Form3Hauling;
 use App\Models\Incident;
-use Illuminate\Support\Facades\Auth;
 
 class Form3HaulingObserver
 {
@@ -15,7 +14,7 @@ class Form3HaulingObserver
 
         Incident::create([
             'form3_hauling_id' => $hauling->id,
-            'created_by'       => Auth::id() ?? 1,
+            'created_by'       => null,
             'status'           => IncidentStatus::Draft,
             'subject'          => 'Incident Report for Hauling '.$hauling->date->format('Y-m-d'),
             'location'         => 'To be determined',

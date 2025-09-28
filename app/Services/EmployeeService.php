@@ -29,6 +29,7 @@ class EmployeeService
             new SearchDetails($search),
             new FilterStatuses($filters['accountStatuses'] ?? []),
             new FilterCreatedBetween($filters['fromDateCreated'] ?? null, $filters['toDateCreated'] ?? null),
+            new FilterPositions($filters),
         ];
 
         return Pipeline::send(Employee::query())
@@ -44,7 +45,7 @@ class EmployeeService
 
     public function getArchivedEmployees(int $perPage = 10, ?string $search = '', ?array $filters = [])
     {
-        $archivedAtColumn = new Employee()->getDeletedAtColumn();
+        $archivedAtColumn = (new Employee)->getDeletedAtColumn();
 
         $pipes = [
             new FilterOnlyArchived,
@@ -62,6 +63,180 @@ class EmployeeService
                     ->withQueryString()
                     ->toResourceCollection();
             });
+    }
+
+    public function getEmployeesForRatingsExport(?array $filters = [])
+    {
+        $allowedPositions = ['Driver', 'Hauler', 'Team Leader', 'Frontliner', 'Safety Officer'];
+
+        $query = Employee::with([
+            'position',
+            'performancesAsEmployee.jobOrder',
+            'performancesAsEmployee.ratings.performanceRating',
+            'evaluatedTeamLeaders.jobOrder',
+            'evaluatedTeamLeaders.ratings.performanceRating',
+            'createdJobOrders',
+        ])->whereHas('position', fn ($q) => $q->whereIn('name', $allowedPositions));
+
+        if (! empty($filters['positions'])) {
+            $validPositions = array_intersect($filters['positions'], $allowedPositions);
+            if ($validPositions) {
+                $query->whereHas('position', fn ($q) => $q->whereIn('name', $validPositions));
+            }
+        }
+
+        $employees = $query->get();
+
+        return $employees->map(function ($employee) {
+            $position = strtolower($employee->position->name ?? '');
+
+            $performanceStats = $this->getPerformanceStatistics($employee, $position);
+
+            $jobOrderStats = $this->getEmployeeJobOrderStats($employee);
+
+            $averageRating  = $this->calculateAverageRating($employee);
+            $completionRate = $jobOrderStats['total_job_orders'] > 0
+                ? round(($jobOrderStats['completed_job_orders'] / $jobOrderStats['total_job_orders']) * 100, 2)
+                : 0;
+
+            return (object) array_merge([
+                'id'                   => $employee->id,
+                'full_name'            => $employee->full_name,
+                'position'             => $employee->position->name ?? 'Unknown',
+                'average_rating'       => $averageRating,
+                'total_ratings'        => $this->getTotalRatings($employee),
+                'has_ratings'          => $this->getTotalRatings($employee) > 0,
+                'total_job_orders'     => $jobOrderStats['total_job_orders'],
+                'completed_job_orders' => $jobOrderStats['completed_job_orders'],
+                'dropped_job_orders'   => $jobOrderStats['dropped_job_orders'],
+                'completion_rate'      => $completionRate,
+            ], $performanceStats);
+        });
+    }
+
+    private function getPerformanceStatistics($employee, $position)
+    {
+        $stats = [
+            'job_orders_created'           => 0,
+            'completed_job_orders_created' => 0,
+            'corrections_made'             => 0,
+            'total_errors'                 => 0,
+            'success_rate_created'         => 0,
+        ];
+
+        // Frontliner-specific statistics (job orders they created)
+        if ($position === 'frontliner' && $employee->createdJobOrders) {
+            $createdJobOrders = $employee->createdJobOrders;
+
+            $stats['job_orders_created']           = $createdJobOrders->count();
+            $stats['completed_job_orders_created'] = $createdJobOrders->where('status', 'completed')->count();
+
+            // Count job orders with corrections
+            $stats['corrections_made'] = $createdJobOrders->filter(function ($jobOrder) {
+                return $jobOrder->corrections && $jobOrder->corrections->count() > 0;
+            })->count();
+
+            // Sum error counts (assuming there's an error_count field)
+            $stats['total_errors'] = $createdJobOrders->sum('error_count') ?? 0;
+
+            // Calculate success rate for created job orders
+            $stats['success_rate_created'] = $stats['job_orders_created'] > 0
+                ? round(($stats['completed_job_orders_created'] / $stats['job_orders_created']) * 100, 2)
+                : 0;
+        }
+
+        return $stats;
+    }
+
+    private function getEmployeeJobOrderStats($employee)
+    {
+        $total     = 0;
+        $completed = 0;
+        $dropped   = 0;
+
+        // Count from performancesAsEmployee (when employee is being evaluated)
+        if ($employee->performancesAsEmployee) {
+            foreach ($employee->performancesAsEmployee as $performance) {
+                if ($performance->jobOrder) {
+                    $total++;
+                    if ($performance->jobOrder->status === 'completed') {
+                        $completed++;
+                    }
+                    if (in_array($performance->jobOrder->status, ['cancelled', 'dropped'])) {
+                        $dropped++;
+                    }
+                }
+            }
+        }
+
+        // Count from evaluatedTeamLeaders (when employee is evaluating others as team leader)
+        if ($employee->evaluatedTeamLeaders) {
+            foreach ($employee->evaluatedTeamLeaders as $performance) {
+                if ($performance->jobOrder) {
+                    $total++;
+                    if ($performance->jobOrder->status === 'completed') {
+                        $completed++;
+                    }
+                    if (in_array($performance->jobOrder->status, ['cancelled', 'dropped'])) {
+                        $dropped++;
+                    }
+                }
+            }
+        }
+
+        return [
+            'total_job_orders'     => $total,
+            'completed_job_orders' => $completed,
+            'dropped_job_orders'   => $dropped,
+        ];
+    }
+
+    private function calculateAverageRating($employee)
+    {
+        $ratings = collect();
+
+        // Get ratings from performancesAsEmployee (ratings received as employee)
+        if ($employee->performancesAsEmployee) {
+            foreach ($employee->performancesAsEmployee as $performance) {
+                if ($performance->ratings) {
+                    $ratings = $ratings->merge($performance->ratings->pluck('performanceRating.scale'));
+                }
+            }
+        }
+
+        // Get ratings from evaluatedTeamLeaders (ratings given as team leader)
+        if ($employee->evaluatedTeamLeaders) {
+            foreach ($employee->evaluatedTeamLeaders as $performance) {
+                if ($performance->ratings) {
+                    $ratings = $ratings->merge($performance->ratings->pluck('performanceRating.scale'));
+                }
+            }
+        }
+
+        $filteredRatings = $ratings->filter();
+
+        return $filteredRatings->count() > 0 ? round($filteredRatings->avg(), 2) : null;
+    }
+
+    private function getTotalRatings($employee)
+    {
+        $total = 0;
+
+        // Count ratings from performancesAsEmployee
+        if ($employee->performancesAsEmployee) {
+            foreach ($employee->performancesAsEmployee as $performance) {
+                $total += $performance->ratings->count();
+            }
+        }
+
+        // Count ratings from evaluatedTeamLeaders
+        if ($employee->evaluatedTeamLeaders) {
+            foreach ($employee->evaluatedTeamLeaders as $performance) {
+                $total += $performance->ratings->count();
+            }
+        }
+
+        return $total;
     }
 
     public function createEmployee(array $validated)
@@ -234,19 +409,15 @@ class EmployeeService
             ->restore();
     }
 
+    public function bulkArchiveEmployees(array $employeeIds): mixed
+    {
+        return Employee::query()
+            ->whereIn('id', $employeeIds)
+            ->delete();
+    }
+
     public function permanentlyDeleteEmployee(Employee $employee): ?bool
     {
         return $employee->forceDelete();
-    }
-
-    public function getEmployeesForDropdown()
-    {
-        return Employee::select('id', 'first_name', 'last_name')
-            ->orderBy('last_name')
-            ->get()
-            ->map(fn ($employee) => [
-                'id'   => $employee->id,
-                'name' => "{$employee->first_name} {$employee->last_name}",
-            ]);
     }
 }

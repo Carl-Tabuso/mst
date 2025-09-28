@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\IncidentStatus;
+use App\Enums\UserRole;
 use App\Http\Requests\ArchiveIncidentsRequest;
 use App\Http\Requests\StoreIncidentRequest;
 use App\Http\Requests\UpdateIncidentRequest;
 use App\Models\Incident;
 use App\Services\IncidentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class IncidentController extends Controller
@@ -32,10 +34,26 @@ class IncidentController extends Controller
         return Inertia::render('incident-report/index', [
             'incidents' => $incidents,
             'filters'   => $request->only(['search', 'statuses', 'dateFrom', 'dateTo', 'tab']),
-            'auth'      => [
-                'user' => $request->user()->load('employee.position'),
-            ],
+
         ]);
+    }
+
+    public function createSecondary($haulingId)
+    {
+        $user = Auth::user();
+
+        if (! $user->hasRole(UserRole::Consultant)) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $newIncident = $this->incidentService->createSecondIncidentForHauling($haulingId, $user);
+
+            return redirect()->route('incident-report.edit', $newIncident->id)
+                ->with('success', 'Secondary incident created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     public function archive(ArchiveIncidentsRequest $request)
@@ -59,10 +77,11 @@ class IncidentController extends Controller
         }
 
         $incident->update([
-            'status'       => 'no incident',
+            'status'       => IncidentStatus::NoIncident,
             'subject'      => 'No Incident Reported',
             'description'  => 'This incident has been reviewed and marked as no incident.',
             'completed_at' => now(),
+            'created_by'   => Auth::id(),
         ]);
 
         return redirect()->back()->with('success', 'Marked as no incident.');
@@ -70,7 +89,7 @@ class IncidentController extends Controller
 
     public function verify(Incident $incident)
     {
-        $incident->update(['status' => 'verified']);
+        $incident->update(['status' => IncidentStatus::Verified]);
 
         return redirect()->back()->with('success', 'Incident verified successfully');
     }
@@ -94,7 +113,7 @@ class IncidentController extends Controller
             return back()->with('error', 'Only draft incidents can be updated');
         }
 
-        $this->incidentService->updateIncident($incident, $request->validated());
+        $this->incidentService->updateIncident($incident, $request->validated(), $request->user());
 
         return redirect()->route('incidents.index')->with('success', 'Incident updated successfully');
     }

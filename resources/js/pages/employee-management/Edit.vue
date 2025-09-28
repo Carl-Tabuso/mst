@@ -19,54 +19,18 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { useForm, usePage } from '@inertiajs/vue3'
-import { CheckCircle2, LoaderCircle, Pencil, X } from 'lucide-vue-next'
+import { Employee, Position } from '@/types'
+import { useForm } from '@inertiajs/vue3'
+import {
+  CheckCircle2,
+  Circle,
+  CircleDashed,
+  LoaderCircle,
+  Pencil,
+  X,
+} from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
-
-interface Position {
-  id: number
-  name: string
-}
-
-interface Employee {
-  id: number
-  firstName: string
-  middleName?: string
-  lastName: string
-  suffix?: string
-  dateOfBirth?: string
-  email?: string
-  contactNumber?: string
-  positionId: number
-  position?: Position
-  region?: string
-  province?: string
-  city?: string
-  zipCode?: string
-  detailedAddress?: string
-  emergencyContact?: {
-    lastName: string
-    firstName: string
-    middleName?: string
-    suffix?: string
-    contactNumber: string
-    relation: string
-  }
-  employmentDetails?: {
-    sssNumber?: string
-    philhealthNumber?: string
-    pagibigNumber?: string
-    tin?: string
-    dateHired?: string
-    regularizationDate?: string
-    endOfContract?: string
-  }
-  compensation?: {
-    salary?: number
-    allowance?: number
-  }
-}
 
 interface Props {
   employee: Employee
@@ -75,7 +39,14 @@ interface Props {
 
 const props = defineProps<Props>()
 const isEditing = ref(false)
-const page = usePage()
+
+const openAccordions = ref<string[]>([
+  'employee-info',
+  'address',
+  'emergency',
+  'employment',
+  'compensation',
+])
 
 const extractDate = (datetime: string | undefined): string => {
   if (!datetime) return ''
@@ -162,7 +133,49 @@ const toggleEdit = () => {
   }
 }
 
+const validateForm = () => {
+  form.clearErrors()
+
+  const requiredFields = {
+    lastName: 'Last name is required',
+    firstName: 'First name is required',
+    dateOfBirth: 'Date of birth is required',
+    email: 'Email is required',
+    contactNumber: 'Contact number is required',
+    positionId: 'Position is required',
+    region: 'Region is required',
+    province: 'Province is required',
+    city: 'City is required',
+    zipCode: 'Zip code is required',
+    detailedAddress: 'Detailed address is required',
+    emergencyLastName: 'Emergency last name is required',
+    emergencyFirstName: 'Emergency first name is required',
+    emergencyContactNumber: 'Emergency contact number is required',
+    emergencyRelation: 'Relation is required',
+    dateHired: 'Date hired is required',
+    salary: 'Salary is required',
+    allowance: 'Allowance is required',
+  }
+
+  const errors: Record<string, string> = {}
+
+  Object.entries(requiredFields).forEach(([field, message]) => {
+    if (!form[field as keyof typeof form]) {
+      errors[field] = message
+    }
+  })
+
+  if (Object.keys(errors).length > 0) {
+    form.setError(errors)
+    return false
+  }
+
+  return true
+}
+
 const onSubmit = () => {
+  if (!validateForm()) return
+
   form.put(route('employee-management.update', props.employee.id), {
     onSuccess: () => {
       isEditing.value = false
@@ -203,14 +216,59 @@ const isEmergencyComplete = computed(
 
 const isEmploymentComplete = computed(() => form.dateHired)
 const isCompensationComplete = computed(() => form.salary && form.allowance)
+
+const getSectionIcon = (section: string) => {
+  if (section === 'employee-info' && isEmployeeInfoComplete.value) {
+    return CheckCircle2
+  }
+  if (section === 'address' && isAddressComplete.value) {
+    return CheckCircle2
+  }
+  if (section === 'emergency' && isEmergencyComplete.value) {
+    return CheckCircle2
+  }
+  if (section === 'employment' && isEmploymentComplete.value) {
+    return CheckCircle2
+  }
+  if (section === 'compensation' && isCompensationComplete.value) {
+    return CheckCircle2
+  }
+
+  return openAccordions.value.includes(section) ? Circle : CircleDashed
+}
+
+const getIconColor = (section: string) => {
+  if (section === 'employee-info' && isEmployeeInfoComplete.value) {
+    return 'text-green-500'
+  }
+  if (section === 'address' && isAddressComplete.value) {
+    return 'text-green-500'
+  }
+  if (section === 'emergency' && isEmergencyComplete.value) {
+    return 'text-green-500'
+  }
+  if (section === 'employment' && isEmploymentComplete.value) {
+    return 'text-green-500'
+  }
+  if (section === 'compensation' && isCompensationComplete.value) {
+    return 'text-green-500'
+  }
+
+  return openAccordions.value.includes(section)
+    ? 'text-sky-900'
+    : 'text-primary'
+}
 </script>
 
 <template>
+  <Head :title="String(employee.lastName).concat(' | Employee')" />
   <AppLayout>
-    <div class="mx-auto max-w-5xl space-y-8 px-6 py-10">
+    <div class="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold">Employee Details</h1>
+          <h1 class="text-3xl font-bold tracking-tight text-primary">
+            {{ isEditing ? 'Edit Employee' : 'Employee Details' }}
+          </h1>
           <p class="text-muted-foreground">
             {{
               isEditing ? 'Edit employee information' : 'View employee details'
@@ -251,404 +309,456 @@ const isCompensationComplete = computed(() => form.salary && form.allowance)
 
       <form
         @submit.prevent="onSubmit"
-        class="space-y-8"
+        class="w-full space-y-8"
       >
-        <Accordion
-          type="multiple"
-          :default-value="[
-            'employee-info',
-            'address',
-            'emergence',
-            'employment',
-            'compensation',
-          ]"
-          class="divide-y divide-border rounded-lg border border-border bg-zinc-50"
-        >
-          <AccordionItem
-            value="employee-info"
-            class="px-6 py-4"
+        <div class="w-full min-w-full">
+          <Accordion
+            type="multiple"
+            v-model="openAccordions"
+            class="w-full min-w-full divide-y divide-border rounded-lg border border-border bg-zinc-50 dark:bg-zinc-800"
           >
-            <AccordionTrigger class="py-2">
-              <span class="flex items-center gap-2 text-lg font-semibold">
-                <CheckCircle2
-                  v-if="isEmployeeInfoComplete"
-                  class="h-5 w-5 shrink-0 text-green-500"
-                />
-                Employee Information
-              </span>
-            </AccordionTrigger>
-            <AccordionContent class="space-y-6 pt-4">
-              <div class="grid grid-cols-4 gap-4">
-                <div>
-                  <Label for="lastName"
-                    >Last Name <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="lastName"
-                    v-model="form.lastName"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.lastName" />
-                </div>
-                <div>
-                  <Label for="firstName"
-                    >First Name <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="firstName"
-                    v-model="form.firstName"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.firstName" />
-                </div>
-                <div>
-                  <Label for="middleName">Middle Name</Label>
-                  <Input
-                    id="middleName"
-                    v-model="form.middleName"
-                    :disabled="!isEditing"
-                  />
-                </div>
-                <div>
-                  <Label for="suffix">Suffix</Label>
-                  <Input
-                    id="suffix"
-                    v-model="form.suffix"
-                    :disabled="!isEditing"
-                  />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-4 gap-4">
-                <div>
-                  <Label for="dateOfBirth"
-                    >Date of Birth <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="dateOfBirth"
-                    type="date"
-                    v-model="form.dateOfBirth"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.dateOfBirth" />
-                </div>
-                <div>
-                  <Label for="email"
-                    >Email <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="email"
-                    type="email"
-                    v-model="form.email"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.email" />
-                </div>
-                <div>
-                  <Label for="contactNumber"
-                    >Contact Number <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="contactNumber"
-                    v-model="form.contactNumber"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.contactNumber" />
-                </div>
-                <div>
-                  <Label for="positionId"
-                    >Position <span class="text-red-500">*</span></Label
-                  >
-                  <Select
-                    v-model="form.positionId"
-                    :disabled="!isEditing"
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select position" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        v-for="position in positions"
-                        :key="position.id"
-                        :value="position.id"
-                      >
-                        {{ position.name }}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <InputError :message="form.errors.positionId" />
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem
-            value="address"
-            class="px-6 py-4"
-          >
-            <AccordionTrigger class="py-2">
-              <span class="flex items-center gap-2 text-lg font-semibold">
-                <CheckCircle2
-                  v-if="isAddressComplete"
-                  class="h-5 w-5 shrink-0 text-green-500"
-                />
-                Address
-              </span>
-            </AccordionTrigger>
-            <AccordionContent class="space-y-6 pt-4">
-              <div class="grid grid-cols-4 gap-4">
-                <div>
-                  <Label>Region <span class="text-red-500">*</span></Label>
-                  <Input
-                    v-model="form.region"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.region" />
-                </div>
-                <div>
-                  <Label>Province <span class="text-red-500">*</span></Label>
-                  <Input
-                    v-model="form.province"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.province" />
-                </div>
-                <div>
-                  <Label>City <span class="text-red-500">*</span></Label>
-                  <Input
-                    v-model="form.city"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.city" />
-                </div>
-                <div>
-                  <Label>Zip Code <span class="text-red-500">*</span></Label>
-                  <Input
-                    v-model="form.zipCode"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.zipCode" />
-                </div>
-              </div>
-              <div>
-                <Label
-                  >Detailed Address <span class="text-red-500">*</span></Label
+            <AccordionItem
+              value="employee-info"
+              class="w-full min-w-full px-4 py-4 sm:px-6"
+            >
+              <AccordionTrigger class="w-full py-2">
+                <span
+                  class="flex w-full items-center gap-2 text-sm font-bold text-primary"
                 >
-                <Textarea
-                  v-model="form.detailedAddress"
-                  :disabled="!isEditing"
-                />
-                <InputError :message="form.errors.detailedAddress" />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+                  <component
+                    :is="getSectionIcon('employee-info')"
+                    class="h-5 w-5 shrink-0"
+                    :class="getIconColor('employee-info')"
+                  />
+                  Employee Information
+                </span>
+              </AccordionTrigger>
+              <AccordionContent class="w-full space-y-6 pt-4">
+                <div
+                  class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  <div class="w-full">
+                    <Label for="lastName"
+                      >Last Name <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      id="lastName"
+                      v-model="form.lastName"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.lastName" />
+                  </div>
+                  <div class="w-full">
+                    <Label for="firstName"
+                      >First Name <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      id="firstName"
+                      v-model="form.firstName"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.firstName" />
+                  </div>
+                  <div class="w-full">
+                    <Label for="middleName">Middle Name</Label>
+                    <Input
+                      id="middleName"
+                      v-model="form.middleName"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                  <div class="w-full">
+                    <Label for="suffix">Suffix</Label>
+                    <Input
+                      id="suffix"
+                      v-model="form.suffix"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                </div>
 
-          <AccordionItem
-            value="emergency"
-            class="px-6 py-4"
-          >
-            <AccordionTrigger class="py-2">
-              <span class="flex items-center gap-2 text-lg font-semibold">
-                <CheckCircle2
-                  v-if="isEmergencyComplete"
-                  class="h-5 w-5 shrink-0 text-green-500"
-                />
-                Emergency Contact Person
-              </span>
-            </AccordionTrigger>
-            <AccordionContent class="space-y-6 pt-4">
-              <div class="grid grid-cols-4 gap-4">
-                <div>
-                  <Label>Last Name <span class="text-red-500">*</span></Label>
-                  <Input
-                    v-model="form.emergencyLastName"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.emergencyLastName" />
+                <div
+                  class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  <div class="w-full">
+                    <Label for="dateOfBirth"
+                      >Date of Birth <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      v-model="form.dateOfBirth"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.dateOfBirth" />
+                  </div>
+                  <div class="w-full">
+                    <Label for="email"
+                      >Email <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      id="email"
+                      type="email"
+                      v-model="form.email"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.email" />
+                  </div>
+                  <div class="w-full">
+                    <Label for="contactNumber"
+                      >Contact Number <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      id="contactNumber"
+                      v-model="form.contactNumber"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.contactNumber" />
+                  </div>
+                  <div class="w-full">
+                    <Label for="positionId"
+                      >Position <span class="text-red-500">*</span></Label
+                    >
+                    <Select
+                      v-model="form.positionId"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    >
+                      <SelectTrigger class="w-full">
+                        <SelectValue placeholder="Select position" />
+                      </SelectTrigger>
+                      <SelectContent class="w-full">
+                        <SelectItem
+                          v-for="position in positions"
+                          :key="position.id"
+                          :value="position.id"
+                          class="w-full"
+                        >
+                          {{ position.name }}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <InputError :message="form.errors.positionId" />
+                  </div>
                 </div>
-                <div>
-                  <Label>First Name <span class="text-red-500">*</span></Label>
-                  <Input
-                    v-model="form.emergencyFirstName"
-                    :disabled="!isEditing"
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem
+              value="address"
+              class="w-full min-w-full px-4 py-4 sm:px-6"
+            >
+              <AccordionTrigger class="w-full py-2">
+                <span
+                  class="flex items-center gap-2 text-sm font-bold text-primary"
+                >
+                  <component
+                    :is="getSectionIcon('address')"
+                    class="h-5 w-5 shrink-0"
+                    :class="getIconColor('address')"
                   />
-                  <InputError :message="form.errors.emergencyFirstName" />
+                  Address
+                </span>
+              </AccordionTrigger>
+              <AccordionContent class="w-full space-y-6 pt-4">
+                <div
+                  class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  <div class="w-full">
+                    <Label>Region <span class="text-red-500">*</span></Label>
+                    <Input
+                      v-model="form.region"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.region" />
+                  </div>
+                  <div class="w-full">
+                    <Label>Province <span class="text-red-500">*</span></Label>
+                    <Input
+                      v-model="form.province"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.province" />
+                  </div>
+                  <div class="w-full">
+                    <Label>City <span class="text-red-500">*</span></Label>
+                    <Input
+                      v-model="form.city"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.city" />
+                  </div>
+                  <div class="w-full">
+                    <Label>Zip Code <span class="text-red-500">*</span></Label>
+                    <Input
+                      v-model="form.zipCode"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.zipCode" />
+                  </div>
                 </div>
-                <div>
-                  <Label>Middle Name</Label>
-                  <Input
-                    v-model="form.emergencyMiddleName"
-                    :disabled="!isEditing"
-                  />
-                </div>
-                <div>
-                  <Label>Suffix</Label>
-                  <Input
-                    v-model="form.emergencySuffix"
-                    :disabled="!isEditing"
-                  />
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
+                <div class="w-full">
                   <Label
-                    >Contact Number <span class="text-red-500">*</span></Label
+                    >Detailed Address <span class="text-red-500">*</span></Label
                   >
-                  <Input
-                    v-model="form.emergencyContactNumber"
+                  <Textarea
+                    v-model="form.detailedAddress"
+                    class="w-full"
                     :disabled="!isEditing"
                   />
-                  <InputError :message="form.errors.emergencyContactNumber" />
+                  <InputError :message="form.errors.detailedAddress" />
                 </div>
-                <div>
-                  <Label>Relation <span class="text-red-500">*</span></Label>
-                  <Input
-                    v-model="form.emergencyRelation"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.emergencyRelation" />
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+              </AccordionContent>
+            </AccordionItem>
 
-          <AccordionItem
-            value="employment"
-            class="px-6 py-4"
-          >
-            <AccordionTrigger class="py-2">
-              <span class="flex items-center gap-2 text-lg font-semibold">
-                <CheckCircle2
-                  v-if="isEmploymentComplete"
-                  class="h-5 w-5 shrink-0 text-green-500"
-                />
-                Employment Details
-              </span>
-            </AccordionTrigger>
-            <AccordionContent class="space-y-6 pt-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>SSS Number</Label>
-                  <Input
-                    v-model="form.sssNumber"
-                    :disabled="!isEditing"
+            <AccordionItem
+              value="emergency"
+              class="w-full min-w-full px-4 py-4 sm:px-6"
+            >
+              <AccordionTrigger class="w-full py-2">
+                <span
+                  class="flex items-center gap-2 text-sm font-bold text-primary"
+                >
+                  <component
+                    :is="getSectionIcon('emergency')"
+                    class="h-5 w-5 shrink-0"
+                    :class="getIconColor('emergency')"
                   />
-                  <InputError :message="form.errors.sssNumber" />
+                  Emergency Contact Person
+                </span>
+              </AccordionTrigger>
+              <AccordionContent class="w-full space-y-6 pt-4">
+                <div
+                  class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  <div class="w-full">
+                    <Label>Last Name <span class="text-red-500">*</span></Label>
+                    <Input
+                      v-model="form.emergencyLastName"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.emergencyLastName" />
+                  </div>
+                  <div class="w-full">
+                    <Label
+                      >First Name <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      v-model="form.emergencyFirstName"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.emergencyFirstName" />
+                  </div>
+                  <div class="w-full">
+                    <Label>Middle Name</Label>
+                    <Input
+                      v-model="form.emergencyMiddleName"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                  <div class="w-full">
+                    <Label>Suffix</Label>
+                    <Input
+                      v-model="form.emergencySuffix"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>Pag-IBIG Number</Label>
-                  <Input
-                    v-model="form.pagibigNumber"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.pagibigNumber" />
+                <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+                  <div class="w-full">
+                    <Label
+                      >Contact Number <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      v-model="form.emergencyContactNumber"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.emergencyContactNumber" />
+                  </div>
+                  <div class="w-full">
+                    <Label>Relation <span class="text-red-500">*</span></Label>
+                    <Input
+                      v-model="form.emergencyRelation"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.emergencyRelation" />
+                  </div>
                 </div>
-                <div>
-                  <Label>PhilHealth Number</Label>
-                  <Input
-                    v-model="form.philhealthNumber"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.philhealthNumber" />
-                </div>
-                <div>
-                  <Label>TIN</Label>
-                  <Input
-                    v-model="form.tin"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.tin" />
-                </div>
-              </div>
+              </AccordionContent>
+            </AccordionItem>
 
-              <Separator />
+            <AccordionItem
+              value="employment"
+              class="w-full min-w-full px-4 py-4 sm:px-6"
+            >
+              <AccordionTrigger class="w-full py-2">
+                <span
+                  class="flex items-center gap-2 text-sm font-bold text-primary"
+                >
+                  <component
+                    :is="getSectionIcon('employment')"
+                    class="h-5 w-5 shrink-0"
+                    :class="getIconColor('employment')"
+                  />
+                  Employment Details
+                </span>
+              </AccordionTrigger>
+              <AccordionContent class="w-full space-y-6 pt-4">
+                <div
+                  class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  <div class="w-full md:col-span-2">
+                    <Label>SSS Number</Label>
+                    <Input
+                      v-model="form.sssNumber"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                  <div class="w-full md:col-span-2">
+                    <Label>Pag-IBIG Number</Label>
+                    <Input
+                      v-model="form.pagibigNumber"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                  <div class="w-full md:col-span-2">
+                    <Label>PhilHealth Number</Label>
+                    <Input
+                      v-model="form.philhealthNumber"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                  <div class="w-full md:col-span-2">
+                    <Label>TIN</Label>
+                    <Input
+                      v-model="form.tin"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                </div>
 
-              <div class="grid grid-cols-3 gap-4">
-                <div>
-                  <Label>Date Hired <span class="text-red-500">*</span></Label>
-                  <Input
-                    type="date"
-                    v-model="form.dateHired"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.dateHired" />
-                </div>
-                <div>
-                  <Label>Regularization Date</Label>
-                  <Input
-                    type="date"
-                    v-model="form.regularizationDate"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.regularizationDate" />
-                </div>
-                <div>
-                  <Label>End of Contract</Label>
-                  <Input
-                    type="date"
-                    v-model="form.endOfContract"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.endOfContract" />
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+                <Separator class="w-full" />
 
-          <AccordionItem
-            value="compensation"
-            class="px-6 py-4"
-          >
-            <AccordionTrigger class="py-2">
-              <span class="flex items-center gap-2 text-lg font-semibold">
-                <CheckCircle2
-                  v-if="isCompensationComplete"
-                  class="h-5 w-5 shrink-0 text-green-500"
-                />
-                Compensation
-              </span>
-            </AccordionTrigger>
-            <AccordionContent class="space-y-6 pt-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Salary <span class="text-red-500">*</span></Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    v-model="form.salary"
-                    :disabled="!isEditing"
-                  />
-                  <InputError :message="form.errors.salary" />
+                <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+                  <div class="w-full">
+                    <Label
+                      >Date Hired <span class="text-red-500">*</span></Label
+                    >
+                    <Input
+                      type="date"
+                      v-model="form.dateHired"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.dateHired" />
+                  </div>
+                  <div class="w-full">
+                    <Label>Regularization Date</Label>
+                    <Input
+                      type="date"
+                      v-model="form.regularizationDate"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                  <div class="w-full">
+                    <Label>End of Contract</Label>
+                    <Input
+                      type="date"
+                      v-model="form.endOfContract"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>Allowance <span class="text-red-500">*</span></Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    v-model="form.allowance"
-                    :disabled="!isEditing"
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem
+              value="compensation"
+              class="w-full min-w-full px-4 py-4 sm:px-6"
+            >
+              <AccordionTrigger class="w-full py-2">
+                <span
+                  class="flex items-center gap-2 text-sm font-bold text-primary"
+                >
+                  <component
+                    :is="getSectionIcon('compensation')"
+                    class="h-5 w-5 shrink-0"
+                    :class="getIconColor('compensation')"
                   />
-                  <InputError :message="form.errors.allowance" />
+                  Compensation
+                </span>
+              </AccordionTrigger>
+              <AccordionContent class="w-full space-y-6 pt-4">
+                <div
+                  class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  <div class="w-full md:col-span-2">
+                    <Label>Salary <span class="text-red-500">*</span></Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      v-model="form.salary"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.salary" />
+                  </div>
+                  <div class="w-full md:col-span-2">
+                    <Label>Allowance <span class="text-red-500">*</span></Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      v-model="form.allowance"
+                      class="w-full"
+                      :disabled="!isEditing"
+                    />
+                    <InputError :message="form.errors.allowance" />
+                  </div>
                 </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
 
         <div
           v-if="isEditing"
-          class="flex justify-end space-x-3"
+          class="flex w-full flex-col justify-end gap-3 sm:flex-row sm:space-x-3"
         >
           <Button
             type="button"
             variant="outline"
             @click="toggleEdit"
+            class="w-full sm:w-auto"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             :disabled="form.processing"
+            class="w-full sm:w-auto"
           >
             <LoaderCircle
               v-show="form.processing"

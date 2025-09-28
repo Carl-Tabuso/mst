@@ -14,6 +14,7 @@ use App\Filters\JobOrder\SearchDetails;
 use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\JobOrderResource;
 use App\Models\Employee;
+use App\Models\Form3;
 use App\Models\Form3AssignedPersonnel;
 use App\Models\Form3Hauling;
 use App\Models\Form3HaulingChecklist;
@@ -65,22 +66,22 @@ class WasteManagementService
     public function getWasteManagementData(JobOrder $ticket): JobOrderResource
     {
         $loads = $ticket->load([
-            'creator'     => ['account:avatar'],
+            'creator'     => ['account'],
             'cancel',
             'corrections',
             'serviceable' => [
-                'dispatcher' => ['account:avatar'],
-                'appraisers' => ['account:avatar'],
+                'dispatcher' => ['account'],
+                'appraisers' => ['account'],
                 'form3'      => [
                     'haulings' => [
                         'checklist',
                         'truck',
-                        'haulers'           => ['account:avatar'],
+                        'haulers'           => ['account'],
                         'assignedPersonnel' => [
-                            'teamLeader'    => ['account:avatar'],
-                            'teamDriver'    => ['account:avatar'],
-                            'safetyOfficer' => ['account:avatar'],
-                            'teamMechanic'  => ['account:avatar'],
+                            'teamLeader'    => ['account'],
+                            'teamDriver'    => ['account'],
+                            'safetyOfficer' => ['account'],
+                            'teamMechanic'  => ['account'],
                         ],
                     ],
                 ],
@@ -98,7 +99,7 @@ class WasteManagementService
     public function getEmployeesMappedByAccountRole(): Collection
     {
         return Employee::query()
-            ->with('account')
+            ->with('account.roles')
             ->has('account')
             ->get()
             ->groupBy(fn (Employee $employee) => $employee->account->getRoleNames()->first())
@@ -114,27 +115,37 @@ class WasteManagementService
         $status = JobOrderStatus::from($validated['status']);
 
         return match ($status) {
-            JobOrderStatus::ForAppraisal => $this->handleForAppraisal($form4, $validated),
             JobOrderStatus::Successful   => $this->handleSuccessful($form4, $validated),
             JobOrderStatus::PreHauling   => $this->handlePrehauling($form4, $validated),
             JobOrderStatus::InProgress   => $this->handleInProgress($form4, $validated),
         };
     }
 
-    private function handleForAppraisal(Form4 $form4, array $data): string
+    public function handleForAppraisal(Form4 $form4, array $data): string
     {
         DB::transaction(function () use ($form4, $data) {
+            $this->updateOrCreateAppraisalInformation($form4, $data);
+
             $form4->update(['form_dispatcher' => $data['user']->id]);
 
-            $form4->form3()->create(['appraised_date' => Carbon::parse($data['appraised_date'])]);
-
             $form4->jobOrder()->update(['status' => JobOrderStatus::ForViewing]);
-
-            $appraisers = array_map(fn ($appraiser) => $appraiser['id'], $data['appraisers']);
-            $form4->appraisers()->sync($appraisers);
         });
 
         return JobOrderStatus::ForViewing->value;
+    }
+
+    public function updateOrCreateAppraisalInformation(Form4 $form4, array $data): void
+    {
+        DB::transaction(function () use ($form4, $data) {
+            Form3::updateOrCreate(
+                ['form4_id' => $form4->id],
+                ['appraised_date' => Carbon::parse($data['appraised_date'])],
+            );
+
+            $appraisers = array_map(fn ($appraiser) => $appraiser['id'], $data['appraisers']);
+
+            $form4->appraisers()->sync($appraisers);
+        });
     }
 
     private function handleSuccessful(Form4 $form4, array $data): string

@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use App\Enums\UserRole;
-use App\Models\Form3Hauling;
 use App\Models\EmployeeRating;
+use App\Models\Form3Hauling;
 use App\Models\User;
 use App\Observers\Form3HaulingObserver;
 use App\Policies\ActivityLogPolicy;
@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
             'job_order'             => 'App\Models\JobOrder',
             'initial_onsite_report' => 'App\Models\InitialOnsiteReport',
             'final_onsite_report'   => 'App\Models\FinalOnsiteReport',
-            'employee_rating' => 'App\Models\EmployeeRating',
+            'employee_rating'       => 'App\Models\EmployeeRating',
         ]);
 
         JsonResource::withoutWrapping();

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem } from '@/types'
 import Incident from '../../components/incident-report/components/Incident.vue'
-import MainContainer from '@/components/MainContainer.vue'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -11,38 +11,26 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
   {
     title: 'Incident Report',
-    href: '/incident-report',
+    href: '/incidents',
   },
 ]
 </script>
 
 <template>
+  <Head title="Incident Reports" />
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
-    <div class="container">
-      <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-3xl text-primary font-bold tracking-tight">
-          Incident Report
-        </h1>
+      <div class="container">
+        <div class="mb-6 flex items-center justify-between">
+          <h1 class="text-3xl font-bold tracking-tight text-primary">
+            Incident Report
+          </h1>
+        </div>
 
-      </div>
-
-      <div class="md:hidden">
-        <!-- Mobile view placeholder -->
-        <div class="rounded-lg border bg-background p-4">
-          <p class="text-sm text-muted-foreground">
-            Incident reporting is optimized for desktop view. Please switch to a
-            larger screen.
-          </p>
+        <div>
+          <Incident :nav-collapsed-size="4" />
         </div>
       </div>
-
-      <div class="hidden flex-col md:flex">
-        <Incident
-          :nav-collapsed-size="4"
-        />
-      </div>
-    </div>
     </MainContainer>
   </AppLayout>
 </template>

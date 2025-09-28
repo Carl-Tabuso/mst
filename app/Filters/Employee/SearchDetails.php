@@ -17,16 +17,9 @@ class SearchDetails
 
         $query->where(function (Builder $subQuery) {
             $subQuery
-                ->whereAny([
-                    'first_name',
-                    'middle_name',
-                    'last_name',
-                    'suffix',
-                    'email',
-                    'contact_number',
-                ], 'like', "%{$this->search}%")
-                ->orWhereHas('position', fn (Builder $ssubQuery) => $ssubQuery->whereLike('name', "%{$this->search}%"))
-                ->orWhereRaw("concat_ws(' ', first_name, middle_name, last_name, suffix) like ?", "%{$this->search}%");
+                ->whereAny(['email', 'contact_number'], 'like', "%{$this->search}%")
+                ->orWhere(fn (Builder $ssubQuery) => $ssubQuery->searchName($this->search))
+                ->orWhereHas('position', fn (Builder $ssubQuery) => $ssubQuery->whereLike('name', "%{$this->search}%"));
         });
 
         return $next($query);

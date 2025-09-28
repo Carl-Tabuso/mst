@@ -35,12 +35,12 @@ const headerSubTitle = computed(() => {
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Job Orders',
-    href: '/job-orders',
+    title: 'Job Order Corrections',
+    href: route('job_order.correction.index'),
   },
   {
-    title: 'Corrections',
-    href: '/job-orders/corrections',
+    title: 'List',
+    href: route('job_order.correction.index'),
   },
 ]
 </script>

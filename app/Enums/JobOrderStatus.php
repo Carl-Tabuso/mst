@@ -70,6 +70,7 @@ enum JobOrderStatus: string
             self::Failed,
             self::ForVerification,
             self::Closed,
+            self::Completed,
         ];
     }
 
@@ -90,6 +91,16 @@ enum JobOrderStatus: string
         return [
             self::ForCheckup,
             self::ForFinalService,
+            self::Completed,
+        ];
+    }
+
+    public static function getCannotChangeAppraisalInformation(): array
+    {
+        return [
+            self::Failed,
+            self::Dropped,
+            self::Closed,
             self::Completed,
         ];
     }

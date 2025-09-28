@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Link } from '@inertiajs/vue3'
-import { Clock } from 'lucide-vue-next'
+import { Clock, FileCheck2 } from 'lucide-vue-next'
 import { AwaitingCorrectionReviewsCard } from '..'
 
 interface AwaitingCorrectionReviewsProps {
@@ -34,6 +34,7 @@ defineProps<AwaitingCorrectionReviewsProps>()
     <Separator />
     <CardContent class="my-2 h-[375px] divide-y divide-border overflow-y-auto">
       <div
+        v-if="data?.length"
         v-for="correction in data"
         :key="correction.ticket"
         class="flex flex-col gap-1 px-1 py-3"
@@ -59,6 +60,20 @@ defineProps<AwaitingCorrectionReviewsProps>()
           </span>
           <span class="truncate font-medium">{{ correction.requestedBy }}</span>
         </div>
+      </div>
+      <div
+        v-else
+        class="flex h-full flex-col items-center justify-center gap-6 p-6 font-medium text-muted-foreground"
+      >
+        <div class="rounded-full bg-muted p-5 text-muted-foreground">
+          <FileCheck2 class="size-20 stroke-1" />
+        </div>
+        <span class="flex flex-col items-center gap-1">
+          <h4 class="text-xl font-bold">Smooth Sailing!</h4>
+          <p class="text-center text-[13px] leading-5">
+            There are no correction requests pending review.
+          </p>
+        </span>
       </div>
     </CardContent>
   </Card>

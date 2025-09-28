@@ -21,7 +21,7 @@ class ArchivedUserController extends Controller
 
         $filters = $request->input('filters', []);
 
-        $data = $this->userService->getAllUsers($perPage, $search, $filters, true);
+        $data = $this->userService->getArchivedUsers($perPage, $search, $filters);
 
         return Inertia::render('archives/users/Index', compact('data'));
     }

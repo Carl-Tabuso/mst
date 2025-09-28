@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { getInitials } from '@/composables/useInitials'
 import { Employee } from '@/types'
 import { Check } from 'lucide-vue-next'
+import UserAvatar from './UserAvatar.vue'
 
 interface EmployeePopoverSelectionProps {
   employee: Employee
@@ -26,16 +25,10 @@ withDefaults(defineProps<EmployeePopoverSelectionProps>(), {
     >
       <Check class="h-4 w-4" />
     </div>
-    <Avatar class="h-7 w-7 overflow-hidden rounded-full">
-      <AvatarImage
-        v-if="employee?.account?.avatar"
-        :src="employee?.account?.avatar"
-        :alt="employee.fullName"
-      />
-      <AvatarFallback class="rounded-full">
-        {{ getInitials(employee.fullName) }}
-      </AvatarFallback>
-    </Avatar>
+    <UserAvatar
+      :avatar-path="employee?.account?.avatar"
+      :fallback="employee.fullName"
+    />
     <div class="grid flex-1 text-left text-[13px] leading-tight">
       <span class="truncate">
         {{ employee.fullName }}

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { getInitials } from '@/composables/useInitials'
 import { JobOrder } from '@/types'
 import { Row } from '@tanstack/vue-table'
 import { formatDistanceToNow } from 'date-fns'
+import UserAvatar from './UserAvatar.vue'
 
 interface CreatorAndTimestampProps {
   row: Row<JobOrder>
@@ -15,16 +14,11 @@ defineProps<CreatorAndTimestampProps>()
 <template>
   <div>
     <div class="flex items-center gap-2">
-      <Avatar class="h-9 w-9 shrink-0 rounded-full">
-        <AvatarImage
-          v-if="row.original.creator.account?.avatar"
-          :src="row.original.creator.account.avatar"
-          :alt="row.original.creator.fullName"
-        />
-        <AvatarFallback>
-          {{ getInitials(row.original.creator.fullName) }}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        :avatar-path="row.original.creator?.account?.avatar"
+        :fallback="row.original.creator.fullName"
+        class="size-9"
+      />
       <div>
         <div class="text-xs font-medium">
           {{ row.original.creator?.fullName }}

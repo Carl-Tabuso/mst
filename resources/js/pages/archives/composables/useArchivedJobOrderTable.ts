@@ -1,3 +1,4 @@
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { JobOrder } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { parseDate } from '@internationalized/date'
@@ -31,7 +32,7 @@ const dataTable = {
     pageSize: urlParams.per_page ? Number(urlParams.per_page) : 10,
   }),
   globalFilter: ref<string | number>(urlParams.search ?? ''),
-  statuses: ref<string[]>(urlParams?.filters?.statuses ?? []),
+  statuses: ref<JobOrderStatus[]>(urlParams?.filters?.statuses ?? []),
   dateOfServiceRange: ref({
     start: urlParams?.filters?.fromDateOfService
       ? parseDate(urlParams.filters.fromDateOfService)
@@ -73,7 +74,7 @@ export function useArchivedJobOrderTable() {
     500,
   )
 
-  const onStatusSelect = (status: string, selected: boolean) => {
+  const onStatusSelect = (status: JobOrderStatus, selected: boolean) => {
     const statuses = dataTable.statuses.value
     if (selected && !statuses.includes(status)) {
       statuses.push(status)

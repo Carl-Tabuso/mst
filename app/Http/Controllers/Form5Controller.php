@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
+use App\Enums\UserRole;
 use App\Http\Requests\StoreForm5Request;
 use App\Http\Requests\UpdateForm5Request;
+use App\Models\Employee;
 use App\Models\Form5;
 use App\Models\JobOrder;
-use App\Services\EmployeeService;
 use App\Services\Form5Service;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +18,7 @@ use Inertia\Response;
 
 class Form5Controller extends Controller
 {
-    public function __construct(private Form5Service $service, private EmployeeService $employeeService) {}
+    public function __construct(private Form5Service $service) {}
 
     public function index(Request $request): Response
     {
@@ -53,7 +55,11 @@ class Form5Controller extends Controller
     public function edit(JobOrder $ticket): Response
     {
         $data      = $this->service->getForm5Data($ticket);
-        $employees = $this->employeeService->getEmployeesForDropdown();
+        $employees = Employee::query()
+            ->with('account.roles')
+            ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Regular))
+            ->get()
+            ->toResourceCollection();
 
         return Inertia::render('job-orders/other-services/Edit', [
             'data'      => $data,

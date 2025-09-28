@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exports;
 
 use Carbon\Carbon;
@@ -15,19 +16,16 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EmployeeHistoryRatingsExport implements
-FromCollection,
-WithHeadings,
-WithMapping,
-WithStyles,
-WithTitle,
-ShouldAutoSize,
-WithCustomStartCell
+class EmployeeHistoryRatingsExport implements FromCollection, ShouldAutoSize, WithCustomStartCell, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $employee;
+
     protected $ratings;
+
     protected $filters;
+
     protected $totalRecords;
+
     protected $originalTotalRecords;
 
     public function __construct($employee, Collection $ratings, $filters = [])
@@ -85,6 +83,7 @@ WithCustomStartCell
     {
         $currentYear = now()->format('y');
         $paddedId    = str_pad($jobOrderId, 7, '0', STR_PAD_LEFT);
+
         return "JO-{$currentYear}{$paddedId}";
     }
 
@@ -157,7 +156,7 @@ WithCustomStartCell
                 ],
             ],
 
-            'A7:G' . $lastDataRow => [
+            'A7:G'.$lastDataRow => [
                 'borders'   => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -202,7 +201,7 @@ WithCustomStartCell
 
         if ($this->filters['scale_from'] !== null || $this->filters['scale_to'] !== null) {
             $from          = $this->filters['scale_from'] ?? 'Min';
-            $to            = $this->filters['scale_to'] ?? 'Max';
+            $to            = $this->filters['scale_to']   ?? 'Max';
             $filterParts[] = "Rating Range: {$from} - {$to}";
         }
 
@@ -223,12 +222,12 @@ WithCustomStartCell
                 'scale_asc'  => 'Rating (Low to High)',
                 'scale_desc' => 'Rating (High to Low)',
             ];
-            $filterParts[] = 'Sort: ' . ($sortMap[$this->filters['sort']] ?? $this->filters['sort']);
+            $filterParts[] = 'Sort: '.($sortMap[$this->filters['sort']] ?? $this->filters['sort']);
         }
 
         return empty($filterParts)
             ? 'Filters: All Records'
-            : 'Applied Filters: ' . implode(' | ', $filterParts);
+            : 'Applied Filters: '.implode(' | ', $filterParts);
     }
 
     private function generateSummaryInfo()
@@ -245,9 +244,9 @@ WithCustomStartCell
     private function getOriginalTotalCount()
     {
         return $this->employee->performancesAsEmployee
-            ->filter(fn($perf) => $perf->deleted_at === null)
-            ->flatMap(fn($perf) => $perf->ratings)
-            ->filter(fn($rating) => $rating->performanceRating?->scale !== null)
+            ->filter(fn ($perf) => $perf->deleted_at === null)
+            ->flatMap(fn ($perf) => $perf->ratings)
+            ->filter(fn ($rating) => $rating->performanceRating?->scale !== null)
             ->count();
     }
 

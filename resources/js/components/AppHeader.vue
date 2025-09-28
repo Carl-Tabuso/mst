@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue'
 import AppLogoIcon from '@/components/AppLogoIcon.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -22,14 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import UserMenuContent from '@/components/UserMenuContent.vue'
-import { getInitials } from '@/composables/useInitials'
 import { usePermissions } from '@/composables/usePermissions'
 import { UserRoleType } from '@/constants/user-role'
 import { SharedData, type BreadcrumbItem, type NavItem } from '@/types'
@@ -44,14 +36,15 @@ import {
   History,
   Home,
   Menu,
-  Pencil,
   Star,
   Truck,
   UserRoundCog,
   UsersRound,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
+import Breadcrumbs from './Breadcrumbs.vue'
 import DarkModeToggle from './DarkModeToggle.vue'
+import UserAvatar from './UserAvatar.vue'
 
 interface Props {
   breadcrumbs?: BreadcrumbItem[]
@@ -81,9 +74,11 @@ const archiveRoutes: Partial<Record<UserRoleType, string>> = {
 }
 
 const archiveUrl = computed(() => {
-  return Object.entries(archiveRoutes).find((role) => {
-    return role[0] === auth.value.user.roles[0].name
-  })?.[1] ?? '#'
+  return (
+    Object.entries(archiveRoutes).find((role) => {
+      return role[0] === auth.value.user.roles[0].name
+    })?.[1] ?? '#'
+  )
 })
 
 const canAccessPerformanceMonitoring = computed(() => {
@@ -92,7 +87,7 @@ const canAccessPerformanceMonitoring = computed(() => {
 
 const canAccessPerformanceRating = computed(() => {
   return canAny({
-    roles: ['team leader', 'regular']
+    roles: ['team leader', 'regular'],
   })
 })
 
@@ -160,30 +155,17 @@ const mainNavItems: NavItem[] = [
     icon: Archive,
   },
   {
-    title: 'Activity Logs',
-    href: '/activities',
-    icon: History,
-    can: can('view:activity_logs'),
-  },
-  {
     title: 'Truck Inventory',
     href: '/trucks',
     icon: Truck,
     can: can('assign:hauling_personnel'),
   },
-]
-
-const rightNavItems: NavItem[] = [
-  // {
-  //   title: 'Repository',
-  //   href: 'https://github.com/laravel/vue-starter-kit',
-  //   icon: Folder,
-  // },
-  // {
-  //   title: 'Documentation',
-  //   href: 'https://laravel.com/docs/starter-kits',
-  //   icon: BookOpen,
-  // },
+  {
+    title: 'Activity Logs',
+    href: '/activities',
+    icon: History,
+    can: true,
+  },
 ]
 </script>
 
@@ -195,18 +177,32 @@ const rightNavItems: NavItem[] = [
         <div class="lg:hidden">
           <Sheet>
             <SheetTrigger :as-child="true">
-              <Button variant="ghost" size="icon" class="mr-2 h-9 w-9">
+              <Button
+                variant="ghost"
+                size="icon"
+                class="mr-2 h-9 w-9"
+              >
                 <Menu class="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" class="w-[300px] p-6">
+            <SheetContent
+              side="left"
+              class="w-[300px] p-6"
+            >
               <SheetTitle class="sr-only">Navigation Menu</SheetTitle>
               <SheetHeader class="flex justify-start text-left">
-                <AppLogoIcon class="size-6 fill-current text-black dark:text-white" />
+                <AppLogoIcon
+                  class="size-6 fill-current text-black dark:text-white"
+                />
               </SheetHeader>
-              <div class="flex h-full flex-1 flex-col justify-between space-y-4 py-6">
+              <div
+                class="flex h-full flex-1 flex-col justify-between space-y-4 py-6"
+              >
                 <nav class="-mx-3 space-y-1">
-                  <template v-for="item in mainNavItems" :key="item.title">
+                  <template
+                    v-for="item in mainNavItems"
+                    :key="item.title"
+                  >
                     <Link
                       v-if="item.can"
                       :href="item.href"
@@ -219,41 +215,47 @@ const rightNavItems: NavItem[] = [
                         class="h-5 w-5"
                       />
                       {{ item.title }}
-                    </Link>                    
+                    </Link>
                   </template>
                 </nav>
-                <div class="flex flex-col space-y-4">
-                  <a v-for="item in rightNavItems" :key="item.title" :href="item.href" target="_blank"
-                    rel="noopener noreferrer" class="flex items-center space-x-2 text-sm font-medium">
-                    <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
-                    <span>{{ item.title }}</span>
-                  </a>
-                </div>
               </div>
             </SheetContent>
           </Sheet>
         </div>
 
-        <Link :href="route('home')" class="flex items-center gap-x-2">
-        <AppLogo />
+        <Link
+          :href="route('home')"
+          class="flex items-center gap-x-2"
+        >
+          <AppLogo />
         </Link>
 
         <!-- Desktop Menu -->
         <div class="hidden h-full lg:flex lg:flex-1">
           <NavigationMenu class="ml-10 flex h-full items-stretch">
             <NavigationMenuList class="flex h-full items-stretch">
-              <template v-for="(item, index) in mainNavItems" :key="index">
-                <NavigationMenuItem v-if="item?.can" class="relative flex h-full items-center">
+              <template
+                v-for="(item, index) in mainNavItems"
+                :key="index"
+              >
+                <NavigationMenuItem
+                  v-if="item?.can"
+                  class="relative flex h-full items-center"
+                >
                   <Link :href="item.href">
-                  <NavigationMenuLink :class="[
+                    <NavigationMenuLink
+                      :class="[
                         navigationMenuTriggerStyle(),
                         activeItemStyles(item.href),
-]">
-                    {{ item.title }}
-                  </NavigationMenuLink>
+                      ]"
+                    >
+                      {{ item.title }}
+                    </NavigationMenuLink>
                   </Link>
-                  <div v-if="isCurrentRoute(item.href)"
-                    class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary" />
+                  <div
+                    v-if="isCurrentRoute(item.href)"
+                    class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary"
+                  />
                 </NavigationMenuItem>
               </template>
             </NavigationMenuList>
@@ -262,66 +264,46 @@ const rightNavItems: NavItem[] = [
 
         <div class="ml-auto flex items-center space-x-2">
           <div class="relative flex items-center space-x-1">
-            <!-- <Button
-              variant="ghost"
-              size="icon"
-              class="group h-9 w-9 cursor-pointer"
-            >
-              <Search class="size-5 opacity-80 group-hover:opacity-100" />
-            </Button> -->
             <DarkModeToggle />
-
-            <div class="hidden space-x-1 lg:flex">
-              <template v-for="item in rightNavItems" :key="item.title">
-                <TooltipProvider :delay-duration="0">
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Button variant="ghost" size="icon" as-child class="group h-9 w-9 cursor-pointer">
-                        <a :href="item.href" target="_blank" rel="noopener noreferrer">
-                          <span class="sr-only">{{ item.title }}</span>
-                          <component :is="item.icon" class="size-5 opacity-80 group-hover:opacity-100" />
-                        </a>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{{ item.title }}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </template>
-            </div>
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger :as-child="true">
-              <Button variant="ghost" size="icon"
-                class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary">
-                <Avatar class="size-8 overflow-hidden rounded-full">
-                  <AvatarImage v-if="auth.user.avatar" :src="`/storage/${auth.user.avatar}`"
-                    :alt="auth.user.employee?.full_name || 'User Avatar'" />
-                  <AvatarFallback class="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                    {{ getInitials(auth.user.employee?.full_name || auth.user.email) }}
-                  </AvatarFallback>
-                </Avatar>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
+              >
+                <UserAvatar
+                  :avatar-path="auth.user.avatar"
+                  :fallback="auth.user.employee.full_name"
+                  class="size-8"
+                />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" class="w-56">
+            <DropdownMenuContent
+              align="end"
+              class="w-56"
+            >
               <UserMenuContent :user="auth.user" />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
     </div>
-
-    <!-- <div
-      v-if="props.breadcrumbs.length > 1"
+    <div
+      v-if="breadcrumbs.length > 1"
       class="flex w-full"
     >
       <div
-        class="mx-auto flex h-12 w-full items-center justify-start px-6 text-neutral-500 md:max-w-7xl"
+        class="mx-auto flex h-12 w-full items-center justify-start px-6 text-muted-foreground md:max-w-7xl"
       >
         <Breadcrumbs :breadcrumbs="breadcrumbs" />
       </div>
-    </div> -->
+    </div>
+    <div
+      v-else
+      class="mb-3"
+    />
   </div>
 </template>

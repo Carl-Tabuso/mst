@@ -21,7 +21,11 @@ const { canCorrectProposalInformation } = useCorrections()
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Job Order Corrections',
-    href: '/job-orders/corrections',
+    href: route('job_order.correction.index'),
+  },
+  {
+    title: 'List',
+    href: route('job_order.correction.index'),
   },
   {
     title: props.data.jobOrder.ticket,

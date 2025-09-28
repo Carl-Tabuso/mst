@@ -4,14 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Collections\UserCollection;
+use App\Notifications\VerifyEmailWithPassword;
 use App\Policies\UserPolicy;
 use Illuminate\Database\Eloquent\Attributes\CollectedBy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -39,6 +42,18 @@ class User extends Authenticatable
     ];
 
     protected $guard_name = 'web';
+
+    protected function avatar(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value) => $value ? Storage::url($value) : null
+        );
+    }
+
+    public function sendEmailVerificationNotificationWithPassword($password)
+    {
+        $this->notify(new VerifyEmailWithPassword($password));
+    }
 
     public function employee(): BelongsTo
     {

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useIncidentStatus } from '@/composables/useIncidentStatus'
 import { cn } from '@/lib/utils'
 import type { Incident } from '@/types/incident'
 import { format } from 'date-fns'
 import { Clock } from 'lucide-vue-next'
 import { computed } from 'vue'
-
 interface IncidentListProps {
   items: Incident[]
   searchQuery?: string
@@ -18,22 +18,16 @@ interface IncidentListProps {
   onMarkAsRead?: (id: string) => Promise<void>
 }
 
+const { getStatusDisplay } = useIncidentStatus()
 const emit = defineEmits(['itemClick'])
 const props = defineProps<IncidentListProps>()
-const selectedIncident = defineModel<string | number>('selectedIncident', { required: false })
-const selectedIncidents = defineModel<Array<string | number>>('selectedIncidents', { default: [] })
-
-
-const getStatusBadgeVariant = (status: string) => {
-  const statusMap: Record<string, string> = {
-    'for verification': 'tertiary',
-    'verified': 'default',
-    'pending': 'secondary',
-    'draft': 'outline',
-    'no_incident': 'secondary',
-  }
-  return statusMap[status.toLowerCase()] || 'outline'
-}
+const selectedIncident = defineModel<string | number>('selectedIncident', {
+  required: false,
+})
+const selectedIncidents = defineModel<Array<string | number>>(
+  'selectedIncidents',
+  { default: [] },
+)
 
 const filteredItems = computed(() => {
   let result = [...props.items]
@@ -60,7 +54,7 @@ const filteredItems = computed(() => {
 
   if (props.selectedStatuses?.length) {
     result = result.filter((item) =>
-      props.selectedStatuses.includes(item.status),
+      (props.selectedStatuses ?? []).includes(item.status),
     )
   }
 
@@ -185,11 +179,8 @@ const handleItemClick = (itemId: string) => {
                 format(new Date(item.occured_at), "MMMM d, yyyy 'at' hh:mmaaa")
               }}
 
-              <Badge
-                v-if="item.status"
-                :variant="getStatusBadgeVariant(item.status)"
-              >
-                {{ item.status }}
+              <Badge v-if="item.status">
+                {{ getStatusDisplay(item.status).label }}
               </Badge>
             </div>
           </div>

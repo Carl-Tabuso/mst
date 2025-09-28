@@ -7,7 +7,9 @@ export const useProfile = (props: EnhancedProfileProps) => {
   )
 
   const showJobOrders = computed(() =>
-    ['team leader', 'hauler', 'driver', 'safety officer'].includes(positionName.value),
+    ['team leader', 'hauler', 'driver', 'safety officer'].includes(
+      positionName.value,
+    ),
   )
 
   const showITServices = computed(() =>
@@ -15,18 +17,15 @@ export const useProfile = (props: EnhancedProfileProps) => {
   )
 
   const showPerformance = computed(() =>
-    [
-      'frontliner',
-      'head frontliner',
-    ].includes(positionName.value),
+    ['frontliner', 'head frontliner'].includes(positionName.value),
   )
 
-  const showTeamLeaderStats = computed(() =>
-    positionName.value === 'team leader'
+  const showTeamLeaderStats = computed(
+    () => positionName.value === 'team leader',
   )
 
-  const showFrontlinerContent = computed(() =>
-    positionName.value === 'frontliner' || 'head frontliner'
+  const showFrontlinerContent = computed(
+    () => positionName.value === 'frontliner' || 'head frontliner',
   )
 
   const showJobOrdersCreated = computed(() =>

@@ -26,7 +26,7 @@ export interface Incident {
   status: string
   created_by: Employee
   involved_employees: Employee[]
-  haulers: Employee[] // Only haulers now
+  haulers: Employee[]
   hauling_job_order?: JobOrder
   labels?: string[]
   hauling?: any
@@ -36,7 +36,7 @@ export interface IncidentProps {
   defaultLayout?: number[]
   defaultCollapsed?: boolean
   navCollapsedSize: number
-  isEditing?: boolean 
+  isEditing?: boolean
 }
 
 export interface IncidentListProps {
@@ -68,6 +68,7 @@ export interface FormData {
   infractionType: string
   description: string
   jobOrder: number | null
+  jobOrderTicket?: ''
 }
 
 export interface IncidentDisplayProps {

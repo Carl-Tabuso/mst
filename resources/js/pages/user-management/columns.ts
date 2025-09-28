@@ -1,72 +1,82 @@
-import DataTableColumnHeader from '@/components/tasks/components/DataTableColumnHeader.vue'
-import DataTableRowActions from '@/components/tasks/components/DataTableRowActions.vue'
-import { Badge } from '@/components/ui/badge'
-import { User } from '@/types/user'
-import type { ColumnDef } from '@tanstack/vue-table'
+import UserActions from '@/components/user-management/UserDataTableRowActions.vue'
+import UserFullNameAndEmail from '@/components/UserFullNameAndEmail.vue'
+import UserRoleBadge from '@/components/UserRoleBadge.vue'
+import { User } from '@/types'
+import { ColumnDef } from '@tanstack/vue-table'
+import { format } from 'date-fns'
 import { h } from 'vue'
+import DataTableHeader from './components/DataTableHeader.vue'
 
 export const columns: ColumnDef<User>[] = [
   {
-    accessorKey: 'employee.full_name',
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: 'Name' }),
-    cell: ({ row }) => {
-      const name = row.original.employee?.full_name || 'N/A'
-      return h('div', { class: 'font-medium' }, name)
-    },
+    id: 'user',
+    meta: { label: 'User' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => h(UserFullNameAndEmail, { user: row.original }),
+    enableHiding: false,
   },
   {
-    accessorKey: 'email',
-    header: ({ column }) =>
-      h(DataTableColumnHeader, { column, title: 'Email' }),
-  },
-  {
-    accessorKey: 'created_at',
-    header: ({ column }) =>
-      h(DataTableColumnHeader, { column, title: 'Created At' }),
+    accessorKey: 'emailVerifiedAt',
+    meta: { label: 'Date Verified' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
     cell: ({ row }) => {
-      const date = row.original.created_at
-        ? new Date(row.original.created_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        : 'N/A'
-      return h('div', date)
-    },
-  },
-  {
-    id: 'status',
-    header: ({ column }) =>
-      h(DataTableColumnHeader, { column, title: 'Status' }),
-    cell: ({ row }) => {
-      // Determine status based on deleted_at
-      const status = row.original.deleted_at ? 'inactive' : 'active'
+      const emailVerifiedAt: string = row.getValue('emailVerifiedAt')
 
-      return h(
-        Badge,
-        {
-          variant: 'outline',
-          class: [
-            status === 'active'
-              ? 'bg-green-100 text-green-800 border-green-200'
-              : '',
-            status === 'inactive'
-              ? 'bg-red-100 text-red-800 border-red-200'
-              : '',
-          ],
-        },
-        status.charAt(0).toUpperCase() + status.slice(1),
-      )
-    },
-    filterFn: (row, id, value) => {
-      const status = row.original.deleted_at ? 'inactive' : 'active'
-      return value.includes(status)
+      if (!emailVerifiedAt) {
+        return h(
+          'div',
+          { class: 'font-medium text-xs text-muted-foreground' },
+          'Not verified yet',
+        )
+      }
+
+      const dateVerified = new Date(emailVerifiedAt)
+      const formattedDate = format(dateVerified, 'MMMM dd, yyyy')
+      const formattedTime = format(dateVerified, 'hh:mm a')
+
+      return h('div', { class: 'text-xs' }, [
+        h('div', { class: 'font-medium' }, formattedDate),
+        h('div', { class: 'text-[11px] text-muted-foreground' }, formattedTime),
+      ])
     },
   },
   {
-    id: 'actions',
-    cell: ({ row }) => h(DataTableRowActions, { row }),
+    accessorKey: 'roles',
+    meta: { label: 'Role' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const roles = row.original.roles
+      if (!roles || roles.length === 0) {
+        return h('div', { class: 'text-xs text-muted-foreground' }, 'No role')
+      }
+      return h(UserRoleBadge, { roleName: roles[0].name })
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    meta: { label: 'Date Created' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      const createdAt = new Date(row.getValue('createdAt'))
+      const formattedDate = format(createdAt, 'MMMM dd, yyyy')
+      const formattedTime = format(createdAt, 'hh:mm a')
+
+      return h('div', { class: 'text-xs' }, [
+        h('div', { class: 'font-medium' }, formattedDate),
+        h('div', { class: 'text-[11px] text-muted-foreground' }, formattedTime),
+      ])
+    },
+  },
+  {
+    id: 'Action',
+    meta: { label: 'Actions' },
+    header: ({ column }) => h(DataTableHeader, { column: column }),
+    cell: ({ row }) => {
+      try {
+        return h(UserActions, { user: row.original })
+      } catch {
+        return h('div', { class: 'text-xs text-muted-foreground' }, 'N/A')
+      }
+    },
   },
 ]

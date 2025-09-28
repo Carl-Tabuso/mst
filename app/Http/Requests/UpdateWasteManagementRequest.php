@@ -15,14 +15,11 @@ class UpdateWasteManagementRequest extends FormRequest
 
     public function rules(): array
     {
-        $isForAppraisal = $this->isOfStatus(JobOrderStatus::ForAppraisal);
-        $isSuccessful   = $this->isOfStatus(JobOrderStatus::Successful);
-        $isPreHauling   = $this->isOfStatus(JobOrderStatus::PreHauling);
+        $isSuccessful = $this->isOfStatus(JobOrderStatus::Successful);
+        $isPreHauling = $this->isOfStatus(JobOrderStatus::PreHauling);
 
         return [
             'status'         => ['required', 'string', Rule::in(JobOrderStatus::cases())],
-            'appraisers'     => [Rule::requiredIf($isForAppraisal), 'array'],
-            'appraised_date' => [Rule::requiredIf($isForAppraisal), 'date', 'before_or_equal:'.today()->endOfDay()],
             'payment_date'   => [Rule::requiredIf($isSuccessful), 'date', 'before_or_equal:'.today()->endOfDay()],
             'bid_bond'       => [Rule::requiredIf($isSuccessful), 'integer'],
             'or_number'      => [Rule::requiredIf($isSuccessful), 'string'],
@@ -31,11 +28,6 @@ class UpdateWasteManagementRequest extends FormRequest
             'from'           => [Rule::requiredIf($isPreHauling), 'date', 'after_or_equal:'.today()->startOfDay()],
             'to'             => [Rule::requiredIf($isPreHauling), 'date', 'after_or_equal:from'],
             'haulings'       => ['nullable', 'array'],
-            // 'team_leader'    => ['nullable'],
-            // 'team_driver'    => ['nullable'],
-            // 'safety_officer' => ['nullable'],
-            // 'team_mechanic'  => ['nullable'],
-            // 'haulers'        => ['nullable', 'array', 'max:12'],
         ];
     }
 

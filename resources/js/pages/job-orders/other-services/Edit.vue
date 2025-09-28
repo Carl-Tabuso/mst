@@ -6,7 +6,13 @@ import { usePermissions } from '@/composables/usePermissions'
 import { type JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ArchiveColumn from '@/pages/job-orders/components/ArchiveJobOrder.vue'
-import { Employee, JobOrder, SharedData, type BreadcrumbItem } from '@/types'
+import {
+  Employee,
+  Form5,
+  JobOrder,
+  SharedData,
+  type BreadcrumbItem,
+} from '@/types'
 import { useForm, usePage } from '@inertiajs/vue3'
 import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
@@ -14,7 +20,7 @@ import { toast } from 'vue-sonner'
 import TicketHeader from '../components/TicketHeader.vue'
 import Form5Section from '../other-services/components/Form5Section.vue'
 import FirstSection from '../waste-managements/components/sections/FirstSection.vue'
-import StatusUpdater from '../waste-managements/components/StatusUpdater.vue'
+import StatusUpdater from './components/StatusUpdater.vue'
 
 interface Form5EditProps {
   data: {
@@ -32,6 +38,17 @@ const employees = computed(() => props.employees || [])
 const isEditing = ref<boolean>(false)
 const reason = ref<string>('')
 
+const isForm5Serviceable = (serviceable: any): serviceable is Form5 => {
+  return serviceable && 'purpose' in serviceable && 'items' in serviceable
+}
+
+const form5Serviceable = computed(() => {
+  if (isForm5Serviceable(props.data.jobOrder.serviceable)) {
+    return props.data.jobOrder.serviceable
+  }
+  return null
+})
+
 const form = useForm<Record<string, any>>({
   date_time: serviceDate.toISOString(),
   time: serviceDate.toLocaleTimeString(undefined, {
@@ -45,13 +62,15 @@ const form = useForm<Record<string, any>>({
   contact_position: props.data.jobOrder.contactPosition,
   contact_person: props.data.jobOrder.contactPerson,
   contact_no: props.data.jobOrder.contactNo,
-  assigned_person: props.data.jobOrder.serviceable?.assigned_person || null,
-  purpose: props.data.jobOrder.serviceable?.purpose || '',
-  items: props.data.jobOrder.serviceable?.items || [],
+  assigned_person: form5Serviceable.value?.assigned_person || null,
+  purpose: form5Serviceable.value?.purpose || '',
+  items: form5Serviceable.value?.items || [],
 })
 
 const assignedPersonId = computed(() => {
-  const assignedPerson = props.data.jobOrder.serviceable?.assigned_person
+  if (!form5Serviceable.value) return null
+
+  const assignedPerson = form5Serviceable.value.assigned_person
   if (!assignedPerson) return null
 
   return typeof assignedPerson === 'string'
@@ -73,8 +92,8 @@ const resetFormToOriginal = () => {
   form.contact_person = props.data.jobOrder.contactPerson
   form.contact_no = props.data.jobOrder.contactNo
   form.assigned_person = assignedPersonId.value
-  form.purpose = props.data.jobOrder.serviceable?.purpose || ''
-  form.items = props.data.jobOrder.serviceable?.items || []
+  form.purpose = form5Serviceable.value?.purpose || ''
+  form.items = form5Serviceable.value?.items || []
   reason.value = ''
 }
 
@@ -107,9 +126,17 @@ const onSubmitCorrection = () => {
         })
       },
       onError: (errors) => {
-        toast.error('Please check the form for errors', {
-          position: 'top-right',
-        })
+        if (Object.keys(errors).length > 0) {
+          Object.values(errors).forEach((error) => {
+            toast.error(error, {
+              position: 'top-right',
+            })
+          })
+        } else {
+          toast.error('Please check the form for errors', {
+            position: 'top-right',
+          })
+        }
       },
     })
 }
@@ -235,11 +262,10 @@ const toggleEditMode = () => {
         <div class="mb-3 flex items-center">
           <div class="flex w-full flex-col">
             <form class="grid gap-y-6">
-              <!-- First Section (Basic Info) -->
               <FirstSection
                 :is-editing="isEditing && can('update:job_order')"
                 :is-service-type-disabled="true"
-                v-model:service-type="data.jobOrder.serviceableType"
+                :service-type="data.jobOrder.serviceableType"
                 v-model:service-date="form.date_time"
                 v-model:service-time="form.time"
                 v-model:client="form.client"
@@ -250,8 +276,7 @@ const toggleEditMode = () => {
                 v-model:contact-number="form.contact_no"
               />
 
-              <!-- Form5 Section -->
-              <div v-if="data.jobOrder.serviceable">
+              <div v-if="form5Serviceable">
                 <Separator class="mb-3 w-full" />
                 <Form5Section
                   :is-editing="isEditing && can('update:job_order')"
@@ -263,7 +288,6 @@ const toggleEditMode = () => {
                 />
               </div>
 
-              <!-- Correction Reason (only shown when editing) -->
               <div v-if="isEditing">
                 <Separator class="col-[1/-1] mb-3 w-full" />
                 <div
@@ -288,7 +312,6 @@ const toggleEditMode = () => {
                 </div>
               </div>
 
-              <!-- Submit Button (only shown when editing) -->
               <div
                 v-if="isEditing && can('update:job_order')"
                 class="col-[1/-1] mt-4 flex w-full items-center"

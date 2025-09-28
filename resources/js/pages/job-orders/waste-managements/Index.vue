@@ -12,7 +12,6 @@ interface IndexProps {
     data: JobOrder[]
     meta: EloquentCollection
   }
-  emptySearchImg: string
 }
 
 defineProps<IndexProps>()
@@ -44,7 +43,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           :columns="columns"
           :data="data.data"
           :meta="data.meta"
-          :empty-img-uri="emptySearchImg"
         />
       </div>
     </MainContainer>

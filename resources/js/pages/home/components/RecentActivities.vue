@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import UserAvatar from '@/components/UserAvatar.vue'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
-import { getInitials } from '@/composables/useInitials'
 import { Link } from '@inertiajs/vue3'
 import { RecentActivities } from '..'
 
@@ -37,19 +36,11 @@ defineProps<RecentActivitiesProps>()
         class="py-3"
       >
         <div class="flex items-start gap-3">
-          <Avatar
-            v-if="activity.causer"
-            class="h-8 w-8 flex-shrink-0"
-          >
-            <AvatarImage
-              v-if="activity.causer.employee?.account?.avatar"
-              :src="activity.causer.employee.account.avatar"
-              :alt="activity.causer.employee.fullName"
-            />
-            <AvatarFallback>
-              {{ getInitials(activity.causer.employee.fullName) }}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            :avatar-path="activity.causer.avatar"
+            :fallback="activity.causer.employee.fullName"
+            class="size-8"
+          />
           <div class="flex-1">
             <div class="flex items-start justify-between gap-2">
               <div
