@@ -12,7 +12,7 @@ class HumanResourceSeeder extends Seeder
     {
         Employee::factory()
             ->create([
-                'position_id' => Position::firstWhere(['name' => 'Human Resource'])->id
+                'position_id' => Position::firstWhere(['name' => 'Human Resource'])->id,
             ]);
     }
 }
