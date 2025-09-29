@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import PageHeader from '@/components/user-management/PageHeader.vue'
 import UserCreationModal from '@/components/user-management/UserCreationModal.vue'
 import UserDataTable from '@/components/user-management/UserDataTable.vue'
@@ -25,8 +26,12 @@ const props = defineProps<IndexProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
+    title: 'Home',
+    href: route('home'),
+  },
+  {
     title: 'Users',
-    href: '/users',
+    href: route('users.index'),
   },
 ]
 
@@ -46,7 +51,7 @@ const closeCreateModal = () => {
   <Head title="Users" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
         <PageHeader
           title="Users"
@@ -61,12 +66,11 @@ const closeCreateModal = () => {
           :routeName="'users.index'"
         />
       </div>
-    </div>
-
-    <UserCreationModal
-      :open="isCreateModalOpen"
-      :employees="props.employees"
-      @close="closeCreateModal"
-    />
+      <UserCreationModal
+        :open="isCreateModalOpen"
+        :employees="props.employees"
+        @close="closeCreateModal"
+      />
+    </MainContainer>
   </AppLayout>
 </template>
