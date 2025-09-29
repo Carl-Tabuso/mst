@@ -52,6 +52,8 @@ const { can } = usePermissions()
 
 const isAuthorize = computed(() => can('assign:hauling_personnel'))
 
+const canManageIncidentReports = computed(() => can('manage:incident_reports'))
+
 const trackedHaulings = ref<Form3Hauling[]>(props.haulings)
 
 watch(
@@ -190,7 +192,10 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
             { 'bg-muted': isToday(new Date(hauling.date)) },
           ]"
         >
-          <div class="flex-none pl-2">
+          <div
+            v-if="canManageIncidentReports"
+            class="flex-none pl-2"
+          >
             <Tooltip>
               <TooltipTrigger as-child>
                 <Link
