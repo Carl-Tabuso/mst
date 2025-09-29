@@ -33,7 +33,7 @@ class IncidentController extends Controller
 
         return Inertia::render('incident-report/index', [
             'incidents' => $incidents,
-            'filters'   => $request->only(['search', 'statuses', 'dateFrom', 'dateTo', 'tab']),
+            'filters'   => $request->only(['search', 'statuses', 'dateFrom', 'dateTo', 'hauling_id']),
 
         ]);
     }
