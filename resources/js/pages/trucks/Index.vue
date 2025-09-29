@@ -44,6 +44,10 @@ watch(
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
+    title: 'Home',
+    href: route('home'),
+  },
+  {
     title: 'Truck Inventory',
     href: route('truck.index'),
   },
