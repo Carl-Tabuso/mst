@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { type BreadcrumbItem, EloquentCollection, Employee } from '@/types'
 import { columns } from './components/columns'
@@ -20,14 +21,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     title: 'Employees',
     href: '/employees',
   },
+  {
+    title: 'List',
+    href: '/employees',
+  },
 ]
 </script>
 
 <template>
   <Head title="Employees" />
-
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto mb-6 mt-3 w-full max-w-screen-xl px-6">
+    <MainContainer>
       <div class="flex h-full flex-1 flex-col gap-4 rounded-xl">
         <PageHeader
           title="Employees"
@@ -41,6 +45,6 @@ const breadcrumbs: BreadcrumbItem[] = [
           :routeName="'employee-management.index'"
         />
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

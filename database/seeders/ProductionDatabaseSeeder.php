@@ -11,8 +11,7 @@ class ProductionDatabaseSeeder extends Seeder
     public function run(): void
     {
         Storage::disk('public')->deleteDirectory('avatars');
-        Storage::disk('local')->deleteDirectory('it_services/reports');
-        Storage::disk('local')->deleteDirectory('it_services/temp');
+        Storage::disk('local')->deleteDirectory('it_services');
 
         DB::transaction(function () {
             $this->call([
