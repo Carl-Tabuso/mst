@@ -40,6 +40,8 @@ class AppServiceProvider extends ServiceProvider
             'initial_onsite_report' => 'App\Models\InitialOnsiteReport',
             'final_onsite_report'   => 'App\Models\FinalOnsiteReport',
             'employee_rating'       => 'App\Models\EmployeeRating',
+            'truck'                 => 'App\Models\Truck',
+            'job_order_correction'  => 'App\Models\JobOrderCorrection',
         ]);
 
         JsonResource::withoutWrapping();

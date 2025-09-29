@@ -17,4 +17,12 @@ return [
             'batch'  => ':causer restored :ticket_count job order tickets.',
         ],
     ],
+    'truck' => [
+        'created' => ':causer added a new truck.',
+        'updated' => ':causer updated a truck information.',
+    ],
+    'correction' => [
+        'created' => ':causer request a ticket correction.',
+        'updated' => ':causer updated the status of a ticket correction.',
+    ],
 ];

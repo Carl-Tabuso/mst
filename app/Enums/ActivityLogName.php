@@ -10,6 +10,8 @@ enum ActivityLogName: string
     case ITService                    = 'it_service';
     case TicketBatchArchive           = 'ticket_batch_archive';
     case TicketCorrectionBatchArchive = 'ticket_correction_batch_archive';
+    case Truck                        = 'truck';
+    case TicketCorrection             = 'ticket_correction';
 
     public function getLabel(): string
     {
@@ -20,6 +22,8 @@ enum ActivityLogName: string
             self::ITService                    => 'IT Services',
             self::TicketBatchArchive           => 'Ticket Batch Archival',
             self::TicketCorrectionBatchArchive => 'Ticket Correction Batch Archival',
+            self::Truck                        => 'Truck Inventory',
+            self::TicketCorrection             => 'Ticket Correction',
         };
     }
 }
