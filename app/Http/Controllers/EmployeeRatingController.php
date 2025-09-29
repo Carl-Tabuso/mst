@@ -613,7 +613,6 @@ class EmployeeRatingController extends Controller
 
     // ==================== EMPLOYEE RATINGS TABLE METHODS ====================
 
-    // OPTIMIZED: Reduced N+1 queries by eager loading relationships
     private function getFilteredEmployees($filters)
     {
         $query = Employee::with([
@@ -645,17 +644,42 @@ class EmployeeRatingController extends Controller
 
             $averageRating = $ratings->count() ? round($ratings->avg(), 2) : null;
 
+            $jobOrdersAttended = $this->calculateJobOrdersAttended($employee);
+
             return (object) [
-                'id'             => $employee->id,
-                'full_name'      => $employee->full_name,
-                'position'       => $employee->position?->name ?? '',
-                'average_rating' => $averageRating,
-                'has_ratings'    => $ratings->count() > 0,
-                'total_ratings'  => $ratings->count(),
+                'id'                   => $employee->id,
+                'full_name'            => $employee->full_name,
+                'position'             => $employee->position?->name ?? '',
+                'average_rating'       => $averageRating,
+                'has_ratings'          => $ratings->count() > 0,
+                'total_ratings'        => $ratings->count(),
+                'job_orders_attended'  => $jobOrdersAttended,
             ];
         });
 
         return $this->applyPostQueryFilters($transformedEmployees, $filters);
+    }
+
+    private function calculateJobOrdersAttended($employee)
+    {
+        $authorizedForm3Ids = $this->getAuthorizedForm3Ids($employee);
+
+        if (empty($authorizedForm3Ids)) {
+            return 0;
+        }
+
+        $completedJobOrders = JobOrder::where('status', JobOrderStatus::Completed)
+            ->where('serviceable_type', 'form4')
+            ->with(['serviceable.form3'])
+            ->get();
+
+        $attendedCount = $completedJobOrders->filter(function ($jobOrder) use ($authorizedForm3Ids) {
+            $form3Id = optional(optional($jobOrder->serviceable)->form3)->id;
+
+            return $form3Id && in_array($form3Id, $authorizedForm3Ids);
+        })->count();
+
+        return $attendedCount;
     }
 
     private function applySearch($employees, $search)
