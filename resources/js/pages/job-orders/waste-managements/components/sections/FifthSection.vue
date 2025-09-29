@@ -19,7 +19,7 @@ import { haulingStatuses } from '@/constants/hauling-statuses'
 import { JobOrderStatus } from '@/constants/job-order-statuses'
 import { UserRoleType } from '@/constants/user-role'
 import { Employee, Form3Hauling } from '@/types'
-import { useForm } from '@inertiajs/vue3'
+import { Link, useForm } from '@inertiajs/vue3'
 import { format, isToday } from 'date-fns'
 import { FilePenLine } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
@@ -193,14 +193,16 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
           <div class="flex-none pl-2">
             <Tooltip>
               <TooltipTrigger as-child>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  class="rounded-full"
-                >
-                  <FilePenLine />
-                </Button>
+                <Link :href="route('incidents.index')">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    class="rounded-full"
+                  >
+                    <FilePenLine />
+                  </Button>
+                </Link>
               </TooltipTrigger>
               <TooltipContent> Incident Report </TooltipContent>
             </Tooltip>

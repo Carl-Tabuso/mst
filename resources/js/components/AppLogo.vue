@@ -15,7 +15,7 @@ const props = defineProps<AppLogoProps>()
     :class="
       cn(
         [
-          'flex aspect-square size-8 items-center justify-center rounded-full bg-white border border-primary dark:border-transparent text-sidebar-primary-foreground',
+          'flex aspect-square size-8 items-center justify-center rounded-full border border-primary bg-white text-sidebar-primary-foreground dark:border-transparent',
         ],
         props.class,
       )

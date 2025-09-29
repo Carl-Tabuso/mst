@@ -76,7 +76,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Performance Monitoring',
-    href: '/performances',
+    href: '/ratings/table',
     icon: Award,
   },
   {
