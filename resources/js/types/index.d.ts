@@ -17,6 +17,7 @@ export interface AuthUser {
   employee_id: number
   avatar: string
   email: string
+  email_verified_at: string | null
   employee: {
     first_name: string
     middle_name: string | null
