@@ -94,7 +94,7 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
   {
     title: 'Roles and Permissions',
-    href: '#',
+    href: 'roles-permissions',
     icon: BookOpen,
   },
 ]
