@@ -193,7 +193,9 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
           <div class="flex-none pl-2">
             <Tooltip>
               <TooltipTrigger as-child>
-                <Link :href="route('incidents.index')">
+                <Link
+                  :href="route('incidents.index', { hauling_id: hauling.id })"
+                >
                   <Button
                     type="button"
                     variant="ghost"

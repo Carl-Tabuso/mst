@@ -30,6 +30,7 @@ export interface Incident {
   hauling_job_order?: JobOrder
   labels?: string[]
   hauling?: any
+  created_at?: string
 }
 
 export interface IncidentProps {
