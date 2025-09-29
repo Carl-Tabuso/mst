@@ -10,10 +10,6 @@ class EmployeeProfileController extends Controller
 {
     public function show($id)
     {
-        // if (auth()->user()->employee_id != $id) {
-        //     abort(403, 'Unauthorized');
-        // }
-
         $employee = Employee::with([
             'position',
             'account',
@@ -69,8 +65,6 @@ class EmployeeProfileController extends Controller
             'assignedPersonnelAsMechanic.form3Hauling.form3.form4.jobOrder',
             'performancesAsEmployee.ratings.performanceRating',
         ])->findOrFail($id);
-
-        // $this->logTeamLeaderAssignments($employee);
 
         $position = strtolower($employee->position->name ?? '');
 
@@ -384,7 +378,7 @@ class EmployeeProfileController extends Controller
 
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
-                Storage::delete($user->avatar);
+                Storage::disk('public')->delete($user->getRawOriginal('avatar'));
             }
 
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
