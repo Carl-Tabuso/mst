@@ -643,7 +643,7 @@ class EmployeeRatingController extends Controller
                 ->filter();
 
             $averageRating = $ratings->count() ? round($ratings->avg(), 2) : null;
-            
+
             $jobOrdersAttended = $this->calculateJobOrdersAttended($employee);
 
             return (object) [
@@ -663,21 +663,22 @@ class EmployeeRatingController extends Controller
     private function calculateJobOrdersAttended($employee)
     {
         $authorizedForm3Ids = $this->getAuthorizedForm3Ids($employee);
-        
+
         if (empty($authorizedForm3Ids)) {
             return 0;
         }
-        
+
         $completedJobOrders = JobOrder::where('status', JobOrderStatus::Completed)
             ->where('serviceable_type', 'form4')
             ->with(['serviceable.form3'])
             ->get();
-        
+
         $attendedCount = $completedJobOrders->filter(function ($jobOrder) use ($authorizedForm3Ids) {
             $form3Id = optional(optional($jobOrder->serviceable)->form3)->id;
+
             return $form3Id && in_array($form3Id, $authorizedForm3Ids);
         })->count();
-        
+
         return $attendedCount;
     }
 

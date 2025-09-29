@@ -147,7 +147,7 @@ class EmployeeRatingsExport implements FromCollection, ShouldAutoSize, WithCusto
             ],
 
             // Data rows styling
-            'A6:I' . $lastDataRow => [
+            'A6:I'.$lastDataRow => [
                 'borders'   => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -235,7 +235,7 @@ class EmployeeRatingsExport implements FromCollection, ShouldAutoSize, WithCusto
 
         return empty($filterParts)
             ? 'Filters: All Records'
-            : 'Applied Filters: ' . implode(' | ', $filterParts);
+            : 'Applied Filters: '.implode(' | ', $filterParts);
     }
 
     private function generateSummaryInfo()
