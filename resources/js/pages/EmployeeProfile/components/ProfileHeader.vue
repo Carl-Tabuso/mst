@@ -1,5 +1,13 @@
 <script setup lang="ts">
+import InputError from '@/components/InputError.vue'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useForm } from '@inertiajs/vue3'
 import { Camera, Mail } from 'lucide-vue-next'
@@ -75,13 +83,13 @@ const submitAvatar = () => {
 
   form.post(route('employees.profile.update', props.employee.id), {
     forceFormData: true,
-    onSuccess: (page) => {
+    onSuccess: () => {
       isEditingAvatar.value = false
       previewImage.value = null
       form.avatar = null
     },
     onFinish: () => {
-      // Reset form after request
+      form.reset()
     },
   })
 }
@@ -101,108 +109,82 @@ const cancelAvatarEdit = () => {
 </script>
 
 <template>
-  <div class="mb-6 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900 sm:p-6">
-    <h1 class="mb-6 text-xl font-bold text-sky-900 dark:text-white sm:text-2xl">
-      Profile
-    </h1>
-
-    <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-      <!-- <Card>
-        <CardHeader>
-          <CardTitle>
-            Profile
-          </CardTitle>
-        </CardHeader>
-      </Card> -->
-      <div class="flex justify-center lg:justify-start">
-        <div class="relative">
-          <UserAvatar
-            :avatar-path="displayImage"
-            :fallback="employee.full_name"
-            class="flex h-32 w-32 text-5xl"
-          />
-          <Button
-            type="button"
-            size="icon"
-            @click="triggerImageUpload"
-            class="absolute -right-1 top-24 h-7 w-7 rounded-full"
-            :disabled="form.processing"
-          >
-            <Camera class="h-3 w-3" />
-          </Button>
-
-          <input
-            ref="imageInput"
-            type="file"
-            accept="image/jpeg,image/png,image/jpg,image/gif"
-            @change="handleImageChange"
-            class="hidden"
-          />
-        </div>
-      </div>
-
-      <!-- Profile Info -->
-      <div class="flex-1 space-y-4">
-        <!-- Name Display (Read-only) -->
-        <div
-          class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div class="space-y-1">
-            <h2
-              class="text-xl font-bold text-sky-900 dark:text-white sm:text-2xl"
+  <Card>
+    <CardContent class="p-4 sm:p-6">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center">
+        <div class="flex justify-center lg:justify-start">
+          <div class="relative">
+            <UserAvatar
+              :avatar-path="displayImage"
+              :fallback="employee.full_name"
+              class="flex h-32 w-32 text-5xl"
+            />
+            <Button
+              type="button"
+              size="icon"
+              @click="triggerImageUpload"
+              class="absolute -right-1 top-24 h-7 w-7 rounded-full"
+              :disabled="form.processing"
             >
-              {{ props.employee.full_name }}
-            </h2>
+              <Camera class="h-3 w-3" />
+            </Button>
+
+            <input
+              ref="imageInput"
+              type="file"
+              accept="image/jpeg,image/png,image/jpg,image/gif"
+              @change="handleImageChange"
+              class="hidden"
+            />
           </div>
-
-          <span
-            class="self-start rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 sm:self-center"
+        </div>
+        <div class="flex-1 space-y-4">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between"
           >
-            {{ props.employee.position?.name || 'No Position' }}
-          </span>
-        </div>
-
-        <!-- Avatar Upload Actions (shown when file is selected) -->
-        <div
-          v-if="previewImage"
-          class="flex flex-col gap-2 sm:flex-row"
-        >
-          <button
-            @click="submitAvatar"
-            :disabled="form.processing || !form.avatar"
-            class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-sky-900 dark:hover:bg-green-600"
+            <div class="space-y-1">
+              <CardHeader class="p-0">
+                <CardTitle
+                  class="flex items-center text-xl font-bold text-foreground sm:text-2xl"
+                >
+                  {{ props.employee.full_name }}
+                </CardTitle>
+                <div
+                  v-if="props.employee.position?.name"
+                  class="font-medium text-muted-foreground"
+                >
+                  {{ props.employee.position.name }}
+                </div>
+              </CardHeader>
+            </div>
+          </div>
+          <CardFooter
+            v-if="previewImage"
+            class="flex flex-col gap-2 p-0 sm:flex-row"
           >
-            {{ form.processing ? 'Saving...' : 'Save New Photo' }}
-          </button>
-
-          <button
-            @click="cancelAvatarEdit"
-            :disabled="form.processing"
-            class="rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-400 disabled:opacity-50 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+            <Button
+              @click="submitAvatar"
+              :disabled="form.processing || !form.avatar"
+            >
+              {{ form.processing ? 'Saving...' : 'Save New Photo' }}
+            </Button>
+            <Button
+              variant="secondary"
+              @click="cancelAvatarEdit"
+              :disabled="form.processing"
+            >
+              Cancel
+            </Button>
+          </CardFooter>
+          <InputError :message="form.errors.avatar" />
+          <div
+            v-if="props.employee.email"
+            class="flex items-center gap-2 text-sm"
           >
-            Cancel
-          </button>
+            <Mail class="h-4 w-4" />
+            <span>{{ props.employee.email }}</span>
+          </div>
         </div>
-
-        <!-- Avatar error -->
-        <div
-          v-if="form.errors.avatar"
-          class="flex items-center gap-2 text-sm text-red-500 dark:text-red-400"
-        >
-          <span>⚠</span>
-          <span>{{ form.errors.avatar }}</span>
-        </div>
-
-        <!-- Email -->
-        <div
-          v-if="props.employee.email"
-          class="flex items-center gap-2 text-gray-600 dark:text-gray-300"
-        >
-          <Mail class="h-4 w-4" />
-          <span>{{ props.employee.email }}</span>
-        </div>
-
-        <!-- Processing indicator -->
         <div
           v-if="form.processing"
           class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400"
@@ -213,6 +195,6 @@ const cancelAvatarEdit = () => {
           Updating profile photo...
         </div>
       </div>
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 </template>

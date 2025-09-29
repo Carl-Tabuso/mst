@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatToDateDisplay } from '@/composables/useDateFormatter'
 import { router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
@@ -21,8 +22,6 @@ const props = defineProps<{
   positionName: string
 }>()
 
-// console.log(props.jobOrders)
-
 const searchQuery = ref('')
 
 const filteredJobOrders = computed(() => {
@@ -40,27 +39,6 @@ const filteredJobOrders = computed(() => {
   )
 })
 
-const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return 'N/A'
-  try {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    })
-  } catch {
-    return dateString
-  }
-}
-
-const getJobOrderId = (job: JobOrder) => {
-  return job.ticket || job.id
-}
-
 const viewJobOrder = (job: JobOrder) => {
   const routeParam = job.ticket || job.id
   router.visit(route('job_order.index', { jobOrder: routeParam }))
@@ -68,7 +46,9 @@ const viewJobOrder = (job: JobOrder) => {
 </script>
 
 <template>
-  <div class="rounded-lg p-3 shadow-sm dark:bg-gray-900 sm:p-4 lg:p-6">
+  <div
+    class="rounded-lg border bg-card p-3 text-card-foreground shadow-sm sm:p-4 lg:p-6"
+  >
     <!-- Header with title and search -->
     <div
       class="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between"
@@ -113,10 +93,10 @@ const viewJobOrder = (job: JobOrder) => {
                     <div
                       class="text-base font-semibold text-sky-900 dark:text-white"
                     >
-                      {{ getJobOrderId(job) }}
+                      {{ job.ticket }}
                     </div>
                     <div class="text-sm text-gray-600 dark:text-gray-300">
-                      {{ formatDate(job.created_at) }}
+                      {{ formatToDateDisplay(job.created_at, 'MMMM dd, yyyy') }}
                     </div>
                   </div>
                   <button
@@ -129,11 +109,11 @@ const viewJobOrder = (job: JobOrder) => {
 
                 <!-- Client and Location -->
                 <div class="space-y-1">
-                  <div class="text-sm text-gray-700 dark:text-gray-200">
-                    {{ job.client || 'Rose Mary Corp.' }}
+                  <div class="text-xs text-muted-foreground">
+                    {{ job.client }}
                   </div>
-                  <div class="text-sm text-gray-600 dark:text-gray-300">
-                    {{ job.service_area || 'Platero, Manila' }}
+                  <div class="text-xs text-muted-foreground">
+                    {{ job.service_area }}
                   </div>
                 </div>
 
@@ -143,7 +123,7 @@ const viewJobOrder = (job: JobOrder) => {
                     >Team Lead:</span
                   >
                   <span class="ml-2 text-sky-900 dark:text-white">{{
-                    job.team_leader || 'Blessed'
+                    job.team_leader
                   }}</span>
                 </div>
               </div>
@@ -155,16 +135,16 @@ const viewJobOrder = (job: JobOrder) => {
                   <div
                     class="mb-1 text-base font-semibold text-sky-900 dark:text-white"
                   >
-                    {{ getJobOrderId(job) }}
+                    {{ job.ticket }}
                   </div>
                   <div class="mb-1 text-sm text-gray-600 dark:text-gray-300">
-                    {{ formatDate(job.created_at) }}
+                    {{ formatToDateDisplay(job.created_at, 'MMMM dd, yyyy') }}
                   </div>
-                  <div class="text-sm text-gray-700 dark:text-gray-200">
-                    {{ job.client || 'Rose Mary Corp.' }}
+                  <div class="text-xs font-semibold text-muted-foreground">
+                    {{ job.client }}
                   </div>
-                  <div class="text-sm text-gray-600 dark:text-gray-300">
-                    {{ job.service_area || 'Platero, Manila' }}
+                  <div class="text-xs text-muted-foreground">
+                    {{ job.service_area }}
                   </div>
                 </div>
 
@@ -176,7 +156,7 @@ const viewJobOrder = (job: JobOrder) => {
                         >Team Lead</span
                       >
                       <span class="ml-2 text-sky-900 dark:text-white">{{
-                        job.team_leader || 'Blessed'
+                        job.team_leader
                       }}</span>
                     </div>
                   </div>

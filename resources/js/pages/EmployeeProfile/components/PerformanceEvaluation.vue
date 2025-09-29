@@ -136,7 +136,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="relative rounded-lg p-3 shadow-sm dark:bg-gray-900 sm:p-4 lg:p-6">
+  <div
+    class="relative rounded-lg border bg-card p-3 text-card-foreground shadow-sm sm:p-4 lg:p-6"
+  >
     <!-- Header -->
     <div
       class="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between"
