@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { BreadcrumbItem } from '@/types'
 import {
-  ArchiveIcon,
+  AwardIcon,
   CheckIcon,
   ClipboardListIcon,
   ClockIcon,
-  GaugeCircleIcon,
-  KeyIcon,
-  ShieldAlertIcon,
-  UsersIcon,
+  FilePenLineIcon,
+  LayoutDashboardIcon,
+  UserRoundCog,
+  UsersRoundIcon,
+  X,
 } from 'lucide-vue-next'
 
 interface Props {
@@ -31,29 +34,39 @@ const roleNames = Object.keys(props.roles)
 
 const iconComponents: { [key: string]: any } = {
   ClipboardListIcon,
-  GaugeCircleIcon,
-  ShieldAlertIcon,
-  UsersIcon,
-  KeyIcon,
-  ArchiveIcon,
+  AwardIcon,
+  FilePenLineIcon,
+  UsersRoundIcon,
+  UserRoundCog,
+  LayoutDashboardIcon,
   ClockIcon,
 }
 
 const hasPermission = (role: string, permission: string): boolean => {
   return props.roles[role]?.includes(permission) || false
 }
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    href: route('home'),
+    title: 'Home',
+  },
+  {
+    href: route('roles-permissions'),
+    title: 'Roles and Permissions',
+  },
+]
 </script>
 
 <template>
   <Head title="Roles and Permissions" />
-  <AppLayout>
-    <div class="max-w-full overflow-x-auto px-6 py-10">
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <MainContainer>
       <h1 class="mb-2 text-3xl font-bold">Roles and Permissions</h1>
       <p class="mb-6 max-w-4xl text-muted-foreground">
         A reference guide for system-defined user roles and the permissions
         assigned to each.
       </p>
-
       <div class="w-full min-w-[1024px] rounded-md border">
         <div
           class="grid grid-cols-[256px_repeat(8,minmax(80px,1fr))] border-b bg-muted px-4 py-3 text-sm font-medium"
@@ -75,10 +88,10 @@ const hasPermission = (role: string, permission: string): boolean => {
           <div
             class="b grid grid-cols-[256px_repeat(8,minmax(80px,1fr))] items-center border-b bg-blue-100 px-4 py-2 font-semibold text-blue-800 dark:bg-blue-900 dark:text-white"
           >
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 text-foreground">
               <component
                 :is="iconComponents[group.icon]"
-                class="h-4 w-4 text-blue-700 dark:text-white"
+                class="h-4 w-4"
               />
               <span class="text-sm">{{ group.group }}</span>
             </div>
@@ -101,23 +114,20 @@ const hasPermission = (role: string, permission: string): boolean => {
               :key="role"
               class="flex justify-center"
             >
-              <div
-                class="flex h-5 w-5 items-center justify-center rounded border"
-                :class="
-                  hasPermission(role, permission)
-                    ? 'border-blue-800 bg-blue-800 text-white'
-                    : 'border-gray-300 bg-white'
-                "
-              >
+              <div class="size-3">
                 <CheckIcon
                   v-if="hasPermission(role, permission)"
-                  class="h-4 w-4"
+                  class="text-foreground"
+                />
+                <X
+                  v-else
+                  class="stroke-1 text-muted-foreground"
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </MainContainer>
   </AppLayout>
 </template>

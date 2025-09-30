@@ -47,14 +47,14 @@ class RolesPermissionsController extends Controller
             ],
             [
                 'group'       => 'Incident Report',
-                'icon'        => 'ShieldAlertIcon',
+                'icon'        => 'FilePenLineIcon',
                 'permissions' => [
                     UserPermission::ManageIncidentReports->value,
                 ],
             ],
             [
                 'group'       => 'Performance & Analytics',
-                'icon'        => 'GaugeCircleIcon',
+                'icon'        => 'AwardIcon',
                 'permissions' => [
                     UserPermission::ViewReportsAnalytics->value,
                     UserPermission::ViewPerformances->value,
@@ -67,21 +67,21 @@ class RolesPermissionsController extends Controller
             ],
             [
                 'group'       => 'Employee Management',
-                'icon'        => 'UsersIcon',
+                'icon'        => 'UsersRoundIcon',
                 'permissions' => [
                     UserPermission::ManageEmployees->value,
                 ],
             ],
             [
                 'group'       => 'User Management',
-                'icon'        => 'KeyIcon',
+                'icon'        => 'UserRoundCog',
                 'permissions' => [
                     UserPermission::ManageUsers->value,
                 ],
             ],
             [
                 'group'       => 'System',
-                'icon'        => 'ArchiveIcon',
+                'icon'        => 'LayoutDashboardIcon',
                 'permissions' => [
                     UserPermission::ViewActivityLogs->value,
                 ],
