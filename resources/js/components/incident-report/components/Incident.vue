@@ -81,8 +81,7 @@ const handleMarkAsRead = async (id: string) => {
     const item = incidents.value.find((m) => m.id === id)
     if (item) item.is_read = true
     await markAsRead(id)
-  } catch (err) {
-    console.error('Failed to mark as read:', err)
+  } catch {
     const item = incidents.value.find((m) => m.id === id)
     if (item) item.is_read = false
   }
@@ -109,6 +108,14 @@ const refreshIncidents = () => {
   fetchIncidents()
 }
 
+const getHaulingIdFromUrl = (): string | null => {
+  if (typeof window === 'undefined') return null
+  const urlParams = new URLSearchParams(window.location.search)
+  return urlParams.get('hauling_id')
+}
+
+const haulingId = ref(getHaulingIdFromUrl())
+
 watch([debouncedSearch, activeTab, activeFilters], () => {
   fetchIncidents({
     search: debouncedSearch.value,
@@ -118,6 +125,27 @@ watch([debouncedSearch, activeTab, activeFilters], () => {
     dateTo: activeFilters.value.dateTo,
   })
 })
+watch(
+  [incidents, haulingId],
+  () => {
+    if (haulingId.value && incidents.value.length > 0) {
+      const relatedIncidents = incidents.value.filter(
+        (item) => item.hauling?.id?.toString() === haulingId.value,
+      )
+
+      if (relatedIncidents.length > 0 && !selectedIncident.value) {
+        const mostRecent = relatedIncidents.sort(
+          (a, b) =>
+            new Date(b.created_at ?? 0).getTime() -
+            new Date(a.created_at ?? 0).getTime(),
+        )[0]
+
+        selectedIncident.value = mostRecent.id
+      }
+    }
+  },
+  { immediate: true },
+)
 
 defineEmits(['cancel-edit', 'no-incident'])
 </script>
@@ -278,7 +306,6 @@ defineEmits(['cancel-edit', 'no-incident'])
 
   <div class="pt-5">
     <TooltipProvider :delay-duration="0">
-      <!-- Mobile view: Show either list or detail -->
       <div
         v-if="isMobile"
         class="h-[calc(100vh-180px)] overflow-auto rounded-lg border"
@@ -297,6 +324,7 @@ defineEmits(['cancel-edit', 'no-incident'])
             :selected-statuses="activeFilters.statuses"
             :date-from="activeFilters.dateFrom"
             :date-to="activeFilters.dateTo"
+            :hauling-id="haulingId"
             :sort-by="sortBy"
           />
         </div>
@@ -328,7 +356,6 @@ defineEmits(['cancel-edit', 'no-incident'])
         </div>
       </div>
 
-      <!-- Desktop view: Use resizable panels -->
       <ResizablePanelGroup
         v-else
         direction="horizontal"
@@ -362,6 +389,7 @@ defineEmits(['cancel-edit', 'no-incident'])
                   :selected-statuses="activeFilters.statuses"
                   :date-from="activeFilters.dateFrom"
                   :date-to="activeFilters.dateTo"
+                  :hauling-id="haulingId"
                   :sort-by="sortBy"
                 />
               </TabsContent>

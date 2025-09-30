@@ -19,6 +19,7 @@ use App\Models\Form3AssignedPersonnel;
 use App\Models\Form3Hauling;
 use App\Models\Form3HaulingChecklist;
 use App\Models\Form4;
+use App\Models\Incident;
 use App\Models\JobOrder;
 use App\Models\Truck;
 use Illuminate\Database\Eloquent\Builder;
@@ -190,6 +191,24 @@ class WasteManagementService
 
             Form3Hauling::insert($haulingInserts);
 
+            $incidentInserts = $form4->form3->haulings->map(function ($hauling) {
+                return [
+                    'form3_hauling_id' => $hauling->id,
+                    'created_by'       => null,
+                    'status'           => \App\Enums\IncidentStatus::Draft->value,
+                    'subject'          => 'Incident Report for Hauling '.$hauling->date->format('Y-m-d'),
+                    'location'         => 'To be determined',
+                    'infraction_type'  => 'To be determined',
+                    'occured_at'       => now(),
+                    'description'      => 'Auto-generated incident report for hauling operation',
+                    'is_read'          => false,
+                    'created_at'       => now(),
+                    'updated_at'       => now(),
+                ];
+            })->toArray();
+
+            Incident::insert($incidentInserts);
+
             $preHaulingInserts = $form4->form3->haulings->map(fn ($hauling) => [
                 'form3_hauling_id' => $hauling->id,
                 'created_at'       => now(),
@@ -210,7 +229,8 @@ class WasteManagementService
 
     private function handleInProgress(Form4 $form4, array $data): void
     {
-        $filteredHaulings = array_filter($data['haulings'],
+        $filteredHaulings = array_filter(
+            $data['haulings'],
             fn ($haul) => Carbon::parse($haul['date'])->gte(today())
         );
 
@@ -254,8 +274,8 @@ class WasteManagementService
                     $hauling->update([
                         'truck_id' => $mapped['truck_id'],
                         'status'   => $isForSafetyInspectionChecklist
-                                        ? HaulingStatus::ForSafetyInspection
-                                        : HaulingStatus::ForPersonnelAssignment,
+                            ? HaulingStatus::ForSafetyInspection
+                            : HaulingStatus::ForPersonnelAssignment,
                     ]);
                 });
             });

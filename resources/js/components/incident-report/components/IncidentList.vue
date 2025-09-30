@@ -15,6 +15,7 @@ interface IncidentListProps {
   dateFrom?: string
   dateTo?: string
   sortBy?: string
+  haulingId?: string
   onMarkAsRead?: (id: string) => Promise<void>
 }
 

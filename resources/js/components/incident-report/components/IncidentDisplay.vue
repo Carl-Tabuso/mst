@@ -120,7 +120,6 @@ watch(
 )
 
 const handleApiError = (error: any, context: string) => {
-  console.error(`${context} failed:`, error)
   alert(`Failed to ${context}. Please try again.`)
 }
 

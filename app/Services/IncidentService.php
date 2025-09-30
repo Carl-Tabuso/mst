@@ -34,6 +34,10 @@ class IncidentService
             'hauling.incidents',
         ])->orderBy('occured_at', 'desc');
 
+        if (isset($filters['hauling_id']) && $filters['hauling_id']) {
+            $query->where('form3_hauling_id', $filters['hauling_id']);
+        }
+
         if (! $user->hasRole('admin')) {
             if ($isConsultant || $isViewingRole) {
             } elseif ($isCreatingRole && $employeeId) {
