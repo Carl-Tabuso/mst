@@ -29,6 +29,7 @@ import { Link, usePage } from '@inertiajs/vue3'
 import {
   Archive,
   Award,
+  BookOpen,
   ChartPie,
   ClipboardList,
   ClipboardPen,
@@ -44,6 +45,12 @@ import {
 import { computed } from 'vue'
 import Breadcrumbs from './Breadcrumbs.vue'
 import DarkModeToggle from './DarkModeToggle.vue'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip'
 import UserAvatar from './UserAvatar.vue'
 
 interface Props {
@@ -167,6 +174,14 @@ const mainNavItems: NavItem[] = [
     can: true,
   },
 ]
+
+const rightNavItems: NavItem[] = [
+  {
+    title: 'Roles and Permissions',
+    href: route('roles-permissions'),
+    icon: BookOpen,
+  },
+]
 </script>
 
 <template>
@@ -218,6 +233,23 @@ const mainNavItems: NavItem[] = [
                     </Link>
                   </template>
                 </nav>
+                <div class="flex flex-col space-y-4">
+                  <a
+                    v-for="item in rightNavItems"
+                    :key="item.title"
+                    :href="item.href"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center space-x-2 text-sm font-medium"
+                  >
+                    <component
+                      v-if="item.icon"
+                      :is="item.icon"
+                      class="h-5 w-5"
+                    />
+                    <span>{{ item.title }}</span>
+                  </a>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
@@ -265,6 +297,40 @@ const mainNavItems: NavItem[] = [
         <div class="ml-auto flex items-center space-x-2">
           <div class="relative flex items-center space-x-1">
             <DarkModeToggle />
+            <div class="hidden space-x-1 lg:flex">
+              <template
+                v-for="item in rightNavItems"
+                :key="item.title"
+              >
+                <TooltipProvider :delay-duration="0">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        as-child
+                        class="group h-9 w-9 cursor-pointer"
+                      >
+                        <a
+                          :href="item.href"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <span class="sr-only">{{ item.title }}</span>
+                          <component
+                            :is="item.icon"
+                            class="size-5 opacity-80 group-hover:opacity-100"
+                          />
+                        </a>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{{ item.title }}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </template>
+            </div>
           </div>
 
           <DropdownMenu>
