@@ -10,20 +10,20 @@ class RolesPermissionsController extends Controller
     public function index()
     {
         $roles = [
-            'Head Frontliner' => array_map(fn($p) => $p->value, UserPermission::getHeadFrontlinerPermissions()),
-            'Frontliner' => array_map(fn($p) => $p->value, UserPermission::getFrontlinerPermissions()),
-            'Dispatcher' => array_map(fn($p) => $p->value, UserPermission::getDispatcherPermissions()),
-            'Team Lead' => array_map(fn($p) => $p->value, UserPermission::getTeamLeaderPermissions()),
-            'Consultant' => array_map(fn($p) => $p->value, UserPermission::getConsultantPermissions()),
-            'Human Resource' => array_map(fn($p) => $p->value, UserPermission::getHumanResourcePermissions()),
-            'IT Admin' => array_map(fn($p) => $p->value, UserPermission::getITAdminPermissions()),
-            'Employee' => array_map(fn($p) => $p->value, UserPermission::getRegularPermissions()),
+            'Head Frontliner' => array_map(fn ($p) => $p->value, UserPermission::getHeadFrontlinerPermissions()),
+            'Frontliner'      => array_map(fn ($p) => $p->value, UserPermission::getFrontlinerPermissions()),
+            'Dispatcher'      => array_map(fn ($p) => $p->value, UserPermission::getDispatcherPermissions()),
+            'Team Lead'       => array_map(fn ($p) => $p->value, UserPermission::getTeamLeaderPermissions()),
+            'Consultant'      => array_map(fn ($p) => $p->value, UserPermission::getConsultantPermissions()),
+            'Human Resource'  => array_map(fn ($p) => $p->value, UserPermission::getHumanResourcePermissions()),
+            'IT Admin'        => array_map(fn ($p) => $p->value, UserPermission::getITAdminPermissions()),
+            'Employee'        => array_map(fn ($p) => $p->value, UserPermission::getRegularPermissions()),
         ];
 
         $permissionGroups = [
             [
-                'group' => 'Job Order',
-                'icon' => 'ClipboardListIcon',
+                'group'       => 'Job Order',
+                'icon'        => 'ClipboardListIcon',
                 'permissions' => [
                     UserPermission::CreateJobOrder->value,
                     UserPermission::UpdateJobOrder->value,
@@ -33,28 +33,28 @@ class RolesPermissionsController extends Controller
                     UserPermission::ViewAnyJobOrderCorrection->value,
                     UserPermission::RestoreArchivedJobOrder->value,
                     UserPermission::ForceDeleteJobOrder->value,
-                ]
+                ],
             ],
             [
-                'group' => 'Hauling Operations',
-                'icon' => 'GaugeCircleIcon',
+                'group'       => 'Hauling Operations',
+                'icon'        => 'GaugeCircleIcon',
                 'permissions' => [
                     UserPermission::FillOutSafetyInspectionChecklist->value,
                     UserPermission::AssignHaulingPersonnel->value,
                     UserPermission::AssignAppraisers->value,
                     UserPermission::SetHaulingDuration->value,
-                ]
+                ],
             ],
             [
-                'group' => 'Incident Report',
-                'icon' => 'ShieldAlertIcon',
+                'group'       => 'Incident Report',
+                'icon'        => 'ShieldAlertIcon',
                 'permissions' => [
                     UserPermission::ManageIncidentReports->value,
-                ]
+                ],
             ],
             [
-                'group' => 'Performance & Analytics',
-                'icon' => 'GaugeCircleIcon',
+                'group'       => 'Performance & Analytics',
+                'icon'        => 'GaugeCircleIcon',
                 'permissions' => [
                     UserPermission::ViewReportsAnalytics->value,
                     UserPermission::ViewPerformances->value,
@@ -63,29 +63,29 @@ class RolesPermissionsController extends Controller
                     UserPermission::UpdateEmployeeRating->value,
                     UserPermission::DeleteEmployeeRating->value,
                     UserPermission::ExportEmployeeRating->value,
-                ]
+                ],
             ],
             [
-                'group' => 'Employee Management',
-                'icon' => 'UsersIcon',
+                'group'       => 'Employee Management',
+                'icon'        => 'UsersIcon',
                 'permissions' => [
                     UserPermission::ManageEmployees->value,
-                ]
+                ],
             ],
             [
-                'group' => 'User Management',
-                'icon' => 'KeyIcon',
+                'group'       => 'User Management',
+                'icon'        => 'KeyIcon',
                 'permissions' => [
                     UserPermission::ManageUsers->value,
-                ]
+                ],
             ],
             [
-                'group' => 'System',
-                'icon' => 'ArchiveIcon',
+                'group'       => 'System',
+                'icon'        => 'ArchiveIcon',
                 'permissions' => [
                     UserPermission::ViewActivityLogs->value,
-                ]
-            ]
+                ],
+            ],
         ];
 
         $permissionLabels = [];
@@ -94,7 +94,7 @@ class RolesPermissionsController extends Controller
         }
 
         return Inertia::render('roles-and-permissions/Index', [
-            'roles' => $roles,
+            'roles'            => $roles,
             'permissionGroups' => $permissionGroups,
             'permissionLabels' => $permissionLabels,
         ]);
