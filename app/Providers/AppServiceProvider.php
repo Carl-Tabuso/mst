@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
         JsonResource::withoutWrapping();
 
         Password::defaults(
-            fn() => Password::min(8)
+            fn () => Password::min(8)
                 ->letters()
                 ->mixedCase()
                 ->numbers()
@@ -53,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
                 ->uncompromised()
                 ->rules(['not_regex:/\s/'])
         );
-        Gate::define('viewPulse', fn(User $user) => $user->hasRole(UserRole::ITAdmin));
+        Gate::define('viewPulse', fn (User $user) => $user->hasRole(UserRole::ITAdmin));
         Gate::define('viewActivityLogs', [ActivityLogPolicy::class, 'viewAny']);
         Gate::define('viewReports', [ReportPolicy::class, 'viewAny']);
 

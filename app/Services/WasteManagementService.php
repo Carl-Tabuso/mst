@@ -103,8 +103,8 @@ class WasteManagementService
             ->with('account.roles')
             ->has('account')
             ->get()
-            ->groupBy(fn(Employee $employee) => $employee->account->getRoleNames()->first())
-            ->map(fn(Collection $grouped, string $role) => [
+            ->groupBy(fn (Employee $employee) => $employee->account->getRoleNames()->first())
+            ->map(fn (Collection $grouped, string $role) => [
                 'role'  => $role,
                 'items' => EmployeeResource::collection($grouped),
             ])
@@ -143,7 +143,7 @@ class WasteManagementService
                 ['appraised_date' => Carbon::parse($data['appraised_date'])],
             );
 
-            $appraisers = array_map(fn($appraiser) => $appraiser['id'], $data['appraisers']);
+            $appraisers = array_map(fn ($appraiser) => $appraiser['id'], $data['appraisers']);
 
             $form4->appraisers()->sync($appraisers);
         });
@@ -184,7 +184,7 @@ class WasteManagementService
 
             $duration = (int) $from->diffInDays($to) + 1;
 
-            $haulingInserts = array_map(fn($range) => [
+            $haulingInserts = array_map(fn ($range) => [
                 'form3_id' => $form4->form3->id,
                 'date'     => $from->copy()->addDays($range),
             ], range(0, $duration - 1));
@@ -196,7 +196,7 @@ class WasteManagementService
                     'form3_hauling_id' => $hauling->id,
                     'created_by'       => null,
                     'status'           => \App\Enums\IncidentStatus::Draft->value,
-                    'subject'          => 'Incident Report for Hauling ' . $hauling->date->format('Y-m-d'),
+                    'subject'          => 'Incident Report for Hauling '.$hauling->date->format('Y-m-d'),
                     'location'         => 'To be determined',
                     'infraction_type'  => 'To be determined',
                     'occured_at'       => now(),
@@ -209,7 +209,7 @@ class WasteManagementService
 
             Incident::insert($incidentInserts);
 
-            $preHaulingInserts = $form4->form3->haulings->map(fn($hauling) => [
+            $preHaulingInserts = $form4->form3->haulings->map(fn ($hauling) => [
                 'form3_hauling_id' => $hauling->id,
                 'created_at'       => now(),
                 'updated_at'       => now(),
@@ -231,7 +231,7 @@ class WasteManagementService
     {
         $filteredHaulings = array_filter(
             $data['haulings'],
-            fn($haul) => Carbon::parse($haul['date'])->gte(today())
+            fn ($haul) => Carbon::parse($haul['date'])->gte(today())
         );
 
         $mappedHaulings = array_map(function ($hauling) {
@@ -245,7 +245,7 @@ class WasteManagementService
                     'safety_officer' => $personnel['safetyOfficer']['id'] ?? null,
                     'team_mechanic'  => $personnel['teamMechanic']['id']  ?? null,
                 ],
-                'haulers'  => array_map(fn($h) => $h['id'], $hauling['haulers']),
+                'haulers'  => array_map(fn ($h) => $h['id'], $hauling['haulers']),
                 'truck_id' => $hauling['truck']['id'] ?? null,
             ];
         }, $filteredHaulings);
@@ -254,7 +254,7 @@ class WasteManagementService
             ->where('date', '>=', today())
             ->get()
             ->each(function ($hauling) use ($mappedHaulings) {
-                $mapped = array_find($mappedHaulings, fn($mh) => $hauling->id === $mh['id']);
+                $mapped = array_find($mappedHaulings, fn ($mh) => $hauling->id === $mh['id']);
 
                 $personnel                      = $mapped['assignedPersonnel'];
                 $isForSafetyInspectionChecklist =
