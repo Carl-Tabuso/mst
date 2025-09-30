@@ -14,6 +14,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\JobOrderController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RolesPermissionsController;
 use App\Http\Controllers\SafetyInspectionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
@@ -176,9 +177,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{user}', [UserController::class, 'destroy'])
             ->name('users.destroy');
     });
-    Route::get('/roles-permissions', function () {
-        return inertia('roles-and-permissions/RolesPermissions');
-    })->name('roles-permissions');
+    Route::get('/roles-permissions', [RolesPermissionsController::class, 'index'])
+        ->name('roles-permissions');
 
     Route::post('/employees-with-account', [EmployeeController::class, 'storeWithAccount']);
     Route::prefix('incidents')->name('incidents.')->group(function () {
