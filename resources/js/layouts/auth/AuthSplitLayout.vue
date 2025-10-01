@@ -37,6 +37,15 @@ defineProps<{
       <div
         class="flex w-full max-w-xs flex-col justify-center space-y-6 rounded-md md:max-w-md md:p-12 lg:max-w-lg"
       >
+        <div class="flex flex-col items-center space-y-3 text-center lg:hidden">
+          <div
+            class="flex items-center justify-center rounded-full border border-primary bg-white dark:border-transparent"
+          >
+            <div
+              class="size-24 rounded-full bg-[url('/mst-logo-noBG.png')] bg-cover bg-center"
+            />
+          </div>
+        </div>
         <div class="flex flex-col space-y-2 pb-3 text-center">
           <h1
             v-if="title"
