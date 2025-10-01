@@ -78,10 +78,12 @@ const handleRowArchival = () => {
         <TriangleAlert
           class="h-32 w-32 fill-amber-500 stroke-amber-200 dark:fill-amber-700"
         />
-        <div class="text-3xl font-bold text-amber-500 dark:text-white">
+        <div
+          class="text-2xl font-bold text-amber-500 dark:text-white sm:text-3xl"
+        >
           Archiving Job Order
         </div>
-        <div class="text-sm text-muted-foreground">
+        <div class="text-center text-sm text-muted-foreground">
           Are you sure you want to archive
           <span class="font-bold">{{ jobOrder.ticket }}</span>
           ?

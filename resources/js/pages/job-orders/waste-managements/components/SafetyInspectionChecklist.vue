@@ -119,14 +119,18 @@ const date = format(hauling.date, 'MMM d')
       </TooltipTrigger>
       <TooltipContent> Safety Inspection Checklist </TooltipContent>
     </Tooltip>
-    <DialogContent class="max-w-[700px]">
+    <DialogContent class="w-full sm:max-w-[700px]">
       <DialogHeader class="flex">
-        <DialogTitle class="flex items-center gap-3 text-2xl font-bold">
-          <div>Safety Inspection Checklist</div>
-          <span>•</span>
-          <div>{{ `${day}, ${date}` }}</div>
+        <DialogTitle
+          class="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3"
+        >
+          <div class="text-2xl font-bold">Safety Inspection Checklist</div>
+          <span class="hidden sm:flex">•</span>
+          <div class="text-lg sm:text-2xl sm:font-bold">
+            {{ `${day}, ${date}` }}
+          </div>
         </DialogTitle>
-        <DialogDescription class="text-sm leading-4">
+        <DialogDescription class="text-start text-sm leading-4">
           Review all items and ensure that all necessary forms have been
           completed. Your certification will serve as your signature.
         </DialogDescription>

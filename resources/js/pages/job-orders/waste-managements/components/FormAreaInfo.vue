@@ -14,13 +14,16 @@ defineProps<FormAreaInfoProps>()
   <Alert
     v-if="condition"
     variant="info"
+    class="w-full"
   >
-    <AlertDescription class="flex items-center font-normal">
+    <AlertDescription class="flex w-full items-center font-normal">
       <Info
         :size="16"
         class="mr-2"
       />
-      <slot />
+      <div class="flex-1">
+        <slot />
+      </div>
     </AlertDescription>
   </Alert>
 </template>

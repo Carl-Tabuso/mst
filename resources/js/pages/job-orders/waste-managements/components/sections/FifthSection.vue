@@ -166,8 +166,9 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
     :condition="isHauling"
     class="mb-4"
   >
-    <span class="pr-1 font-semibold">Dispatcher</span>is required to assign the
-    personnel and haulers daily during the duration of hauling period.
+    <span class="font-semibold">Dispatcher</span>
+    is required to assign the personnel and haulers daily during the duration of
+    hauling period.
   </FormAreaInfo>
   <div class="grid grid-cols-[auto,1fr] gap-y-6">
     <div>
@@ -242,9 +243,11 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
         </div>
 
         <AccordionContent
-          class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-3 px-4 py-5"
+          class="grid grid-cols-1 gap-y-3 px-4 py-5 sm:grid-cols-[auto,1fr] sm:gap-x-8"
         >
-          <div class="col-span-2 grid grid-cols-2 gap-3 gap-x-24">
+          <div
+            class="col-span-1 grid grid-cols-1 gap-3 sm:col-span-2 sm:grid-cols-2 lg:gap-x-24"
+          >
             <AssignedPersonnelSelection
               v-for="haulingRole in haulingRoles"
               :key="`${hauling.id}-${haulingRole.id}`"
@@ -260,7 +263,9 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
               @removed="removeAssignedPersonnel"
             />
           </div>
-          <div class="col-span-2 grid grid-cols-2 gap-x-24">
+          <div
+            class="col-span-1 grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2 lg:gap-x-24"
+          >
             <HaulersSelection
               :is-authorize="isAuthorize"
               :hauling="hauling"
@@ -270,21 +275,6 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
               @on-remove-existing-haulers="removeExistingHaulers"
               @on-hauler-toggle="loadEmployeesIfMissing"
             />
-            <!-- <div class="flex items-center gap-x-10">
-              <Label
-                :for="'truckNo-' + hauling.id"
-                class="w-28 shrink-0"
-              >
-                Truck Number
-              </Label>
-              <Input
-                :id="'truckNo-' + hauling.id"
-                :disabled="!isAuthorize || !hauling.isOpen"
-                placeholder="Enter truck plate number"
-                v-model="hauling.truckNo"
-                class="w-[400px]"
-              />
-            </div> -->
             <TruckSelection
               v-model:truck="hauling.truck"
               :can-edit="isAuthorize && hauling.isOpen"

@@ -40,12 +40,12 @@ const onTruckSelectionToggle = () => {
 </script>
 
 <template>
-  <div class="flex flex-row items-center gap-x-10">
-    <Label class="w-28 shrink-0"> Truck </Label>
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-10">
+    <Label class="w-full shrink-0 sm:w-28"> Truck </Label>
     <Popover @update:open="onTruckSelectionToggle">
       <PopoverTrigger
         as-child
-        class="w-[400px]"
+        class="w-full sm:w-[400px]"
         :disabled="!canEdit"
       >
         <Button variant="outline">

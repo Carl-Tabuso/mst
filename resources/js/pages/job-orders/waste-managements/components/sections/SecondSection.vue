@@ -150,13 +150,17 @@ const { userRoleMap } = useJobOrderDicts()
     :condition="forAppraisal"
     class="mb-4"
   >
-    <span class="px-1 font-semibold">Dispatcher </span>
+    <span class="font-semibold">Dispatcher </span>
     is required to complete this section during the
-    <span class="px-1 font-semibold">For Appraisal</span>
+    <span class="font-semibold">For Appraisal</span>
     step to continue to site viewing.
   </FormAreaInfo>
-  <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
-    <div class="col-span-2 flex w-full items-start justify-between">
+  <div
+    class="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-[auto,1fr] md:gap-x-12"
+  >
+    <div
+      class="col-span-1 flex w-full flex-col items-start justify-between gap-3 md:col-span-2 md:flex-row md:items-center"
+    >
       <div>
         <div class="text-xl font-semibold leading-6">Ocular Inspection</div>
         <p class="text-sm text-muted-foreground">
@@ -176,162 +180,159 @@ const { userRoleMap } = useJobOrderDicts()
         </div>
       </div>
     </div>
-    <div class="col-span-2 grid grid-cols-2 gap-x-24 gap-y-3">
-      <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex items-start gap-x-4">
-          <Label
-            for="appraisers"
-            class="mt-3 w-44 shrink-0"
-          >
-            Appraisers
-          </Label>
-          <div class="flex w-full flex-col gap-1">
-            <Popover @update:open="(value) => handleAppraisersPopover(value)">
-              <PopoverTrigger as-child>
-                <Button
-                  variant="outline"
-                  :class="[{ 'border-destructive': form.errors.appraisers }]"
-                >
-                  <template v-if="appraisers?.length">
-                    <div
-                      :key="appraisers[0].id"
-                      class="flex items-center justify-between gap-2 rounded-md text-xs"
-                    >
-                      <div class="flex items-center gap-2 overflow-hidden">
-                        <UserAvatar
-                          :avatar-path="appraisers[0]?.account?.avatar"
-                          :fallback="appraisers[0].fullName"
-                        />
-                        <span class="truncate">
-                          <template v-if="appraisers.length < 2">
-                            {{ appraisers[0].fullName }}
-                          </template>
-                          <template v-else>
-                            {{
-                              `${appraisers[0].fullName} and ${appraisers.length - 1} more`
-                            }}
-                          </template>
-                        </span>
-                      </div>
-                      <Button
-                        v-if="canEdit"
-                        variant="ghost"
-                        size="icon"
-                        type="button"
-                        class="ml-1 h-5 w-5 text-muted-foreground hover:text-primary-foreground"
-                        @click="() => (appraisers = [])"
-                      >
-                        <X />
-                      </Button>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <span class="font-normal text-muted-foreground">
-                      Select appraisers
-                    </span>
-                  </template>
-                  <ChevronsUpDown class="ml-auto h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                class="w-72 p-0"
-                align="start"
+    <div
+      class="col-span-1 grid grid-cols-1 gap-x-4 gap-y-6 md:col-span-2 md:grid-cols-2 md:gap-x-24"
+    >
+      <div class="flex flex-col gap-y-2 md:flex-row md:items-start md:gap-x-4">
+        <Label
+          for="appraisers"
+          class="mt-1 shrink-0 md:mt-3 md:w-44"
+        >
+          Appraisers
+        </Label>
+        <div class="flex w-full flex-col gap-1">
+          <Popover @update:open="(value) => handleAppraisersPopover(value)">
+            <PopoverTrigger as-child>
+              <Button
+                variant="outline"
+                class="w-full"
+                :class="[{ 'border-destructive': form.errors.appraisers }]"
               >
-                <Command>
-                  <CommandInput placeholder="Search for appraisers" />
-                  <CommandList>
-                    <CommandEmpty> No employee found. </CommandEmpty>
-                    <template v-if="appraisers?.length">
-                      <div
-                        :class="['overflow-y-auto', { 'max-h-40': canEdit }]"
-                      >
-                        <CommandGroup>
-                          <CommandItem
-                            v-for="appraiser in appraisers"
-                            :key="appraiser.id"
-                            :value="appraiser"
-                            @select="handleEmployeeMultiselect(appraiser)"
-                          >
-                            <EmployeePopoverSelection
-                              :employee="appraiser"
-                              is-selected
-                            />
-                          </CommandItem>
-                        </CommandGroup>
-                      </div>
-                      <CommandSeparator v-if="canEdit" />
-                    </template>
-                    <div v-if="canEdit">
-                      <EmployeeCommandListPlaceholder
-                        v-if="!groupedEmployees?.length"
+                <template v-if="appraisers?.length">
+                  <div
+                    :key="appraisers[0].id"
+                    class="flex w-full items-center justify-between gap-2 rounded-md text-xs"
+                  >
+                    <div class="flex items-center gap-2 overflow-hidden">
+                      <UserAvatar
+                        :avatar-path="appraisers[0]?.account?.avatar"
+                        :fallback="appraisers[0].fullName"
                       />
-                      <template v-else>
-                        <CommandGroup
-                          v-for="group in remainingEmployees"
-                          :key="group.role"
-                        >
-                          <span class="pl-2 text-xs font-medium">{{
-                            userRoleMap[group.role].label
-                          }}</span>
-                          <CommandItem
-                            v-for="employee in group.items"
-                            :key="employee.id"
-                            :value="employee"
-                            @select="handleEmployeeMultiselect(employee)"
-                          >
-                            <EmployeePopoverSelection :employee="employee" />
-                          </CommandItem>
-                        </CommandGroup>
-                      </template>
+                      <span class="truncate">
+                        <template v-if="appraisers.length < 2">
+                          {{ appraisers[0].fullName }}
+                        </template>
+                        <template v-else>
+                          {{
+                            `${appraisers[0].fullName} and ${appraisers.length - 1} more`
+                          }}
+                        </template>
+                      </span>
                     </div>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            <InputError :message="form.errors.appraisers" />
-          </div>
-        </div>
-        <div class="flex items-start">
-          <Label class="mt-3 w-36 shrink-0"> Date Appraised </Label>
-          <div class="flex w-full flex-col gap-1">
-            <Popover>
-              <PopoverTrigger
-                as-child
-                :disabled="!canEdit"
-              >
-                <Button
-                  type="button"
-                  variant="outline"
-                  :class="[
-                    'w-full ps-3 text-start font-normal',
-                    {
-                      'text-muted-foreground': !appraisedDate,
-                      'border-destructive': form.errors.appraised_date,
-                    },
-                  ]"
-                >
-                  <span>
-                    {{
-                      appraisedDate
-                        ? formatToDateString(appraisedDate.toString())
-                        : 'Pick a date'
-                    }}
+                    <Button
+                      v-if="canEdit"
+                      variant="ghost"
+                      size="icon"
+                      type="button"
+                      class="ml-1 h-5 w-5 text-muted-foreground hover:text-primary-foreground"
+                      @click="() => (appraisers = [])"
+                    >
+                      <X />
+                    </Button>
+                  </div>
+                </template>
+                <template v-else>
+                  <span class="font-normal text-muted-foreground">
+                    Select appraisers
                   </span>
-                  <Calendar class="ms-auto h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                class="w-auto p-0"
-                align="start"
+                </template>
+                <ChevronsUpDown class="ml-auto h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              class="w-72 p-0"
+              align="start"
+            >
+              <Command>
+                <CommandInput placeholder="Search for appraisers" />
+                <CommandList>
+                  <CommandEmpty> No employee found. </CommandEmpty>
+                  <template v-if="appraisers?.length">
+                    <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
+                      <CommandGroup>
+                        <CommandItem
+                          v-for="appraiser in appraisers"
+                          :key="appraiser.id"
+                          :value="appraiser"
+                          @select="handleEmployeeMultiselect(appraiser)"
+                        >
+                          <EmployeePopoverSelection
+                            :employee="appraiser"
+                            is-selected
+                          />
+                        </CommandItem>
+                      </CommandGroup>
+                    </div>
+                    <CommandSeparator v-if="canEdit" />
+                  </template>
+                  <div v-if="canEdit">
+                    <EmployeeCommandListPlaceholder
+                      v-if="!groupedEmployees?.length"
+                    />
+                    <template v-else>
+                      <CommandGroup
+                        v-for="group in remainingEmployees"
+                        :key="group.role"
+                      >
+                        <span class="pl-2 text-xs font-medium">{{
+                          userRoleMap[group.role].label
+                        }}</span>
+                        <CommandItem
+                          v-for="employee in group.items"
+                          :key="employee.id"
+                          :value="employee"
+                          @select="handleEmployeeMultiselect(employee)"
+                        >
+                          <EmployeePopoverSelection :employee="employee" />
+                        </CommandItem>
+                      </CommandGroup>
+                    </template>
+                  </div>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <InputError :message="form.errors.appraisers" />
+        </div>
+      </div>
+      <div class="flex flex-col gap-y-2 md:flex-row md:items-start md:gap-x-4">
+        <Label class="mt-1 shrink-0 md:mt-3 md:w-36"> Date Appraised </Label>
+        <div class="flex w-full flex-col gap-1">
+          <Popover>
+            <PopoverTrigger
+              as-child
+              :disabled="!canEdit"
+            >
+              <Button
+                type="button"
+                variant="outline"
+                class="w-full ps-3 text-start font-normal"
+                :class="{
+                  'text-muted-foreground': !appraisedDate,
+                  'border-destructive': form.errors.appraised_date,
+                }"
               >
-                <AppCalendar
-                  :model-value="appraisedDateModel"
-                  @update:model-value="handleAppraisedDateChange"
-                />
-              </PopoverContent>
-            </Popover>
-            <InputError :message="form.errors.appraised_date" />
-          </div>
+                <span>
+                  {{
+                    appraisedDate
+                      ? formatToDateString(appraisedDate.toString())
+                      : 'Pick a date'
+                  }}
+                </span>
+                <Calendar class="ms-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              class="w-auto p-0"
+              align="start"
+            >
+              <AppCalendar
+                :model-value="appraisedDateModel"
+                @update:model-value="handleAppraisedDateChange"
+              />
+            </PopoverContent>
+          </Popover>
+          <InputError :message="form.errors.appraised_date" />
         </div>
       </div>
     </div>

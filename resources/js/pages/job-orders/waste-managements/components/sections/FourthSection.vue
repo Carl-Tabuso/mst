@@ -82,11 +82,13 @@ const { isPreHauling } = useWasteManagementStages()
     :condition="isPreHauling(status)"
     class="mb-4"
   >
-    <span class="pr-1 font-semibold">Dispatcher</span>
+    <span class="font-semibold">Dispatcher</span>
     is required to complete this section to continue with personnel assignment.
   </FormAreaInfo>
-  <div class="grid grid-cols-[auto,1fr] gap-x-12 gap-y-6">
-    <div class="col-span-2 grid w-full grid-cols-3 items-start">
+  <div class="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-[auto,1fr]">
+    <div
+      class="col-span-1 grid grid-cols-1 items-start gap-y-3 md:col-span-2 md:grid-cols-3 md:gap-y-0"
+    >
       <div>
         <div class="text-xl font-semibold leading-6">Hauling Duration</div>
         <p class="text-sm text-muted-foreground">
@@ -95,7 +97,7 @@ const { isPreHauling } = useWasteManagementStages()
       </div>
       <div
         v-if="startingDate && endingDate"
-        class="flex justify-center"
+        class="flex justify-start md:justify-center"
       >
         <div
           class="flex items-center gap-2 text-sm font-semibold text-muted-foreground"
@@ -110,19 +112,12 @@ const { isPreHauling } = useWasteManagementStages()
           of total duration
         </div>
       </div>
-      <!-- <div
-        v-show="dispatcher"
-        class="flex items-center justify-end font-medium text-muted-foreground"
-      >
-        <UserRound class="mr-2 size-4" />
-        <div class="text-xs">
-          {{ `Completed by ${dispatcher?.fullName}` }}
-        </div>
-      </div> -->
     </div>
-    <div class="col-span-2 grid grid-cols-2 gap-x-10">
-      <div class="flex items-start gap-x-4">
-        <Label class="mt-3 w-44 shrink-0">Start Date</Label>
+    <div
+      class="col-span-1 grid grid-cols-1 gap-x-8 gap-y-4 md:col-span-2 md:grid-cols-2"
+    >
+      <div class="flex flex-col gap-2 md:flex-row md:items-start md:gap-x-4">
+        <Label class="mt-1 shrink-0 md:mt-3 md:w-44">Start Date</Label>
         <div class="flex w-full flex-col gap-1">
           <Popover>
             <PopoverTrigger
@@ -165,8 +160,8 @@ const { isPreHauling } = useWasteManagementStages()
           <InputError :message="form.errors.from" />
         </div>
       </div>
-      <div class="flex items-start">
-        <Label class="mt-3 w-36 shrink-0">Finish Date</Label>
+      <div class="flex flex-col gap-2 md:flex-row md:items-start md:gap-x-4">
+        <Label class="mt-1 shrink-0 md:mt-3 md:w-36">Finish Date</Label>
         <div class="flex w-full flex-col gap-1">
           <Popover>
             <PopoverTrigger
@@ -187,7 +182,7 @@ const { isPreHauling } = useWasteManagementStages()
                 <span>
                   {{
                     endingDateModel
-                      ? formatToDateString(endingDateModel?.toString())
+                      ? formatToDateString(endingDateModel.toString())
                       : 'Pick a date'
                   }}
                 </span>

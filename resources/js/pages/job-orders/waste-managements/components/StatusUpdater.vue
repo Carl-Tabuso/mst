@@ -79,7 +79,8 @@ const onMarkAsStop = () => {
     <DialogTrigger>
       <Button type="button">
         <CircleArrowRight class="mr-2" />
-        Update Status
+        <span class="flex sm:hidden"> Update </span>
+        <span class="hidden sm:flex"> Update Status </span>
       </Button>
     </DialogTrigger>
     <DialogContent>

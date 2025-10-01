@@ -52,13 +52,13 @@ const handleDateOfServiceChange = (value: any) => {
       General information of the requested service and client information.
     </p>
   </div>
-  <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
+  <div class="grid grid-cols-1 gap-x-7 gap-y-3 md:grid-cols-[auto,1fr]">
     <Label class="self-center"> Type of Service </Label>
     <RadioGroup
       required
       v-model="serviceType"
       :disabled="isServiceTypeDisabled"
-      class="flex items-center gap-x-10"
+      class="flex flex-col gap-3 md:flex-row md:items-center md:gap-x-10"
     >
       <div class="flex items-center gap-x-2">
         <RadioGroupItem
@@ -83,7 +83,7 @@ const handleDateOfServiceChange = (value: any) => {
       </div>
     </RadioGroup>
     <Label class="self-center"> Date and Time of Service </Label>
-    <div class="flex items-center gap-x-4">
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-x-4">
       <Popover>
         <PopoverTrigger
           as-child
@@ -93,7 +93,7 @@ const handleDateOfServiceChange = (value: any) => {
             type="button"
             variant="outline"
             :class="[
-              'w-[400px] ps-3 text-start font-normal',
+              'w-full ps-3 text-start font-normal md:w-[400px]',
               { 'border-destructive': errors?.date_time },
             ]"
           >
@@ -117,7 +117,7 @@ const handleDateOfServiceChange = (value: any) => {
         required
         :disabled="!isEditing"
         :class="[
-          'w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden',
+          'w-full appearance-none bg-background md:w-[100px] [&::-webkit-calendar-picker-indicator]:hidden',
           { 'border-destructive': errors?.date_time },
         ]"
         placeholder="Select a time"
@@ -129,7 +129,7 @@ const handleDateOfServiceChange = (value: any) => {
     >
       Client
     </Label>
-    <div class="flex flex-col">
+    <div class="flex w-full flex-col">
       <Input
         id="client"
         type="text"
@@ -138,7 +138,7 @@ const handleDateOfServiceChange = (value: any) => {
         placeholder="Enter client/company name"
         v-model="client"
         :class="[
-          'w-[515px]',
+          'w-full md:w-[515px]',
           {
             'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
               errors?.client,
@@ -161,11 +161,13 @@ const handleDateOfServiceChange = (value: any) => {
       v-model="address"
       class="w-full"
     />
-    <div class="col-span-2 grid grid-cols-2 gap-x-10">
-      <div class="flex items-center gap-x-4">
+    <div
+      class="col-span-1 grid grid-cols-1 gap-x-0 gap-y-3 md:col-span-2 md:grid-cols-2 md:gap-x-10 md:gap-y-0"
+    >
+      <div class="flex flex-col md:flex-row md:items-center md:gap-x-4">
         <Label
           for="department"
-          class="w-44 shrink-0"
+          class="shrink-0 md:w-44"
         >
           Department/Branch
         </Label>
@@ -176,13 +178,13 @@ const handleDateOfServiceChange = (value: any) => {
           :disabled="!isEditing"
           placeholder="Enter client/company's department"
           v-model="department"
-          class="w-[400px]"
+          class="w-full md:w-[400px]"
         />
       </div>
-      <div class="flex items-center">
+      <div class="flex flex-col md:flex-row md:items-center">
         <Label
           for="position"
-          class="w-36 shrink-0"
+          class="shrink-0 md:w-36"
         >
           Contact Position
         </Label>
@@ -197,11 +199,13 @@ const handleDateOfServiceChange = (value: any) => {
         />
       </div>
     </div>
-    <div class="col-span-2 grid grid-cols-2 gap-x-10">
-      <div class="flex items-center gap-x-4">
+    <div
+      class="col-span-1 grid grid-cols-1 gap-x-0 gap-y-3 md:col-span-2 md:grid-cols-2 md:gap-x-10 md:gap-y-0"
+    >
+      <div class="flex flex-col md:flex-row md:items-center md:gap-x-4">
         <Label
           for="contactPerson"
-          class="w-44 shrink-0"
+          class="shrink-0 md:w-44"
         >
           Contact Person
         </Label>
@@ -215,10 +219,10 @@ const handleDateOfServiceChange = (value: any) => {
           class="w-full"
         />
       </div>
-      <div class="flex items-center">
+      <div class="flex flex-col md:flex-row md:items-center">
         <Label
           for="contactNumber"
-          class="w-36 shrink-0"
+          class="shrink-0 md:w-36"
         >
           Contact Number
         </Label>

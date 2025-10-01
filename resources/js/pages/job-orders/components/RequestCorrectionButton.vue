@@ -13,15 +13,17 @@ const isEditing = defineModel<boolean>('isEditing')
       @click="isEditing = true"
     >
       <Pencil class="mr-2" />
-      Request Correction
+      <span class="flex sm:hidden"> Correction </span>
+      <span class="hidden sm:flex"> Request Correction </span>
     </Button>
     <Button
       v-else
       variant="outline"
       @click="isEditing = false"
     >
-      <X class="mr-2" />
-      Cancel Correction
+      <X class="sm:mr-2" />
+      <span class="flex sm:hidden"> Cancel </span>
+      <span class="hidden sm:flex"> Cancel Correction </span>
     </Button>
   </div>
 </template>

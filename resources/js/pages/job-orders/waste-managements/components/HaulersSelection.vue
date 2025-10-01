@@ -57,18 +57,21 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
 </script>
 
 <template>
-  <div class="flex items-center gap-x-10">
-    <Label class="w-28 shrink-0"> Haulers </Label>
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-10">
+    <Label class="w-full shrink-0 sm:w-28">Haulers</Label>
     <Popover @update:open="$emit('onHaulerToggle')">
       <PopoverTrigger
-        class="w-[400px]"
+        class="w-full sm:w-[400px]"
         as-child
         :disabled="
           (!hauling.isOpen || hauling.status === 'in progress') &&
           haulers.length < 2
         "
       >
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          class="w-full"
+        >
           <div
             v-if="haulers?.length"
             class="flex items-center justify-between gap-2 rounded-md text-xs"
@@ -113,7 +116,7 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
         <Command>
           <CommandInput placeholder="Search for haulers" />
           <CommandList>
-            <CommandEmpty> No results found. </CommandEmpty>
+            <CommandEmpty>No results found.</CommandEmpty>
             <template v-if="haulers?.length">
               <div :class="['overflow-y-auto', { 'max-h-40': hauling.isOpen }]">
                 <CommandGroup>

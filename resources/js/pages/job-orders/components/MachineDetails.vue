@@ -35,12 +35,16 @@ const machineProblem = defineModel<string>('machineProblem')
         Machine specifications and description of current problem.
       </p>
     </div>
-    <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
-      <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex flex-row items-start gap-x-4">
+    <div
+      class="grid grid-cols-1 gap-y-4 sm:grid-cols-[auto,1fr] sm:gap-x-7 sm:gap-y-3"
+    >
+      <div
+        class="grid grid-cols-1 gap-y-4 sm:col-span-2 sm:grid-cols-2 sm:gap-x-10"
+      >
+        <div class="flex flex-col sm:flex-row sm:items-start sm:gap-x-4">
           <Label
             for="machineType"
-            class="mt-3 w-44 shrink-0"
+            class="mb-1 w-full shrink-0 sm:mb-0 sm:mt-3 sm:w-44"
           >
             Machine Type
           </Label>
@@ -75,10 +79,10 @@ const machineProblem = defineModel<string>('machineProblem')
             <InputError :message="errors?.machine_type" />
           </div>
         </div>
-        <div class="flex flex-row items-start">
+        <div class="flex flex-col sm:flex-row sm:items-start">
           <Label
             for="machineModel"
-            class="mt-3 w-36 shrink-0"
+            class="mb-1 w-full shrink-0 sm:mb-0 sm:mt-3 sm:w-36"
           >
             Model
           </Label>
@@ -98,11 +102,13 @@ const machineProblem = defineModel<string>('machineProblem')
           </div>
         </div>
       </div>
-      <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex flex-row items-start gap-x-4">
+      <div
+        class="grid grid-cols-1 gap-y-4 sm:col-span-2 sm:grid-cols-2 sm:gap-x-10"
+      >
+        <div class="flex flex-col sm:flex-row sm:items-start sm:gap-x-4">
           <Label
             for="serialNumber"
-            class="mt-3 w-44 shrink-0"
+            class="mb-1 w-full shrink-0 sm:mb-0 sm:mt-3 sm:w-44"
           >
             Serial Number
           </Label>
@@ -121,10 +127,10 @@ const machineProblem = defineModel<string>('machineProblem')
             <InputError :message="errors?.serial_no" />
           </div>
         </div>
-        <div class="flex flex-row items-start">
+        <div class="flex flex-col sm:flex-row sm:items-start">
           <Label
             for="tagNumber"
-            class="mt-3 w-36 shrink-0"
+            class="mb-1 w-full shrink-0 sm:mb-0 sm:mt-3 sm:w-36"
           >
             Tag Number
           </Label>
@@ -143,10 +149,10 @@ const machineProblem = defineModel<string>('machineProblem')
             <InputError :message="errors?.tag_no" />
           </div>
         </div>
-        <div class="col-span-2 mt-3 flex flex-row items-center">
+        <div class="flex flex-col sm:col-span-2 sm:flex-row sm:items-start">
           <Label
             for="problem"
-            class="w-48 shrink-0 self-start pt-1"
+            class="mb-1 w-full shrink-0 sm:mb-0 sm:w-48 sm:pt-1"
           >
             Machine Problem
           </Label>

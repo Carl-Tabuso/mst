@@ -60,8 +60,8 @@ const Roles = [
 </script>
 
 <template>
-  <div class="flex items-center gap-x-10">
-    <Label class="w-28 shrink-0">
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-10">
+    <Label class="w-full shrink-0 sm:w-28">
       {{ label }}
     </Label>
     <Popover
@@ -69,11 +69,14 @@ const Roles = [
       @update:open="(value) => $emit('toggled', role, index, value)"
     >
       <PopoverTrigger
-        class="w-[400px]"
+        class="w-full sm:w-[400px]"
         as-child
         :disabled="!canEdit"
       >
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          class="w-full"
+        >
           <template v-if="hauling?.assignedPersonnel?.[role]">
             <UserAvatar
               :avatar-path="firstPersonnel?.account?.avatar"
@@ -110,7 +113,7 @@ const Roles = [
         <Command>
           <CommandInput :placeholder="`Search for a ${label.toLowerCase()}`" />
           <CommandList>
-            <CommandEmpty> No results found. </CommandEmpty>
+            <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               <template v-if="!employees">
                 <EmployeeCommandListPlaceholder :count="7" />
@@ -128,9 +131,7 @@ const Roles = [
                     :fallback="employee.fullName"
                   />
                   <div class="grid flex-1 text-left text-[13px] leading-tight">
-                    <span class="truncate">
-                      {{ employee.fullName }}
-                    </span>
+                    <span class="truncate">{{ employee.fullName }}</span>
                   </div>
                   <Check
                     v-if="hauling?.assignedPersonnel?.[role]"

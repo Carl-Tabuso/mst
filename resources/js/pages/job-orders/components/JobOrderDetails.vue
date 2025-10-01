@@ -65,38 +65,40 @@ const handleDateOfServiceChange = (value: any) => {
         General information of the requested service and client information.
       </p>
     </div>
-    <div class="grid grid-cols-[auto,1fr] gap-x-7 gap-y-3">
-      <Label class="self-center"> Type of Service </Label>
+    <div
+      class="grid grid-cols-1 gap-y-5 md:grid-cols-[auto,1fr] md:gap-x-7 md:gap-y-3"
+    >
+      <Label class="self-start md:self-center">Type of Service</Label>
       <RadioGroup
         required
         v-model="serviceType"
         :disabled="isServiceTypeDisabled"
-        class="flex items-center gap-x-10"
+        class="flex flex-col gap-y-3 md:flex-row md:items-center md:gap-x-10"
       >
         <div class="flex items-center gap-x-2">
           <RadioGroupItem
             id="wm"
             value="form4"
           />
-          <Label for="wm"> Waste Management </Label>
+          <Label for="wm">Waste Management</Label>
         </div>
         <div class="flex items-center gap-x-2">
           <RadioGroupItem
             id="its"
             value="it_service"
           />
-          <Label for="its"> IT Services </Label>
+          <Label for="its">IT Services</Label>
         </div>
         <div class="flex items-center gap-x-2">
           <RadioGroupItem
             id="os"
             value="form5"
           />
-          <Label for="os"> Other Services (specify) </Label>
+          <Label for="os">Other Services (specify)</Label>
         </div>
       </RadioGroup>
-      <Label class="self-center"> Date and Time of Service </Label>
-      <div class="flex items-center gap-x-4">
+      <Label class="self-start md:self-center">Date and Time of Service</Label>
+      <div class="flex flex-col gap-y-3 md:flex-row md:items-center md:gap-x-4">
         <Popover>
           <PopoverTrigger
             as-child
@@ -105,14 +107,10 @@ const handleDateOfServiceChange = (value: any) => {
             <Button
               type="button"
               variant="outline"
-              :class="[
-                'w-[400px] ps-3 text-start font-normal',
-                { 'border-destructive': errors?.date_time },
-              ]"
+              class="w-full ps-3 text-start font-normal md:w-[400px]"
+              :class="{ 'border-destructive': errors?.date_time }"
             >
-              <span>
-                {{ formatToDateString(serviceDate.toString()) }}
-              </span>
+              <span>{{ formatToDateString(serviceDate.toString()) }}</span>
               <Calendar class="ms-auto h-4 w-4 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -129,19 +127,16 @@ const handleDateOfServiceChange = (value: any) => {
           v-model="serviceTime"
           required
           :disabled="!isEditing"
-          :class="[
-            'w-[100px] appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden',
-            { 'border-destructive': errors?.date_time },
-          ]"
+          class="w-full appearance-none bg-background md:w-[120px] [&::-webkit-calendar-picker-indicator]:hidden"
+          :class="{ 'border-destructive': errors?.date_time }"
           placeholder="Select a time"
         />
       </div>
       <Label
         for="client"
-        class="self-center"
+        class="self-start md:self-center"
+        >Client</Label
       >
-        Client
-      </Label>
       <div class="flex flex-col">
         <Input
           id="client"
@@ -150,22 +145,19 @@ const handleDateOfServiceChange = (value: any) => {
           :disabled="!isEditing"
           placeholder="Enter client/company name"
           v-model="client"
-          :class="[
-            'w-[515px]',
-            {
-              'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
-                errors?.client,
-            },
-          ]"
+          class="w-full md:w-[515px]"
+          :class="{
+            'focus border-destructive focus-visible:ring-0 focus-visible:ring-destructive':
+              errors?.client,
+          }"
         />
         <InputError :message="errors?.client" />
       </div>
       <Label
         for="address"
         class="self-start pt-1"
+        >Address</Label
       >
-        Address
-      </Label>
       <Textarea
         id="address"
         required
@@ -174,14 +166,17 @@ const handleDateOfServiceChange = (value: any) => {
         v-model="address"
         class="w-full"
       />
-      <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex items-center gap-x-4">
+      <div
+        class="col-span-1 flex flex-col gap-y-3 md:col-span-2 md:grid md:grid-cols-2 md:gap-x-10"
+      >
+        <div
+          class="flex flex-col gap-y-2 md:flex-row md:items-center md:gap-x-4"
+        >
           <Label
             for="department"
-            class="w-44 shrink-0"
+            class="shrink-0 md:w-44"
+            >Department/Branch</Label
           >
-            Department/Branch
-          </Label>
           <Input
             id="department"
             type="text"
@@ -189,16 +184,15 @@ const handleDateOfServiceChange = (value: any) => {
             :disabled="!isEditing"
             placeholder="Enter client/company's department"
             v-model="department"
-            class="w-[400px]"
+            class="w-full md:w-[400px]"
           />
         </div>
-        <div class="flex items-center">
+        <div class="flex flex-col gap-y-2 md:flex-row md:items-center">
           <Label
             for="position"
-            class="w-36 shrink-0"
+            class="shrink-0 md:w-36"
+            >Contact Position</Label
           >
-            Contact Position
-          </Label>
           <Input
             id="position"
             type="text"
@@ -210,14 +204,17 @@ const handleDateOfServiceChange = (value: any) => {
           />
         </div>
       </div>
-      <div class="col-span-2 grid grid-cols-2 gap-x-10">
-        <div class="flex items-center gap-x-4">
+      <div
+        class="col-span-1 flex flex-col gap-y-3 md:col-span-2 md:grid md:grid-cols-2 md:gap-x-10"
+      >
+        <div
+          class="flex flex-col gap-y-2 md:flex-row md:items-center md:gap-x-4"
+        >
           <Label
             for="contactPerson"
-            class="w-44 shrink-0"
+            class="shrink-0 md:w-44"
+            >Contact Person</Label
           >
-            Contact Person
-          </Label>
           <Input
             id="contactPerson"
             type="text"
@@ -228,13 +225,12 @@ const handleDateOfServiceChange = (value: any) => {
             class="w-full"
           />
         </div>
-        <div class="flex items-center">
+        <div class="flex flex-col gap-y-2 md:flex-row md:items-center">
           <Label
             for="contactNumber"
-            class="w-36 shrink-0"
+            class="shrink-0 md:w-36"
+            >Contact Number</Label
           >
-            Contact Number
-          </Label>
           <Input
             id="contactNumber"
             type="text"
@@ -250,10 +246,12 @@ const handleDateOfServiceChange = (value: any) => {
       </div>
       <div
         v-if="serviceType === 'it_service'"
-        class="col-span-2 grid grid-cols-2 gap-x-10"
+        class="col-span-1 flex flex-col gap-y-3 md:col-span-2 md:grid md:grid-cols-2 md:gap-x-10"
       >
-        <div class="flex flex-row items-center gap-x-4">
-          <Label class="w-44 shrink-0"> Technician </Label>
+        <div
+          class="flex flex-col gap-y-2 md:flex-row md:items-center md:gap-x-4"
+        >
+          <Label class="shrink-0 md:w-44">Technician</Label>
           <div class="flex w-full flex-col">
             <Popover>
               <PopoverTrigger
@@ -264,7 +262,10 @@ const handleDateOfServiceChange = (value: any) => {
                     errors?.technician_id,
                 }"
               >
-                <Button variant="outline">
+                <Button
+                  variant="outline"
+                  class="w-full"
+                >
                   <template v-if="technician">
                     <UserAvatar
                       :avatar-path="technician?.account?.avatar"
@@ -308,9 +309,9 @@ const handleDateOfServiceChange = (value: any) => {
                         <div
                           class="grid flex-1 text-left text-[13px] leading-tight"
                         >
-                          <span class="truncate">
-                            {{ availableTechnician.fullName }}
-                          </span>
+                          <span class="truncate">{{
+                            availableTechnician.fullName
+                          }}</span>
                         </div>
                         <Check
                           :class="[

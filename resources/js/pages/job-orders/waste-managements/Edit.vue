@@ -173,12 +173,13 @@ const unapprovedCorrections = computed(() => {
 
 <template>
   <Head :title="data.ticket" />
-
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
       <StickyPageHeader>
         <CorrectionRequestBanner :correction="unapprovedCorrections" />
-        <div class="mb-3 flex items-center justify-between">
+        <div
+          class="mb-3 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center"
+        >
           <TicketHeader :job-order="data" />
           <div
             v-if="can('create:job_order_correction')"
