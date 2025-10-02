@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { router, usePage } from '@inertiajs/vue3'
 import { Calendar, Filter } from 'lucide-vue-next'
 import type { DateValue } from 'reka-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 interface DataTableFacetedFilterProps {
   routeName?: string
@@ -26,65 +26,36 @@ const props = withDefaults(defineProps<DataTableFacetedFilterProps>(), {
 })
 
 const page = usePage()
-const initialFilters = page.props.filters || {}
 
-const accountStatuses = [
+const accountStatuses = Object.freeze([
   { id: 'active', label: 'Active' },
   { id: 'deactivated', label: 'Deactivated' },
   { id: 'no_account', label: 'No Account' },
-]
+])
 
-const statuses = ref<string[]>(initialFilters.statuses ?? [])
-const selectedPositions = ref<number[]>(initialFilters.positions ?? [])
-
-const fromDateCreated = ref<DateValue | undefined>(
-  initialFilters.from ? new Date(initialFilters.from) : undefined,
-)
-
-const toDateCreated = ref<DateValue | undefined>(
-  initialFilters.to ? new Date(initialFilters.to) : undefined,
-)
+const statuses = ref<string[]>([])
+const selectedPositions = ref<number[]>([])
+const fromDateCreated = ref<DateValue | undefined>()
+const toDateCreated = ref<DateValue | undefined>()
+const isParentPopoverOpen = ref(false)
+const isCalendarOpen = ref({ from: false, to: false })
 
 const selectedStatuses = computed(() => new Set(statuses.value))
-const url = computed(() => route(props.routeName))
-const isParentPopoverOpen = ref(false)
-const isCalendarOpen = ref<Record<string, boolean>>({
-  from: false,
-  to: false,
-})
-
-const handleStatusSelection = (statusId: string, checked: boolean) => {
-  if (checked) {
-    if (!statuses.value.includes(statusId)) {
-      statuses.value.push(statusId)
-    }
-  } else {
-    statuses.value = statuses.value.filter((id) => id !== statusId)
-  }
-}
-
-const handlePositionSelection = (positionId: number, checked: boolean) => {
-  if (checked) {
-    if (!selectedPositions.value.includes(positionId)) {
-      selectedPositions.value.push(positionId)
-    }
-  } else {
-    selectedPositions.value = selectedPositions.value.filter(
-      (id) => id !== positionId,
-    )
-  }
-}
+const activeFilterCount = computed(
+  () =>
+    selectedStatuses.value.size +
+    selectedPositions.value.length +
+    (fromDateCreated.value ? 1 : 0) +
+    (toDateCreated.value ? 1 : 0),
+)
 
 const formatToDateString = (date: DateValue | undefined) => {
   if (!date) return ''
-  if (typeof (date as any).toDate === 'function') {
-    return (date as any).toDate().toLocaleDateString('en-PH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-  return new Date(String(date)).toLocaleDateString('en-PH', {
+  const dateObj =
+    typeof (date as any).toDate === 'function'
+      ? (date as any).toDate()
+      : new Date(String(date))
+  return dateObj.toLocaleDateString('en-PH', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -93,17 +64,58 @@ const formatToDateString = (date: DateValue | undefined) => {
 
 const serializeDate = (date: DateValue | undefined) => {
   if (!date) return ''
-  if (typeof (date as any).toDate === 'function') {
-    return (date as any).toDate().toISOString()
+  const dateObj =
+    typeof (date as any).toDate === 'function'
+      ? (date as any).toDate()
+      : new Date(String(date))
+  return dateObj.toISOString()
+}
+
+const updateFiltersFromUrl = () => {
+  const currentFilters = page.props.filters || {}
+
+  statuses.value = currentFilters.accountStatuses || []
+  selectedPositions.value = (currentFilters.positions || []).map(Number)
+  fromDateCreated.value = currentFilters.fromDateCreated
+    ? new Date(currentFilters.fromDateCreated)
+    : undefined
+  toDateCreated.value = currentFilters.toDateCreated
+    ? new Date(currentFilters.toDateCreated)
+    : undefined
+}
+
+updateFiltersFromUrl()
+
+watch(
+  () => page.props.filters,
+  () => {
+    updateFiltersFromUrl()
+  },
+  { deep: true },
+)
+
+const handleStatusSelection = (statusId: string, checked: boolean) => {
+  if (checked) {
+    statuses.value = [...statuses.value, statusId]
+  } else {
+    statuses.value = statuses.value.filter((id) => id !== statusId)
   }
-  return new Date(String(date)).toISOString()
+}
+
+const handlePositionSelection = (positionId: number, checked: boolean) => {
+  if (checked) {
+    selectedPositions.value = [...selectedPositions.value, positionId]
+  } else {
+    selectedPositions.value = selectedPositions.value.filter(
+      (id) => id !== positionId,
+    )
+  }
 }
 
 const applyFilters = () => {
   isParentPopoverOpen.value = false
-
   router.get(
-    url.value,
+    route(props.routeName),
     {
       filters: {
         accountStatuses: statuses.value,
@@ -125,11 +137,10 @@ const clearFilters = () => {
   selectedPositions.value = []
   fromDateCreated.value = undefined
   toDateCreated.value = undefined
-
   isParentPopoverOpen.value = false
 
   router.get(
-    url.value,
+    route(props.routeName),
     {},
     {
       preserveState: true,
@@ -138,6 +149,12 @@ const clearFilters = () => {
     },
   )
 }
+
+watch(isParentPopoverOpen, (isOpen) => {
+  if (isOpen) {
+    updateFiltersFromUrl()
+  }
+})
 </script>
 
 <template>
@@ -149,25 +166,19 @@ const clearFilters = () => {
       >
         <Filter class="mr-2 size-4" />
         Filter
-        <template
-          v-if="selectedStatuses.size > 0 || selectedPositions.length > 0"
+        <Badge
+          v-if="activeFilterCount > 0"
+          variant="secondary"
+          class="ml-1 hidden rounded-full font-normal lg:flex"
         >
-          <div class="hidden lg:flex">
-            <Badge
-              variant="secondary"
-              class="rounded-full font-normal"
-            >
-              {{ selectedStatuses.size + selectedPositions.length }}
-            </Badge>
-          </div>
-        </template>
+          {{ activeFilterCount }}
+        </Badge>
       </Button>
     </PopoverTrigger>
     <PopoverContent
       class="w-full"
       align="start"
     >
-      <!-- Status Filter -->
       <div class="mb-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">Account Status</div>
         <div class="grid grid-cols-2 gap-x-10 gap-y-4">
@@ -196,7 +207,6 @@ const clearFilters = () => {
 
       <Separator />
 
-      <!-- Position Filter -->
       <div
         v-if="positions.length > 0"
         class="my-5 flex flex-col space-y-5"
@@ -228,15 +238,13 @@ const clearFilters = () => {
 
       <Separator />
 
-      <!-- Date Filter -->
       <div class="my-5 flex flex-col space-y-5">
         <div class="text-sm font-semibold leading-none">
           Account Created Date
         </div>
         <div class="grid grid-cols-2 gap-10">
-          <!-- From -->
           <div class="flex items-center">
-            <span class="pr-4 text-sm"> From </span>
+            <span class="pr-4 text-sm">From</span>
             <Popover v-model:open="isCalendarOpen.from">
               <PopoverTrigger as-child>
                 <Button
@@ -246,9 +254,9 @@ const clearFilters = () => {
                     { 'text-muted-foreground': !fromDateCreated },
                   ]"
                 >
-                  <span>
-                    {{ formatToDateString(fromDateCreated) || 'Pick a date' }}
-                  </span>
+                  <span>{{
+                    formatToDateString(fromDateCreated) || 'Pick a date'
+                  }}</span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -258,9 +266,8 @@ const clearFilters = () => {
             </Popover>
           </div>
 
-          <!-- To -->
           <div class="flex items-center">
-            <span class="pr-4 text-sm"> To </span>
+            <span class="pr-4 text-sm">To</span>
             <Popover v-model:open="isCalendarOpen.to">
               <PopoverTrigger as-child>
                 <Button
@@ -270,9 +277,9 @@ const clearFilters = () => {
                     { 'text-muted-foreground': !toDateCreated },
                   ]"
                 >
-                  <span>
-                    {{ formatToDateString(toDateCreated) || 'Pick a date' }}
-                  </span>
+                  <span>{{
+                    formatToDateString(toDateCreated) || 'Pick a date'
+                  }}</span>
                   <Calendar class="ms-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -284,20 +291,21 @@ const clearFilters = () => {
         </div>
       </div>
 
-      <!-- Actions -->
       <div class="flex items-center justify-end space-x-2">
         <Button
           @click="clearFilters"
           variant="outline"
           size="sm"
-          >Clear</Button
         >
+          Clear
+        </Button>
         <Button
           @click="applyFilters"
           variant="default"
           size="sm"
-          >Apply Filter</Button
         >
+          Apply Filter
+        </Button>
       </div>
     </PopoverContent>
   </Popover>
