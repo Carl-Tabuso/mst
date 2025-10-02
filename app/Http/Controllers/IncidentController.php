@@ -93,6 +93,13 @@ class IncidentController extends Controller
 
         return redirect()->back()->with('success', 'Incident verified successfully');
     }
+    public function dropIncident(Incident $incident)
+    {
+        $incident->update(['status' => IncidentStatus::Dropped]);
+
+        return redirect()->back()->with('success', 'Incident dropped successfully');
+    }
+
 
     public function store(StoreIncidentRequest $request)
     {
