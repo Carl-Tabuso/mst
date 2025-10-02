@@ -188,6 +188,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('{incident}/read', [IncidentController::class, 'markAsRead'])->name('markAsRead');
         Route::post('/archive', [IncidentController::class, 'archive'])->name('archive');
         Route::patch('/{incident}/verify', [IncidentController::class, 'verify'])->name('verify')->middleware(['can:verify,incident']);
+        Route::patch('/{incident}/dropIncident', [IncidentController::class, 'dropIncident'])->name('dropIncident')->middleware(['can:verify,incident']);
         Route::put('/incidents/{incident}/mark-no-incident', [IncidentController::class, 'markNoIncident'])->name('markNoIncident');
         Route::post('/create-secondary/{haulingId}', [IncidentController::class, 'createSecondary'])->name('createSecondary');
     });
@@ -208,12 +209,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 if (app()->isLocal()) {
-    require __DIR__.'/sandbox.php';
+    require __DIR__ . '/sandbox.php';
 }
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
-require __DIR__.'/corrections.php';
-require __DIR__.'/trucks.php';
-require __DIR__.'/itservice.php';
-require __DIR__.'/archives.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/corrections.php';
+require __DIR__ . '/trucks.php';
+require __DIR__ . '/itservice.php';
+require __DIR__ . '/archives.php';
