@@ -36,6 +36,7 @@ class EmployeeService
             ->through($pipes)
             ->then(function (Builder $query) use ($perPage) {
                 return $query->with(['emergencyContact', 'employmentDetails', 'compensation', 'account', 'position'])
+                    ->orderBy('created_at', 'desc')
                     ->orderBy('last_name')
                     ->orderBy('first_name')
                     ->paginate($perPage)
@@ -76,12 +77,12 @@ class EmployeeService
             'evaluatedTeamLeaders.jobOrder',
             'evaluatedTeamLeaders.ratings.performanceRating',
             'createdJobOrders',
-        ])->whereHas('position', fn ($q) => $q->whereIn('name', $allowedPositions));
+        ])->whereHas('position', fn($q) => $q->whereIn('name', $allowedPositions));
 
         if (! empty($filters['positions'])) {
             $validPositions = array_intersect($filters['positions'], $allowedPositions);
             if ($validPositions) {
-                $query->whereHas('position', fn ($q) => $q->whereIn('name', $validPositions));
+                $query->whereHas('position', fn($q) => $q->whereIn('name', $validPositions));
             }
         }
 
