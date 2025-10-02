@@ -71,34 +71,38 @@ const canEditIncident = computed(() => {
   if (!props.incident) {
     return false
   }
-
   if (!props.incident.hauling) {
     return false
   }
-
   if (isConsultant.value) {
     const haulingIncidents = props.incident.hauling.incidents || []
-
     if (haulingIncidents.length !== 2) {
       return false
     }
-
     const sortedIncidents = [...haulingIncidents].sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
-
     const mostRecentIncident = sortedIncidents[0]
-
     const isMostRecent = props.incident.id === mostRecentIncident?.id
     const isDraft = props.incident.status === 'draft'
-
     return isMostRecent && isDraft
   }
-
   const canEdit = isCreatingRole.value && props.incident.status === 'draft'
-
   return canEdit
+})
+
+const canCreateSecondaryIncident = computed(() => {
+  if (!isConsultant.value || !props.incident?.hauling) {
+    return false
+  }
+  const haulingIncidents = props.incident.hauling.incidents || []
+  const sortedIncidents = [...haulingIncidents].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  )
+  const mostRecentIncident = sortedIncidents[0]
+  return props.incident.id === mostRecentIncident?.id
 })
 
 onMounted(() => {
@@ -225,6 +229,25 @@ const verifyIncident = async (id: string) => {
     handleApiError(error, 'verify the incident')
   }
 }
+const dropIncident = async (id: string) => {
+  try {
+    await router.patch(
+      route('incidents.dropIncident', { incident: id }),
+      {},
+      {
+        onSuccess: () => {
+          emit('incident-updated')
+          alert('Incident dropped successfully!')
+        },
+        onError: () => {
+          handleApiError(null, 'drop the incident')
+        },
+      },
+    )
+  } catch (error) {
+    handleApiError(error, 'drop the incident')
+  }
+}
 
 const getJobOrderDisplay = (incident: any) => {
   if (!incident) return 'N/A'
@@ -324,7 +347,7 @@ const showAllPeopleEdit = ref(false)
         </h2>
 
         <Button
-          v-if="isConsultant && !canEditIncident"
+          v-if="isConsultant && canCreateSecondaryIncident && !canEditIncident"
           variant="outline"
           @click="createSecondaryIncident"
           :disabled="!props.incident?.hauling"
@@ -737,8 +760,20 @@ const showAllPeopleEdit = ref(false)
       v-else
       class="flex flex-1 flex-col p-4"
     >
-      <div class="flex items-start p-4 md:p-5">
+      <div class="flex items-center justify-between p-4 md:p-5">
         <div class="text-xl font-bold">{{ incident.subject }}</div>
+        <Button
+          v-if="isConsultant && canCreateSecondaryIncident"
+          variant="outline"
+          @click="createSecondaryIncident"
+          class="w-full md:w-auto"
+        >
+          <Icon
+            icon="lucide:file-plus"
+            class="mr-2 size-4"
+          />
+          Create Incident Report
+        </Button>
       </div>
 
       <Separator />
@@ -860,8 +895,15 @@ const showAllPeopleEdit = ref(false)
 
       <div
         v-if="canVerify && incident.status === 'for verification'"
-        class="flex justify-end p-4"
+        class="flex justify-end gap-2 p-4"
       >
+        <Button
+          variant="outline"
+          @click="dropIncident(incident.id)"
+          class="w-full md:w-auto"
+        >
+          Drop Incident
+        </Button>
         <Button
           variant="default"
           @click="verifyIncident(incident.id)"
