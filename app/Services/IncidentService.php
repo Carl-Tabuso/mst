@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\IncidentStatus;
 use App\Enums\UserRole;
+use App\Models\Form3Hauling;
 use App\Models\Incident;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -85,24 +86,24 @@ class IncidentService
     protected function applySearchFilter($query, $searchTerm)
     {
         $query->where(function ($q) use ($searchTerm) {
-            $q->where('subject', 'like', '%'.$searchTerm.'%')
-                ->orWhere('location', 'like', '%'.$searchTerm.'%')
-                ->orWhere('infraction_type', 'like', '%'.$searchTerm.'%')
+            $q->where('subject', 'like', '%' . $searchTerm . '%')
+                ->orWhere('location', 'like', '%' . $searchTerm . '%')
+                ->orWhere('infraction_type', 'like', '%' . $searchTerm . '%')
                 ->orWhereHas('hauling.assignedPersonnel.teamLeader', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 })
                 ->orWhereHas('hauling.assignedPersonnel.teamDriver', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 })
                 ->orWhereHas('hauling.assignedPersonnel.safetyOfficer', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 })
                 ->orWhereHas('hauling.assignedPersonnel.teamMechanic', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 });
         });
     }
@@ -135,7 +136,7 @@ class IncidentService
                 $haulers = $incident->hauling->haulers->map(function ($hauler) {
                     return [
                         'id'   => $hauler->id,
-                        'name' => $hauler->first_name.' '.$hauler->last_name,
+                        'name' => $hauler->first_name . ' ' . $hauler->last_name,
                     ];
                 })->toArray();
             }
@@ -160,19 +161,19 @@ class IncidentService
             $assignedPersonnel = [
                 'team_leader' => $ap->teamLeader ? [
                     'id'   => $ap->teamLeader->id,
-                    'name' => $ap->teamLeader->first_name.' '.$ap->teamLeader->last_name,
+                    'name' => $ap->teamLeader->first_name . ' ' . $ap->teamLeader->last_name,
                 ] : null,
                 'team_driver' => $ap->teamDriver ? [
                     'id'   => $ap->teamDriver->id,
-                    'name' => $ap->teamDriver->first_name.' '.$ap->teamDriver->last_name,
+                    'name' => $ap->teamDriver->first_name . ' ' . $ap->teamDriver->last_name,
                 ] : null,
                 'safety_officer' => $ap->safetyOfficer ? [
                     'id'   => $ap->safetyOfficer->id,
-                    'name' => $ap->safetyOfficer->first_name.' '.$ap->safetyOfficer->last_name,
+                    'name' => $ap->safetyOfficer->first_name . ' ' . $ap->safetyOfficer->last_name,
                 ] : null,
                 'team_mechanic' => $ap->teamMechanic ? [
                     'id'   => $ap->teamMechanic->id,
-                    'name' => $ap->teamMechanic->first_name.' '.$ap->teamMechanic->last_name,
+                    'name' => $ap->teamMechanic->first_name . ' ' . $ap->teamMechanic->last_name,
                 ] : null,
             ];
         }
@@ -199,7 +200,7 @@ class IncidentService
             'status'             => $incident->status->value,
             'created_by'         => $incidentCreator ? [
                 'id'    => $incidentCreator->id,
-                'name'  => $incidentCreator->first_name.' '.$incidentCreator->last_name,
+                'name'  => $incidentCreator->first_name . ' ' . $incidentCreator->last_name,
                 'email' => $incidentCreator->email,
             ] : null,
             'plainText'          => $this->htmlToPlainText($incident->description),
@@ -237,7 +238,7 @@ class IncidentService
             'form3_hauling_id' => $haulingId,
             'created_by'       => $user->employee_id,
             'status'           => IncidentStatus::Draft,
-            'subject'          => 'Secondary Report - '.($primaryIncident->subject ?? 'Hauling Incident'),
+            'subject'          => 'Secondary Report - ' . ($primaryIncident->subject ?? 'Hauling Incident'),
             'location'         => $primaryIncident->location        ?? 'To be determined',
             'infraction_type'  => $primaryIncident->infraction_type ?? 'To be determined',
             'occured_at'       => now(),
@@ -286,6 +287,27 @@ class IncidentService
             return $incident;
         });
     }
+
+    public function checkAndCompleteJobOrder(Incident $incident)
+    {
+
+        $form3 = $incident->hauling->form3;
+
+        $allHaulingsCompleted = $form3->haulings->every(function (Form3Hauling $hauling) {
+            return $hauling->incidents->every(function (Incident $incident) {
+                return in_array($incident->status, [
+                    IncidentStatus::NoIncident,
+                    IncidentStatus::Verified,
+                    IncidentStatus::Dropped,
+                ]);
+            });
+        });
+
+        if ($allHaulingsCompleted) {
+            $form3->form4->jobOrder->markAsCompleted();
+        }
+    }
+
 
     public function htmlToPlainText($html)
     {
