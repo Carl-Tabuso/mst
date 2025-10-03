@@ -38,13 +38,12 @@ class IncidentTestingSeeder extends Seeder
             'to'       => $to   = $from->copy()->addDays(4),
         ]);
 
-        $teamLeaderID = Position::firstWhere(['name' => 'Team Leader'])->employees->random()->id;
+        $teamLeaderID    = Position::firstWhere(['name' => 'Team Leader'])->employees->random()->id;
         $safetyOfficerID = Position::firstWhere(['name' => 'Safety Officer'])->employees->random()->id;
-
 
         $haulings = Form3Hauling::factory()
             ->count((int) $from->diffInDays($to) + 1)
-            ->sequence(fn(Sequence $sequence) => ['date' => $from->copy()->addDays($sequence->index)])
+            ->sequence(fn (Sequence $sequence) => ['date' => $from->copy()->addDays($sequence->index)])
             ->status(HaulingStatus::Done)
             ->create(['form3_id' => $form3->id]);
 
@@ -53,7 +52,7 @@ class IncidentTestingSeeder extends Seeder
                 'form3_hauling_id' => $hauling->id,
                 'created_by'       => null,
                 'status'           => IncidentStatus::Draft->value,
-                'subject'          => 'Incident Report for Hauling ' . $hauling->date->format('Y-m-d'),
+                'subject'          => 'Incident Report for Hauling '.$hauling->date->format('Y-m-d'),
                 'location'         => 'To be determined',
                 'infraction_type'  => 'To be determined',
                 'occured_at'       => now(),
