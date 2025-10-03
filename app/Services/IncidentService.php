@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\IncidentStatus;
 use App\Enums\UserRole;
+use App\Models\Form3Hauling;
 use App\Models\Incident;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -285,6 +286,26 @@ class IncidentService
 
             return $incident;
         });
+    }
+
+    public function checkAndCompleteJobOrder(Incident $incident)
+    {
+
+        $form3 = $incident->hauling->form3;
+
+        $allHaulingsCompleted = $form3->haulings->every(function (Form3Hauling $hauling) {
+            return $hauling->incidents->every(function (Incident $incident) {
+                return in_array($incident->status, [
+                    IncidentStatus::NoIncident,
+                    IncidentStatus::Verified,
+                    IncidentStatus::Dropped,
+                ]);
+            });
+        });
+
+        if ($allHaulingsCompleted) {
+            $form3->form4->jobOrder->markAsCompleted();
+        }
     }
 
     public function htmlToPlainText($html)
