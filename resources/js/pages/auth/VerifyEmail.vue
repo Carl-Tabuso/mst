@@ -43,7 +43,7 @@ const submit = () => {
           v-if="form.processing"
           class="h-4 w-4 animate-spin"
         />
-        Resend verification email
+        Send verification email
       </Button>
 
       <TextLink

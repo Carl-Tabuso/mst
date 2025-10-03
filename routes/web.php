@@ -20,7 +20,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WasteManagementController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
     /*
