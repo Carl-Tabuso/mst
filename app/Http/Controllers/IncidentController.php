@@ -11,6 +11,7 @@ use App\Models\Incident;
 use App\Services\IncidentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class IncidentController extends Controller
@@ -76,20 +77,28 @@ class IncidentController extends Controller
             return redirect()->back()->with('error', 'Only draft incidents can be marked as no incident.');
         }
 
-        $incident->update([
-            'status'       => IncidentStatus::NoIncident,
-            'subject'      => 'No Incident Reported',
-            'description'  => 'This incident has been reviewed and marked as no incident.',
-            'completed_at' => now(),
-            'created_by'   => Auth::id(),
-        ]);
+        DB::transaction(function () use ($incident) {
+            $incident->update([
+                'status'       => IncidentStatus::NoIncident,
+                'subject'      => 'No Incident Reported',
+                'description'  => 'This incident has been reviewed and marked as no incident.',
+                'completed_at' => now(),
+                'created_by'   => Auth::id(),
+            ]);
+
+            $this->incidentService->checkAndCompleteJobOrder($incident);
+        });
 
         return redirect()->back()->with('success', 'Marked as no incident.');
     }
 
     public function verify(Incident $incident)
     {
-        $incident->update(['status' => IncidentStatus::Verified]);
+        DB::transaction(function () use ($incident) {
+            $incident->update(['status' => IncidentStatus::Verified]);
+
+            $this->incidentService->checkAndCompleteJobOrder($incident);
+        });
 
         return redirect()->back()->with('success', 'Incident verified successfully');
     }
