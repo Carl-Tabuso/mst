@@ -36,6 +36,7 @@ class EmployeeService
             ->through($pipes)
             ->then(function (Builder $query) use ($perPage) {
                 return $query->with(['emergencyContact', 'employmentDetails', 'compensation', 'account', 'position'])
+                    ->orderBy('created_at', 'desc')
                     ->orderBy('last_name')
                     ->orderBy('first_name')
                     ->paginate($perPage)
