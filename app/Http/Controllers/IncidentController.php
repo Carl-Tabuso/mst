@@ -71,19 +71,19 @@ class IncidentController extends Controller
         return redirect()->route('incidents.index')->with('success', 'Incident marked as read successfully');
     }
 
-    public function markNoIncident(Incident $incident)
+    public function markNoIncident(Request $request, Incident $incident)
     {
         if ($incident->status !== IncidentStatus::Draft) {
             return redirect()->back()->with('error', 'Only draft incidents can be marked as no incident.');
         }
 
-        DB::transaction(function () use ($incident) {
+        DB::transaction(function () use ($incident, $request) {
             $incident->update([
                 'status'       => IncidentStatus::NoIncident,
                 'subject'      => 'No Incident Reported',
                 'description'  => 'This incident has been reviewed and marked as no incident.',
                 'completed_at' => now(),
-                'created_by'   => Auth::id(),
+                'created_by'   => $request->user()->employee_id,
             ]);
 
             $this->incidentService->checkAndCompleteJobOrder($incident);
