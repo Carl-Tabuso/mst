@@ -15,7 +15,7 @@ class AppraisalController extends Controller
     public function store(StoreAppraisalRequest $request, Form4 $form4): RedirectResponse
     {
         $validated = array_merge($request->validated(), [
-            'user' => $request->user(),
+            'employeeId' => $request->user()->employee_id,
         ]);
 
         $response = $this->wasteManagementService->handleForAppraisal($form4, $validated);

@@ -127,7 +127,7 @@ class WasteManagementService
         DB::transaction(function () use ($form4, $data) {
             $this->updateOrCreateAppraisalInformation($form4, $data);
 
-            $form4->update(['form_dispatcher' => $data['user']->id]);
+            $form4->update(['form_dispatcher' => $data['employeeId']]);
 
             $form4->jobOrder()->update(['status' => JobOrderStatus::ForViewing]);
         });
