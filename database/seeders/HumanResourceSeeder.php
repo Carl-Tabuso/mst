@@ -12,6 +12,7 @@ class HumanResourceSeeder extends Seeder
     {
         Employee::factory()
             ->create([
+                'email'       => config('auth.initial_hr_email'),
                 'position_id' => Position::firstWhere(['name' => 'Human Resource'])->id,
             ]);
     }

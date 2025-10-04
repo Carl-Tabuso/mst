@@ -114,4 +114,6 @@ return [
 
     'it_admin_email'    => env('IT_ADMIN_EMAIL', 'jomsys@example.com'),
     'it_admin_password' => env('IT_ADMIN_PASSWORD', 'password'),
+
+    'initial_hr_email' => env('INITIAL_HR_EMAIL', 'hello@example.com'),
 ];
