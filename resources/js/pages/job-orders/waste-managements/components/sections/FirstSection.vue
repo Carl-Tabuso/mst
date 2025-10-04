@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
-import { formatToDateString } from '@/composables/useDateFormatter'
 import { parseDate } from '@internationalized/date'
+import { format } from 'date-fns'
 import { Calendar } from 'lucide-vue-next'
 
 interface FirstSectionProps {
@@ -29,7 +29,10 @@ withDefaults(defineProps<FirstSectionProps>(), {
 const serviceType = defineModel<string>('serviceType')
 const serviceDate = defineModel<any>('serviceDate', {
   get(value) {
-    return parseDate(value.split('T')[0])
+    if (value) {
+      const formatted = format(value, 'yyyy-MM-dd')
+      return parseDate(formatted)
+    }
   },
 })
 const serviceTime = defineModel<string>('serviceTime')
@@ -98,7 +101,7 @@ const handleDateOfServiceChange = (value: any) => {
             ]"
           >
             <span>
-              {{ formatToDateString(serviceDate.toString()) }}
+              {{ format(serviceDate.toString(), 'MMMM d, yyyy') }}
             </span>
             <Calendar class="ms-auto h-4 w-4 opacity-50" />
           </Button>

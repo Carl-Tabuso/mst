@@ -48,8 +48,9 @@ const onSubmit = () => {
     return
   }
   const [hours, min] = timeOfService.value.split(':')
-  const epoch = new Date(form.date_time).setHours(Number(hours), Number(min))
-  const formatted = new Date(epoch).toJSON().split('.')[0].split('T').join(' ')
+  const date = new Date(form.date_time)
+  date.setHours(Number(hours), Number(min))
+  const formatted = date.toLocaleString('sv-SE').replace('T', ' ')
 
   form.transform((data) => {
     const base = {
