@@ -58,6 +58,26 @@ class Form3Hauling extends Model
         );
     }
 
+    public function drivers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Employee::class,
+            'form3_drivers',
+            'form3_hauling_id',
+            'driver'
+        );
+    }
+
+    public function trucks(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Truck::class,
+            'form3_trucks',
+            'form3_hauling_id',
+            'truck_id'
+        );
+    }
+
     public function checklist(): HasOne
     {
         return $this->hasOne(Form3HaulingChecklist::class);

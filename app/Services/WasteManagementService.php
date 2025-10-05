@@ -77,6 +77,7 @@ class WasteManagementService
                     'haulings' => [
                         'checklist',
                         'truck',
+                        'trucks',
                         'haulers'           => ['account'],
                         'assignedPersonnel' => [
                             'teamLeader'    => ['account'],
@@ -116,9 +117,9 @@ class WasteManagementService
         $status = JobOrderStatus::from($validated['status']);
 
         return match ($status) {
-            JobOrderStatus::Successful   => $this->handleSuccessful($form4, $validated),
-            JobOrderStatus::PreHauling   => $this->handlePrehauling($form4, $validated),
-            JobOrderStatus::InProgress   => $this->handleInProgress($form4, $validated),
+            JobOrderStatus::Successful => $this->handleSuccessful($form4, $validated),
+            JobOrderStatus::PreHauling => $this->handlePrehauling($form4, $validated),
+            JobOrderStatus::InProgress => $this->handleInProgress($form4, $validated),
         };
     }
 

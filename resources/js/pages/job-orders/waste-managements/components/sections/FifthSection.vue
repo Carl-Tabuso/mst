@@ -30,7 +30,7 @@ import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 import SafetyInspectionChecklist from '../SafetyInspectionChecklist.vue'
 import SectionButton from '../SectionButton.vue'
-import TruckSelection from '../TruckSelection.vue'
+import TrucksSelection from '../TrucksSelection.vue'
 
 interface FifthSectionProps {
   status: JobOrderStatus
@@ -48,11 +48,9 @@ const props = defineProps<FifthSectionProps>()
 
 const emit = defineEmits<FifthSectionEmits>()
 
-const { can } = usePermissions()
+const { can, cannot } = usePermissions()
 
 const isAuthorize = computed(() => can('assign:hauling_personnel'))
-
-const canManageIncidentReports = computed(() => can('manage:incident_reports'))
 
 const trackedHaulings = ref<Form3Hauling[]>(props.haulings)
 
@@ -193,14 +191,16 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
             { 'bg-muted': isToday(new Date(hauling.date)) },
           ]"
         >
-          <div
-            v-if="canManageIncidentReports"
-            class="flex-none pl-2"
-          >
+          <div class="flex-none pl-2">
             <Tooltip>
               <TooltipTrigger as-child>
                 <Link
                   :href="route('incidents.index', { hauling_id: hauling.id })"
+                  :class="{
+                    'pointer-events-none opacity-50': cannot(
+                      'manage:incident_reports',
+                    ),
+                  }"
                 >
                   <Button
                     type="button"
@@ -275,9 +275,10 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
               @on-remove-existing-haulers="removeExistingHaulers"
               @on-hauler-toggle="loadEmployeesIfMissing"
             />
-            <TruckSelection
-              v-model:truck="hauling.truck"
-              :can-edit="isAuthorize && hauling.isOpen"
+            <TrucksSelection
+              v-model:trucks="hauling.trucks"
+              :is-authorize="isAuthorize"
+              :is-open="hauling.isOpen"
             />
           </div>
         </AccordionContent>
