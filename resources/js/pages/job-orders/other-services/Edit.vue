@@ -17,9 +17,9 @@ import { useForm, usePage } from '@inertiajs/vue3'
 import { LoaderCircle, Pencil, X } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
+import JobOrderDetails from '../components/JobOrderDetails.vue'
 import TicketHeader from '../components/TicketHeader.vue'
 import Form5Section from '../other-services/components/Form5Section.vue'
-import FirstSection from '../waste-managements/components/sections/FirstSection.vue'
 import StatusUpdater from './components/StatusUpdater.vue'
 
 interface Form5EditProps {
@@ -62,6 +62,7 @@ const form = useForm<Record<string, any>>({
   contact_position: props.data.jobOrder.contactPosition,
   contact_person: props.data.jobOrder.contactPerson,
   contact_no: props.data.jobOrder.contactNo,
+  description: props.data.jobOrder.description,
   assigned_person: form5Serviceable.value?.assigned_person || null,
   purpose: form5Serviceable.value?.purpose || '',
   items: form5Serviceable.value?.items || [],
@@ -262,7 +263,7 @@ const toggleEditMode = () => {
         <div class="mb-3 flex items-center">
           <div class="flex w-full flex-col">
             <form class="grid gap-y-6">
-              <FirstSection
+              <JobOrderDetails
                 :is-editing="isEditing && can('update:job_order')"
                 :is-service-type-disabled="true"
                 :service-type="data.jobOrder.serviceableType"
@@ -274,6 +275,7 @@ const toggleEditMode = () => {
                 v-model:contact-position="form.contact_position"
                 v-model:contact-person="form.contact_person"
                 v-model:contact-number="form.contact_no"
+                v-model:description="form.description"
               />
 
               <div v-if="form5Serviceable">

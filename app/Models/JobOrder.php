@@ -144,6 +144,7 @@ class JobOrder extends Model
             'contact_no',
             'contact_person',
             'contact_position',
+            'description',
         ];
     }
 

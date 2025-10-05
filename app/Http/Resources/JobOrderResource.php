@@ -21,6 +21,7 @@ class JobOrderResource extends JsonResource
             'contactNo'             => $this->contact_no,
             'contactPerson'         => $this->contact_person,
             'contactPosition'       => $this->contact_position,
+            'description'           => $this->description,
             'createdBy'             => $this->created_by,
             'status'                => $this->status,
             'errorCount'            => $this->error_count,

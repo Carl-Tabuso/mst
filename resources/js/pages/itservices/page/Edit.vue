@@ -47,6 +47,7 @@ const form = useForm({
   contact_position: props.data.contactPosition,
   contact_person: props.data.contactPerson,
   contact_no: props.data.contactNo,
+  description: props.data.description ?? '',
   technician: technicianId as any,
   machine_type: props.data.serviceable.machineType,
   model: props.data.serviceable.model,
@@ -155,6 +156,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               v-model:contact-position="form.contact_position"
               v-model:contact-person="form.contact_person"
               v-model:contact-number="form.contact_no"
+              v-model:description="form.description"
               v-model:technician="technician"
               :technicians="regulars"
               :errors="form.errors"

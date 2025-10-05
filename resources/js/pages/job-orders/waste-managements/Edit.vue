@@ -16,10 +16,10 @@ import { LoaderCircle } from 'lucide-vue-next'
 import { computed, provide, readonly, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { GroupedEmployeesByAccountRole } from '.'
+import JobOrderDetails from '../components/JobOrderDetails.vue'
 import RequestCorrectionButton from '../components/RequestCorrectionButton.vue'
 import TicketHeader from '../components/TicketHeader.vue'
 import FifthSection from './components/sections/FifthSection.vue'
-import FirstSection from './components/sections/FirstSection.vue'
 import FourthSection from './components/sections/FourthSection.vue'
 import SecondSection from './components/sections/SecondSection.vue'
 import SixthSection from './components/sections/SixthSection.vue'
@@ -56,6 +56,7 @@ const form = useForm<Record<string, any>>({
   }),
   client: props.data.client,
   address: props.data.address,
+  description: props.data.description,
   department: props.data.department,
   contact_position: props.data.contactPosition,
   contact_person: props.data.contactPerson,
@@ -77,6 +78,7 @@ watch([props.data, () => props?.trucks], ([newValue, newTrucks]) => {
   form.date_time = newDate.toISOString()
   form.client = newValue.client
   form.address = newValue.address
+  form.description = newValue.description
   form.department = newValue.department
   form.contact_position = newValue.contactPosition
   form.contact_person = newValue.contactPerson
@@ -215,7 +217,7 @@ const unapprovedCorrections = computed(() => {
           <div class="flex w-full flex-col">
             <form class="grid gap-y-6">
               <div>
-                <FirstSection
+                <JobOrderDetails
                   :is-editing="isEditing && can('update:job_order')"
                   :is-service-type-disabled="true"
                   v-model:service-type="data.serviceableType"
@@ -223,6 +225,7 @@ const unapprovedCorrections = computed(() => {
                   v-model:service-time="form.time"
                   v-model:client="form.client"
                   v-model:address="form.address"
+                  v-model:description="form.description"
                   v-model:department="form.department"
                   v-model:contact-position="form.contact_position"
                   v-model:contact-person="form.contact_person"
