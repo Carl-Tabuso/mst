@@ -26,7 +26,7 @@ const toForward = {
 
 <template>
   <Avatar
-    class="h-7 w-7 shrink-0 overflow-hidden"
+    class="h-7 w-7 shrink-0 overflow-hidden border border-primary"
     :class="class"
     v-bind="toForward"
   >
