@@ -129,6 +129,18 @@ class JobOrder extends Model
     }
 
     #[Scope]
+    public function createdFromPastMonth(Builder $query): Builder
+    {
+        return $query->whereDate($this->getCreatedAtColumn(), '>=', now()->subMonth());
+    }
+
+    #[Scope]
+    public function createdFromPastWeek(Builder $query): Builder
+    {
+        return $query->whereDate($this->getCreatedAtColumn(), '>=', now()->subWeek());
+    }
+
+    #[Scope]
     public function updatedPastWeekOrMore(Builder $query): Builder
     {
         return $query->whereDate('updated_at', '<=', now()->subWeek());
