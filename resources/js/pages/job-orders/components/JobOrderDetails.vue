@@ -179,7 +179,6 @@ const description = defineModel<string>('description', {
       </Label>
       <Textarea
         id="description"
-        required
         :disabled="!isEditing"
         placeholder="Enter ticket's description"
         v-model="description"

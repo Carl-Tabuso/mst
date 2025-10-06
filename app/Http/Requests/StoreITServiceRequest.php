@@ -28,6 +28,7 @@ class StoreITServiceRequest extends FormRequest
             'contact_position' => ['required', 'string'],
             'contact_person'   => ['required', 'string'],
             'contact_no'       => ['required', 'digits:11'],
+            'description'      => ['nullable', 'string'],
             'technician_id'    => [Rule::requiredIf($isItService), Rule::exists((new Employee)->getTable(), 'id')],
             'machine_type'     => [Rule::requiredif($isItService), 'string', 'max:255'],
             'model'            => [Rule::requiredif($isItService), 'string', 'max:255'],

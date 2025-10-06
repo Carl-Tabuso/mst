@@ -96,6 +96,7 @@ const resetFormToOriginal = () => {
   form.purpose = form5Serviceable.value?.purpose || ''
   form.items = form5Serviceable.value?.items || []
   reason.value = ''
+  form.description = props.data.jobOrder.description
 }
 
 const onSubmitCorrection = () => {
@@ -114,6 +115,7 @@ const onSubmitCorrection = () => {
     purpose: form.purpose,
     items: form.items,
     reason: reason.value,
+    description: form.description,
   }
 
   form

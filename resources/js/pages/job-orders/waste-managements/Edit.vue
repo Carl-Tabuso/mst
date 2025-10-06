@@ -120,6 +120,7 @@ const onSubmitCorrection = () => {
       contact_position: data.contact_position,
       contact_person: data.contact_person,
       contact_no: data.contact_no,
+      description: data.description,
       reason: reason.value,
       ...(canCorrectProposalInformation(props.data.status)
         ? {

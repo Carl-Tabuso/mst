@@ -19,9 +19,9 @@ const { changes, jobOrder } = defineProps<FirstSectionProps>()
 const { getChangedOrCurrentValue } = useCorrections(changes, jobOrder)
 
 const technician = getChangedOrCurrentValue('technician')
-const technicianAvatar = technician.defaultValue.hasOwnProperty('account')
-  ? technician.defaultValue.account.avatar
-  : technician.defaultValue.avatar
+const technicianAvatar = technician.defaultValue?.hasOwnProperty('account')
+  ? technician.defaultValue?.account?.avatar
+  : technician.defaultValue?.avatar
 </script>
 
 <template>
@@ -102,6 +102,12 @@ const technicianAvatar = technician.defaultValue.hasOwnProperty('account')
               id="address"
               class="pointer-events-none w-full"
               v-bind="getChangedOrCurrentValue('address')"
+            />
+            <Label class="self-start pt-1"> Description </Label>
+            <Textarea
+              id="description"
+              class="pointer-events-none w-full"
+              v-bind="getChangedOrCurrentValue('description')"
             />
             <div class="col-span-2 grid grid-cols-2 gap-x-10">
               <div class="flex items-center gap-x-4">

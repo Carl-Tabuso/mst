@@ -11,6 +11,7 @@ const fieldMap = {
   contact_no: { path: 'contactNo', label: 'Contact Number' },
   contact_person: { path: 'contactPerson', label: 'Contact Person' },
   contact_position: { path: 'contactPosition', label: 'Contact Position' },
+  description: { path: 'description', label: 'Description' },
   payment_date: { path: 'serviceable.paymentDate', label: 'Payment Date' },
   or_number: { path: 'serviceable.orNumber', label: 'O.R. Number' },
   bid_bond: { path: 'serviceable.bidBond', label: 'Bid Bond' },
