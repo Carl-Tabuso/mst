@@ -92,7 +92,7 @@ const isApprovable =
             <div
               class="break-words rounded-md bg-red-50 px-3 py-1 text-red-700 dark:bg-red-950/30 dark:text-red-300"
             >
-              {{ oldValue ?? 'None provided' }}
+              {{ oldValue }}
             </div>
             <div
               class="break-words rounded-md bg-green-50 px-3 py-1 text-green-700 dark:bg-green-950/30 dark:text-green-300"
