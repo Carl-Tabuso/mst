@@ -242,6 +242,7 @@ export interface Form3Hauling {
   checklist: Form3HaulingChecklist
   truck: Truck
   trucks: Truck[]
+  drivers: Employee[]
   status: HaulingStatusType
   isOpen: boolean
 }

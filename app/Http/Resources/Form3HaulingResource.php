@@ -17,7 +17,7 @@ class Form3HaulingResource extends JsonResource
             'assignedPersonnel' => Form3AssignedPersonnelResource::make($this->whenLoaded('assignedPersonnel')),
             'haulers'           => EmployeeResource::collection($this->whenLoaded('haulers')),
             'checklist'         => Form3HaulingChecklistResource::make($this->whenLoaded('checklist')),
-            'truck'             => TruckResource::make($this->whenLoaded('truck')),
+            'drivers'           => EmployeeResource::collection($this->whenLoaded('drivers')),
             'trucks'            => TruckResource::collection($this->whenLoaded('trucks')),
             'status'            => $this->status,
             'isOpen'            => $this->isOpen(),

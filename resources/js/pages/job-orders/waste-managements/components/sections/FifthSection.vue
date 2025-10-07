@@ -26,6 +26,7 @@ import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { GroupedEmployeesByAccountRole } from '../..'
 import AssignedPersonnelSelection from '../AssignedPersonnelSelection.vue'
+import DriversSelection from '../DriversSelection.vue'
 import FormAreaInfo from '../FormAreaInfo.vue'
 import HaulersSelection from '../HaulersSelection.vue'
 import SafetyInspectionChecklist from '../SafetyInspectionChecklist.vue'
@@ -261,6 +262,13 @@ const filterByUserRole = (roles: UserRoleType | UserRoleType[]) => {
               @toggled="onPopoverToggle"
               @clicked="handleAssignedPersonnelChanges"
               @removed="removeAssignedPersonnel"
+            />
+            <DriversSelection
+              v-model:drivers="hauling.drivers"
+              :employees="filterByUserRole('regular')"
+              :is-authorize="isAuthorize"
+              :is-open="hauling.isOpen"
+              @on-driver-toggle="loadEmployeesIfMissing"
             />
           </div>
           <div
