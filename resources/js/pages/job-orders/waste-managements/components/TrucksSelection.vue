@@ -59,6 +59,8 @@ const onTruckSelectionToggle = () => {
 }
 
 const onTruckSelect = (truck: Truck) => {
+  if (!props.isAuthorize || !props.isOpen) return
+
   const isSelected = selectedTrucks.value.includes(truck)
   if (isSelected) {
     const index = selectedTrucks.value.findIndex(
@@ -127,7 +129,7 @@ const canEdit = computed(() => props.isAuthorize && props.isOpen)
           <CommandList>
             <CommandEmpty> No results found. </CommandEmpty>
             <template v-if="selectedTrucks.length">
-              <div :class="['overflow-y-auto', { 'max-h-40': isOpen }]">
+              <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
                 <CommandGroup>
                   <CommandItem
                     v-for="truck in selectedTrucks"

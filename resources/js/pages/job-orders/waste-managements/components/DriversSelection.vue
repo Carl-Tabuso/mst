@@ -47,6 +47,8 @@ const remainingEmployees = computed(() => {
 })
 
 const onDriverSelect = (driver: Employee) => {
+  if (!props.isAuthorize || !props.isOpen) return
+
   const isSelected = selectedDrivers.value.includes(driver)
   if (isSelected) {
     const index = selectedDrivers.value.findIndex(
@@ -123,7 +125,7 @@ const canEdit = computed(() => props.isAuthorize && props.isOpen)
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <template v-if="selectedDrivers.length">
-              <div :class="['overflow-y-auto', { 'max-h-40': isOpen }]">
+              <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
                 <CommandGroup>
                   <CommandItem
                     v-for="driver in selectedDrivers"

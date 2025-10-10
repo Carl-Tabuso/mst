@@ -118,7 +118,7 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <template v-if="haulers?.length">
-              <div :class="['overflow-y-auto', { 'max-h-40': hauling.isOpen }]">
+              <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
                 <CommandGroup>
                   <CommandItem
                     v-for="hauler in haulers"
