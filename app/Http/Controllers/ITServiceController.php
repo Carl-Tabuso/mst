@@ -81,6 +81,7 @@ class ITServiceController extends Controller
                 'date_time'        => $validated->date_time,
                 'status'           => JobOrderStatus::ForCheckup,
                 'created_by'       => $validated->created_by,
+                'description'      => $validated->description,
             ]);
 
             $jobOrder->serviceable()->associate($itService);

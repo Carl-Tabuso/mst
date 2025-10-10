@@ -135,6 +135,7 @@ export interface JobOrder {
   dateTime: string
   client: string
   address: string
+  description: string | null
   department: string
   contactNo: string
   contactPerson: string
@@ -240,6 +241,8 @@ export interface Form3Hauling {
   haulers: Employee[]
   checklist: Form3HaulingChecklist
   truck: Truck
+  trucks: Truck[]
+  drivers: Employee[]
   status: HaulingStatusType
   isOpen: boolean
 }

@@ -76,11 +76,11 @@ class WasteManagementService
                 'form3'      => [
                     'haulings' => [
                         'checklist',
-                        'truck',
+                        'trucks',
+                        'drivers',
                         'haulers'           => ['account'],
                         'assignedPersonnel' => [
                             'teamLeader'    => ['account'],
-                            'teamDriver'    => ['account'],
                             'safetyOfficer' => ['account'],
                             'teamMechanic'  => ['account'],
                         ],
@@ -116,9 +116,9 @@ class WasteManagementService
         $status = JobOrderStatus::from($validated['status']);
 
         return match ($status) {
-            JobOrderStatus::Successful   => $this->handleSuccessful($form4, $validated),
-            JobOrderStatus::PreHauling   => $this->handlePrehauling($form4, $validated),
-            JobOrderStatus::InProgress   => $this->handleInProgress($form4, $validated),
+            JobOrderStatus::Successful => $this->handleSuccessful($form4, $validated),
+            JobOrderStatus::PreHauling => $this->handlePrehauling($form4, $validated),
+            JobOrderStatus::InProgress => $this->handleInProgress($form4, $validated),
         };
     }
 
@@ -241,12 +241,12 @@ class WasteManagementService
                 'id'                => $hauling['id'],
                 'assignedPersonnel' => [
                     'team_leader'    => $personnel['teamLeader']['id']    ?? null,
-                    'team_driver'    => $personnel['teamDriver']['id']    ?? null,
                     'safety_officer' => $personnel['safetyOfficer']['id'] ?? null,
                     'team_mechanic'  => $personnel['teamMechanic']['id']  ?? null,
                 ],
-                'haulers'  => array_map(fn ($h) => $h['id'], $hauling['haulers']),
-                'truck_id' => $hauling['truck']['id'] ?? null,
+                'drivers'  => array_map(fn ($driver) => $driver['id'], $hauling['drivers']),
+                'haulers'  => array_map(fn ($hauler) => $hauler['id'], $hauling['haulers']),
+                'trucks'   => array_map(fn ($truck) => $truck['id'], $hauling['trucks']),
             ];
         }, $filteredHaulings);
 
@@ -258,10 +258,10 @@ class WasteManagementService
 
                 $personnel                      = $mapped['assignedPersonnel'];
                 $isForSafetyInspectionChecklist =
-                    $mapped['truck_id']          &&
                     $personnel['team_leader']    &&
-                    $personnel['team_driver']    &&
                     $personnel['safety_officer'] &&
+                    ! empty($mapped['trucks'])   &&
+                    ! empty($mapped['drivers'])  &&
                     ! empty($mapped['haulers']);
 
                 DB::transaction(function () use ($hauling, $mapped, $isForSafetyInspectionChecklist) {
@@ -271,9 +271,16 @@ class WasteManagementService
                         ? $hauling->haulers()->detach()
                         : $hauling->haulers()->sync($mapped['haulers']);
 
+                    empty($mapped['drivers'])
+                        ? $hauling->drivers()->detach()
+                        : $hauling->drivers()->sync($mapped['drivers']);
+
+                    empty($mapped['trucks'])
+                        ? $hauling->trucks()->detach()
+                        : $hauling->trucks()->sync($mapped['trucks']);
+
                     $hauling->update([
-                        'truck_id' => $mapped['truck_id'],
-                        'status'   => $isForSafetyInspectionChecklist
+                        'status' => $isForSafetyInspectionChecklist
                             ? HaulingStatus::ForSafetyInspection
                             : HaulingStatus::ForPersonnelAssignment,
                     ]);

@@ -59,6 +59,7 @@ class JobOrderCorrectionService
             'contact_position' => $validated->contact_position,
             'contact_person'   => $validated->contact_person,
             'contact_no'       => $validated->contact_no,
+            'description'      => $validated->description ?? null,
         ]);
 
         return match ($jobOrder->serviceable_type) {
@@ -72,18 +73,7 @@ class JobOrderCorrectionService
     {
         $jobOrder->load(['serviceable', 'serviceable.form3']);
 
-        $jobOrder->fill([
-            'date_time'        => Carbon::parse($data->date_time),
-            'client'           => $data->client,
-            'address'          => $data->address,
-            'department'       => $data->department,
-            'contact_position' => $data->contact_position,
-            'contact_person'   => $data->contact_person,
-            'contact_no'       => $data->contact_no,
-        ]);
-
         $updateableModels = [$jobOrder];
-        $correctionData   = ['properties' => ['before' => [], 'after' => []]];
 
         if ($this->canUpdateProposal($jobOrder->status)) {
             $jobOrder->serviceable->fill([

@@ -21,6 +21,7 @@ class StoreForm5Request extends FormRequest
             'contact_no'        => 'required|string|max:20',
             'contact_person'    => 'required|string|max:255',
             'contact_position'  => 'required|string|max:255',
+            'description'       => 'nullable|string|max:255',
             'assigned_person'   => 'nullable|exists:employees,id',
             'purpose'           => 'required|string',
             'items'             => 'nullable|array',

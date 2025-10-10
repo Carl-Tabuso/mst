@@ -22,11 +22,6 @@ export const haulingRoles: RoleType[] = [
     label: 'Safety Officer',
     type: ['team leader', 'safety officer'],
   },
-  {
-    id: 'teamDriver',
-    label: 'Driver',
-    type: 'regular',
-  },
 ] as const
 
 export type HaulingRoleType = (typeof haulingRoles)[number]['id']

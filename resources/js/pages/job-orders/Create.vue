@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { jobOrderRouteNames } from '@/constants/job-order-route'
+import { JobOrderStatus } from '@/constants/job-order-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Employee, type BreadcrumbItem } from '@/types'
 import { useForm } from '@inertiajs/vue3'
@@ -26,7 +27,8 @@ const form = useForm({
   contact_position: '',
   contact_person: '',
   contact_no: '',
-  status: 'for check up',
+  description: '',
+  status: 'for check up' as JobOrderStatus,
   technician: null as any,
   machine_type: '',
   model: '',
@@ -112,6 +114,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                   v-model:contactPosition="form.contact_position"
                   v-model:contactPerson="form.contact_person"
                   v-model:contactNumber="form.contact_no"
+                  v-model:description="form.description"
                   v-model:technician="form.technician"
                   :technicians="regulars"
                   :errors="form.errors"

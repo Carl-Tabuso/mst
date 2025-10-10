@@ -56,7 +56,6 @@ class EmployeePerformanceSeeder extends Seeder
         foreach ($haulings as $hauling) {
             $personnel = $hauling->assignedPersonnel()->create([
                 'team_leader'    => $this->getByPosition('Team Leader')->id,
-                'team_driver'    => $this->getByPosition('Driver')->id,
                 'safety_officer' => $this->getByPosition('Safety Officer')->id,
                 'team_mechanic'  => $this->getByPosition('Mechanic')->id,
             ]);
@@ -71,7 +70,6 @@ class EmployeePerformanceSeeder extends Seeder
             $hauling->checklist()->create()->checkAllFields();
 
             $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
-                $personnel->team_driver,
                 $personnel->safety_officer,
                 $personnel->team_mechanic,
             ]);

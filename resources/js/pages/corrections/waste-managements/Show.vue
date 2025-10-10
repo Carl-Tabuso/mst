@@ -4,8 +4,8 @@ import { Separator } from '@/components/ui/separator'
 import { useCorrections } from '@/composables/useCorrections'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, JobOrderCorrection } from '@/types'
+import JobOrderDetails from '../components/JobOrderDetails.vue'
 import CorrectionPageHeader from '../components/PageHeader.vue'
-import FirstSection from './components/FirstSection.vue'
 import SecondSection from './components/SecondSection.vue'
 
 interface ShowProps {
@@ -42,10 +42,12 @@ const breadcrumbs: BreadcrumbItem[] = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
       <CorrectionPageHeader :correction="data" />
-      <FirstSection
-        :changes="changes"
-        :job-order="data.jobOrder"
-      />
+      <div class="mt-4">
+        <JobOrderDetails
+          :changes="changes"
+          :job-order="data.jobOrder"
+        />
+      </div>
       <div v-if="canCorrectProposalInformation(data.jobOrder.status)">
         <Separator class="mb-3 w-full" />
         <SecondSection

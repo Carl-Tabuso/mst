@@ -46,7 +46,6 @@ Route::get('test-incident-access', function () {
                 $ap        = $incident->hauling->assignedPersonnel;
                 $personnel = [
                     'team_leader'    => $ap->teamLeader ? $ap->teamLeader->account->email       ?? 'No user account' : null,
-                    'team_driver'    => $ap->teamDriver ? $ap->teamDriver->account->email       ?? 'No user account' : null,
                     'safety_officer' => $ap->safetyOfficer ? $ap->safetyOfficer->account->email ?? 'No user account' : null,
                     'team_mechanic'  => $ap->teamMechanic ? $ap->teamMechanic->account->email   ?? 'No user account' : null,
                 ];

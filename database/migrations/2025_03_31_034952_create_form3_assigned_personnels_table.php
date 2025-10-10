@@ -24,11 +24,6 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->foreignIdFor(Employee::class, 'team_driver')
-                ->nullable()
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
             $table->foreignIdFor(Employee::class, 'safety_officer')
                 ->nullable()
                 ->constrained()

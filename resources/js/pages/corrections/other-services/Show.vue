@@ -6,10 +6,11 @@ import { correctionStatuses } from '@/constants/correction-statuses'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem, Employee, JobOrderCorrection } from '@/types'
 import { computed, onMounted, provide } from 'vue'
+import JobOrderDetails from '../components/JobOrderDetails.vue'
 import ChangesModal from './components/ChangesModal.vue'
-import FirstSection from './components/FirstSection.vue'
 import ReasonCard from './components/ReasonCard.vue'
 import SecondSection from './components/SecondSection.vue'
+
 interface ShowProps {
   data: JobOrderCorrection
   employees?: Employee[]
@@ -98,10 +99,12 @@ onMounted(() => {
         </div>
         <ReasonCard :correction="data" />
       </div>
-      <FirstSection
-        :changes="data.properties"
-        :job-order="data.jobOrder"
-      />
+      <div class="mt-4">
+        <JobOrderDetails
+          :changes="data.properties.after"
+          :job-order="data.jobOrder"
+        />
+      </div>
       <Separator class="mb-3 w-full" />
       <SecondSection
         :changes="form5Changes"

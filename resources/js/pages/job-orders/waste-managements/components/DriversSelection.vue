@@ -17,76 +17,83 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { Employee, Form3Hauling } from '@/types'
+import { Employee } from '@/types'
 import { ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
 import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPlaceholder.vue'
 
-interface HaulersSelectionProps {
+interface DriversSelectionProps {
   employees?: Employee[]
-  hauling: Form3Hauling
-  index: number
   isAuthorize: boolean
+  isOpen: boolean
 }
 
-interface HaulersSelectionEmits {
-  onHaulerToggle: void
-  onRemoveExistingHaulers: [index: number]
-  onHaulerSelect: [hauler: Employee, index: number]
+interface DriversSelectionEmits {
+  (e: 'onDriverToggle'): void
 }
 
-const props = withDefaults(defineProps<HaulersSelectionProps>(), {
-  isAuthorize: false,
-})
+const props = defineProps<DriversSelectionProps>()
 
-defineEmits<HaulersSelectionEmits>()
+const emit = defineEmits<DriversSelectionEmits>()
 
-const haulers = computed(() => props.hauling.haulers)
+const selectedDrivers = defineModel<Employee[]>('drivers', { default: [] })
 
 const remainingEmployees = computed(() => {
-  const filtered = props.employees?.filter(
-    (employee) =>
-      !haulers.value.map((hauler) => hauler.id).includes(employee.id),
-  )
+  const filtered = props.employees?.filter((employee) => {
+    const selectedDriverIds = selectedDrivers.value.map((driver) => driver.id)
+    return !selectedDriverIds.includes(employee.id)
+  })
   return new Set(filtered)
 })
 
-const firstHauler = computed(() => haulers.value?.[0])
+const onDriverSelect = (driver: Employee) => {
+  if (!props.isAuthorize || !props.isOpen) return
 
-const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
+  const isSelected = selectedDrivers.value.includes(driver)
+  if (isSelected) {
+    const index = selectedDrivers.value.findIndex(
+      (sdriver) => sdriver.id === driver.id,
+    )
+    selectedDrivers.value.splice(index, 1)
+  } else {
+    selectedDrivers.value.push(driver)
+  }
+}
+
+const firstDriver = computed(() => selectedDrivers.value?.[0])
+
+const canEdit = computed(() => props.isAuthorize && props.isOpen)
 </script>
 
 <template>
   <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-10">
-    <Label class="w-full shrink-0 sm:w-28">Haulers</Label>
-    <Popover @update:open="$emit('onHaulerToggle')">
+    <Label class="w-full shrink-0 sm:w-28">Drivers</Label>
+    <Popover @update:open="emit('onDriverToggle')">
       <PopoverTrigger
         class="w-full sm:w-[400px]"
         as-child
-        :disabled="
-          (!hauling.isOpen || hauling.status === 'in progress') &&
-          haulers.length < 2
-        "
       >
         <Button
           variant="outline"
           class="w-full"
         >
           <div
-            v-if="haulers?.length"
+            v-if="selectedDrivers?.length"
             class="flex items-center justify-between gap-2 rounded-md text-xs"
           >
-            <div class="flex items-center gap-2 overflow-hidden">
+            <div class="flex flex-row items-center gap-2 overflow-hidden">
               <UserAvatar
-                :avatar-path="firstHauler?.account?.avatar"
-                :fallback="firstHauler.fullName"
+                :avatar-path="firstDriver?.account?.avatar"
+                :fallback="firstDriver.fullName"
               />
               <span class="truncate">
-                <template v-if="haulers.length < 2">
-                  {{ firstHauler.fullName }}
+                <template v-if="selectedDrivers.length < 2">
+                  {{ firstDriver.fullName }}
                 </template>
                 <template v-else>
-                  {{ `${firstHauler.fullName} and ${haulers.length - 1} more` }}
+                  {{
+                    `${firstDriver.fullName} and ${selectedDrivers.length - 1} more`
+                  }}
                 </template>
               </span>
             </div>
@@ -95,15 +102,15 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
               variant="ghost"
               size="icon"
               type="button"
-              class="ml-1 h-5 w-5 text-muted-foreground hover:text-primary-foreground"
-              @click="$emit('onRemoveExistingHaulers', index)"
+              class="ml-1 h-5 w-5 text-muted-foreground"
+              @click="selectedDrivers = []"
             >
               <X />
             </Button>
           </div>
           <template v-else>
             <span class="font-normal text-muted-foreground">
-              Select haulers
+              Select drivers
             </span>
           </template>
           <ChevronsUpDown class="ml-auto h-4 w-4" />
@@ -114,21 +121,20 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
         align="start"
       >
         <Command>
-          <CommandInput placeholder="Search for haulers" />
+          <CommandInput placeholder="Search for drivers" />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            <template v-if="haulers?.length">
+            <template v-if="selectedDrivers.length">
               <div :class="['overflow-y-auto', { 'max-h-40': canEdit }]">
                 <CommandGroup>
                   <CommandItem
-                    v-for="hauler in haulers"
-                    :key="hauler.id"
-                    :value="hauler"
-                    class="cursor-pointer"
-                    @select="$emit('onHaulerSelect', hauler, index)"
+                    v-for="driver in selectedDrivers"
+                    :key="driver.id"
+                    :value="driver"
+                    @select="onDriverSelect(driver)"
                   >
                     <EmployeePopoverSelection
-                      :employee="hauler"
+                      :employee="driver"
                       is-selected
                     />
                   </CommandItem>
@@ -145,8 +151,7 @@ const canEdit = computed(() => props.isAuthorize && props.hauling.isOpen)
                   v-for="employee in remainingEmployees"
                   :key="employee.id"
                   :value="employee"
-                  class="cursor-pointer"
-                  @select="$emit('onHaulerSelect', employee, index)"
+                  @select="onDriverSelect(employee)"
                 >
                   <EmployeePopoverSelection :employee="employee" />
                 </CommandItem>

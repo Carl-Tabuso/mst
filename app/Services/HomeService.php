@@ -45,57 +45,6 @@ class HomeService
         return $currentHour;
     }
 
-    // public function someFunc()
-    // {
-    //     $x = [
-    //         UserRole::HeadFrontliner->value = [
-    //             'component' => '1',
-    //             'data' => [
-    //                 'latestFromJobOrderCards'   => fn () => $this->getMonthlyJobOrderCounts(),
-    //                 'recentActivities'          => fn () => $this->getRecentActivities(),
-    //                 'employeeMetrics'           => fn () => $this->getEmployeeStatusCounts(),
-    //                 'recentJobOrders'           => fn () => $this->getRecentJobOrders(),
-    //                 'awaitingCorrectionReviews' => fn () => $this->getRecentJobOrderCorrectionRequests(),
-    //                 'agingJobOrderTickets'      => fn () => $this->getAgingJobOrders(),
-    //             ],
-    //         ],
-    //         UserRole::ITAdmin->value = [
-    //             'component' => '2',
-    //             'data' => [
-    //                 'userStatistics'   => fn () => $this->getUserStatistics(),
-    //                 'recentActivities' => fn () => $this->getRecentActivities(),
-    //             ],
-    //         ],
-    //         UserRole::TeamLeader->value = [
-    //             'component' => '3',
-    //             'data' => [
-    //                 'recentActivities' => fn () => $this->getUserRecentActivities(),
-    //             ],
-    //         ],
-    //         UserRole::Consultant->value = [
-    //             'component' => '4',
-    //             'data' => [
-    //                 'latestFromJobOrderCards' => fn () => $this->getMonthlyJobOrderCounts(),
-    //                 'employeeMetrics'         => fn () => $this->getEmployeeStatusCounts(),
-    //                 'recentActivities'        => fn () => $this->getUserRecentActivities(),
-    //             ],
-    //         ],
-    //         UserRole::HumanResource->value = [
-    //             'component' => '5',
-    //             'data' => [
-    //                 'employeeMetrics'  => fn () => $this->getEmployeeStatusCounts(),
-    //                 'recentActivities' => fn () => $this->getUserRecentActivities(),
-    //             ],
-    //         ],
-    //         'default' => [
-    //             'component' => '6',
-    //             'data' => [
-    //                 'recentActivities' => fn () => $this->getUserRecentActivities(),
-    //             ],
-    //         ],
-    //     ];
-    // }
-
     public function getComponent(): string
     {
         $role = UserRole::from(request()->user()->getRoleNames()->first());
@@ -235,14 +184,15 @@ class HomeService
     {
         return JobOrder::query()
             ->with(['creator'])
-            ->fromPastWeek()
+            ->createdFromPastWeek()
             ->take(10)
+            ->latest()
             ->get()
             ->map(fn (JobOrder $jobOrder) => [
                 'ticket'      => $jobOrder->ticket,
                 'serviceType' => $jobOrder->serviceable_type,
                 'status'      => $jobOrder->status,
-                'humanDiff'   => $jobOrder->date_time->diffForHumans(),
+                'humanDiff'   => $jobOrder->created_at->diffForHumans(),
                 'frontliner'  => $jobOrder->creator->full_name,
             ]);
     }

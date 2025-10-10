@@ -14,7 +14,14 @@ const props = defineProps<StatusColumnProps>()
 
 const status = useJobOrderDicts().statusMap[props.jobOrder.status]
 
-const isCompleted = status.id === 'completed'
+const finishedStatuses = <Array<JobOrderStatus>>[
+  'failed',
+  'closed',
+  'dropped',
+  'completed',
+  'successful',
+]
+const isFinished: boolean = finishedStatuses.includes(status.id)
 
 const nextStepUrlMap: Partial<Record<JobOrderStatus, any>> = {
   'for check up': {
@@ -36,7 +43,7 @@ const nextStepUrl = nextStepUrlMap[status.id]
 
 <template>
   <Badge
-    v-if="isCompleted"
+    v-if="isFinished"
     :variant="status.badge"
   >
     {{ status.label }}

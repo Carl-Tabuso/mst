@@ -68,7 +68,6 @@ class IncidentTestingSeeder extends Seeder
         foreach ($haulings as $hauling) {
             $hauling->assignedPersonnel()->create([
                 'team_leader'    => $teamLeaderID,
-                'team_driver'    => $this->getByPosition('Driver')->id,
                 'safety_officer' => $safetyOfficerID,
                 'team_mechanic'  => $this->getByPosition('Mechanic')->id,
             ]);

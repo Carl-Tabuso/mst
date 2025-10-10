@@ -25,6 +25,7 @@ class StoreWasteManagementRequest extends FormRequest
             'contact_position' => ['required', 'string'],
             'contact_person'   => ['required', 'string'],
             'contact_no'       => ['required', 'digits:11'],
+            'description'      => ['nullable', 'string'],
         ];
     }
 }

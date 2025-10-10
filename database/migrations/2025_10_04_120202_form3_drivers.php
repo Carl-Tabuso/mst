@@ -1,7 +1,7 @@
 <?php
 
-use App\Enums\HaulingStatus;
-use App\Models\Form3;
+use App\Models\Employee;
+use App\Models\Form3Hauling;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,14 +13,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('form3_haulings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Form3::class)
+        Schema::create('form3_drivers', function (Blueprint $table) {
+            $table->foreignIdFor(Form3Hauling::class)
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->timestamp('date');
-            $table->string('status')->default(HaulingStatus::ForPersonnelAssignment);
+            $table->foreignIdFor(Employee::class, 'driver')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
         });
     }
 
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('form3_haulings');
+        Schema::dropIfExists('form3_drivers');
     }
 };

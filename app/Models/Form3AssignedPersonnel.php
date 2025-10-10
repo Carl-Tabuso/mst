@@ -32,12 +32,6 @@ class Form3AssignedPersonnel extends Model
             ->withTrashed();
     }
 
-    public function teamDriver(): BelongsTo
-    {
-        return $this->belongsTo(Employee::class, 'team_driver')
-            ->withTrashed();
-    }
-
     public function safetyOfficer(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'safety_officer')

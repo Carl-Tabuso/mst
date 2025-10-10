@@ -20,9 +20,9 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { formatToDateString } from '@/composables/useDateFormatter'
 import { Employee } from '@/types'
 import { parseDate } from '@internationalized/date'
+import { format } from 'date-fns'
 import { Calendar, Check, ChevronsUpDown } from 'lucide-vue-next'
 
 interface FirstSectionProps {
@@ -40,7 +40,13 @@ withDefaults(defineProps<FirstSectionProps>(), {
 const serviceType = defineModel<string>('serviceType')
 const serviceDate = defineModel<any>('serviceDate', {
   get(value) {
-    return parseDate(value.split('T')[0])
+    if (value) {
+      const formatted = format(value, 'yyyy-MM-dd')
+      return parseDate(formatted)
+    }
+  },
+  set(value) {
+    return new Date(value).toISOString()
   },
 })
 const serviceTime = defineModel<string>('serviceTime')
@@ -51,10 +57,9 @@ const contactPosition = defineModel<string>('contactPosition')
 const contactNumber = defineModel<string>('contactNumber')
 const contactPerson = defineModel<string>('contactPerson')
 const technician = defineModel<Employee | null>('technician')
-
-const handleDateOfServiceChange = (value: any) => {
-  serviceDate.value = new Date(value).toISOString()
-}
+const description = defineModel<string>('description', {
+  default: '',
+})
 </script>
 
 <template>
@@ -110,14 +115,14 @@ const handleDateOfServiceChange = (value: any) => {
               class="w-full ps-3 text-start font-normal md:w-[400px]"
               :class="{ 'border-destructive': errors?.date_time }"
             >
-              <span>{{ formatToDateString(serviceDate.toString()) }}</span>
+              <span>{{ format(serviceDate.toString(), 'MMMM d, yyyy') }}</span>
               <Calendar class="ms-auto h-4 w-4 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
             <AppCalendar
               :model-value="serviceDate"
-              @update:model-value="handleDateOfServiceChange"
+              @update:model-value="(value) => (serviceDate = value)"
             />
           </PopoverContent>
         </Popover>
@@ -164,6 +169,19 @@ const handleDateOfServiceChange = (value: any) => {
         :disabled="!isEditing"
         placeholder="Enter client's complete address"
         v-model="address"
+        class="w-full"
+      />
+      <Label
+        for="description"
+        class="self-start pt-1"
+      >
+        Description
+      </Label>
+      <Textarea
+        id="description"
+        :disabled="!isEditing"
+        placeholder="Enter ticket's description"
+        v-model="description"
         class="w-full"
       />
       <div
