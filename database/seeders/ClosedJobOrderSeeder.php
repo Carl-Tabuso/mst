@@ -59,7 +59,6 @@ class ClosedJobOrderSeeder extends Seeder
         Form3AssignedPersonnel::factory()->create([
             'form3_hauling_id' => $haulings->first()->id,
             'team_leader'      => $this->getByPosition('Team Leader')->id,
-            'team_driver'      => $this->getByPosition('Driver')->id,
             'safety_officer'   => $this->getByPosition('Safety Officer')->id,
             'team_mechanic'    => $this->getByPosition('Mechanic')->id,
         ]);

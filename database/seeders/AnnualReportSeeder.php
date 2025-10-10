@@ -150,7 +150,6 @@ class AnnualReportSeeder extends Seeder
         foreach ($haulings as $hauling) {
             $personnel = $hauling->assignedPersonnel()->create(array_merge([
                 'team_leader'    => $this->getByPosition('Team Leader')->id,
-                'team_driver'    => $this->getByPosition('Driver')->id,
                 'safety_officer' => $this->getByPosition('Safety Officer')->id,
                 'team_mechanic'  => $this->getByPosition('Mechanic')->id,
             ], $timestamps));
@@ -165,7 +164,6 @@ class AnnualReportSeeder extends Seeder
             $hauling->checklist()->create($timestamps)->checkAllFields();
 
             //     $employeeIds = array_merge($haulers->pluck('id')->toArray(), [
-            //         $personnel->team_driver,
             //         $personnel->safety_officer,
             //         $personnel->team_mechanic,
             //     ]);

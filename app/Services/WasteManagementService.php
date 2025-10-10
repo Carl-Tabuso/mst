@@ -81,7 +81,6 @@ class WasteManagementService
                         'haulers'           => ['account'],
                         'assignedPersonnel' => [
                             'teamLeader'    => ['account'],
-                            'teamDriver'    => ['account'],
                             'safetyOfficer' => ['account'],
                             'teamMechanic'  => ['account'],
                         ],
@@ -242,13 +241,11 @@ class WasteManagementService
                 'id'                => $hauling['id'],
                 'assignedPersonnel' => [
                     'team_leader'    => $personnel['teamLeader']['id']    ?? null,
-                    'team_driver'    => $personnel['teamDriver']['id']    ?? null,
                     'safety_officer' => $personnel['safetyOfficer']['id'] ?? null,
                     'team_mechanic'  => $personnel['teamMechanic']['id']  ?? null,
                 ],
                 'drivers'  => array_map(fn ($driver) => $driver['id'], $hauling['drivers']),
                 'haulers'  => array_map(fn ($hauler) => $hauler['id'], $hauling['haulers']),
-                'truck_id' => $hauling['truck']['id'] ?? null,
                 'trucks'   => array_map(fn ($truck) => $truck['id'], $hauling['trucks']),
             ];
         }, $filteredHaulings);
@@ -262,7 +259,6 @@ class WasteManagementService
                 $personnel                      = $mapped['assignedPersonnel'];
                 $isForSafetyInspectionChecklist =
                     $personnel['team_leader']    &&
-                    $personnel['team_driver']    &&
                     $personnel['safety_officer'] &&
                     ! empty($mapped['trucks'])   &&
                     ! empty($mapped['drivers'])  &&

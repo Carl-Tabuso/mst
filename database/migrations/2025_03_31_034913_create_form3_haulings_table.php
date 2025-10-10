@@ -2,7 +2,6 @@
 
 use App\Enums\HaulingStatus;
 use App\Models\Form3;
-use App\Models\Truck;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,11 +19,6 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->foreignIdFor(Truck::class)
-                ->nullable()
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->nullOnDelete();
             $table->timestamp('date');
             $table->string('status')->default(HaulingStatus::ForPersonnelAssignment);
         });

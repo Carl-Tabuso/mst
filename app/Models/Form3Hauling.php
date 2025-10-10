@@ -83,11 +83,6 @@ class Form3Hauling extends Model
         return $this->hasOne(Form3HaulingChecklist::class);
     }
 
-    public function truck(): BelongsTo
-    {
-        return $this->belongsTo(Truck::class);
-    }
-
     public function incidents(): HasMany
     {
         return $this->hasMany(Incident::class);

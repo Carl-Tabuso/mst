@@ -154,11 +154,6 @@ class Employee extends Model
         return $this->hasMany(Form3::class, 'team_leader');
     }
 
-    public function form3sAsDriver(): HasMany
-    {
-        return $this->hasMany(Form3::class, 'team_driver');
-    }
-
     public function form3sAsSafetyOfficer(): HasMany
     {
         return $this->hasMany(Form3::class, 'safety_officer');

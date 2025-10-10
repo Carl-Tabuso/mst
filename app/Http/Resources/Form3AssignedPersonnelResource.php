@@ -16,7 +16,6 @@ class Form3AssignedPersonnelResource extends JsonResource
             'updatedAt'       => $this->updated_at,
             'hauling'         => Form3HaulingResource::make($this->whenLoaded('hauling')),
             'teamLeader'      => EmployeeResource::make($this->whenLoaded('teamLeader')),
-            'teamDriver'      => EmployeeResource::make($this->whenLoaded('teamDriver')),
             'safetyOfficer'   => EmployeeResource::make($this->whenLoaded('safetyOfficer')),
             'teamMechanic'    => EmployeeResource::make($this->whenLoaded('teamMechanic')),
         ];
