@@ -130,7 +130,7 @@ const canEdit = computed(() => props.isAuthorize && props.isOpen)
               <div :class="['overflow-y-auto', { 'max-h-40': isOpen }]">
                 <CommandGroup>
                   <CommandItem
-                    v-for="truck in placeholderTrucks"
+                    v-for="truck in selectedTrucks"
                     :key="truck.id"
                     :value="truck"
                     @select="onTruckSelect(truck)"
