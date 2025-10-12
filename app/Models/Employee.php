@@ -189,9 +189,20 @@ class Employee extends Model
         return $this->hasMany(Form3AssignedPersonnel::class, 'team_leader');
     }
 
-    public function assignedPersonnelAsDriver(): HasMany
+    // we can remove this @carl
+    // public function assignedPersonnelAsDriver(): HasMany
+    // {
+    //     return $this->hasMany(Form3AssignedPersonnel::class, 'team_driver');
+    // }
+
+    public function form3sDriver(): BelongsToMany
     {
-        return $this->hasMany(Form3AssignedPersonnel::class, 'team_driver');
+        return $this->belongsToMany(
+            Form3Hauling::class,
+            'form3_drivers',
+            'driver',
+            'form3_hauling_id'
+        );
     }
 
     public function assignedPersonnelAsSafetyOfficer(): HasMany
