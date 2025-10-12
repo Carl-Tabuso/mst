@@ -59,7 +59,7 @@ const handleRowArchival = () => {
           <Button
             variant="warning"
             type="icon"
-            class="rounded-full p-2"
+            class="rounded-full p-[10px]"
           >
             <Archive />
           </Button>
