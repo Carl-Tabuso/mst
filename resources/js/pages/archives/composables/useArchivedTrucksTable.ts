@@ -10,7 +10,7 @@ import {
 import { useDebounceFn } from '@vueuse/core'
 import { DateRange } from 'reka-ui'
 import { computed, Ref, ref } from 'vue'
-import { useArchivedDateRange } from './useArchivedDateRange'
+// import { useArchivedDateRange } from './useArchivedDateRange'
 
 const urlParams = route().queryParams as any
 
@@ -52,7 +52,7 @@ export function useArchivedTrucksTable() {
     table.setGlobalFilter(value)
   }, 500)
 
-  const { onDateRangePick, onClearDateRange } = useArchivedDateRange(dataTable)
+  // const { onDateRangePick, onClearDateRange } = useArchivedDateRange(dataTable)
 
   const onDateArchivedRangePick = (value: DateRange) => {
     dataTable.dateArchived.value = {
