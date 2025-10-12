@@ -332,9 +332,10 @@ export interface Truck {
   id: number
   model: string
   plateNo: string
-  creator?: Employee | null
+  creator: Employee | null
   createdAt: string
   updatedAt: string
+  archivedAt: string | null
 }
 
 export interface Position {
