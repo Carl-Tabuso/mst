@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Truck;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -10,7 +11,7 @@ class UpdateTruckRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('edit', 'App\\Models\Truck');
+        return $this->user()->can('edit', $this->truck);
     }
 
     public function rules(): array
@@ -24,5 +25,10 @@ class UpdateTruckRequest extends FormRequest
                     ->ignoreModel($this->truck, 'plate_no'),
             ],
         ];
+    }
+
+    protected function failedAuthorization(): never
+    {
+        throw new AuthorizationException(__('responses.truck.unauthorized'));
     }
 }

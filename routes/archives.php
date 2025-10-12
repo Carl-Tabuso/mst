@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\ArchivedEmployeeController;
 use App\Http\Controllers\ArchivedJobOrderController;
+use App\Http\Controllers\ArchivedTruckController;
 use App\Http\Controllers\ArchivedUserController;
+use App\Http\Controllers\ExportArchivedTruckController;
 use App\Http\Controllers\ExportEmployeeController;
 use App\Http\Controllers\ExportUserController;
 use App\Models\Employee;
 use App\Models\JobOrder;
+use App\Models\Truck;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -79,5 +82,30 @@ Route::middleware('auth')->prefix('archives')->name('archive.')->group(function 
             ->name('destroy')
             ->withTrashed()
             ->can('forceDelete', User::class);
+    });
+
+    Route::prefix('trucks')->name('truck.')->group(function () {
+        Route::get('/', [ArchivedTruckController::class, 'index'])
+            ->name('index')
+            ->can('viewAny', Truck::class);
+
+        Route::get('export', ExportArchivedTruckController::class)
+            ->name('export')
+            ->can('viewAny', Truck::class);
+
+        Route::patch('bulk-restore', [ArchivedTruckController::class, 'bulkRestore'])
+            ->name('bulk_restore')
+            ->withTrashed()
+            ->can('restore', Truck::class);
+
+        Route::patch('{truck}', [ArchivedTruckController::class, 'update'])
+            ->name('update')
+            ->withTrashed()
+            ->can('restore', Truck::class);
+
+        Route::delete('{truck}', [ArchivedTruckController::class, 'destroy'])
+            ->name('destroy')
+            ->withTrashed()
+            ->can('forceDelete', Truck::class);
     });
 });
