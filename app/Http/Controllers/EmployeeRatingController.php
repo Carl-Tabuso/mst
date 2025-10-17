@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
@@ -486,7 +487,7 @@ class EmployeeRatingController extends Controller
             ->with([
                 'serviceable.form3',
                 'performanceSummary',
-                'employeePerformances' => fn($q) => $q->where('evaluator_id', $employee->id)
+                'employeePerformances' => fn ($q) => $q->where('evaluator_id', $employee->id)
                     ->with([
                         'evaluatee.position',
                         'evaluatee.account',
@@ -641,12 +642,12 @@ class EmployeeRatingController extends Controller
                 $q->whereNull('deleted_at')
                     ->with('ratings.performanceRating');
             },
-        ])->whereHas('position', fn($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
+        ])->whereHas('position', fn ($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
 
         if ($filters['positions']) {
             $validPositions = array_intersect($filters['positions'], self::ALLOWED_POSITIONS);
             if ($validPositions) {
-                $query->whereHas('position', fn($q) => $q->whereIn('name', $validPositions));
+                $query->whereHas('position', fn ($q) => $q->whereIn('name', $validPositions));
             }
         }
 
@@ -658,7 +659,7 @@ class EmployeeRatingController extends Controller
 
         $transformedEmployees = $employees->map(function ($employee) {
             $ratings = $employee->performancesAsEmployee
-                ->flatMap(fn($perf) => $perf->ratings)
+                ->flatMap(fn ($perf) => $perf->ratings)
                 ->pluck('performanceRating.scale')
                 ->filter();
 
@@ -708,7 +709,7 @@ class EmployeeRatingController extends Controller
 
         return $employees->filter(function ($employee) use ($searchTerm) {
             return str_contains(strtolower($employee->full_name), $searchTerm) ||
-            str_contains(strtolower($employee->position), $searchTerm) ||
+            str_contains(strtolower($employee->position), $searchTerm)         ||
             str_contains((string) $employee->id, $searchTerm);
         })->values();
     }
@@ -764,7 +765,7 @@ class EmployeeRatingController extends Controller
                 return [
                     'job_order_id'     => $perf->jobOrder?->id,
                     'job_order_ticket' => $perf->jobOrder?->ticket,
-                    'from'             => $perf->evaluator?->full_name ?? '',
+                    'from'             => $perf->evaluator?->full_name       ?? '',
                     'from_position'    => $perf->evaluator?->position?->name ?? '',
                     'scale'            => $rating->performanceRating?->scale ?? null,
                     'description'      => $rating->description,
@@ -814,10 +815,10 @@ class EmployeeRatingController extends Controller
         $searchTerm = strtolower(trim($search));
 
         return $ratings->filter(function ($rating) use ($searchTerm) {
-            return str_contains(strtolower($rating['from']), $searchTerm) ||
-            str_contains(strtolower($rating['from_position']), $searchTerm) ||
-            str_contains(strtolower($rating['description'] ?? ''), $searchTerm) ||
-            str_contains((string) $rating['job_order_id'], $searchTerm) ||
+            return str_contains(strtolower($rating['from']), $searchTerm)            ||
+            str_contains(strtolower($rating['from_position']), $searchTerm)          ||
+            str_contains(strtolower($rating['description'] ?? ''), $searchTerm)      ||
+            str_contains((string) $rating['job_order_id'], $searchTerm)              ||
             str_contains(strtolower($rating['job_order_ticket'] ?? ''), $searchTerm) ||
             str_contains((string) $rating['scale'], $searchTerm);
         });
@@ -840,7 +841,7 @@ class EmployeeRatingController extends Controller
 
         if ($filters['scale_from'] !== null || $filters['scale_to'] !== null) {
             $from    = $filters['scale_from'] ?? 'min';
-            $to      = $filters['scale_to'] ?? 'max';
+            $to      = $filters['scale_to']   ?? 'max';
             $parts[] = "rating-{$from}-to-{$to}";
         }
 
@@ -858,11 +859,11 @@ class EmployeeRatingController extends Controller
                 'scale_desc' => 'rating-desc',
             ];
             if (isset($sortMap[$filters['sort']])) {
-                $parts[] = 'sort-' . $sortMap[$filters['sort']];
+                $parts[] = 'sort-'.$sortMap[$filters['sort']];
             }
         }
 
-        return $parts ? '_' . implode('_', $parts) : '';
+        return $parts ? '_'.implode('_', $parts) : '';
     }
 
     // ==================== VALIDATION & DATA PROCESSING ====================
@@ -933,9 +934,9 @@ class EmployeeRatingController extends Controller
 
         return [
             'search'            => $request->get('search'),
-            'statuses'          => $filters['statuses'] ?? [],
+            'statuses'          => $filters['statuses']          ?? [],
             'fromDateOfService' => $filters['fromDateOfService'] ?? '',
-            'toDateOfService'   => $filters['toDateOfService'] ?? '',
+            'toDateOfService'   => $filters['toDateOfService']   ?? '',
         ];
     }
 
@@ -1060,23 +1061,23 @@ class EmployeeRatingController extends Controller
         $parts = [];
 
         if ($filters['positions']) {
-            $parts[] = 'pos-' . implode('-', array_map('strtolower', $filters['positions']));
+            $parts[] = 'pos-'.implode('-', array_map('strtolower', $filters['positions']));
         }
 
         if ($filters['evaluation_status']) {
-            $parts[] = 'eval-' . implode('-', $filters['evaluation_status']);
+            $parts[] = 'eval-'.implode('-', $filters['evaluation_status']);
         }
 
         if ($filters['rating_from'] !== null || $filters['rating_to'] !== null) {
             $from    = $filters['rating_from'] ?? 'min';
-            $to      = $filters['rating_to'] ?? 'max';
+            $to      = $filters['rating_to']   ?? 'max';
             $parts[] = "rating-{$from}-to-{$to}";
         }
 
         if ($filters['search']) {
-            $parts[] = 'search-' . preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
+            $parts[] = 'search-'.preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
         }
 
-        return $parts ? '_' . implode('_', $parts) : '';
+        return $parts ? '_'.implode('_', $parts) : '';
     }
 }
