@@ -78,6 +78,7 @@ const archiveRoutes: Partial<Record<UserRoleType, string>> = {
   frontliner: 'archives/job-orders',
   'human resource': 'archives/employees',
   'it admin': 'archives/users',
+  dispatcher: 'archives/trucks',
 }
 
 const archiveUrl = computed(() => {
@@ -156,12 +157,6 @@ const mainNavItems: NavItem[] = [
     can: can('view:reports_analytics'),
   },
   {
-    title: 'Archives',
-    href: archiveUrl.value,
-    can: archiveUrl.value !== '#',
-    icon: Archive,
-  },
-  {
     title: 'Truck Inventory',
     href: '/trucks',
     icon: Truck,
@@ -172,6 +167,12 @@ const mainNavItems: NavItem[] = [
     href: '/activities',
     icon: History,
     can: true,
+  },
+  {
+    title: 'Archives',
+    href: archiveUrl.value,
+    can: archiveUrl.value !== '#',
+    icon: Archive,
   },
 ]
 

@@ -46,6 +46,17 @@ class RolesPermissionsController extends Controller
                 ],
             ],
             [
+                'group'       => 'Truck',
+                'icon'        => 'Truck',
+                'permissions' => [
+                    UserPermission::AddNewTruck,
+                    UserPermission::UpdateTruck,
+                    UserPermission::ArchiveTruck,
+                    UserPermission::RestoreTruck,
+                    UserPermission::ForceDeleteTruck,
+                ],
+            ],
+            [
                 'group'       => 'Incident Report',
                 'icon'        => 'FilePenLineIcon',
                 'permissions' => [

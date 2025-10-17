@@ -18,8 +18,11 @@ return [
         ],
     ],
     'truck' => [
-        'created' => ':causer added a new truck.',
-        'updated' => ':causer updated a truck information.',
+        'created'  => ':causer added truck :plate_no.',
+        'updated'  => ':causer updated the information of truck :plate_no.',
+        'archived' => ':causer archived truck :plate_no.',
+        'deleted'  => ':causer permanently removed truck :plate_no.',
+        'restored' => ':causer restored truck :plate_no.',
     ],
     'correction' => [
         'created' => ':causer request a ticket correction.',

@@ -8,7 +8,9 @@ import {
   ClipboardListIcon,
   ClockIcon,
   FilePenLineIcon,
+  GaugeCircleIcon,
   LayoutDashboardIcon,
+  Truck,
   UserRoundCog,
   UsersRoundIcon,
   X,
@@ -39,6 +41,8 @@ const iconComponents: { [key: string]: any } = {
   UsersRoundIcon,
   UserRoundCog,
   LayoutDashboardIcon,
+  GaugeCircleIcon,
+  Truck,
   ClockIcon,
 }
 
