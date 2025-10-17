@@ -23,7 +23,9 @@ class ArchivedTruckController extends Controller
 
         $data = $this->truckService->getAllTrucks($perPage, $search, $filters, true);
 
-        return Inertia::render('archives/trucks/Index', compact('data'));
+        $dispatchers = $this->truckService->getDispatchers();
+
+        return Inertia::render('archives/trucks/Index', compact('data', 'dispatchers'));
     }
 
     public function update(Truck $truck): RedirectResponse

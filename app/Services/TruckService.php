@@ -2,35 +2,60 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
+use App\Filters\ApplyDateOfArchivalRange;
+use App\Filters\FilterOnlyArchived;
+use App\Filters\Truck\FilterByCreators;
+use App\Filters\Truck\SearchDetails;
+use App\Models\Employee;
 use App\Models\Truck;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\Pipeline;
 
 class TruckService
 {
-    public function getAllTrucks(?int $perPage = 10, ?string $search = '', ?array $filters = [], bool $archivedOnly = false)
+    public function getAllTrucks(?int $perPage = 10, ?string $search = '', ?array $filters = [], bool $archivedOnly = false): ResourceCollection
     {
-        $data = Truck::query();
+        $model = new Truck;
+
+        $baseQuery = $model::query();
+        $baseQuery->with('creator');
+
+        $pipes = [
+            new FilterByCreators($filters),
+            new SearchDetails($search),
+        ];
 
         if ($archivedOnly) {
-            $data->onlyTrashed();
+            array_unshift($pipes,
+                new FilterOnlyArchived,
+                new ApplyDateOfArchivalRange($model->getDeletedAtColumn(), $filters),
+            );
         }
 
-        $data = $data->with('creator')
-            ->when($search, function (Builder $query) use ($search) {
-                $query->where(fn (Builder $subQuery) => $subQuery->whereAny([
-                    'model',
-                    'plate_no',
-                ], 'like', "%{$search}%"));
-            })
-            ->when(isset($filters['dispatchers']) && count($filters['dispatchers']) > 0,
-                fn (Builder $query) => $query->whereIn('added_by', $filters['dispatchers'])
-            )
-            ->latest('updated_at')
-            ->paginate($perPage)
-            ->withQueryString()
-            ->toResourceCollection();
+        return Pipeline::send($baseQuery)
+            ->through($pipes)
+            ->then(function (Builder $query) use ($perPage, $archivedOnly, $model) {
+                $orderByColumn = $archivedOnly
+                    ? $model->getDeletedAtColumn()
+                    : $model->getUpdatedAtColumn();
 
-        return $data;
+                return $query
+                    ->latest($orderByColumn)
+                    ->paginate($perPage)
+                    ->withQueryString()
+                    ->toResourceCollection();
+            });
+    }
+
+    public function getDispatchers(): ResourceCollection
+    {
+        return Employee::query()
+            ->with('account.roles')
+            ->whereHas('account', fn (Builder $query) => $query->role(UserRole::Dispatcher))
+            ->get()
+            ->toResourceCollection();
     }
 
     public function archiveTruck(Truck $truck): ?bool

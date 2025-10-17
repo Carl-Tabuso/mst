@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import MainContainer from '@/components/MainContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { BreadcrumbItem, EloquentCollection, Truck } from '@/types'
+import { BreadcrumbItem, EloquentCollection, Employee, Truck } from '@/types'
+import { provide } from 'vue'
 import ArchivedTabs from '../components/ArchivedTabs.vue'
 import PageHeader from '../components/PageHeader.vue'
 import ArchivedTruckDataTable from './components/DataTable.vue'
@@ -12,9 +13,12 @@ interface IndexProps {
     data: Truck[]
     meta: EloquentCollection
   }
+  dispatchers: Employee[]
 }
 
-defineProps<IndexProps>()
+const props = defineProps<IndexProps>()
+
+provide<Employee[], string>('dispatchers', props.dispatchers)
 
 const breadcrumbs: BreadcrumbItem[] = [
   {

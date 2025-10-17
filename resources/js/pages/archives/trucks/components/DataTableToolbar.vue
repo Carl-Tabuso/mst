@@ -3,6 +3,7 @@ import ColumnViewToggle from '@/components/ColumnViewToggle.vue'
 import { usePermissions } from '@/composables/usePermissions'
 import { Truck } from '@/types'
 import { Table } from '@tanstack/vue-table'
+import AddedByPopover from './AddedByPopover.vue'
 import BulkRestoreTruck from './BulkRestoreTruck.vue'
 import DateArchivedPopover from './DateArchivedPopover.vue'
 import ExportArchivedTruck from './ExportArchivedTruck.vue'
@@ -18,6 +19,7 @@ defineProps<DataTableToolbarProps>()
 <template>
   <div class="flex flex-row items-center py-1">
     <SearchBar :table="table" />
+    <AddedByPopover />
     <DateArchivedPopover />
     <ColumnViewToggle :table="table" />
     <ExportArchivedTruck :table="table" />

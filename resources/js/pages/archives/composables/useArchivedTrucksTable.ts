@@ -25,6 +25,7 @@ const dataTable = {
     pageSize: urlParams.per_page ? Number(urlParams.per_page) : 10,
   }),
   globalFilter: ref<string>(urlParams.search ?? ''),
+  dispatchers: ref<number[]>(urlParams.dispatchers ?? []),
   dateArchived: ref({
     start: urlParams?.filters?.fromDateArchived
       ? parseDate(urlParams.filters.fromDateArchived)
@@ -41,6 +42,7 @@ const dataTableStateRequestPayload = computed(() => {
     per_page: dataTable.pagination.value.pageSize,
     search: dataTable.globalFilter.value,
     filters: {
+      dispatchers: dataTable.dispatchers.value,
       fromDateArchived: dataTable.dateArchived.value?.start?.toString(),
       toDateArchived: dataTable.dateArchived.value?.end?.toString(),
     },
@@ -51,6 +53,23 @@ export function useArchivedTrucksTable() {
   const onSearch = useDebounceFn((table: Table<Truck>, value: string) => {
     table.setGlobalFilter(value)
   }, 500)
+
+  const onDispatcherSelect = (dispatcherId: number) => {
+    const selectedDispatchers = dataTable.dispatchers.value
+
+    if (selectedDispatchers.includes(dispatcherId)) {
+      const index = selectedDispatchers.findIndex((id) => id === dispatcherId)
+      selectedDispatchers.splice(index, 1)
+    } else {
+      selectedDispatchers.push(dispatcherId)
+    }
+    applyFilters()
+  }
+
+  const onClearSelectedDispatchers = () => {
+    dataTable.dispatchers.value = []
+    applyFilters()
+  }
 
   // const { onDateRangePick, onClearDateRange } = useArchivedDateRange(dataTable)
 
@@ -90,5 +109,7 @@ export function useArchivedTrucksTable() {
     applyFilters,
     onDateArchivedRangePick,
     onClearDateArchivedRange,
+    onDispatcherSelect,
+    onClearSelectedDispatchers,
   }
 }
