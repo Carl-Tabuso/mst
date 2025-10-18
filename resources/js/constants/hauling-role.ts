@@ -1,7 +1,7 @@
 import { UserRoleType } from './user-role'
 
 type RoleType = {
-  id: 'teamLeader' | 'teamMechanic' | 'safetyOfficer' | 'teamDriver'
+  id: 'teamLeader' | 'teamMechanic' | 'safetyOfficer'
   label: string
   type: UserRoleType | UserRoleType[]
 }

@@ -265,7 +265,6 @@ export interface Form3AssignedPersonnel {
   updatedAt: string
   hauling: Form3Hauling
   teamLeader: Employee | null
-  teamDriver: Employee | null
   safetyOfficer: Employee | null
   teamMechanic: Employee | null
 }
