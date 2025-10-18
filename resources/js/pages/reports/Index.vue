@@ -115,7 +115,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <Head title="Reports and Analytics" />
   <AppLayout :breadcrumbs="breadcrumbs">
     <MainContainer>
-      <div class="flex items-start justify-between">
+      <div class="flex flex-row items-center justify-between">
         <div class="flex flex-col">
           <h1 class="scroll-m-20 text-3xl font-bold text-primary">
             Reports and Analytics
