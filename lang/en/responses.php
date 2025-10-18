@@ -3,6 +3,7 @@
 return [
     'job_order'     => [
         'create' => 'Created Job Order|Ticket: :ticket',
+        'close'  => 'Marked :ticket as :status.',
     ],
     'status_update' => 'Successfully set status to :status.',
     'checklist'     => 'Checklist changes has been saved.|:date',
