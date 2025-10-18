@@ -28,8 +28,8 @@ class IncidentService
             'creator',
             'hauling.form3.form4.jobOrder',
             'hauling.haulers',
+            'hauling.drivers',
             'hauling.assignedPersonnel.teamLeader',
-            'hauling.assignedPersonnel.teamDriver',
             'hauling.assignedPersonnel.safetyOfficer',
             'hauling.assignedPersonnel.teamMechanic',
             'hauling.incidents',
@@ -45,9 +45,10 @@ class IncidentService
                 $query->where(function ($q) use ($employeeId) {
                     $q->whereHas('hauling.assignedPersonnel', function ($subQuery) use ($employeeId) {
                         $subQuery->where('team_leader', $employeeId)
-                            ->orWhere('team_driver', $employeeId)
                             ->orWhere('safety_officer', $employeeId)
                             ->orWhere('team_mechanic', $employeeId);
+                    })->orWhereHas('hauling.drivers', function ($subQuery) use ($employeeId) {
+                        $subQuery->where('driver', $employeeId);
                     });
                 })->whereIsPrimary();
             } elseif ($isVerifyingRole) {
@@ -56,9 +57,10 @@ class IncidentService
                 $query->where(function ($q) use ($employeeId) {
                     $q->whereHas('hauling.assignedPersonnel', function ($subQuery) use ($employeeId) {
                         $subQuery->where('team_leader', $employeeId)
-                            ->orWhere('team_driver', $employeeId)
                             ->orWhere('safety_officer', $employeeId)
                             ->orWhere('team_mechanic', $employeeId);
+                    })->orWhereHas('hauling.drivers', function ($subQuery) use ($employeeId) {
+                        $subQuery->where('driver', $employeeId);
                     });
                 })->whereIsPrimary();
             }
@@ -83,27 +85,29 @@ class IncidentService
         return $query->get()->map([$this, 'formatIncidentData']);
     }
 
+
+
     protected function applySearchFilter($query, $searchTerm)
     {
         $query->where(function ($q) use ($searchTerm) {
-            $q->where('subject', 'like', '%'.$searchTerm.'%')
-                ->orWhere('location', 'like', '%'.$searchTerm.'%')
-                ->orWhere('infraction_type', 'like', '%'.$searchTerm.'%')
+            $q->where('subject', 'like', '%' . $searchTerm . '%')
+                ->orWhere('location', 'like', '%' . $searchTerm . '%')
+                ->orWhere('infraction_type', 'like', '%' . $searchTerm . '%')
                 ->orWhereHas('hauling.assignedPersonnel.teamLeader', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 })
-                ->orWhereHas('hauling.assignedPersonnel.teamDriver', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                ->orWhereHas('hauling.drivers', function ($q) use ($searchTerm) {
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 })
                 ->orWhereHas('hauling.assignedPersonnel.safetyOfficer', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 })
                 ->orWhereHas('hauling.assignedPersonnel.teamMechanic', function ($q) use ($searchTerm) {
-                    $q->where('first_name', 'like', '%'.$searchTerm.'%')
-                        ->orWhere('last_name', 'like', '%'.$searchTerm.'%');
+                    $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
                 });
         });
     }
@@ -128,6 +132,7 @@ class IncidentService
         $jobOrder        = $incident->jobOrder;
         $haulingJobOrder = null;
         $haulers         = [];
+        $drivers         = [];
 
         if (! $jobOrder && $incident->hauling) {
             $haulingJobOrder = $incident->hauling->form3->form4->jobOrder ?? null;
@@ -136,7 +141,17 @@ class IncidentService
                 $haulers = $incident->hauling->haulers->map(function ($hauler) {
                     return [
                         'id'   => $hauler->id,
-                        'name' => $hauler->first_name.' '.$hauler->last_name,
+                        'name' => $hauler->first_name . ' ' . $hauler->last_name,
+                    ];
+                })->toArray();
+            }
+
+
+            if ($incident->hauling->relationLoaded('drivers') && $incident->hauling->drivers) {
+                $drivers = $incident->hauling->drivers->map(function ($driver) {
+                    return [
+                        'id'   => $driver->id,
+                        'name' => $driver->first_name . ' ' . $driver->last_name,
                     ];
                 })->toArray();
             }
@@ -161,19 +176,16 @@ class IncidentService
             $assignedPersonnel = [
                 'team_leader' => $ap->teamLeader ? [
                     'id'   => $ap->teamLeader->id,
-                    'name' => $ap->teamLeader->first_name.' '.$ap->teamLeader->last_name,
+                    'name' => $ap->teamLeader->first_name . ' ' . $ap->teamLeader->last_name,
                 ] : null,
-                'team_driver' => $ap->teamDriver ? [
-                    'id'   => $ap->teamDriver->id,
-                    'name' => $ap->teamDriver->first_name.' '.$ap->teamDriver->last_name,
-                ] : null,
+
                 'safety_officer' => $ap->safetyOfficer ? [
                     'id'   => $ap->safetyOfficer->id,
-                    'name' => $ap->safetyOfficer->first_name.' '.$ap->safetyOfficer->last_name,
+                    'name' => $ap->safetyOfficer->first_name . ' ' . $ap->safetyOfficer->last_name,
                 ] : null,
                 'team_mechanic' => $ap->teamMechanic ? [
                     'id'   => $ap->teamMechanic->id,
-                    'name' => $ap->teamMechanic->first_name.' '.$ap->teamMechanic->last_name,
+                    'name' => $ap->teamMechanic->first_name . ' ' . $ap->teamMechanic->last_name,
                 ] : null,
             ];
         }
@@ -190,6 +202,7 @@ class IncidentService
                 'ticket' => $haulingJobOrder->ticket,
             ] : null,
             'haulers'            => $haulers,
+            'drivers'            => $drivers,
             'assigned_personnel' => $assignedPersonnel,
             'subject'            => $incident->subject,
             'location'           => $incident->location,
@@ -200,7 +213,7 @@ class IncidentService
             'status'             => $incident->status->value,
             'created_by'         => $incidentCreator ? [
                 'id'    => $incidentCreator->id,
-                'name'  => $incidentCreator->first_name.' '.$incidentCreator->last_name,
+                'name'  => $incidentCreator->first_name . ' ' . $incidentCreator->last_name,
                 'email' => $incidentCreator->email,
             ] : null,
             'plainText'          => $this->htmlToPlainText($incident->description),
@@ -225,7 +238,7 @@ class IncidentService
             throw new \Exception('Only consultants can create secondary incidents');
         }
 
-        $hauling = \App\Models\Form3Hauling::with('incidents')->findOrFail($haulingId);
+        $hauling = Form3Hauling::with('incidents')->findOrFail($haulingId);
 
         $existingSecondary = $hauling->incidents->sortBy('created_at')->skip(1)->first();
         if ($existingSecondary) {
@@ -238,7 +251,7 @@ class IncidentService
             'form3_hauling_id' => $haulingId,
             'created_by'       => $user->employee_id,
             'status'           => IncidentStatus::Draft,
-            'subject'          => 'Secondary Report - '.($primaryIncident->subject ?? 'Hauling Incident'),
+            'subject'          => 'Secondary Report - ' . ($primaryIncident->subject ?? 'Hauling Incident'),
             'location'         => $primaryIncident->location        ?? 'To be determined',
             'infraction_type'  => $primaryIncident->infraction_type ?? 'To be determined',
             'occured_at'       => now(),
