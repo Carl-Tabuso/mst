@@ -75,10 +75,10 @@ const activeItemStyles = computed(
 const { can, canAny } = usePermissions()
 
 const archiveRoutes: Partial<Record<UserRoleType, string>> = {
-  frontliner: 'archives/job-orders',
-  'human resource': 'archives/employees',
-  'it admin': 'archives/users',
-  dispatcher: 'archives/trucks',
+  'frontliner': route('archive.job_order.index'),
+  'human resource': route('archive.employee.index'),
+  'it admin': route('archive.user.index'),
+  'dispatcher': route('archive.truck.index'),
 }
 
 const archiveUrl = computed(() => {
