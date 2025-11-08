@@ -73,6 +73,10 @@ const onTruckSelect = (truck: Truck) => {
 }
 
 const canEdit = computed(() => props.isAuthorize && props.isOpen)
+
+const isPopoverTriggerDisabled = computed(
+  () => selectedTrucks.value.length < 4 && !props.isOpen,
+)
 </script>
 
 <template>
@@ -82,6 +86,7 @@ const canEdit = computed(() => props.isAuthorize && props.isOpen)
       <PopoverTrigger
         as-child
         class="w-full sm:w-[400px]"
+        :disabled="isPopoverTriggerDisabled"
       >
         <Button variant="outline">
           <div
