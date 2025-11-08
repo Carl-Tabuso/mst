@@ -13,63 +13,67 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { JobOrder } from '@/types'
+import { usePermissions } from '@/composables/usePermissions'
+import { Truck } from '@/types'
 import { router } from '@inertiajs/vue3'
 import { Archive, LoaderCircle, TriangleAlert } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 
-interface ArchiveJobOrderProps {
-  jobOrder: JobOrder
-  redirectUrlAfterArchive?: string
+interface ArchiveTruckProps {
+  truck: Truck
 }
 
-const props = withDefaults(defineProps<ArchiveJobOrderProps>(), {
-  redirectUrlAfterArchive: 'job_order.index',
-})
+const props = defineProps<ArchiveTruckProps>()
 
 const isArchiveModalOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
 
-const handleRowArchival = () => {
-  router.delete(route('job_order.destroy', props.jobOrder.ticket), {
-    data: {
-      redirectRouteAfterSuccess: props.redirectUrlAfterArchive,
-    },
+const onArchive = () => {
+  router.delete(route('truck.destroy', props.truck.id), {
     replace: true,
     showProgress: false,
     onStart: () => (isLoading.value = true),
     onSuccess: (page: any) => {
-      isArchiveModalOpen.value = false
-      isLoading.value = false
       toast.success(page.props.flash.message, {
         position: 'top-center',
       })
     },
+    onFinish: () => {
+      isArchiveModalOpen.value = false
+      isLoading.value = false
+    },
   })
 }
+
+const canArchiveTruck = usePermissions().can('archive:truck')
 </script>
 
 <template>
   <Dialog v-model:open="isArchiveModalOpen">
     <Tooltip>
       <TooltipTrigger as-child>
-        <DialogTrigger as-child>
-          <Button
-            variant="warning"
-            type="icon"
-            class="rounded-full p-[10px]"
-          >
-            <Archive />
-          </Button>
-        </DialogTrigger>
+        <div>
+          <DialogTrigger>
+            <Button
+              variant="warning"
+              type="icon"
+              class="rounded-full p-[10px]"
+              :disabled="!canArchiveTruck"
+            >
+              <Archive />
+            </Button>
+          </DialogTrigger>
+        </div>
       </TooltipTrigger>
-      <TooltipContent> Archive </TooltipContent>
+      <TooltipContent>
+        {{ canArchiveTruck ? 'Archive' : 'Unauthorized' }}
+      </TooltipContent>
     </Tooltip>
-    <DialogContent class="w-fit">
+    <DialogContent class="w-[350px]">
       <VisuallyHidden as-child>
-        <DialogTitle> Archiving Job Order </DialogTitle>
+        <DialogTitle> Archiving Truck </DialogTitle>
         <DialogDescription>
           <!---->
         </DialogDescription>
@@ -81,12 +85,20 @@ const handleRowArchival = () => {
         <div
           class="text-2xl font-bold text-amber-500 dark:text-white sm:text-3xl"
         >
-          Archiving Job Order
+          Archiving Truck
         </div>
-        <div class="text-center text-sm text-muted-foreground">
-          Are you sure you want to archive
-          <span class="font-bold">{{ jobOrder.ticket }}</span>
-          ?
+        <div class="space-y-2 text-center text-sm text-muted-foreground">
+          <p>Are you sure you want to archive this truck?</p>
+          <div class="mt-1">
+            <p>
+              <span class="font-medium text-foreground">Model: </span>
+              <span class="font-semibold">{{ truck.model }}</span>
+            </p>
+            <p>
+              <span class="font-medium text-foreground">Plate Number: </span>
+              <span class="font-semibold">{{ truck.plateNo }}</span>
+            </p>
+          </div>
         </div>
         <div class="mt-6 flex items-center gap-4">
           <DialogClose>
@@ -101,11 +113,11 @@ const handleRowArchival = () => {
             variant="warning"
             :disabled="isLoading"
             class="px-10"
-            @click="handleRowArchival"
+            @click="onArchive"
           >
             <LoaderCircle
               v-show="isLoading"
-              class="mr-2 animate-spin"
+              class="animate-spin"
             />
             Archive
           </Button>

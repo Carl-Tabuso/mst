@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Truck } from '@/types'
 import { formatDistanceToNow, isEqual } from 'date-fns'
 import { computed, ref } from 'vue'
+import ArchiveTruck from './ArchiveTruck.vue'
 import EditTruckDetails from './EditTruckDetails.vue'
 
 interface TruckCardProps {
@@ -29,11 +30,13 @@ const additionalInfo = computed(() => {
 <template>
   <Dialog v-model:open="isDialogOpen">
     <DialogTrigger as-child>
-      <button>
+      <button class="w-full text-left">
         <Card
           class="flex flex-row items-center justify-between rounded-md border px-4 py-3 hover:bg-muted"
         >
-          <CardContent class="flex items-center gap-4 p-0">
+          <CardContent
+            class="flex w-full items-center justify-between gap-4 p-0"
+          >
             <div class="flex flex-col gap-1">
               <div class="flex flex-row items-center gap-2">
                 <span class="font-medium text-foreground">
@@ -46,6 +49,12 @@ const additionalInfo = computed(() => {
               <span class="text-left text-xs text-muted-foreground">
                 {{ additionalInfo }}
               </span>
+            </div>
+            <div
+              class="ml-auto"
+              @click.stop
+            >
+              <ArchiveTruck :truck="truck" />
             </div>
           </CardContent>
         </Card>

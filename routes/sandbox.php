@@ -33,7 +33,6 @@ Route::get('test', function () {
 Route::get('test-incident-access', function () {
     $draftIncidents = \App\Models\Incident::with([
         'hauling.assignedPersonnel.teamLeader.account',
-        'hauling.assignedPersonnel.teamDriver.account',
         'hauling.assignedPersonnel.safetyOfficer.account',
         'hauling.assignedPersonnel.teamMechanic.account',
     ])

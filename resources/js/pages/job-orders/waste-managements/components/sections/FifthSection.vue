@@ -107,7 +107,6 @@ const removeAssignedPersonnel = (role: HaulingRoleType, index: number) => {
 const isPopoverOpen = ref<Record<string, number | null>>({
   teamLeader: null,
   safetyOfficer: null,
-  teamDriver: null,
   teamMechanic: null,
 })
 

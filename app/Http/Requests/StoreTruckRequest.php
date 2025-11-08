@@ -10,7 +10,7 @@ class StoreTruckRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', 'App\\Models\Truck');
+        return $this->user()->can('create', Truck::class);
     }
 
     public function rules(): array

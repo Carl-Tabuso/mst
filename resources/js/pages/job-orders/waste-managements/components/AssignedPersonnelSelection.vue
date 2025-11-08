@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import UserAvatar from '@/components/UserAvatar.vue'
+import { HaulingRoleType } from '@/constants/hauling-role'
 import { Employee, Form3Hauling } from '@/types'
 import { Check, ChevronsUpDown, X } from 'lucide-vue-next'
 import { computed } from 'vue'
@@ -23,7 +24,7 @@ import EmployeeCommandListPlaceholder from './placeholders/EmployeeCommandListPl
 interface AssignedPersonnelSelectionProps {
   employees?: Employee[]
   hauling: Form3Hauling
-  role: RoleType
+  role: HaulingRoleType
   index: number
   label: string
   open: boolean
@@ -37,26 +38,6 @@ const props = withDefaults(defineProps<AssignedPersonnelSelectionProps>(), {
 const firstPersonnel = computed(
   () => props.hauling?.assignedPersonnel?.[props.role],
 )
-
-type RoleType = (typeof Roles)[number]['id']
-const Roles = [
-  {
-    id: 'teamLeader',
-    label: 'Team Leader',
-  },
-  {
-    id: 'teamMechanic',
-    label: 'Mechanic',
-  },
-  {
-    id: 'safetyOfficer',
-    label: 'Safety Officer',
-  },
-  {
-    id: 'teamDriver',
-    label: 'Driver',
-  },
-] as const
 </script>
 
 <template>

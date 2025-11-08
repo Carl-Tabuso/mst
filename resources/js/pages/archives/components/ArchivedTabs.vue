@@ -2,12 +2,12 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { usePermissions } from '@/composables/usePermissions'
 import { Link } from '@inertiajs/vue3'
-import { ClipboardList, UserRoundCog, UsersRound } from 'lucide-vue-next'
+import { ClipboardList, Truck, UserRoundCog, UsersRound } from 'lucide-vue-next'
 import { FunctionalComponent } from 'vue'
 
 interface Tab {
   label: string
-  value: string
+  routeName: string
   icon: FunctionalComponent
   can?: boolean
 }
@@ -17,21 +17,27 @@ const { canAny } = usePermissions()
 const tabs: Tab[] = [
   {
     label: 'Job Orders',
-    value: 'archive.job_order.index',
+    routeName: 'archive.job_order.index',
     icon: ClipboardList,
     can: canAny({ roles: ['head frontliner', 'frontliner'] }),
   },
   {
     label: 'Employees',
-    value: 'archive.employee.index',
+    routeName: 'archive.employee.index',
     icon: UsersRound,
     can: canAny({ roles: ['head frontliner', 'human resource'] }),
   },
   {
     label: 'Users',
-    value: 'archive.user.index',
+    routeName: 'archive.user.index',
     icon: UserRoundCog,
     can: canAny({ roles: ['head frontliner', 'it admin'] }),
+  },
+  {
+    label: 'Trucks',
+    routeName: 'archive.truck.index',
+    icon: Truck,
+    can: canAny({ roles: ['head frontliner', 'dispatcher'] }),
   },
 ]
 </script>
@@ -47,10 +53,10 @@ const tabs: Tab[] = [
         :key="index"
       >
         <Link
-          :href="route(tab.value)"
+          :href="route(tab.routeName)"
           :class="{ 'pointer-events-none opacity-80': !tab.can }"
         >
-          <TabsTrigger :value="tab.value">
+          <TabsTrigger :value="tab.routeName">
             <div class="flex flex-row items-center px-3">
               <component
                 :is="tab.icon"

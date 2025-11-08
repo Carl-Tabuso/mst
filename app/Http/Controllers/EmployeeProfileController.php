@@ -208,7 +208,7 @@ class EmployeeProfileController extends Controller
                     $drivers = $firstHauling->drivers;
                     if ($drivers->isNotEmpty()) {
                         $teamLeaderInfo['drivers']      = $drivers->pluck('full_name')->toArray();
-                        $teamLeaderInfo['debug_path'][] = 'Found ' . count($teamLeaderInfo['drivers']) . ' drivers';
+                        $teamLeaderInfo['debug_path'][] = 'Found '.count($teamLeaderInfo['drivers']).' drivers';
                     } else {
                         $teamLeaderInfo['debug_path'][] = 'No drivers found in first hauling';
                     }
@@ -307,6 +307,24 @@ class EmployeeProfileController extends Controller
     {
         return $form3Drivers
             ->map(fn($form3Driver) => $form3Driver->form3Hauling?->form3?->form4?->jobOrder)
+            ->filter()
+            ->unique('id')
+            ->values();
+    }
+
+    private function pluckJobOrdersFromDrivers($form3Drivers)
+    {
+        return $form3Drivers
+            ->map(fn ($form3Driver) => $form3Driver->form3Hauling?->form3?->form4?->jobOrder)
+            ->filter()
+            ->unique('id')
+            ->values();
+    }
+
+    private function pluckJobOrdersFromDrivers($form3Drivers)
+    {
+        return $form3Drivers
+            ->map(fn ($form3Driver) => $form3Driver->form3Hauling?->form3?->form4?->jobOrder)
             ->filter()
             ->unique('id')
             ->values();

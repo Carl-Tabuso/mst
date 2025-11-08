@@ -30,6 +30,11 @@ enum UserPermission: string
     case ExportEmployeeRating             = 'export:employee_rating';
     case RestoreArchivedJobOrder          = 'restore:archived_job_order';
     case ForceDeleteJobOrder              = 'force_delete:job_order';
+    case AddNewTruck                      = 'create:truck';
+    case UpdateTruck                      = 'update:truck';
+    case ArchiveTruck                     = 'archive:truck';
+    case RestoreTruck                     = 'restore:truck';
+    case ForceDeleteTruck                 = 'force_delete:truck';
 
     public function getLabel(): string
     {
@@ -57,6 +62,11 @@ enum UserPermission: string
             self::ExportEmployeeRating             => 'Export Employee Rating',
             self::RestoreArchivedJobOrder          => 'Restore Archived Job Order',
             self::ForceDeleteJobOrder              => 'Force Delete Job Order',
+            self::AddNewTruck                      => 'Add New Truck',
+            self::UpdateTruck                      => 'Update Truck Information',
+            self::ArchiveTruck                     => 'Archive Truck',
+            self::RestoreTruck                     => 'Restore Archived Truck',
+            self::ForceDeleteTruck                 => 'Force Delete Truck',
         };
     }
 
@@ -76,6 +86,11 @@ enum UserPermission: string
             self::AssignHaulingPersonnel,
             self::SetHaulingDuration,
             self::ViewAnyJobOrder,
+            self::AddNewTruck,
+            self::UpdateTruck,
+            self::ArchiveTruck,
+            self::RestoreTruck,
+            self::ForceDeleteTruck,
         ];
     }
 

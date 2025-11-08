@@ -25,7 +25,7 @@ const props = defineProps<TicketHeaderProps>()
 
 const { statusMap } = useJobOrderDicts()
 
-const status = statusMap[props.jobOrder.status]
+const status = computed(() => statusMap[props.jobOrder.status])
 
 const createdAt = computed(() => new Date(props.jobOrder.createdAt))
 const updatedAt = computed(() => new Date(props.jobOrder.updatedAt))

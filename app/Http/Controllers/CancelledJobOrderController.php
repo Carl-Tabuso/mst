@@ -6,19 +6,27 @@ use App\Enums\JobOrderStatus;
 use App\Http\Requests\CreateCancelledJobOrderRequest;
 use App\Models\JobOrder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class CancelledJobOrderController extends Controller
 {
     public function create(CreateCancelledJobOrderRequest $request, JobOrder $jobOrder): RedirectResponse
     {
-        $jobOrder->cancel()->create([
-            'reason' => $request->safe()->input('reason'),
+        $status = $request->safe()->enum('status', JobOrderStatus::class);
+
+        DB::transaction(function () use ($request, $jobOrder, $status) {
+            $jobOrder->cancel()->create([
+                'reason' => $request->safe()->input('reason'),
+            ]);
+
+            $jobOrder->update(['status' => $status]);
+        });
+
+        $message = __('responses.job_order.close', [
+            'ticket' => $jobOrder->ticket,
+            'status' => $status->getLabel(),
         ]);
 
-        $jobOrder->update([
-            'status' => $request->safe()->enum('status', JobOrderStatus::class),
-        ]);
-
-        return back();
+        return back()->with(compact('message'));
     }
 }

@@ -81,12 +81,13 @@ type manualStatusUpdaterType = {
   next: {
     tag: JobOrderStatus
     label: string
+    description: string
   }
   stop: {
     tag: JobOrderStatus
     label: string
+    description: string
   }
-  description?: string
 }
 
 export const manualUpdateStatuses: manualStatusUpdaterType[] = [
@@ -95,39 +96,45 @@ export const manualUpdateStatuses: manualStatusUpdaterType[] = [
     next: {
       tag: 'for proposal',
       label: 'Mark as viewed',
+      description:
+        'This will mark the ticket as For Proposal and will proceed to the proposal stage.',
     },
     stop: {
       tag: 'dropped',
       label: 'Mark as dropped',
+      description:
+        'This will mark the ticket as Dropped, indicating the client did not want to proceed with the ocular inspection.',
     },
-    description:
-      'Choose “Mark as viewed” if the business client will proceed to the proposal stage, or “Mark as dropped” if they have decided not to move forward to ocular inspection.',
   },
   {
     id: 'for proposal',
     next: {
       tag: 'successful',
       label: 'Mark as successful',
+      description:
+        'This will mark the ticket as Successful, indicating the client accepted the proposal terms and conditions.',
     },
     stop: {
       tag: 'failed',
       label: 'Mark as failed',
+      description:
+        'This will mark the ticket as Failed, indicating the client did not accept the proposal or chose not to proceed.',
     },
-    description:
-      'Choose “Mark as successful if the business client accepted the proposal terms and conditions, otherwise “Mark as failed if they have decided not to move forward.',
   },
   {
     id: 'in-progress',
     next: {
       tag: 'for verification',
       label: 'Mark as for verification',
+      description:
+        'This will mark the ticket as For Verification, signaling that all hauling activities are complete and ready for validation.',
     },
     stop: {
       tag: 'closed',
       label: 'Mark as closed',
+      description:
+        'This will permanently close the ticket, indicating that the work cannot proceed or has been concluded prematurely.',
     },
-    description:
-      'Choose “Mark as for verification” if all hauling activities are complete and ready for HR incident report verification, or “Mark as closed” if work cannot proceed due to unforeseen circumstances.',
   },
 ]
 

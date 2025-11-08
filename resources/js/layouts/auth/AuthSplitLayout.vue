@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <div class="grid h-screen grid-cols-1 lg:grid-cols-2">
     <div
-      class="lg:pt-42 hidden flex-col items-start justify-center space-y-4 px-4 pt-16 text-start sm:px-8 md:space-y-6 md:px-10 md:pt-32 lg:flex"
+      class="hidden flex-col items-start justify-center space-y-4 px-4 pt-16 text-start sm:px-8 md:space-y-6 md:px-10 md:pt-32 lg:flex lg:p-12"
     >
       <div
         class="flex aspect-square rounded-full bg-white text-sidebar-primary-foreground"
@@ -20,7 +20,7 @@ defineProps<{
         />
       </div>
       <h2
-        class="mb-2 border-b-2 border-tertiary pb-4 text-2xl font-bold text-primary sm:text-3xl md:mb-4 md:border-b-4 md:pb-6 md:text-4xl lg:max-w-xl lg:text-5xl"
+        class="mb-2 border-b-2 border-tertiary pb-4 text-2xl font-bold text-primary sm:text-3xl md:mb-4 md:border-b-4 md:pb-6 md:text-4xl lg:max-w-3xl lg:text-5xl"
       >
         Track, Assign, Complete.
       </h2>

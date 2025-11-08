@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SidebarProvider } from '@/components/ui/sidebar'
-import { onMounted, ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { Toaster } from './ui/sonner'
 
 interface Props {
@@ -11,7 +11,7 @@ defineProps<Props>()
 
 const isOpen = ref(true)
 
-onMounted(() => {
+onBeforeMount(() => {
   isOpen.value = localStorage.getItem('sidebar') !== 'false'
 })
 

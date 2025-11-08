@@ -265,7 +265,6 @@ export interface Form3AssignedPersonnel {
   updatedAt: string
   hauling: Form3Hauling
   teamLeader: Employee | null
-  teamDriver: Employee | null
   safetyOfficer: Employee | null
   teamMechanic: Employee | null
 }
@@ -332,9 +331,10 @@ export interface Truck {
   id: number
   model: string
   plateNo: string
-  creator?: Employee | null
+  creator: Employee | null
   createdAt: string
   updatedAt: string
+  archivedAt: string | null
 }
 
 export interface Position {
