@@ -63,6 +63,10 @@ const onDriverSelect = (driver: Employee) => {
 const firstDriver = computed(() => selectedDrivers.value?.[0])
 
 const canEdit = computed(() => props.isAuthorize && props.isOpen)
+
+const isPopoverTriggerDisabled = computed(
+  () => selectedDrivers.value.length < 2 && !props.isOpen,
+)
 </script>
 
 <template>
@@ -72,6 +76,7 @@ const canEdit = computed(() => props.isAuthorize && props.isOpen)
       <PopoverTrigger
         class="w-full sm:w-[400px]"
         as-child
+        :disabled="isPopoverTriggerDisabled"
       >
         <Button
           variant="outline"
