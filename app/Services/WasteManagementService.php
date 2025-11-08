@@ -279,11 +279,13 @@ class WasteManagementService
                         ? $hauling->trucks()->detach()
                         : $hauling->trucks()->sync($mapped['trucks']);
 
-                    $hauling->update([
-                        'status' => $isForSafetyInspectionChecklist
-                            ? HaulingStatus::ForSafetyInspection
-                            : HaulingStatus::ForPersonnelAssignment,
-                    ]);
+                    if ($hauling->isOpen()) {
+                        $hauling->update([
+                            'status' => $isForSafetyInspectionChecklist
+                                ? HaulingStatus::ForSafetyInspection
+                                : HaulingStatus::ForPersonnelAssignment,
+                        ]);
+                    }
                 });
             });
     }
