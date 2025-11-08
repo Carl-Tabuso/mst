@@ -24,9 +24,6 @@ class EmployeeRatingController extends Controller
     private const CONSULTANT_POSITION = 'Consultant';
     private const OVERALL_CATEGORY_ID = 1;
 
-    private static $completedJobOrdersCache = null;
-    private static $form3ToJobOrderMapCache = null;
-
     // ==================== MAIN METHODS ====================
 
     public function index(Request $request)
@@ -142,9 +139,6 @@ class EmployeeRatingController extends Controller
 
         $paginatedEmployees = $this->paginateEmployees($filteredEmployees, $request);
 
-        self::$completedJobOrdersCache = null;
-        self::$form3ToJobOrderMapCache = null;
-
         return inertia('ratings/pages/RatingTable', [
             'employees'        => $paginatedEmployees,
             'allowedPositions' => self::ALLOWED_POSITIONS,
@@ -196,9 +190,6 @@ class EmployeeRatingController extends Controller
             }
 
             $filename = $this->generateExportFilename($filters);
-
-            self::$completedJobOrdersCache = null;
-            self::$form3ToJobOrderMapCache = null;
 
             return Excel::download(
                 new EmployeeRatingsExport($filteredEmployees, $filters),
@@ -262,38 +253,19 @@ class EmployeeRatingController extends Controller
         }
     }
 
-    private function getCompletedJobOrdersWithForm3()
-    {
-        if (self::$completedJobOrdersCache !== null) {
-            return self::$completedJobOrdersCache;
-        }
-
-        self::$completedJobOrdersCache = JobOrder::where('status', JobOrderStatus::Completed)
-            ->where('serviceable_type', 'form4')
-            ->with(['serviceable.form3'])
-            ->get();
-
-        return self::$completedJobOrdersCache;
-    }
-
     private function getForm3ToJobOrderCountMap()
     {
-        if (self::$form3ToJobOrderMapCache !== null) {
-            return self::$form3ToJobOrderMapCache;
-        }
-
-        $jobOrders = $this->getCompletedJobOrdersWithForm3();
-
-        $map = [];
-        foreach ($jobOrders as $jobOrder) {
-            $form3Id = optional(optional($jobOrder->serviceable)->form3)->id;
-            if ($form3Id) {
-                $map[$form3Id] = ($map[$form3Id] ?? 0) + 1;
-            }
-        }
-
-        self::$form3ToJobOrderMapCache = $map;
-        return $map;
+        return DB::table('job_orders as jo')
+            ->join('form4 as f4', function ($join) {
+                $join->on('jo.serviceable_id', '=', 'f4.id')
+                    ->where('jo.serviceable_type', '=', 'form4');
+            })
+            ->join('form3 as f3', 'f4.id', '=', 'f3.form4_id')
+            ->where('jo.status', JobOrderStatus::Completed)
+            ->select('f3.id as form3_id', DB::raw('COUNT(*) as job_count'))
+            ->groupBy('f3.id')
+            ->pluck('job_count', 'form3_id')
+            ->toArray();
     }
 
     private function bulkCalculateJobOrdersAttended($employees)
@@ -555,7 +527,6 @@ class EmployeeRatingController extends Controller
             $jobOrder->rating_status = in_array($form3Id, $alreadyRatedForm3Ids)
                 ? 'Evaluation Done'
                 : 'To be Evaluated';
-            $jobOrder->ticket = $jobOrder->ticket;
 
             return $jobOrder;
         });
