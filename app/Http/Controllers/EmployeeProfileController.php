@@ -312,24 +312,6 @@ class EmployeeProfileController extends Controller
             ->values();
     }
 
-    private function pluckJobOrdersFromDrivers($form3Drivers)
-    {
-        return $form3Drivers
-            ->map(fn ($form3Driver) => $form3Driver->form3Hauling?->form3?->form4?->jobOrder)
-            ->filter()
-            ->unique('id')
-            ->values();
-    }
-
-    private function pluckJobOrdersFromDrivers($form3Drivers)
-    {
-        return $form3Drivers
-            ->map(fn ($form3Driver) => $form3Driver->form3Hauling?->form3?->form4?->jobOrder)
-            ->filter()
-            ->unique('id')
-            ->values();
-    }
-
     private function pluckJobOrdersFromPersonnelAssignments($personnelAssignments)
     {
         return $personnelAssignments
