@@ -480,11 +480,24 @@ class EmployeeRatingController extends Controller
 
     private function getFilteredJobOrders($filters, $allForm3Ids, $alreadyRatedForm3Ids)
     {
+        if (empty($allForm3Ids)) {
+            return collect([]);
+        }
+
         $query = JobOrder::where('status', JobOrderStatus::Completed)
             ->where('serviceable_type', 'form4')
+            ->whereHas('serviceable.form3', function ($q) use ($allForm3Ids) {
+                $q->whereIn('form3.id', $allForm3Ids);
+            })
             ->with([
-                'serviceable',
-                'serviceable.form3',
+                'serviceable' => function ($q) use ($allForm3Ids) {
+                    $q->whereHas('form3', function ($subQ) use ($allForm3Ids) {
+                        $subQ->whereIn('id', $allForm3Ids);
+                    });
+                },
+                'serviceable.form3' => function ($q) use ($allForm3Ids) {
+                    $q->whereIn('id', $allForm3Ids);
+                },
                 'serviceable.form3.haulings.haulers.position',
                 'serviceable.form3.haulings.drivers.position',
                 'serviceable.form3.haulings.assignedPersonnel.teamLeader.position',
@@ -517,12 +530,7 @@ class EmployeeRatingController extends Controller
 
         $completedJobOrders = $query->get();
 
-        $filtered = $completedJobOrders->filter(function ($jobOrder) use ($allForm3Ids) {
-            $form3Id = optional(optional($jobOrder->serviceable)->form3)->id;
-            return $form3Id && in_array($form3Id, $allForm3Ids);
-        })->values();
-
-        $filtered = $filtered->map(function ($jobOrder) use ($alreadyRatedForm3Ids) {
+        $filtered = $completedJobOrders->map(function ($jobOrder) use ($alreadyRatedForm3Ids) {
             $form3Id                 = optional(optional($jobOrder->serviceable)->form3)->id;
             $jobOrder->rating_status = in_array($form3Id, $alreadyRatedForm3Ids)
                 ? 'Evaluation Done'
