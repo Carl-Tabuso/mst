@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Enums\JobOrderStatus;
@@ -21,10 +20,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeRatingController extends Controller
 {
-    private const ALLOWED_POSITIONS = ['Driver', 'Hauler', 'Team Leader', 'Safety Officer', 'Mechanic'];
-
+    private const ALLOWED_POSITIONS   = ['Driver', 'Hauler', 'Team Leader', 'Safety Officer', 'Mechanic'];
     private const CONSULTANT_POSITION = 'Consultant';
-
     private const OVERALL_CATEGORY_ID = 1;
 
     // ==================== MAIN METHODS ====================
@@ -129,7 +126,6 @@ class EmployeeRatingController extends Controller
         $this->processRatings($data['ratings'], $employee, $summary);
 
         return back()->with('success', 'Performance ratings submitted successfully!');
-
     }
 
     public function ratingsTable(Request $request)
@@ -184,7 +180,6 @@ class EmployeeRatingController extends Controller
 
     public function export(Request $request)
     {
-
         try {
             $filters = $this->parseTableFilters($request);
 
@@ -218,7 +213,6 @@ class EmployeeRatingController extends Controller
 
     public function exportHistory(Request $request, $employeeId)
     {
-
         $employee = Employee::with([
             'performancesAsEmployee.jobOrder',
             'performancesAsEmployee.ratings.performanceRating',
@@ -257,6 +251,125 @@ class EmployeeRatingController extends Controller
 
             return response()->json(['error' => 'Export failed. Please try again.'], 500);
         }
+    }
+
+    private function getForm3ToJobOrderCountMap()
+    {
+        return DB::table('job_orders as jo')
+            ->join('form4 as f4', function ($join) {
+                $join->on('jo.serviceable_id', '=', 'f4.id')
+                    ->where('jo.serviceable_type', '=', 'form4');
+            })
+            ->join('form3 as f3', 'f4.id', '=', 'f3.form4_id')
+            ->where('jo.status', JobOrderStatus::Completed)
+            ->select('f3.id as form3_id', DB::raw('COUNT(*) as job_count'))
+            ->groupBy('f3.id')
+            ->pluck('job_count', 'form3_id')
+            ->toArray();
+    }
+
+    private function bulkCalculateJobOrdersAttended($employees)
+    {
+        $employeeIds = $employees->pluck('id')->toArray();
+
+        $haulerForm3Map = DB::table('form3_haulers')
+            ->join('form3_haulings', 'form3_haulers.form3_hauling_id', '=', 'form3_haulings.id')
+            ->whereIn('form3_haulers.hauler', $employeeIds)
+            ->select('form3_haulers.hauler as employee_id', 'form3_haulings.form3_id')
+            ->distinct()
+            ->get()
+            ->groupBy('employee_id')
+            ->map(fn($group) => $group->pluck('form3_id')->toArray())
+            ->toArray();
+
+        $driverForm3Map = DB::table('form3_drivers')
+            ->join('form3_haulings', 'form3_drivers.form3_hauling_id', '=', 'form3_haulings.id')
+            ->whereIn('form3_drivers.driver', $employeeIds)
+            ->select('form3_drivers.driver as employee_id', 'form3_haulings.form3_id')
+            ->distinct()
+            ->get()
+            ->groupBy('employee_id')
+            ->map(fn($group) => $group->pluck('form3_id')->toArray())
+            ->toArray();
+
+        $personnelForm3Map = DB::table('form3_assigned_personnels as fap')
+            ->join('form3_haulings as fh', 'fap.form3_hauling_id', '=', 'fh.id')
+            ->whereIn('fap.team_leader', $employeeIds)
+            ->select('fap.team_leader as employee_id', 'fh.form3_id')
+            ->distinct()
+            ->get()
+            ->groupBy('employee_id')
+            ->map(fn($group) => $group->pluck('form3_id')->toArray())
+            ->toArray();
+
+        $form3CountMap = $this->getForm3ToJobOrderCountMap();
+
+        $resultMap = [];
+        foreach ($employeeIds as $employeeId) {
+            $allForm3Ids = array_unique(array_merge(
+                $haulerForm3Map[$employeeId] ?? [],
+                $driverForm3Map[$employeeId] ?? [],
+                $personnelForm3Map[$employeeId] ?? []
+            ));
+
+            $count = 0;
+            foreach ($allForm3Ids as $form3Id) {
+                $count += $form3CountMap[$form3Id] ?? 0;
+            }
+
+            $resultMap[$employeeId] = $count;
+        }
+
+        return $resultMap;
+    }
+
+    private function getFilteredEmployees($filters)
+    {
+        $query = Employee::with([
+            'position',
+            'performancesAsEmployee' => function ($q) {
+                $q->whereNull('deleted_at')
+                    ->with('ratings.performanceRating');
+            },
+        ])->whereHas('position', fn($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
+
+        if ($filters['positions']) {
+            $validPositions = array_intersect($filters['positions'], self::ALLOWED_POSITIONS);
+            if ($validPositions) {
+                $query->whereHas('position', fn($q) => $q->whereIn('name', $validPositions));
+            }
+        }
+
+        if (in_array($filters['sort'], ['name_asc', 'name_desc'])) {
+            $this->applySorting($query, $filters['sort']);
+        }
+
+        $employees = $query->get();
+
+        $jobOrdersMap = $this->bulkCalculateJobOrdersAttended($employees);
+
+        $transformedEmployees = $employees->map(function ($employee) use ($jobOrdersMap) {
+            $ratings = $employee->performancesAsEmployee
+                ->flatMap(fn($perf) => $perf->ratings)
+                ->pluck('performanceRating.scale')
+                ->filter();
+
+            $averageRating = $ratings->count() ? round($ratings->avg(), 2) : null;
+
+            $jobOrdersAttended = $jobOrdersMap[$employee->id] ?? 0;
+
+            return (object) [
+                'id'                  => $employee->id,
+                'full_name'           => $employee->full_name,
+                'position'            => $employee->position?->name ?? '',
+                'average_rating'      => $averageRating,
+                'has_ratings'         => $ratings->count() > 0,
+                'total_ratings'       => $ratings->count(),
+                'job_orders_attended' => $jobOrdersAttended,
+            ];
+        });
+
+        return $this->applyPostQueryFilters($transformedEmployees, $filters);
     }
 
     // ==================== TICKET HANDLING METHODS ====================
@@ -316,11 +429,9 @@ class EmployeeRatingController extends Controller
 
     private function getAuthorizedForm3Ids($employee)
     {
-
         $personnelForm3Ids = Form3::query()
             ->whereHas('haulings.assignedPersonnel', function ($q) use ($employee) {
                 $q->where('team_leader', $employee->id);
-
             })
             ->pluck('id')
             ->toArray();
@@ -340,7 +451,6 @@ class EmployeeRatingController extends Controller
             ->toArray();
 
         return array_unique(array_merge($haulerForm3Ids, $driverForm3Ids, $personnelForm3Ids));
-
     }
 
     private function getAlreadyRatedForm3Ids($employee)
@@ -370,16 +480,19 @@ class EmployeeRatingController extends Controller
 
     private function getFilteredJobOrders($filters, $allForm3Ids, $alreadyRatedForm3Ids)
     {
+        if (empty($allForm3Ids)) {
+            return collect([]);
+        }
+
         $query = JobOrder::where('status', JobOrderStatus::Completed)
             ->where('serviceable_type', 'form4')
+            ->whereHasMorph('serviceable', ['App\Models\Form4'], function ($q) use ($allForm3Ids) {
+                $q->whereHas('form3', function ($subQ) use ($allForm3Ids) {
+                    $subQ->whereIn('id', $allForm3Ids);
+                });
+            })
             ->with([
-                'serviceable',
                 'serviceable.form3',
-                'serviceable.form3.haulings.haulers.position',
-                'serviceable.form3.haulings.drivers.position',
-
-                'serviceable.form3.haulings.assignedPersonnel.teamLeader.position',
-
             ])
             ->latest();
 
@@ -409,18 +522,11 @@ class EmployeeRatingController extends Controller
 
         $completedJobOrders = $query->get();
 
-        $filtered = $completedJobOrders->filter(function ($jobOrder) use ($allForm3Ids) {
-            $form3Id = optional(optional($jobOrder->serviceable)->form3)->id;
-
-            return $form3Id && in_array($form3Id, $allForm3Ids);
-        })->values();
-
-        $filtered = $filtered->map(function ($jobOrder) use ($alreadyRatedForm3Ids) {
+        $filtered = $completedJobOrders->map(function ($jobOrder) use ($alreadyRatedForm3Ids) {
             $form3Id                 = optional(optional($jobOrder->serviceable)->form3)->id;
             $jobOrder->rating_status = in_array($form3Id, $alreadyRatedForm3Ids)
                 ? 'Evaluation Done'
                 : 'To be Evaluated';
-            $jobOrder->ticket = $jobOrder->ticket;
 
             return $jobOrder;
         });
@@ -455,10 +561,8 @@ class EmployeeRatingController extends Controller
                 'serviceable.form3.haulings.haulers.account',
                 'serviceable.form3.haulings.drivers.position',
                 'serviceable.form3.haulings.drivers.account',
-
                 'serviceable.form3.haulings.assignedPersonnel.teamLeader.position',
                 'serviceable.form3.haulings.assignedPersonnel.teamLeader.account',
-
                 'serviceable.form3.haulings.assignedPersonnel.safetyOfficer.position',
                 'serviceable.form3.haulings.assignedPersonnel.safetyOfficer.account',
                 'serviceable.form3.haulings.assignedPersonnel.teamMechanic.position',
@@ -487,7 +591,7 @@ class EmployeeRatingController extends Controller
             ->with([
                 'serviceable.form3',
                 'performanceSummary',
-                'employeePerformances' => fn ($q) => $q->where('evaluator_id', $employee->id)
+                'employeePerformances' => fn($q) => $q->where('evaluator_id', $employee->id)
                     ->with([
                         'evaluatee.position',
                         'evaluatee.account',
@@ -549,7 +653,6 @@ class EmployeeRatingController extends Controller
             if ($personnel) {
                 $roles = [
                     'team_leader'    => $personnel->teamLeader,
-
                     'safety_officer' => $personnel->safetyOfficer,
                     'team_mechanic'  => $personnel->teamMechanic,
                 ];
@@ -621,7 +724,6 @@ class EmployeeRatingController extends Controller
 
             if ($hauling->drivers->contains('id', $employee->id)) {
                 return 'driver';
-
             }
 
             if ($hauling->haulers->contains('id', $employee->id)) {
@@ -632,84 +734,13 @@ class EmployeeRatingController extends Controller
         return 'unknown';
     }
 
-    // ==================== EMPLOYEE RATINGS TABLE METHODS ====================
-
-    private function getFilteredEmployees($filters)
-    {
-        $query = Employee::with([
-            'position',
-            'performancesAsEmployee' => function ($q) {
-                $q->whereNull('deleted_at')
-                    ->with('ratings.performanceRating');
-            },
-        ])->whereHas('position', fn ($q) => $q->whereIn('name', self::ALLOWED_POSITIONS));
-
-        if ($filters['positions']) {
-            $validPositions = array_intersect($filters['positions'], self::ALLOWED_POSITIONS);
-            if ($validPositions) {
-                $query->whereHas('position', fn ($q) => $q->whereIn('name', $validPositions));
-            }
-        }
-
-        if (in_array($filters['sort'], ['name_asc', 'name_desc'])) {
-            $this->applySorting($query, $filters['sort']);
-        }
-
-        $employees = $query->get();
-
-        $transformedEmployees = $employees->map(function ($employee) {
-            $ratings = $employee->performancesAsEmployee
-                ->flatMap(fn ($perf) => $perf->ratings)
-                ->pluck('performanceRating.scale')
-                ->filter();
-
-            $averageRating = $ratings->count() ? round($ratings->avg(), 2) : null;
-
-            $jobOrdersAttended = $this->calculateJobOrdersAttended($employee);
-
-            return (object) [
-                'id'                  => $employee->id,
-                'full_name'           => $employee->full_name,
-                'position'            => $employee->position?->name ?? '',
-                'average_rating'      => $averageRating,
-                'has_ratings'         => $ratings->count() > 0,
-                'total_ratings'       => $ratings->count(),
-                'job_orders_attended' => $jobOrdersAttended,
-            ];
-        });
-
-        return $this->applyPostQueryFilters($transformedEmployees, $filters);
-    }
-
-    private function calculateJobOrdersAttended($employee)
-    {
-        $authorizedForm3Ids = $this->getAuthorizedForm3Ids($employee);
-
-        if (empty($authorizedForm3Ids)) {
-            return 0;
-        }
-
-        $completedJobOrders = JobOrder::where('status', JobOrderStatus::Completed)
-            ->where('serviceable_type', 'form4')
-            ->with(['serviceable.form3'])
-            ->get();
-
-        $attendedCount = $completedJobOrders->filter(function ($jobOrder) use ($authorizedForm3Ids) {
-            $form3Id = optional(optional($jobOrder->serviceable)->form3)->id;
-
-            return $form3Id && in_array($form3Id, $authorizedForm3Ids);
-        })->count();
-
-        return $attendedCount;
-    }
-
     private function applySearch($employees, $search)
     {
         $searchTerm = strtolower(trim($search));
 
         return $employees->filter(function ($employee) use ($searchTerm) {
             return str_contains(strtolower($employee->full_name), $searchTerm) ||
-            str_contains(strtolower($employee->position), $searchTerm)         ||
+            str_contains(strtolower($employee->position), $searchTerm) ||
             str_contains((string) $employee->id, $searchTerm);
         })->values();
     }
@@ -765,7 +796,7 @@ class EmployeeRatingController extends Controller
                 return [
                     'job_order_id'     => $perf->jobOrder?->id,
                     'job_order_ticket' => $perf->jobOrder?->ticket,
-                    'from'             => $perf->evaluator?->full_name       ?? '',
+                    'from'             => $perf->evaluator?->full_name ?? '',
                     'from_position'    => $perf->evaluator?->position?->name ?? '',
                     'scale'            => $rating->performanceRating?->scale ?? null,
                     'description'      => $rating->description,
@@ -815,10 +846,10 @@ class EmployeeRatingController extends Controller
         $searchTerm = strtolower(trim($search));
 
         return $ratings->filter(function ($rating) use ($searchTerm) {
-            return str_contains(strtolower($rating['from']), $searchTerm)            ||
-            str_contains(strtolower($rating['from_position']), $searchTerm)          ||
-            str_contains(strtolower($rating['description'] ?? ''), $searchTerm)      ||
-            str_contains((string) $rating['job_order_id'], $searchTerm)              ||
+            return str_contains(strtolower($rating['from']), $searchTerm) ||
+            str_contains(strtolower($rating['from_position']), $searchTerm) ||
+            str_contains(strtolower($rating['description'] ?? ''), $searchTerm) ||
+            str_contains((string) $rating['job_order_id'], $searchTerm) ||
             str_contains(strtolower($rating['job_order_ticket'] ?? ''), $searchTerm) ||
             str_contains((string) $rating['scale'], $searchTerm);
         });
@@ -841,7 +872,7 @@ class EmployeeRatingController extends Controller
 
         if ($filters['scale_from'] !== null || $filters['scale_to'] !== null) {
             $from    = $filters['scale_from'] ?? 'min';
-            $to      = $filters['scale_to']   ?? 'max';
+            $to      = $filters['scale_to'] ?? 'max';
             $parts[] = "rating-{$from}-to-{$to}";
         }
 
@@ -859,11 +890,11 @@ class EmployeeRatingController extends Controller
                 'scale_desc' => 'rating-desc',
             ];
             if (isset($sortMap[$filters['sort']])) {
-                $parts[] = 'sort-'.$sortMap[$filters['sort']];
+                $parts[] = 'sort-' . $sortMap[$filters['sort']];
             }
         }
 
-        return $parts ? '_'.implode('_', $parts) : '';
+        return $parts ? '_' . implode('_', $parts) : '';
     }
 
     // ==================== VALIDATION & DATA PROCESSING ====================
@@ -934,9 +965,9 @@ class EmployeeRatingController extends Controller
 
         return [
             'search'            => $request->get('search'),
-            'statuses'          => $filters['statuses']          ?? [],
+            'statuses'          => $filters['statuses'] ?? [],
             'fromDateOfService' => $filters['fromDateOfService'] ?? '',
-            'toDateOfService'   => $filters['toDateOfService']   ?? '',
+            'toDateOfService'   => $filters['toDateOfService'] ?? '',
         ];
     }
 
@@ -1061,23 +1092,23 @@ class EmployeeRatingController extends Controller
         $parts = [];
 
         if ($filters['positions']) {
-            $parts[] = 'pos-'.implode('-', array_map('strtolower', $filters['positions']));
+            $parts[] = 'pos-' . implode('-', array_map('strtolower', $filters['positions']));
         }
 
         if ($filters['evaluation_status']) {
-            $parts[] = 'eval-'.implode('-', $filters['evaluation_status']);
+            $parts[] = 'eval-' . implode('-', $filters['evaluation_status']);
         }
 
         if ($filters['rating_from'] !== null || $filters['rating_to'] !== null) {
             $from    = $filters['rating_from'] ?? 'min';
-            $to      = $filters['rating_to']   ?? 'max';
+            $to      = $filters['rating_to'] ?? 'max';
             $parts[] = "rating-{$from}-to-{$to}";
         }
 
         if ($filters['search']) {
-            $parts[] = 'search-'.preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
+            $parts[] = 'search-' . preg_replace('/[^a-zA-Z0-9]/', '', substr($filters['search'], 0, 10));
         }
 
-        return $parts ? '_'.implode('_', $parts) : '';
+        return $parts ? '_' . implode('_', $parts) : '';
     }
 }
