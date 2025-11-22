@@ -9,7 +9,7 @@ class SearchDetails
 {
     public function __construct(private ?string $searchQuery = '') {}
 
-    public function __invoke(Builder $query, Closure $next)
+    public function __invoke(Builder $query, Closure $next): mixed
     {
         if (! $this->searchQuery) {
             return $next($query);
@@ -20,6 +20,6 @@ class SearchDetails
             'plate_no',
         ], 'like', "%{$this->searchQuery}%"));
 
-        return $query;
+        return $next($query);
     }
 }
