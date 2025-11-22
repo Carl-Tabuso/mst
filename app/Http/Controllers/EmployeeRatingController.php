@@ -486,21 +486,13 @@ class EmployeeRatingController extends Controller
 
         $query = JobOrder::where('status', JobOrderStatus::Completed)
             ->where('serviceable_type', 'form4')
-            ->whereHas('serviceable.form3', function ($q) use ($allForm3Ids) {
-                $q->whereIn('form3.id', $allForm3Ids);
+            ->whereHasMorph('serviceable', ['App\Models\Form4'], function ($q) use ($allForm3Ids) {
+                $q->whereHas('form3', function ($subQ) use ($allForm3Ids) {
+                    $subQ->whereIn('id', $allForm3Ids);
+                });
             })
             ->with([
-                'serviceable' => function ($q) use ($allForm3Ids) {
-                    $q->whereHas('form3', function ($subQ) use ($allForm3Ids) {
-                        $subQ->whereIn('id', $allForm3Ids);
-                    });
-                },
-                'serviceable.form3' => function ($q) use ($allForm3Ids) {
-                    $q->whereIn('id', $allForm3Ids);
-                },
-                'serviceable.form3.haulings.haulers.position',
-                'serviceable.form3.haulings.drivers.position',
-                'serviceable.form3.haulings.assignedPersonnel.teamLeader.position',
+                'serviceable.form3',
             ])
             ->latest();
 
